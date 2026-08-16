@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "checkpoint": "C1-B1",
+  "result": "pass",
+  "timestamp_utc": "2026-08-16T22:55:23Z",
+  "tested_commit": "476c075891e50e5525b3aa3acc3430415ff018d3",
+  "tested_tree": "36712636d4cfdb0a6859c2b9160cc532d8d9deeb",
+  "worktree_state": "Clean tracked worktree at validation; this manifest, the final acceptance record, and the checkpoint log were added afterward as evidence-only files.",
+  "environment": {
+    "os": "macOS 15.7.7 (24G720)",
+    "architecture": "x86_64",
+    "python": "3.12.13"
+  },
+  "lock_sha256": "8f6f7e76f28f78a973c60d7cd54056ed8d3969bce5488a053f4dc1fef0539be4",
+  "commands": [
+    {
+      "command": "python3.12 -m venv .venv",
+      "exit_status": 0
+    },
+    {
+      "command": ".venv/bin/python -m pip install --require-hashes -r requirements-dev.lock",
+      "exit_status": 0
+    },
+    {
+      "command": ".venv/bin/python -m pip install --no-build-isolation --no-deps -e .",
+      "exit_status": 0
+    },
+    {
+      "command": ".venv/bin/python -m ruff check .",
+      "exit_status": 0
+    },
+    {
+      "command": ".venv/bin/python -m mypy src",
+      "exit_status": 0
+    },
+    {
+      "command": ".venv/bin/python -m pytest -m \"not hardware\"",
+      "exit_status": 0
+    },
+    {
+      "command": ".venv/bin/python -m pico_logic_analyzer --help",
+      "exit_status": 0
+    },
+    {
+      "command": "curl -sS https://api.github.com/repos/eparadis/pico2-logicanalyzer/actions/runs/31977526293",
+      "exit_status": 0
+    },
+    {
+      "command": "curl -sS https://api.github.com/repos/eparadis/pico2-logicanalyzer/actions/runs/31977526293/jobs",
+      "exit_status": 0
+    }
+  ],
+  "verifier": "/root/c1_b1_protocol_verification; /root/c1_b1_acceptance",
+  "sources": [
+    {
+      "category": "firmware-source",
+      "revision": "b7a9f91962e952b5317b8239c794f3eed85955b4",
+      "artifact": "Software/LogicAnalyzerPy/docs/protocol-fixture-provenance.md",
+      "artifact_sha256": "a075e80d9c20eaf1b0069b974f1538e41167bc5f381d6487e1c178b1a7874d1f"
+    },
+    {
+      "category": "csharp-source",
+      "revision": "b7a9f91962e952b5317b8239c794f3eed85955b4",
+      "artifact": "Software/LogicAnalyzerPy/docs/protocol-fixture-provenance.md",
+      "artifact_sha256": "a075e80d9c20eaf1b0069b974f1538e41167bc5f381d6487e1c178b1a7874d1f"
+    },
+    {
+      "category": "synthetic",
+      "revision": "476c075891e50e5525b3aa3acc3430415ff018d3",
+      "artifact": "Software/LogicAnalyzerPy/testdata/protocol/v2_identity_request.source.json",
+      "artifact_sha256": "84e740ab44ff738c093b924a1f0d6b7c3246190568677eb61c197e42fa634690"
+    },
+    {
+      "category": "synthetic",
+      "revision": "476c075891e50e5525b3aa3acc3430415ff018d3",
+      "artifact": "Software/LogicAnalyzerPy/testdata/protocol/v2_normal_8ch_rising.source.json",
+      "artifact_sha256": "6c0a3a5973c88f36021c280eab01a2e95680e47eebbc8a470959e70611cfe8cf"
+    },
+    {
+      "category": "synthetic",
+      "revision": "476c075891e50e5525b3aa3acc3430415ff018d3",
+      "artifact": "Software/LogicAnalyzerPy/testdata/protocol/v2_normal_8ch_falling.source.json",
+      "artifact_sha256": "742692fb87696d70b0e3105cf728ecf0ad072301d29b82281988bd1f30263398"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "Software/LogicAnalyzerPy/docs/protocol-fixture-provenance.md",
+      "sha256": "a075e80d9c20eaf1b0069b974f1538e41167bc5f381d6487e1c178b1a7874d1f"
+    },
+    {
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c1-b1-acceptance-round-3.md",
+      "sha256": "46668db8e0303a7d4c8e86f1b2900c909c32193f18533f5e9c0eaea78c03bf9b"
+    },
+    {
+      "path": "Software/LogicAnalyzerPy/testdata/protocol/v2_identity_request.source.json",
+      "sha256": "84e740ab44ff738c093b924a1f0d6b7c3246190568677eb61c197e42fa634690"
+    },
+    {
+      "path": "Software/LogicAnalyzerPy/testdata/protocol/v2_normal_8ch_rising.source.json",
+      "sha256": "6c0a3a5973c88f36021c280eab01a2e95680e47eebbc8a470959e70611cfe8cf"
+    },
+    {
+      "path": "Software/LogicAnalyzerPy/testdata/protocol/v2_normal_8ch_falling.source.json",
+      "sha256": "742692fb87696d70b0e3105cf728ecf0ad072301d29b82281988bd1f30263398"
+    }
+  ]
+}

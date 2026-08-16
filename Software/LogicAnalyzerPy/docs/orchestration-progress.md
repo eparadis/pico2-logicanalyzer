@@ -2,7 +2,7 @@
 
 ## C1-B1: Preflight, scaffold, and narrow protocol evidence
 
-- State: In progress
+- State: Complete
 - Objective: Create a runnable Python 3.12 skeleton and narrow V2 evidence without guessing a native binary layout.
 - Prerequisites: Approved preparatory documents; operator assertion of intended V2 target; writable workspace.
 - Implementation agent: `/root/c1_b1_implementation`
@@ -19,6 +19,55 @@
 - Risks/unknowns: no known-good C#/board trace is checked in; fixture provenance
   and deployed-layout confirmation are verifier/C1-B3 work. Linux/macOS CI must
   both pass before this checkpoint is accepted.
+
+- Acceptance history: rounds 1 and 2 recorded `changes_required` while the
+  clean-bootstrap, evidence-schema, and CI gates were resolved. Round 3 records
+  `pass` for the exact CI-tested candidate.
+
+### Checkpoint C1-B1 — Preflight, scaffold, and narrow protocol evidence
+
+- State: Complete
+- Completed at: 2026-08-16T22:55:23Z
+- Tested commit: `476c075891e50e5525b3aa3acc3430415ff018d3`
+- Tested tree: `36712636d4cfdb0a6859c2b9160cc532d8d9deeb`
+- Worktree state: clean tracked worktree at validation; the final acceptance
+  record, manifest, and this checkpoint record were added afterward as
+  evidence-only files.
+- Implementation agent: `/root/c1_b1_implementation`
+- Verification agent and verdict: `/root/c1_b1_protocol_verification`; pass for
+  source-derived protocol evidence with physical confirmation explicitly
+  deferred to C1-B3/C1-B4.
+- Acceptance agent: `/root/c1_b1_acceptance`; final round 3 verdict `pass`.
+- Environment: macOS 15.7.7 (24G720), x86_64, Python 3.12.13, lock SHA-256
+  `8f6f7e76f28f78a973c60d7cd54056ed8d3969bce5488a053f4dc1fef0539be4`;
+  GitHub-hosted `macos-latest` and `ubuntu-latest`, Python 3.12.
+- Objective evidence: hash-locked clean bootstrap; installed/module CLI help;
+  Ruff, mypy, and two non-hardware pytest tests; provenance-tagged identity and
+  rising/falling 48-byte request vectors; passing Linux/macOS GitHub Actions
+  run `31977526293` on the exact candidate.
+- Files changed: `.github/workflows/logic-analyzer-python-cycle1.yml` and the
+  new `Software/LogicAnalyzerPy/` scaffold, contracts, fixtures, tests, reviews,
+  progress log, and checkpoint manifest.
+- Focused commands: fixture byte/layout validator pass; `pico-la --help` pass;
+  `python -m pico_logic_analyzer --help` pass; `git diff --check` pass.
+- Accumulated commands: locked install and no-isolation/no-deps editable install
+  pass; `ruff check .` pass; `mypy src` pass; `pytest -m "not hardware"` pass
+  locally and in GitHub jobs `95239134146` (macOS) and `95239134210` (Ubuntu).
+- Hardware evidence: not applicable to C1-B1; no serial I/O was performed.
+- Evidence manifest: `Software/LogicAnalyzerPy/testdata/evidence/c1-b1.json`,
+  SHA-256 `12cb4dfe2bcd898cef4a7c5d9dd4803954c91e9965d17c22efe365d5976717bc`.
+- Decisions/discrepancies: explicit little-endian 48-byte native-layout fixture
+  is source-derived, not observed wire evidence; padding, polarity, identity,
+  and deployed ABI remain mandatory physical confirmations. Cycle 1 CSV is
+  self-timed and intentionally differs from the existing channel-only export.
+- Deferred findings: GUI, broader modes/connectivity, decoder hosting, legacy
+  CSV, and firmware/parser shortcomings remain in their later roadmap cycles.
+- Known limitations: operational serial/capture commands remain deliberately
+  unimplemented until C1-B2 through C1-B5; no known-good C#/board trace exists.
+- Repository state: tested commit was clean and preserves all tracked C# and
+  firmware sources; evidence-only files were then added for checkpointing.
+- Next batch: C1-B2; no unmet inputs.
+- Blocked: no
 
 ## Deferred work
 

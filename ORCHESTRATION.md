@@ -34,10 +34,11 @@ the progress log before proceeding.
 Build and verify a source-installed Python 3.12 command-line vertical slice
 that communicates over USB serial with one supported analyzer running
 `Firmware/LogicAnalyzer_V2`, reports its identity and capabilities, performs a
-normal 8-channel capture using a single-channel rising or falling edge trigger,
-exports deterministic CSV and a provisional replay artifact, closes safely,
-and successfully performs a second physical capture after closing and reopening
-the port.
+normal capture of logical channels D0–D7 with CLI support for both rising and
+falling single-channel edge triggers, exports deterministic CSV and a
+provisional replay artifact, recovers safely from an in-flight timeout or
+Ctrl-C using the characterized V2 cancellation byte, and successfully performs
+a second physical capture after closing and reopening the port.
 
 The result should already be useful for examining an 8-bit data bus or a
 selected group of clock, reset, read/write, chip-select, and interrupt signals
@@ -59,11 +60,16 @@ The Cycle 1 goal is complete only when all of the following are true:
 5. Given an operator-supplied serial port and known periodic input, the CLI
    reads the expected V2 identity and completes a capture whose sample count,
    width, edge polarity, and approximate measured frequency satisfy the checked-
-   in hardware procedure.
+   in hardware procedure. Both polarities are independently fake-tested; the
+   physical gate must exercise at least the operator-selected polarity and state
+   which polarity was physically tested.
 6. CSV and replay outputs reload or validate deterministically without object
    pickling or machine-local metadata.
-7. The port closes on success and failure paths, and a second physical capture
-   succeeds after explicit close/reopen.
+7. The port closes on success and failure paths. A no-trigger timeout or Ctrl-C
+   sends the characterized V2 `0xFF` cancellation/recovery byte, follows the
+   documented drain/timing/reopen/re-identification sequence, and leaves the
+   board reusable without a power cycle. A second physical capture succeeds
+   after explicit close/reopen.
 8. The final progress record identifies the exact commands, test results,
    hardware/firmware identity, sanitized evidence artifacts, known limitations,
    and remaining deferred work.
@@ -80,16 +86,20 @@ or its required inputs are unknown, the goal is not complete.
 - Minimal Python package and CLI scaffold.
 - Explicit `--port PATH`; best-effort candidate-port listing.
 - V2 identity/version/capability parsing.
-- Normal 8-channel capture only.
-- One selected rising/falling edge-trigger channel.
-- Raw 8-bit sample storage.
+- Normal capture of exactly logical channels D0–D7 in ascending request order.
+- Both rising and falling edge-trigger CLI values, with the trigger restricted
+  to one of D0–D7.
+- Raw 8-bit sample storage where raw bit position `i` is request-list position
+  `i`; retained metadata separately identifies logical/physical channel D`i`.
 - Deterministic CSV export.
 - A clearly provisional, versioned `.npz` replay artifact with pickling
   disabled and validated JSON or non-object-array metadata.
 - Finite configurable timeouts.
 - Disconnected, idle, and capturing states.
 - Exception-, disconnect-, and Ctrl-C-safe resource cleanup.
-- Close/reopen recovery.
+- The minimal internal V2 `0xFF` cancellation/recovery primitive needed for
+  timeout/Ctrl-C cleanup, followed by drain, close/reopen, and re-identification.
+- Close/reopen recovery after successful and failed capture attempts.
 - Fake/replay verification and the physical hardware gate.
 - Concise protocol and operator documentation for the implemented slice.
 
@@ -100,7 +110,8 @@ or its required inputs are unknown, the goal is not complete.
 - 16- and 24-channel modes.
 - TCP or Wi-Fi connectivity.
 - Complex, fast, blast, external, or burst capture modes.
-- Burst timestamps and graceful in-protocol abort.
+- Burst timestamps and a general public abort workflow beyond the minimal
+  internal V2 recovery primitive.
 - Sigrok decoder hosting.
 - Editing, regions, annotations, signal composition, or measurements beyond the
   hardware smoke's frequency check.
@@ -118,13 +129,23 @@ useful is not authority to bring it into Cycle 1.
 The following must be settled during document approval or the goal's initial
 preflight checkpoint:
 
-- The attached board is a supported V2 analyzer or its exact reported firmware
-  identity is available for comparison.
+- The operator asserts that the attached device is intended to run the V2
+  analyzer firmware. Exact reported identity is allowed to remain unresolved
+  until C1-B3; a mismatch there must pause the hardware path rather than rewrite
+  the baseline.
 - The operator can provide an explicit serial port path.
 - A safe periodic source, expected frequency, sample rate, trigger channel,
   edge polarity, pre-sample count, and post-sample count are supplied or can be
   derived from a checked-in test-signal procedure.
-- Analyzer ground and target ground can be connected safely.
+- Before any signal wire is connected, the operator records and confirms the
+  analyzer board variant, firmware build/identity if known, input-front-end or
+  level-shifter revision, target logic voltage, level-shifter VRef, permitted
+  analyzer input range, common-ground point, and D0–D7-to-header/GPIO map.
+- A bare Pico input must never receive 5 V. A 5 V SBC requires a compatible,
+  correctly referenced level shifter/probe. Unknown voltage, board revision,
+  VRef, input range, ground, or pin mapping blocks the physical path. A known
+  3.3 V periodic generator may be used for the simpler Cycle 1 proof when the
+  SBC electrical boundary is not yet characterized.
 - The host user has permission to open the serial device.
 - Dependency installation, if needed, can use the normal approval mechanism.
 
@@ -204,6 +225,9 @@ module.
 - Read repository files and inspect the existing application and firmware.
 - Create and edit implementation, tests, evidence, and working documentation
   under `Software/LogicAnalyzerPy/`.
+- Create and edit only `.github/workflows/logic-analyzer-python-cycle1.yml` for
+  the approved Linux/macOS Cycle 1 non-hardware validation. Other workflow
+  changes require explicit user direction.
 - Update the technical roadmap only to record factual discoveries or approved
   deferrals without changing this contract.
 - Run non-destructive format, type, unit, integration, and replay tests.
@@ -257,16 +281,21 @@ Canonical non-hardware commands, once the scaffold exists:
 
 ```bash
 cd Software/LogicAnalyzerPy
-python -m ruff check .
-python -m mypy src
-python -m pytest -m "not hardware"
-python -m pico_logic_analyzer --help
+python3.12 -m venv .venv
+.venv/bin/python -m pip install --require-hashes -r requirements-dev.lock
+.venv/bin/python -m pip install --no-deps -e .
+.venv/bin/python -m ruff check .
+.venv/bin/python -m mypy src
+.venv/bin/python -m pytest -m "not hardware"
+.venv/bin/python -m pico_logic_analyzer --help
 ```
 
-If the scaffold selects Pyright instead of mypy, the approved decision and
-replacement command must be recorded before implementation depends on it.
-Agents may add focused commands, but may not replace the accumulated suite with
-only focused tests.
+`requirements-dev.lock` must pin all transitive dependencies with hashes and is
+the dependency identity for Cycle 1. Linux and macOS CI must run this same
+bootstrap and validation sequence using Python 3.12. Changing installer, lock
+format, Python minor version, or type checker is a contract change requiring the
+document-review process. Agents may add focused commands, but may not replace
+the accumulated suite with only focused tests.
 
 The canonical physical command must be created and documented during Cycle 1.
 It must accept explicit parameters rather than hard-coded laboratory values. Its
@@ -292,6 +321,22 @@ The first batch creates:
 
 `Software/LogicAnalyzerPy/docs/orchestration-progress.md`
 
+It also defines a machine-readable evidence-manifest schema and stores one
+manifest per accepted checkpoint under
+`Software/LogicAnalyzerPy/testdata/evidence/`. Each manifest must contain:
+
+- tested full commit and tree hash, plus clean or explicitly qualified worktree
+  state;
+- UTC timestamp, OS/version, architecture, Python version, and SHA-256 of
+  `requirements-dev.lock`;
+- normalized command, exit status, and stable verifier identity;
+- fixture/evidence source category (`observed-wire`, `firmware-source`,
+  `csharp-source`, `synthetic`, or `hardware-observation`), source revision, and
+  artifact path plus SHA-256 when an artifact exists;
+- for hardware, sanitized board/firmware/front-end identity and all
+  non-sensitive signal/capture parameters, recording the actual port only as
+  `<PORT_SUPPLIED>`.
+
 Append one compact checkpoint record per batch using the template in
 `BATCH_EXECUTION.md`. Each record must name the checkpoint, changed files,
 verification commands/results, hardware evidence where applicable, remaining
@@ -300,6 +345,11 @@ work, deferrals, and whether the run is blocked.
 Machine-specific serial paths, credentials, and sensitive target details must
 not be committed. Hardware artifacts should be deterministic and sanitized;
 large or unstable captures should be summarized rather than committed.
+
+Final accumulated and hardware proofs must run against one identified candidate
+commit with no implementation changes afterward. Unrelated pre-existing changes
+must be enumerated and excluded; uncommitted implementation changes invalidate
+the completion proof.
 
 ## Failure, retry, and blocking policy
 
@@ -320,6 +370,7 @@ large or unstable captures should be summarized rather than committed.
 At Cycle 1 completion, produce a final summary that includes:
 
 - exact stopping-condition checklist with pass evidence;
+- the single tested candidate commit/tree and evidence-manifest digests;
 - canonical validation and hardware commands with results;
 - detected analyzer/firmware identity;
 - description and location of committed fixtures and sanitized artifacts;

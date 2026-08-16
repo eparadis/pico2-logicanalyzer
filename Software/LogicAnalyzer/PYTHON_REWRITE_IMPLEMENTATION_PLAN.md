@@ -543,10 +543,11 @@ Represent states explicitly, such as disconnected, idle, capturing, stopping,
 and failed. Ensure resources close on every exception path.
 
 For Cycle 1, only disconnected, idle, and capturing are required. All operations
-must have finite configurable timeouts. Timeout, Ctrl-C, disconnect, or parsing
-failure closes the serial port; close/reopen is the defined recovery mechanism.
-Implement stopping/failed refinements and protocol abort only after the abort
-exchange has traced fixtures.
+must have finite configurable timeouts. Timeout or Ctrl-C during capture uses
+the characterized internal V2 `0xFF` cancellation primitive, documented
+drain/timing, close/reopen, and re-identification sequence. Disconnect or parsing
+failure closes the port and reports whether reuse was proven. A richer public
+abort workflow and generalized stopping/failed states remain deferred.
 
 ### Work package P3-D: CLI
 
@@ -566,15 +567,28 @@ Capture configuration should also be accepted from a versioned JSON/TOML file.
 Do not encode the current CLCapture positional syntax as the only interface;
 optionally accept it through a compatibility subcommand.
 
-The Cycle 1 CLI surface is smaller: `devices`, `info --port PATH`, and
-`capture --port PATH`. Capture must expose channel selection, rising/falling
-edge, trigger channel, output path/format, and timeout. Frequency and pre/post
-sample counts may begin as recorded safe defaults, but the command must print or
-store their actual values and validation limits. Configuration files, JSON
-machine output, decoding, conversion, and compatibility syntax can wait until
-the core command behavior is stable.
+The authoritative Cycle 1 CLI surface, options, stdout/stderr rules, exit codes,
+atomic-output behavior, CSV columns, and replay-validation command are specified
+in `BATCH_EXECUTION.md`. Cycle 1 fixes the captured channel list to D0–D7 while
+requiring explicit sample rate, trigger, pre/post counts, CSV path, and replay
+path. Configuration files, decoding, conversion, and compatibility syntax wait
+until the core command behavior is stable.
 
-### Phase 3 gate
+### Cycle 1 transport/CLI gate
+
+- Fake serial behavior covers fragmentation, bounded text/binary parsing,
+  timeout, the internal `0xFF` recovery sequence, disconnect, and close/reopen.
+- The explicit-port CLI identifies the physical V2 device and captures D0–D7.
+- Both edge polarities are fake-tested and at least the operator-selected
+  polarity passes the physical smoke.
+- Deterministic CSV and bounded provisional NPZ contracts pass subprocess,
+  atomic-output, hostile-input, and replay tests.
+- Linux and macOS CI run the approved locked Python 3.12 validation sequence.
+
+The following broader gate applies only to later transport/CLI parity and cannot
+block Cycle 1:
+
+### Later Phase 3 parity gate
 
 - All driver behavior passes against fake serial and fake TCP transports.
 - Fragmentation, timeout, abort, and reconnect tests pass.
@@ -633,7 +647,26 @@ Add a smoke test that imports and inspects every bundled decoder. Compare the
 representative fixtures with outputs recorded from the current application or
 libsigrokdecode when available.
 
-### Phase 4 gate
+### Decoder gate separation
+
+Before broad Phase 4 parity, the focused Cycle 3 decoder milestone has its own
+gate:
+
+### Focused Cycle 3 decoder gate
+
+- Only the checked-in I2C, SPI, and UART decoder versions are in scope.
+- Pinned decoder provenance and logic fixtures enumerate the exact API-v3 calls
+  exercised by those versions.
+- Headless library and CLI execution provide deterministic channel mapping,
+  options, samplerate metadata, and annotations.
+- Cancellation and decoder exception isolation are tested.
+- No stacking, user decoder discovery, capture-selected code, or all-decoder
+  import promise is included.
+
+The existing bullets below are the later broad compatibility gate and cannot
+block focused Cycle 3:
+
+### Later Phase 4 parity gate
 
 - Every supported bundled decoder imports or appears on an explicit reviewed
   incompatibility list.
@@ -888,15 +921,15 @@ tolerances recorded in the fixture.
 
 ## Performance budgets to establish
 
-During Phase 2, record baseline hardware and set reviewed thresholds for:
+Establish each baseline only when its owning subsystem first exists:
 
-- parsing a maximum capture payload;
-- extracting all channels;
-- loading/saving representative `.lac` files;
-- decoding representative I2C/SPI/UART captures;
-- first waveform paint;
-- pan/zoom frame latency;
-- peak memory for maximum single- and multi-device captures.
+- Cycle 1/Phase 2: raw payload parsing, D0–D7 extraction, CSV, and provisional
+  NPZ read/write.
+- `.lac` phase: representative legacy/current `.lac` read/write.
+- Focused decoder cycle: representative I2C/SPI/UART decoding.
+- Multi-device phase: peak memory for maximum representative composed captures.
+- Viewer phase: first paint and pan/zoom for empty, constant,
+  dense-transition, and maximum representative captures.
 
 Do not choose arbitrary pass/fail values before collecting baselines. Once
 accepted, store benchmark scenarios and thresholds in the repository and treat

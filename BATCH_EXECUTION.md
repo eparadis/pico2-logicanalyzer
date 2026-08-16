@@ -56,6 +56,9 @@ in `Software/LogicAnalyzerPy/docs/orchestration-progress.md` with:
 - State: Ready
 - Objective: <one bounded outcome>
 - Prerequisites: <accepted checkpoints and required inputs>
+- Implementation agent: <stable identity>
+- Verification agent: <different stable identity>
+- Acceptance agent: <third stable identity>
 - In scope: <specific behavior and artifacts>
 - Out of scope: <nearby tempting work>
 - Owned files: <non-overlapping paths per agent>
@@ -106,9 +109,17 @@ Use bounded roles:
   acceptance.
 
 An agent assignment must state what it may edit and what it must not implement.
-Do not have implementation and verification agents edit the same test file.
-Agents may inspect all relevant sources but should not rewrite another agent's
-owned files without reassignment.
+The implementation, verification, and acceptance identities must be three
+distinct agents for production behavior and fixtures. A verifier may not approve
+production behavior, fixtures, or expected results it authored, and may not
+silently rewrite an expectation to match implementation. Its handoff verdict is
+exactly `pass` or `changes_required`. The acceptance agent records every finding
+and disposition before checkpoint acceptance. Agents may inspect all relevant
+sources but should not rewrite another agent's owned files without reassignment.
+
+If staffing or a conflict invalidates separation, pause acceptance and reassign
+the affected work to a fresh agent in a later turn. Separation may be achieved
+sequentially; it may not be waived or represented as independent self-review.
 
 With limited concurrency, keep one slot available to the orchestrator. If an
 interface is not settled, investigate it before parallelizing downstream work.
@@ -150,16 +161,20 @@ Run focused tests first, then the accumulated non-hardware suite:
 
 ```bash
 cd Software/LogicAnalyzerPy
-python -m ruff check .
-python -m mypy src
-python -m pytest -m "not hardware"
-python -m pico_logic_analyzer --help
+python3.12 -m venv .venv
+.venv/bin/python -m pip install --require-hashes -r requirements-dev.lock
+.venv/bin/python -m pip install --no-deps -e .
+.venv/bin/python -m ruff check .
+.venv/bin/python -m mypy src
+.venv/bin/python -m pytest -m "not hardware"
+.venv/bin/python -m pico_logic_analyzer --help
 ```
 
-Use the approved alternative type checker if Cycle 1 selected Pyright and
-recorded that decision. Hardware batches then run their explicit opt-in command.
-Do not treat an untested code path, a skipped required test, or manual visual
-inspection alone as passing evidence.
+Run the clean bootstrap in a new environment for C1-B1, CI, and C1-B5; later
+local batches may reuse `.venv` only when its Python version and lock-file digest
+match their evidence manifest. Hardware batches then run their explicit opt-in
+command. Do not treat an untested code path, a skipped required test, or manual
+visual inspection alone as passing evidence.
 
 ### 7. Record and checkpoint
 
@@ -176,6 +191,111 @@ acceptance item passes.
 - If it crosses an authority gate or requires unavailable input, request user
   direction and continue only independent safe work.
 
+## Settled Cycle 1 public and data contracts
+
+These decisions are inputs to the batches below and must be copied into focused
+ADRs/docs during C1-B1. Changing them is a substantive contract change.
+
+### Capture model
+
+- `samples` is a one-dimensional C-contiguous NumPy array with exact dtype
+  `uint8`; one element is one raw returned word.
+- Cycle 1 requests exactly logical channels `[0,1,2,3,4,5,6,7]` in ascending
+  order, rejects duplicates/subsets, and uses firmware capture mode `0`.
+- Raw bit `i` represents request-list position `i`, which in Cycle 1 is logical
+  channel D`i`. The model retains `channel_ids=[0..7]`, physical/header mapping,
+  and display labels separately.
+- `sample_rate_hz`, requested and actual sample counts, `pre_trigger_samples`,
+  `post_trigger_samples`, `trigger_channel`, `trigger_edge`, device identity,
+  and negotiated capabilities are required positive/validated metadata.
+- Actual sample count must equal the validated requested total and the array
+  length. Indices `0..pre_trigger_samples-1` are the pre-trigger region; the
+  trigger marker is index `pre_trigger_samples-1`; post-trigger samples begin at
+  index `pre_trigger_samples`. Sample time relative to the marker is
+  `(index-trigger_index)/sample_rate_hz`.
+- The trigger channel must be one of D0–D7 and is always captured. Both rising
+  and falling values are supported and independently fake-tested.
+
+### CSV artifact
+
+- UTF-8, LF line endings, RFC-4180-compatible comma separation, no locale-
+  dependent formatting.
+- Header is exactly
+  `sample_index,time_seconds,trigger,D0,D1,D2,D3,D4,D5,D6,D7`.
+- `sample_index` is zero-based; `time_seconds` is trigger-relative and formatted
+  with the documented deterministic `.12g` rule; `trigger` is `1` only at the
+  trigger marker and `0` otherwise; data columns are `0` or `1` derived from the
+  corresponding raw bit.
+- CSV is an inspection/export format, not the authoritative replay format. A
+  future importer must treat its time and trigger columns as authoritative and
+  must not silently invent missing timing for unrelated CSV files.
+
+### Provisional replay artifact
+
+- Schema major version `1`, explicitly marked provisional.
+- Exactly two ZIP/NPY members: `samples.npy` and `metadata.npy`. The latter is a
+  one-dimensional `uint8` array containing canonical UTF-8 JSON; no object,
+  structured, string, or nested sample dtype is permitted.
+- Required JSON keys are schema version, sample rate, requested/actual/pre/post
+  counts, trigger index/channel/edge, channel IDs/labels/mapping, and sanitized
+  device identity/capabilities. Metadata is inert and may not name, configure,
+  import, or execute decoder code.
+- Before NumPy materialization, inspect the ZIP central directory and enforce
+  documented numeric defaults: file size at most 32 MiB, exactly two unique
+  members, metadata uncompressed size at most 64 KiB, sample member uncompressed
+  size at most 17 MiB, and sample count at most 16,777,216. Reject encrypted,
+  duplicate, unexpected, path-bearing, or unsupported-compression members.
+- Load with `allow_pickle=False`; require samples rank 1 and exact `uint8`,
+  metadata rank 1 and exact `uint8`, a flat schema with bounded strings/lists,
+  supported major version, and counts consistent with the sample array. Reject
+  unknown top-level keys in Cycle 1.
+
+### CLI contract
+
+```text
+pico-la devices [--json]
+pico-la info --port PORT [--json] [--timeout SECONDS]
+pico-la capture --port PORT --sample-rate HZ --trigger-channel CHANNEL
+                --edge {rising,falling} --pre-samples N --post-samples N
+                --csv PATH --replay PATH [--timeout SECONDS] [--force]
+pico-la replay-validate PATH [--json]
+pico-la hardware-smoke --port PORT --signal-hz HZ --sample-rate HZ
+                       --trigger-channel CHANNEL --edge {rising,falling}
+                       --pre-samples N --post-samples N
+```
+
+- Exit codes: `0` success, `2` usage/configuration, `3` connection/protocol,
+  `4` capture timeout/cancellation, `5` validation/replay, `6` output I/O.
+- JSON or other requested machine data goes to stdout; diagnostics and progress
+  go to stderr. JSON schema is tested when `--json` is offered.
+- Capture output paths are explicit. Existing outputs are rejected without
+  `--force`. Both outputs are written, fsynced, and validated in same-directory
+  temporary files before either final name changes. Installation is a
+  transaction: preserve replaceable originals as temporary backups, atomically
+  rename both outputs, restore originals/remove newly installed outputs if
+  either rename fails, then remove backups after success. Failed capture or
+  export leaves no new apparently valid final artifact.
+
+### Serial and receive contract
+
+- Configure 115200 baud, 8 data bits, no parity, one stop bit, no software or
+  hardware flow control, and finite read/write timeouts. Assert DTR and RTS as
+  the current compatible client does; document which USB CDC targets ignore
+  these settings and the exact configure/open/stabilize/drain order.
+- One byte-oriented receive buffer owns both ASCII and binary parsing. Do not
+  layer independent buffered text and binary readers over the same stream.
+- Identity is exactly five newline-terminated ASCII fields, each at most 128
+  bytes including newline and matching the documented grammar. Capture status
+  is one bounded line. Overlong, unterminated, missing, or extra fields fail.
+- A coalesced `CAPTURE_STARTED\n` plus four-byte little-endian sample count and
+  payload loses no bytes. The count must equal the validated request and be
+  bounded before allocation/read. Non-burst Cycle 1 consumes and requires a
+  trailing zero timestamp-count byte.
+- Timeout or Ctrl-C during an in-flight capture sends the characterized single
+  `0xFF` V2 cancellation byte, applies documented flush/drain/timing, closes and
+  reopens, and re-identifies. This internal recovery primitive is required;
+  richer public abort semantics remain deferred.
+
 ## Cycle 1 batch sequence
 
 ### C1-B1: Preflight, scaffold, and narrow protocol evidence
@@ -184,20 +304,29 @@ acceptance item passes.
 implement V2 identity and one normal 8-channel edge-triggered capture without
 guessing native layout.
 
-**Prerequisites:** Approved preparatory documents; known target board/firmware;
-workspace is writable.
+**Prerequisites:** Approved preparatory documents; operator assertion that the
+target is intended to run V2 analyzer firmware (exact identity may remain open
+until C1-B3); workspace is writable.
 
 **In scope:**
 
 - Create `Software/LogicAnalyzerPy/` with `pyproject.toml`, `src/`, `tests/`,
   `testdata/`, and `docs/`.
 - Configure CLI entry point, Ruff, the approved type checker, pytest markers,
-  and Linux/macOS non-hardware CI.
+  hash-pinned `requirements-dev.lock`, and the narrowly authorized
+  `.github/workflows/logic-analyzer-python-cycle1.yml` with explicit Python 3.12
+  Linux and macOS jobs running the canonical bootstrap/validation commands.
 - Create `docs/orchestration-progress.md`, `docs/device-protocol.md`, and the
-  Cycle 1 operator-input template.
+  Cycle 1 operator-input template, capture-model ADR, CLI contract, replay
+  format/security contract, and evidence-manifest schema.
 - Document the implemented frame delimiters/escaping, identity exchange,
   capture request offsets, explicit padding/size, 8-bit result format, and
-  relevant serial settings.
+  byte-oriented text/binary receive grammar, relevant serial settings/open
+  ordering, and minimal `0xFF` cancellation/recovery exchange.
+- Make the operator template require confirmed board/front-end/shifter revision,
+  target logic voltage and VRef, permitted input range, common ground, and
+  D0–D7 header/GPIO mapping. Unknown values block hardware. State explicitly
+  that bare Pico GPIO must not receive 5 V.
 - Add provenance-tagged golden bytes for identity and rising/falling 8-channel
   requests. Obtain a known-good C#/board trace when available; otherwise state
   which fields remain to be confirmed in C1-B3/C1-B4.
@@ -217,12 +346,15 @@ inventory, other commands/modes, and exhaustive protocol documentation.
 **Acceptance:**
 
 - Clean source install succeeds on Python 3.12.
+- Clean bootstrap uses the hash-pinned lock and succeeds in both CI jobs.
 - CLI help succeeds.
 - Static/test tools execute successfully, even if the initial test set is
   small.
 - Golden fixtures have provenance and explicit expected lengths/bytes.
 - Protocol note distinguishes observed behavior, source-derived behavior, and
   unresolved hardware confirmation.
+- Data, CSV/replay, CLI, serial, electrical, recovery, and evidence contracts
+  match the settled section above.
 - No Qt/pythonnet/Roslyn dependency is introduced.
 
 ### C1-B2: Models, codec, and fake/replay contract
@@ -235,24 +367,33 @@ parse identity/capture streams correctly under normal and adverse reads.
 **In scope:**
 
 - Typed device information and narrow capture configuration/results.
+- Enforce the exact D0–D7 capture model, trigger convention, and metadata
+  invariants defined above.
 - Frame escaping/encoding and identity/capture parsing with explicit byte order,
   widths, padding, and allocation limits.
+- One bounded byte-oriented parser for ASCII and binary response phases.
 - Minimal transport protocol supporting exact read, write, finite timeout,
-  close, and cancellation-by-close semantics.
+  close, and cancellation through the bounded `0xFF` recovery primitive.
 - Scripted fake/replay transport.
 - Tests for reserved bytes, fragmented reads, truncated/malformed responses,
   invalid lengths, timeout, disconnect, and idempotent cleanup.
+- Tests for coalesced status-plus-binary data, overlong/unterminated/extra ASCII
+  fields, trailing timestamp-count validation, timeout/Cancel recovery followed
+  by identity, and every replay archive/dtype/size/schema bound above.
 
-**Out of scope:** pySerial, CLI hardware commands, NumPy file format beyond a
-minimal model decision, channel widths above eight, or generic future protocol
-abstractions.
+**Out of scope:** pySerial, CLI hardware commands, writing production artifacts,
+channel widths above eight, or generic future protocol abstractions.
 
 **Acceptance:**
 
 - Golden byte-for-byte request tests pass.
 - Fake identity and capture round trips pass with one-byte fragmentation.
+- A single-read coalesced status/binary response parses losslessly.
 - Malformed size cannot allocate beyond the negotiated/configured bound.
 - Timeout/disconnect tests terminate and close resources.
+- Timeout/cancellation fake tests send `0xFF`, follow the recovery state
+  sequence, and successfully re-identify without a simulated power cycle.
+- Capture model and hostile replay-container tests pass.
 - No core module imports serial, Qt, or CLI modules.
 - Accumulated non-hardware validation passes.
 
@@ -267,10 +408,12 @@ open the device is available.
 **In scope:**
 
 - pySerial transport.
+- Exact serial configuration/open/stabilize/drain/close/reopen behavior from the
+  settled contract, with constructor/configuration-sequence tests.
 - Best-effort `devices` output using VID `0x1209`, PID `0x3020`, while tolerating
   missing metadata.
-- Explicit-port `info` command with human-readable and deterministic machine-
-  readable output if the CLI exposes JSON.
+- Exact `devices` and explicit-port `info` CLI contracts above, including JSON,
+  exit-code, and stdout/stderr subprocess tests.
 - Finite timeouts, clear errors, close on all paths, and an identity read after
   close/reopen.
 - Fake pySerial/list-port tests plus opt-in real identity smoke.
@@ -283,6 +426,8 @@ monitoring, TCP, or capture implementation.
 - No command silently selects among devices.
 - Fake port metadata tests cover Linux/macOS-like records and absent fields.
 - Real identity/capabilities match the recorded V2 baseline.
+- Exact reported identity is resolved here. A mismatch pauses the hardware path
+  for user direction and does not rewrite the baseline.
 - Two identity operations separated by close/reopen succeed.
 - Unplug/permission/timeout failures are actionable and release the port.
 - No persistent device state is changed.
@@ -298,12 +443,14 @@ parameters and wiring.
 **In scope:**
 
 - Validate the narrow capture configuration.
-- Encode/send rising and falling edge-triggered normal 8-channel requests.
+- Encode/send both rising and falling edge-triggered requests for exactly D0–D7.
 - Read/validate raw 8-bit samples with configured/negotiated bounds.
-- Deterministic CSV with stable channel headers and sample rows.
+- Deterministic CSV using the exact self-timed header/row contract above.
 - Provisional versioned `.npz` containing raw sample words and validated
   non-object metadata, loadable with pickling disabled.
 - CLI capture/export/replay validation.
+- Atomic output, collision, `--force`, stdout/stderr, exit-code, and failed-
+  export subprocess tests.
 - Opt-in physical capture using the operator's known periodic source.
 
 **Out of scope:** Rich measurements, graphical viewing, public long-term replay
@@ -315,7 +462,7 @@ strictly required, and graceful firmware abort.
 - Fake capture/export tests pass for rising and falling edge cases.
 - CSV is byte-deterministic for a fixed capture and reloads to expected values.
 - `.npz` loads with `allow_pickle=False`; schema/version and required metadata
-  validate; samples match the capture exactly.
+  validate under all archive/dtype/size bounds; samples match exactly.
 - Real capture returns the requested sample count and 8-bit width.
 - The periodic channel is nonconstant, contains the requested edge polarity,
   and measures within the documented tolerance.
@@ -335,6 +482,8 @@ including failure cleanup and a second real capture after close/reopen.
   output, and scope compliance.
 - Regression tests for all Cycle 1 defects found during integration.
 - Ctrl-C, timeout, malformed input, disconnect, and close/reopen verification.
+- A physical no-trigger timeout or Ctrl-C recovery that sends the characterized
+  `0xFF` byte, re-identifies, and then captures without a power cycle.
 - Stable documented `hardware-smoke` command or equivalent pytest interface.
 - Two real captures separated by explicit close/reopen.
 - Final progress record and Cycle 1 handoff.
@@ -356,11 +505,19 @@ Append this after each accepted batch:
 
 - State: Complete
 - Completed at: <ISO-8601 timestamp>
+- Tested commit: <full commit hash>
+- Tested tree: <tree hash>
+- Worktree state: <clean or explicitly enumerated unrelated changes>
+- Implementation agent: <stable identity>
+- Verification agent and verdict: <different identity; pass>
+- Acceptance agent: <third identity>
+- Environment: <OS/version, architecture, Python version, lock SHA-256>
 - Objective evidence: <tests/artifacts/observations>
 - Files changed: <paths or concise groups>
 - Focused commands: <command and pass/fail result>
 - Accumulated commands: <command and pass/fail result>
 - Hardware evidence: <not applicable, or sanitized board/signal/result summary>
+- Evidence manifest: <path and SHA-256>
 - Decisions/discrepancies: <what was settled and provenance>
 - Deferred findings: <roadmap destination>
 - Known limitations: <remaining constraints>

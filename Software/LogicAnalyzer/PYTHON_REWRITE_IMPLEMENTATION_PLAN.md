@@ -1,5 +1,14 @@
 # Python Logic Analyzer Rewrite: Implementation and Verification Plan
 
+> **Document role:** This is the technical roadmap. Cycle 1 objective, scope,
+> authority, validation, checkpoints, and stopping conditions are governed by
+> [`ORCHESTRATION.md`](../../ORCHESTRATION.md). Repeatable batch mechanics and
+> concrete Cycle 1 batches are governed by
+> [`BATCH_EXECUTION.md`](../../BATCH_EXECUTION.md). Where execution instructions
+> here overlap, the two top-level documents are authoritative. Commit-anchored
+> domain reviews are stored in
+> [`docs/rewrite-reviews/`](../../docs/rewrite-reviews/README.md).
+
 ## Purpose
 
 This document is an execution plan for an orchestrating agent coordinating a
@@ -337,35 +346,11 @@ API stabilizes.
 
 ## Orchestration protocol
 
-The orchestrator should maintain one integration branch/worktree and assign
-agents bounded work packages. Avoid assigning two agents overlapping files.
-Agents must report:
-
-- files changed;
-- behavior implemented;
-- tests added and commands run;
-- unresolved assumptions or compatibility differences;
-- the commit hash, if the orchestration environment uses per-agent commits.
-
-Before merging a work package, the orchestrator must run its local acceptance
-commands and review changes for boundary violations. At the end of each phase,
-run the full non-hardware suite. Do not advance past a gate by disabling or
-weakening a failing test without documenting and approving the behavior change.
-
-Suggested agent lanes after the initial scaffold exists:
-
-- **Protocol agent:** framing, packet layouts, response parsing, golden vectors.
-- **Transport/driver agent:** serial, TCP, discovery, capture state machine.
-- **Data/formats agent:** models, NumPy sample storage, `.lac`, CSV, later VCD.
-- **Decoder agent:** sigrok runtime, discovery, stacking, decoder fixtures.
-- **GUI agent:** Qt shell, waveform, capture workflows, decoder configuration.
-- **Verification agent:** independent tests, compatibility checks, fuzz/property
-  tests, packaging smoke tests, and defect reproduction.
-
-With limited concurrency, prioritize independent implementation and
-verification work. The verification agent should not merely duplicate the
-implementation agent's tests; it should derive cases from firmware behavior,
-legacy files, and external interfaces.
+Top-level orchestration policy is defined in `ORCHESTRATION.md`; per-batch
+assignment, integration, verification, checkpoint, and rollback procedures are
+defined in `BATCH_EXECUTION.md`. This roadmap supplies technical work packages
+for those documents to reference. It does not independently authorize an agent
+to start a later cycle or bypass a batch gate.
 
 ## Phase 0: Inventory, decisions, and repository scaffold
 
@@ -959,29 +944,16 @@ agent builds the matching narrow surface. Do not begin a later-cycle feature
 merely because an agent is idle; use spare capacity for negative tests,
 documentation, and review of the current gate.
 
+This diagram is technical sequencing context. `ORCHESTRATION.md` is
+authoritative for the active durable objective, and `BATCH_EXECUTION.md` is
+authoritative for Cycle 1 checkpoint order.
+
 ## First orchestration iteration
 
-The first team iteration is Cycle 1 and must be limited to:
-
-1. Minimal package/test/CLI scaffold for Python 3.12, with Linux/macOS
-   non-hardware CI.
-2. A protocol note and provenance-tagged byte fixtures for V2 identity and one
-   normal 8-channel rising/falling-edge capture. Capture a known-good C#/board
-   trace where possible; observed working bytes take precedence for that exact
-   firmware version, with discrepancies documented.
-3. Minimal typed configuration/sample models, explicit binary codec, and
-   scripted fake/replay transport for that surface only.
-4. pySerial transport, best-effort `devices`, explicit-port `info`, and
-   explicit-port `capture` with safe finite timeouts and close/reopen recovery.
-5. Deterministic CSV export and a clearly provisional versioned `.npz` replay
-   artifact.
-6. Independent negative/fragmentation/timeout tests and the Cycle 1 physical
-   hardware gate.
-
-Do not begin PySide6 GUI work, `.lac`, 16/24-channel modes, TCP, sigrok hosting,
-advanced triggers, burst, device mutation, or packaging during this iteration.
-The iteration is complete only when a second real capture succeeds after
-close/reopen and the saved samples satisfy the hardware-gate checks.
+The approved Cycle 1 iteration is divided into C1-B1 through C1-B5 in
+`BATCH_EXECUTION.md`. Its stopping condition is defined exclusively in
+`ORCHESTRATION.md`. Do not infer completion or permission to expand scope from
+the broader phases in this roadmap.
 
 ## Consciously deferred work
 

@@ -5,6 +5,7 @@
 - Reviewed commit: `1a6fb5aed5f0714368f3bf97af04c1789b8f9dc9`
 - UTC timestamp: `2026-08-16T15:00:03Z`
 - Verdict: `changes_required`
+- Resolving commit: `7d04ed1a2a2f9c90a6017b90e41b9df61ba620c7`
 
 ## Scope
 
@@ -61,8 +62,9 @@ outputs or requirements cross this boundary.
   sidecar or an explicit operator-supplied interpretation); do not silently
   invent them. Add golden tests using a non-contiguous channel selection so an
   ordinal/physical-bit mix-up fails.
-- Disposition: open — requires a substantive data contract and associated
-  C1-B1/C1-B2 acceptance evidence.
+- Disposition: resolved — the resolving commit defines the exact `uint8` model,
+  D0–D7 mapping, counts, sample rate, trigger origin, required metadata, timed
+  CSV columns, invariants, ADR ownership, and fake acceptance evidence.
 
 ### 2. Cycle 1 does not define a stable, automation-safe `capture` CLI contract
 
@@ -89,8 +91,9 @@ outputs or requirements cross this boundary.
   Ctrl-C, validation, or disk errors do not leave an apparently valid final
   artifact. Add subprocess tests for success, usage error, capture failure,
   output collision, and interrupted/failed export.
-- Disposition: open — requires a substantive user-facing contract and C1-B3/B4
-  test changes.
+- Disposition: resolved — the resolving commit specifies every Cycle 1 CLI
+  invocation, exit taxonomy, stdout/stderr behavior, collision/force behavior,
+  transactional output publication, and subprocess tests.
 
 ### 3. The provisional NPZ loader is not sufficiently bounded for untrusted replay input
 
@@ -118,8 +121,10 @@ outputs or requirements cross this boundary.
   unknown-field policy. State that replay metadata is inert and cannot nominate
   or configure executable decoder code. `allow_pickle=False` remains required
   but is not the complete acceptance criterion.
-- Disposition: open — requires substantive persistence/security acceptance
-  criteria in C1-B2/B4.
+- Disposition: resolved — the resolving commit fixes the NPZ member/schema
+  contract and numeric file/member/metadata/sample bounds, rejects unsafe or
+  unexpected archives/dtypes, keeps metadata inert, and requires hostile-input
+  tests with `allow_pickle=False`.
 
 ### 4. Broad Phase 3 gates contradict the explicit Cycle 1 deferrals
 
@@ -140,8 +145,9 @@ outputs or requirements cross this boundary.
   fake-TCP/abort/`.lac`/JSON bullets as later broad-parity gates that cannot block
   Cycle 1. Apply the same terminology anywhere a broad phase gate overlaps a
   narrower cycle gate, with `BATCH_EXECUTION.md` remaining authoritative.
-- Disposition: open — mechanical wording is small, but it changes the apparent
-  completion contract and therefore requires all-domain re-review.
+- Disposition: resolved — the resolving commit adds a narrow Cycle 1
+  transport/CLI gate and labels TCP, public abort, `.lac`, and broader JSON work
+  as a later Phase 3 parity gate that cannot block Cycle 1.
 
 ### 5. The focused Cycle 3 decoder promise conflicts with the all-decoder Phase 4 gate
 
@@ -169,8 +175,9 @@ outputs or requirements cross this boundary.
   as a later parity gate. Keep the existing rule that capture files never select
   code, and require an explicit trusted path only when user decoders eventually
   land.
-- Disposition: open — requires substantive later-cycle batch/gate separation,
-  without adding any decoder work to Cycle 1.
+- Disposition: resolved — the resolving commit adds a focused Cycle 3
+  I2C/SPI/UART fixture-driven gate and explicitly moves stacking, user discovery,
+  and all-decoder import to later Phase 4 parity.
 
 ### 6. The performance-baseline schedule requires unimplemented future subsystems during Phase 2
 
@@ -192,8 +199,9 @@ outputs or requirements cross this boundary.
   benchmark empty, constant, dense-transition, and maximum representative
   captures before its gate; defer numerical thresholds until those baselines
   exist, then record the environment and reviewed thresholds.
-- Disposition: open — requires a roadmap scheduling correction and explicit
-  later-cycle gate placement.
+- Disposition: resolved — the resolving commit assigns capture/format, decoder,
+  multi-device, and viewer baselines to the cycle that first implements each
+  subsystem, including the required viewer workload classes.
 
 ## Accepted observations requiring no change
 

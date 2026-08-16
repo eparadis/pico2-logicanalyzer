@@ -2,8 +2,9 @@
 
 - Reviewer: `/root/review_protocol_hardware` — Reviewer 1, Device Protocol and Hardware Boundary
 - Reviewed commit: `1a6fb5aed5f0714368f3bf97af04c1789b8f9dc9`
-- Reviewed at: `2026-08-16T15:00:44Z`
+- UTC timestamp: `2026-08-16T15:00:44Z`
 - Verdict: changes_required
+- Resolving commit: `7d04ed1a2a2f9c90a6017b90e41b9df61ba620c7`
 
 ## Scope
 
@@ -46,8 +47,10 @@ physical serial path and explicit deferral of later complexity.
   explicitly limit close/reopen recovery to completed captures, state that an
   in-flight timeout may require trigger completion or a power cycle, and remove
   reusable-after-failure implications from the stopping condition.
-- Disposition: open — the top-level recovery promise and the batch-level
-  close-only mechanism must be made consistent before implementation.
+- Disposition: resolved — the resolving commit requires the bounded V2 `0xFF`
+  cancellation exchange, byte/timing/drain/reopen/re-identification contract,
+  and fake plus physical no-trigger recovery evidence while keeping a general
+  public abort workflow deferred.
 
 ### 2. The hardware preflight does not define a safe electrical boundary for a likely 5 V SBC
 
@@ -73,8 +76,9 @@ physical serial path and explicit deferral of later complexity.
   board revision, VRef, or pin mapping must block the physical path. Preserve
   generic periodic-generator testing as the simpler alternative when the SBC
   electrical boundary is not yet characterized.
-- Disposition: open — electrical compatibility must become an objective
-  precondition and recorded proof, not an informal assumption.
+- Disposition: resolved — the resolving commit makes board/front-end revisions,
+  target voltage, VRef, input range, ground, and pin map required operator
+  evidence; it forbids 5 V on bare Pico GPIO and blocks unknown wiring.
 
 ### 3. “8-channel capture” does not settle the legal channel set or packed-bit mapping
 
@@ -105,8 +109,9 @@ physical serial path and explicit deferral of later complexity.
   only if it does not complicate the slice. Add a hardware bit-position check on
   more than the trigger bit when safe; otherwise record that wider physical
   mapping proof is deferred.
-- Disposition: open — the raw-word producer/consumer boundary needs one explicit
-  channel identity and bit-order contract.
+- Disposition: resolved — the resolving commit fixes Cycle 1 to logical D0–D7
+  in ascending request order, mode 0, captured trigger membership, and ordinal
+  raw-bit mapping with separately retained channel metadata.
 
 ### 4. The serial configuration and reopen behavior are not acceptance criteria
 
@@ -129,8 +134,9 @@ physical serial path and explicit deferral of later complexity.
   constructor/configuration and cleanup sequence, plus one physical identity
   and close/reopen check on the supported host. Mark settings that USB CDC
   ignores as compatibility settings rather than silently omitting them.
-- Disposition: open — C1-B1/B3 must turn the serial settings into a settled,
-  testable interface.
+- Disposition: resolved — the resolving commit specifies 115200 8N1, disabled
+  flow control, asserted DTR/RTS, finite timeouts, documented open/drain/reopen
+  ordering, contract tests, and physical reopen evidence.
 
 ### 5. The ASCII-to-binary response boundary can lose bytes or grow without a bound
 
@@ -157,5 +163,7 @@ physical serial path and explicit deferral of later complexity.
   plus binary payload. The sample count must equal the validated Cycle 1 request
   and remain within the negotiated buffer before allocation/read; consume and
   validate the trailing zero timestamp-count byte for the non-burst slice.
-- Disposition: open — the receive grammar and buffering ownership must be
-  explicit before codec and transport agents work independently.
+- Disposition: resolved — the resolving commit assigns all ASCII/binary input to
+  one bounded byte buffer, limits five identity fields/status lines, defines the
+  lossless binary transition and trailing zero timestamp byte, and requires
+  fragmentation/coalescing/overlong-field tests.

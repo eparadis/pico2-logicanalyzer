@@ -5,6 +5,7 @@
 - **Reviewed commit:** `1a6fb5aed5f0714368f3bf97af04c1789b8f9dc9`
 - **UTC timestamp:** `2026-08-16T15:00:21Z`
 - **Verdict:** `changes_required`
+- **Resolving commit:** `7d04ed1a2a2f9c90a6017b90e41b9df61ba620c7`
 
 ## Scope
 
@@ -58,8 +59,10 @@ capture/data semantics remain with Reviewers 1 and 2.
   part of C1-B1 ownership, or explicitly defer repository-hosted CI and replace
   it with an equally concrete Linux/macOS proof mechanism. Retain the rule that
   workflow changes outside the Cycle 1 validation surface need user direction.
-- **Disposition:** open — substantive authority/batch resolution required; all
-  three reviewers must review the resolving commit.
+- **Disposition:** resolved — the resolving commit authorizes only
+  `.github/workflows/logic-analyzer-python-cycle1.yml` and assigns it to C1-B1;
+  all other workflow changes still require direction. All three reviewers will
+  review the common candidate commit containing this disposition.
 
 ### 2. The install and Linux/macOS validation proof is not runnable from a clean checkout
 
@@ -86,8 +89,9 @@ capture/data semantics remain with Reviewers 1 and 2.
   CLI-help command, and require later checkpoints to cite the corresponding
   local run or CI run. If dependency locking is intentionally deferred, define
   the exact bounded substitute and its reproducibility limits now.
-- **Disposition:** open — substantive validation/acceptance resolution required;
-  all three reviewers must review the resolving commit.
+- **Disposition:** resolved — the resolving commit mandates Python 3.12,
+  hash-pinned `requirements-dev.lock`, exact venv/pip/editable-install commands,
+  the same Linux/macOS CI sequence, and lock identity in evidence.
 
 ### 3. Independent verification is encouraged but separation of duties is not required or recorded
 
@@ -111,8 +115,10 @@ capture/data semantics remain with Reviewers 1 and 2.
   `pass` or `changes_required`. Require the orchestrator to record disposition
   of every verification finding before acceptance. Define a bounded reassignment
   procedure when staffing makes the original separation impossible.
-- **Disposition:** open — substantive ownership/checkpoint resolution required;
-  all three reviewers must review the resolving commit.
+- **Disposition:** resolved — the resolving commit requires three distinct,
+  recorded implementation, verification, and acceptance identities; forbids a
+  verifier from approving authored behavior/fixtures; and requires explicit
+  verdict, finding disposition, and reassignment rather than waiver.
 
 ### 4. Checkpoint evidence is not anchored strongly enough to reproduce the claimed result
 
@@ -142,8 +148,11 @@ capture/data semantics remain with Reviewers 1 and 2.
   supplied. Require the final accumulated and hardware proofs to run against
   one identified candidate revision; enumerate unrelated excluded changes
   rather than allowing implementation changes to remain ambiguous.
-- **Disposition:** open — substantive proof/checkpoint resolution required; all
-  three reviewers must review the resolving commit.
+- **Disposition:** resolved — the resolving commit defines per-checkpoint
+  evidence manifests with commit/tree, worktree qualification, UTC, platform,
+  Python/lock identity, normalized commands/exits, verifier/source category,
+  artifact digests, and sanitized hardware inputs; final proofs use one
+  candidate revision with no later implementation changes.
 
 ### 5. The target-firmware prerequisite can block the discovery step needed to settle it
 
@@ -165,8 +174,9 @@ capture/data semantics remain with Reviewers 1 and 2.
   checkpoint that resolves the exact identity; a mismatch must enter the
   documented authority/input-required path rather than being normalized by
   changing the baseline.
-- **Disposition:** open — substantive prerequisite/discovery resolution
-  required; all three reviewers must review the resolving commit.
+- **Disposition:** resolved — C1-B1 now requires only an operator V2 assertion
+  and permits exact identity to remain open; C1-B3 must resolve it and pauses on
+  mismatch without rewriting the baseline.
 
 ### 6. The objective does not settle whether Cycle 1 implements one edge polarity or both
 
@@ -188,8 +198,9 @@ capture/data semantics remain with Reviewers 1 and 2.
   operator-selected polarity and record the untested polarity as a hardware
   limitation. If both physical polarities are required, say so in stopping item
   5 and the operator prerequisites instead.
-- **Disposition:** open — substantive objective/scope clarification required;
-  all three reviewers must review the resolving commit.
+- **Disposition:** resolved — the CLI must implement and fake-test both edge
+  polarities, while hardware must exercise at least the selected polarity and
+  record which was physically tested.
 
 ## Same-commit final-pass rule
 

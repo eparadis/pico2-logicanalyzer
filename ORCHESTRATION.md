@@ -418,8 +418,11 @@ new or updated approved goal.
 - [ ] The validation loop and physical acceptance evidence are approved.
 - [ ] The authority gates are approved.
 - [ ] `BATCH_EXECUTION.md` has been reviewed and approved.
-- [ ] All three final domain reviews in `docs/rewrite-reviews/final/` say
-      `pass` for the same reviewed commit.
+- [ ] All three records in the latest complete common-commit final-review
+      directory defined by `docs/rewrite-reviews/README.md` say `pass` for the
+      same reviewed commit. For this preparatory cycle, that directory is
+      `docs/rewrite-reviews/final-round-3/`; earlier failed rounds remain
+      immutable history and contribute no pass.
 - [ ] The technical plan remains the referenced roadmap.
 - [ ] No unresolved contradiction exists among the three documents.
 

@@ -69,6 +69,46 @@
 - Next batch: C1-B2; no unmet inputs.
 - Blocked: no
 
+## C1-B2: Models, codec, and fake/replay contract
+
+- State: In progress
+- Objective: Implement and independently verify the bounded, hardware-free
+  Cycle 1 data model, V2 codec/parser, fake transport/recovery lifecycle, and
+  hostile provisional-replay validation surface.
+- Prerequisites: accepted C1-B1 checkpoint at
+  `81f9606a52dfe0efb42164d1ed08155aedd5fbc1`.
+- Implementation agent: `/root/c1_b1_implementation` (reused as the stable
+  implementation identity for C1-B2).
+- Verification agent: `/root/c1_b1_protocol_verification` (reused as the stable
+  independent verification identity for C1-B2).
+- Acceptance agent: `/root/c1_b1_acceptance` (assigned only after integration).
+- In scope: typed identity/config/result models; D0-D7 and trigger/time
+  invariants; exact framing/request and bounded response parsing; minimal
+  transport protocol; scripted fake/replay transport; bounded NPZ replay
+  validation; exhaustive normal, fragmented, coalesced, timeout, cancellation,
+  disconnect, malformed, and hostile-container tests.
+- Out of scope: pySerial, hardware CLI behavior, real serial I/O, production
+  artifact writes, widths above eight, generic protocol abstractions, GUI,
+  firmware changes, and later-cycle features.
+- Owned files: implementation owns package modules, dependency metadata/lock,
+  implementation-focused unit tests, and directly related API docs; verifier
+  owns `tests/verification/`, `testdata/replay/`, and its C1-B2 verification
+  record; acceptance owns only its later C1-B2 acceptance record. The primary
+  orchestrator owns shared integration and this progress log.
+- Source evidence: accepted C1-B1 protocol fixtures/provenance; V2 firmware and
+  C# sources named there; settled capture, CLI, replay-security, compatibility,
+  and recovery contracts.
+- Acceptance evidence: byte-for-byte golden requests; one-byte fragmented and
+  single-read coalesced parsing; bounded malformed/timeout/disconnect/recovery
+  behavior; hostile replay-container coverage; capture-boundary invariants;
+  import-boundary enforcement; accumulated non-hardware gate.
+- Authority notes: dependency acquisition follows the approved network
+  mechanism; no serial port access or hardware command is permitted.
+- Risks/unknowns: NumPy must be added and hash-locked without broadening the
+  archive surface; text/binary phase ownership and cancellation lifecycle must
+  remain one-buffer and finite; production source must not derive expectations
+  from golden fixtures.
+
 ## Deferred work
 
 - C1-B2 owns production models, codec, parser, fake/replay transport, and negative protocol tests.

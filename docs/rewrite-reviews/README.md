@@ -28,7 +28,10 @@ docs/rewrite-reviews/
     └── reviewer-3-delivery-orchestration.md
 ```
 
-Additional rounds use `round-N/` without rewriting earlier records.
+Additional rounds use `round-N/` or `final-round-N/` without rewriting earlier
+records. A `final/` directory containing any `changes_required` verdict is a
+preserved attempted final round, not an approval; the next common-commit review
+uses a new directory.
 
 ## Required review-record fields
 

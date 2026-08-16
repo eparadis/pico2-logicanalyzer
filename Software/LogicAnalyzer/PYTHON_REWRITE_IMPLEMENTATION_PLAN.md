@@ -197,11 +197,15 @@ When options tied, the review policy was to retain the original recommendation.
 12. **Timeout/cancellation behavior.** Ambiguity: full state/cancellation design
     could block capture, but an unbounded trigger wait is unusable.
     **Recommendation:** finite timeouts, exception/Ctrl-C-safe close, three basic
-    states, and close/reopen recovery; characterize protocol abort later. Benefit:
-    safe reusable behavior with little concurrency machinery; tradeoff: initial
-    cancellation is not graceful in-protocol abort. **Alternatives:** complete
-    abort/state semantics are robust but broad; no cancellation is small but can
-    hang and leak ports. **Evaluator choice and final resolution:** recommendation.
+    states, and the characterized internal V2 `0xFF` recovery byte followed by
+    drain and close/reopen/re-identification. Defer a public/general abort API.
+    Benefit: bounded reusable behavior with little concurrency machinery;
+    tradeoff: cancellation remains an internal V2 recovery path rather than a
+    general protocol abstraction. **Alternatives:** complete abort/state
+    semantics are robust but broad; close-only recovery can leave firmware
+    capturing; no cancellation is small but can hang and leak ports.
+    **Evaluator choice and final resolution:** recommendation as refined by the
+    device/protocol review.
 
 ## Desired outcomes
 
@@ -489,12 +493,16 @@ Implement:
 
 - legacy `.lac` reader;
 - versioned new `.lac` writer/reader;
-- CSV writer compatible with current header/sample behavior;
+- the settled self-timed CSV writer as the default export contract;
 - deterministic JSON output for tests and version control.
 
 Document the new schema. Preserve unknown legacy fields when feasible, or
 explicitly report what cannot round-trip. Consider compression only after
-baseline compatibility is proven.
+baseline compatibility is proven. Record the intentional difference between
+the self-timed CSV and the C# channel-only CSV in `docs/compatibility.md`. If
+legacy CSV interoperability is later required, implement it only as an
+explicitly named import/export compatibility mode with dedicated fixtures; it
+must not change the default Cycle 1 header.
 
 ### Work package P2-D: Sample operations and measurements
 

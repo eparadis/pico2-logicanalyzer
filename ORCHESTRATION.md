@@ -235,6 +235,9 @@ module.
 - Open the operator-specified analyzer port.
 - Send the characterized identity request and required normal 8-channel capture
   request.
+- Send exactly one characterized V2 `0xFF` cancellation byte only to recover
+  from an in-flight Cycle 1 normal capture, then perform the settled
+  drain/close/reopen/re-identification sequence.
 - Read capture data, close/reopen the connection, and save sanitized local test
   artifacts inside the project test-data/evidence locations.
 - Make minimal fixes needed to pass the current batch and rerun its validation.
@@ -283,19 +286,22 @@ Canonical non-hardware commands, once the scaffold exists:
 cd Software/LogicAnalyzerPy
 python3.12 -m venv .venv
 .venv/bin/python -m pip install --require-hashes -r requirements-dev.lock
-.venv/bin/python -m pip install --no-deps -e .
+.venv/bin/python -m pip install --no-build-isolation --no-deps -e .
 .venv/bin/python -m ruff check .
 .venv/bin/python -m mypy src
 .venv/bin/python -m pytest -m "not hardware"
 .venv/bin/python -m pico_logic_analyzer --help
 ```
 
-`requirements-dev.lock` must pin all transitive dependencies with hashes and is
-the dependency identity for Cycle 1. Linux and macOS CI must run this same
-bootstrap and validation sequence using Python 3.12. Changing installer, lock
-format, Python minor version, or type checker is a contract change requiring the
-document-review process. Agents may add focused commands, but may not replace
-the accumulated suite with only focused tests.
+`requirements-dev.lock` must pin all runtime, development, and PEP 517 build
+requirements, including all of their transitive dependencies, with hashes and
+is the dependency identity for Cycle 1. The editable install must disable build
+isolation and dependency resolution so that it cannot download packages outside
+that already-installed lock. Linux and macOS CI must run this same bootstrap and
+validation sequence using Python 3.12. Changing installer, lock format, Python
+minor version, or type checker is a contract change requiring the document-
+review process. Agents may add focused commands, but may not replace the
+accumulated suite with only focused tests.
 
 The canonical physical command must be created and documented during Cycle 1.
 It must accept explicit parameters rather than hard-coded laboratory values. Its
@@ -309,11 +315,31 @@ pico-la hardware-smoke \
   --trigger-channel <CHANNEL> \
   --edge rising \
   --pre-samples <PRE> \
-  --post-samples <POST>
+  --post-samples <POST> \
+  --evidence <EVIDENCE_JSON>
+
+pico-la hardware-recovery-smoke \
+  --port <PORT> \
+  --idle-channel <IDLE_CHANNEL> \
+  --idle-level {0,1} \
+  --cancel-after <SECONDS> \
+  --signal-channel <SIGNAL_CHANNEL> \
+  --signal-hz <SIGNAL_HZ> \
+  --sample-rate <SAMPLE_RATE> \
+  --edge rising \
+  --pre-samples <PRE> \
+  --post-samples <POST> \
+  --evidence <EVIDENCE_JSON>
 ```
 
 If a pytest-based command is chosen instead, it must expose the same explicit
-operator inputs and evidence. The final command is part of the completion proof.
+operator inputs and evidence. The recovery command starts a normal capture on
+the operator-confirmed fixed-level idle channel, waits the bounded
+`--cancel-after` interval, sends exactly one `0xFF`, performs the settled drain,
+close/reopen, and re-identification sequence, and then captures the known
+periodic signal without a power cycle. Both commands write an atomic, sanitized
+evidence manifest and return the settled deterministic CLI exit code. The final
+commands are part of the completion proof.
 
 ## Progress and evidence
 

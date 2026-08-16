@@ -163,7 +163,7 @@ Run focused tests first, then the accumulated non-hardware suite:
 cd Software/LogicAnalyzerPy
 python3.12 -m venv .venv
 .venv/bin/python -m pip install --require-hashes -r requirements-dev.lock
-.venv/bin/python -m pip install --no-deps -e .
+.venv/bin/python -m pip install --no-build-isolation --no-deps -e .
 .venv/bin/python -m ruff check .
 .venv/bin/python -m mypy src
 .venv/bin/python -m pytest -m "not hardware"
@@ -175,6 +175,12 @@ local batches may reuse `.venv` only when its Python version and lock-file diges
 match their evidence manifest. Hardware batches then run their explicit opt-in
 command. Do not treat an untested code path, a skipped required test, or manual
 visual inspection alone as passing evidence.
+
+`requirements-dev.lock` contains hashed runtime, development, and PEP 517 build
+requirements plus all transitive dependencies. The
+`--no-build-isolation --no-deps` editable install is mandatory so neither local
+nor CI bootstrap can
+resolve an unrecorded build or runtime dependency outside the installed lock.
 
 ### 7. Record and checkpoint
 
@@ -205,13 +211,18 @@ ADRs/docs during C1-B1. Changing them is a substantive contract change.
 - Raw bit `i` represents request-list position `i`, which in Cycle 1 is logical
   channel D`i`. The model retains `channel_ids=[0..7]`, physical/header mapping,
   and display labels separately.
-- `sample_rate_hz`, requested and actual sample counts, `pre_trigger_samples`,
-  `post_trigger_samples`, `trigger_channel`, `trigger_edge`, device identity,
-  and negotiated capabilities are required positive/validated metadata.
-- Actual sample count must equal the validated requested total and the array
-  length. Indices `0..pre_trigger_samples-1` are the pre-trigger region; the
-  trigger marker is index `pre_trigger_samples-1`; post-trigger samples begin at
-  index `pre_trigger_samples`. Sample time relative to the marker is
+- `sample_rate_hz` must be positive and within negotiated limits;
+  `pre_trigger_samples` and `post_trigger_samples` must satisfy their protocol
+  limits, with at least one post-trigger sample; `trigger_channel` is an integer
+  in `0..7`; `trigger_edge` is `rising` or `falling`; and device identity and
+  negotiated capabilities must validate against the documented V2 grammar.
+- `requested_count = pre_trigger_samples + post_trigger_samples`; actual sample
+  count must equal that validated requested total and the array length.
+  `trigger_index = pre_trigger_samples`. Indices `0..trigger_index-1` are the
+  pre-trigger region and indices `trigger_index..actual_count-1` are the
+  post-trigger region. Times denote sample instants: the first post-trigger
+  sample at `trigger_index` is time zero, the last pre-trigger sample (when the
+  pre-trigger count is nonzero) is `-1/sample_rate_hz`, and every row uses
   `(index-trigger_index)/sample_rate_hz`.
 - The trigger channel must be one of D0–D7 and is always captured. Both rising
   and falling values are supported and independently fake-tested.
@@ -223,9 +234,9 @@ ADRs/docs during C1-B1. Changing them is a substantive contract change.
 - Header is exactly
   `sample_index,time_seconds,trigger,D0,D1,D2,D3,D4,D5,D6,D7`.
 - `sample_index` is zero-based; `time_seconds` is trigger-relative and formatted
-  with the documented deterministic `.12g` rule; `trigger` is `1` only at the
-  trigger marker and `0` otherwise; data columns are `0` or `1` derived from the
-  corresponding raw bit.
+  with the documented deterministic `.12g` rule; `trigger` is `1` only on the
+  first post-trigger sample at `trigger_index` and `0` otherwise; data columns
+  are `0` or `1` derived from the corresponding raw bit.
 - CSV is an inspection/export format, not the authoritative replay format. A
   future importer must treat its time and trigger columns as authoritative and
   must not silently invent missing timing for unrelated CSV files.
@@ -261,7 +272,12 @@ pico-la capture --port PORT --sample-rate HZ --trigger-channel CHANNEL
 pico-la replay-validate PATH [--json]
 pico-la hardware-smoke --port PORT --signal-hz HZ --sample-rate HZ
                        --trigger-channel CHANNEL --edge {rising,falling}
-                       --pre-samples N --post-samples N
+                       --pre-samples N --post-samples N --evidence PATH
+pico-la hardware-recovery-smoke --port PORT --idle-channel CHANNEL
+                       --idle-level {0,1} --cancel-after SECONDS
+                       --signal-channel CHANNEL --signal-hz HZ --sample-rate HZ
+                       --edge {rising,falling} --pre-samples N --post-samples N
+                       --evidence PATH
 ```
 
 - Exit codes: `0` success, `2` usage/configuration, `3` connection/protocol,
@@ -275,6 +291,12 @@ pico-la hardware-smoke --port PORT --signal-hz HZ --sample-rate HZ
   rename both outputs, restore originals/remove newly installed outputs if
   either rename fails, then remove backups after success. Failed capture or
   export leaves no new apparently valid final artifact.
+- Both hardware smoke commands require an explicit evidence path and atomically
+  write the sanitized evidence-manifest fields defined below. The recovery smoke
+  command deliberately starts a normal capture on the operator-confirmed
+  fixed-level idle channel, waits `--cancel-after`, sends exactly one `0xFF`,
+  performs drain/close/reopen/re-identification, and then captures the known
+  periodic signal. It uses the same exit-code meanings as the other commands.
 
 ### Serial and receive contract
 
@@ -318,7 +340,10 @@ until C1-B3); workspace is writable.
   Linux and macOS jobs running the canonical bootstrap/validation commands.
 - Create `docs/orchestration-progress.md`, `docs/device-protocol.md`, and the
   Cycle 1 operator-input template, capture-model ADR, CLI contract, replay
-  format/security contract, and evidence-manifest schema.
+  format/security contract, `docs/compatibility.md`, and evidence-manifest
+  schema. Record that the self-timed Cycle 1 CSV intentionally differs from the
+  C# channel-only export; any later legacy CSV mode requires its own named
+  contract and fixtures.
 - Document the implemented frame delimiters/escaping, identity exchange,
   capture request offsets, explicit padding/size, 8-bit result format, and
   byte-oriented text/binary receive grammar, relevant serial settings/open
@@ -347,6 +372,8 @@ inventory, other commands/modes, and exhaustive protocol documentation.
 
 - Clean source install succeeds on Python 3.12.
 - Clean bootstrap uses the hash-pinned lock and succeeds in both CI jobs.
+- The lock includes PEP 517 build requirements, and the editable install uses
+  `--no-build-isolation --no-deps` in local and Linux/macOS CI bootstrap.
 - CLI help succeeds.
 - Static/test tools execute successfully, even if the initial test set is
   small.
@@ -355,6 +382,9 @@ inventory, other commands/modes, and exhaustive protocol documentation.
   unresolved hardware confirmation.
 - Data, CSV/replay, CLI, serial, electrical, recovery, and evidence contracts
   match the settled section above.
+- Capture-model boundary examples cover trigger channel D0, the last
+  pre-trigger sample at `-1/sample_rate_hz`, and the first post-trigger sample
+  and trigger flag at time zero.
 - No Qt/pythonnet/Roslyn dependency is introduced.
 
 ### C1-B2: Models, codec, and fake/replay contract
@@ -380,6 +410,8 @@ parse identity/capture streams correctly under normal and adverse reads.
 - Tests for coalesced status-plus-binary data, overlong/unterminated/extra ASCII
   fields, trailing timestamp-count validation, timeout/Cancel recovery followed
   by identity, and every replay archive/dtype/size/schema bound above.
+- Boundary tests for trigger channel D0 and the sample instants immediately
+  before and at `trigger_index`.
 
 **Out of scope:** pySerial, CLI hardware commands, writing production artifacts,
 channel widths above eight, or generic future protocol abstractions.
@@ -461,6 +493,9 @@ strictly required, and graceful firmware abort.
 
 - Fake capture/export tests pass for rising and falling edge cases.
 - CSV is byte-deterministic for a fixed capture and reloads to expected values.
+- CSV tests prove the D0 trigger-channel value, last pre-trigger time, and
+  first-post-trigger time-zero/flag convention; `docs/compatibility.md` records
+  the intentional difference from the C# channel-only CSV.
 - `.npz` loads with `allow_pickle=False`; schema/version and required metadata
   validate under all archive/dtype/size bounds; samples match exactly.
 - Real capture returns the requested sample count and 8-bit width.
@@ -482,9 +517,13 @@ including failure cleanup and a second real capture after close/reopen.
   output, and scope compliance.
 - Regression tests for all Cycle 1 defects found during integration.
 - Ctrl-C, timeout, malformed input, disconnect, and close/reopen verification.
-- A physical no-trigger timeout or Ctrl-C recovery that sends the characterized
-  `0xFF` byte, re-identifies, and then captures without a power cycle.
-- Stable documented `hardware-smoke` command or equivalent pytest interface.
+- A physical no-trigger recovery through the settled non-interactive
+  `hardware-recovery-smoke` interface: start on the operator-confirmed
+  fixed-level idle channel, wait the bounded cancellation delay, send exactly
+  one `0xFF`, drain/close/reopen/re-identify, and capture the known periodic
+  signal without a power cycle.
+- Stable documented `hardware-smoke` and `hardware-recovery-smoke` commands, or
+  an equivalent pytest interface with every settled input and behavior.
 - Two real captures separated by explicit close/reopen.
 - Final progress record and Cycle 1 handoff.
 
@@ -570,7 +609,10 @@ comparison path throughout Cycle 1.
 
 Before hardware or external commands, confirm:
 
-- [ ] The operation is identity or the characterized normal 8-channel capture.
+- [ ] The operation is identity, the characterized normal 8-channel capture,
+      or exactly one characterized `0xFF` byte used only to recover from an
+      in-flight Cycle 1 normal capture before the settled
+      drain/close/reopen/re-identification sequence.
 - [ ] The operator supplied the exact port and safe signal parameters.
 - [ ] No bootloader, flash, Wi-Fi, network, or persistent mutation command is
       reachable from the requested path.

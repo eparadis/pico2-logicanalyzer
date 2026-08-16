@@ -1,0 +1,38 @@
+{
+  "fixture_schema": 1,
+  "name": "V2 normal 8-channel falling-edge capture request",
+  "evidence_category": "firmware-source,csharp-source",
+  "confidence": "source-derived native-layout expectation; not observed on a physical wire",
+  "capture_configuration": {
+    "trigger_type": "edge",
+    "trigger_type_value": 0,
+    "trigger_channel": 0,
+    "edge": "falling",
+    "inverted_value": 1,
+    "channels": [0, 1, 2, 3, 4, 5, 6, 7],
+    "channel_count": 8,
+    "sample_rate_hz": 1000000,
+    "pre_trigger_samples": 170,
+    "post_trigger_samples": 85,
+    "loop_count": 0,
+    "measure_bursts": false,
+    "capture_mode": 0
+  },
+  "difference_from_rising": "Only native-struct offset 2 (inverted_or_count) changes from 00 to 01; frame escaping is otherwise identical.",
+  "capture_request_native_layout": {
+    "size": 48,
+    "byte_order": "little-endian for uint16_t and uint32_t fields",
+    "padding_offsets": [3, 31, 47],
+    "fixture_padding_bytes_hex": {"3": "00", "31": "00", "47": "00"}
+  },
+  "command": 1,
+  "unescaped_payload_hex": "01 00 00 01 00 00 00 00 01 02 03 04 05 06 07 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 08 00 40 42 0f 00 aa 00 00 00 55 00 00 00 00 00 00 00",
+  "framed_hex": "55 aa 01 00 00 01 00 00 00 00 01 02 03 04 05 06 07 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 08 00 40 42 0f 00 f0 5a 00 00 00 f0 a5 00 00 00 00 00 00 00 aa 55",
+  "expected_unescaped_payload_length": 49,
+  "expected_framed_length": 55,
+  "escaped_payload_bytes": [
+    {"payload_offset": 37, "original_hex": "aa", "encoded_hex": "f0 5a"},
+    {"payload_offset": 41, "original_hex": "55", "encoded_hex": "f0 a5"}
+  ],
+  "source_provenance": "See docs/protocol-fixture-provenance.md. C# names this bit TriggerInverted and its UI calls it NegativeEdge; rising/falling mapping is source-derived."
+}

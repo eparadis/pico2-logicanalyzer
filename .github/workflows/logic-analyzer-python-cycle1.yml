@@ -1,0 +1,33 @@
+name: Logic analyzer Python Cycle 1
+
+on:
+  push:
+    paths:
+      - "Software/LogicAnalyzerPy/**"
+      - ".github/workflows/logic-analyzer-python-cycle1.yml"
+  pull_request:
+    paths:
+      - "Software/LogicAnalyzerPy/**"
+      - ".github/workflows/logic-analyzer-python-cycle1.yml"
+
+jobs:
+  validate:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - working-directory: Software/LogicAnalyzerPy
+        run: |
+          python3.12 -m venv .venv
+          .venv/bin/python -m pip install --require-hashes -r requirements-dev.lock
+          .venv/bin/python -m pip install --no-build-isolation --no-deps -e .
+          .venv/bin/python -m ruff check .
+          .venv/bin/python -m mypy src
+          .venv/bin/python -m pytest -m "not hardware"
+          .venv/bin/python -m pico_logic_analyzer --help

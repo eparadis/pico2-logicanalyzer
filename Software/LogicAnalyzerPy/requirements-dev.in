@@ -1,0 +1,7 @@
+# Direct development and PEP 517 build requirements for Cycle 1.
+# Regenerate requirements-dev.lock with Python 3.12 and hashes.
+mypy==1.15.0
+pytest==8.3.4
+ruff==0.9.10
+setuptools==75.8.0
+wheel==0.45.1

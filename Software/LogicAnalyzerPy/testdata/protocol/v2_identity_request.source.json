@@ -1,0 +1,18 @@
+{
+  "fixture_schema": 1,
+  "name": "v2 identity request",
+  "evidence_category": "firmware-source,csharp-source",
+  "confidence": "source-derived; not observed on a physical wire",
+  "command": 0,
+  "unescaped_payload_hex": "00",
+  "framed_hex": "55 aa 00 aa 55",
+  "expected_unescaped_payload_length": 1,
+  "expected_framed_length": 5,
+  "framing": {
+    "start_hex": "55 aa",
+    "end_hex": "aa 55",
+    "escape_byte_hex": "f0",
+    "escape_rule": "Each payload byte aa, 55, or f0 is emitted as f0 followed by byte XOR f0. Delimiters are not payload and are not escaped."
+  },
+  "source_provenance": "See docs/protocol-fixture-provenance.md; firmware dispatch accepts command 0 only when raw frame length is 5, and C# OutputPacket serializes command 0."
+}

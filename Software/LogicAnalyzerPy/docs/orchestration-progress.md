@@ -264,7 +264,7 @@
 
 ## C1-B4: Physical capture, CSV, and provisional replay
 
-- State: In progress
+- State: Complete
 - Objective: Implement the exact normal eight-channel capture/export CLI and
   prove a deterministic rising-edge capture of the operator's 1 kHz D0 signal
   on the physical Pico 2.
@@ -316,6 +316,66 @@
   request padding/endianness, and physical polarity remain to be confirmed.
   Any firmware limitation is recorded and deferred rather than repaired in
   Cycle 1.
+
+- Acceptance history: the initial verification record was
+  `changes_required` while physical evidence and an explicit frequency
+  tolerance were pending. Round-2 verification passed the completed
+  non-hardware surface. Final acceptance passed the frozen candidate and its
+  physical artifacts.
+
+### Checkpoint C1-B4 — Physical capture, CSV, and provisional replay
+
+- State: Complete
+- Completed at: 2026-08-17T03:51:09Z
+- Tested commit: `53bfc2184c825296da20a644777729096cff3c1f`
+- Tested tree: `7b5828208fbe72839fee2f59fd41652d5abee073`
+- Worktree state: clean tracked worktree at physical validation; raw physical
+  CSV/NPZ and smoke output were untracked evidence inputs. Sanitized summaries,
+  the final acceptance record, manifest, and this checkpoint record were added
+  afterward as evidence-only files.
+- Implementation agent: `/root/c1_b4_implementation`.
+- Verification agent and verdict: `/root/c1_b4_verification`; round-2 verdict
+  `pass` for the complete non-hardware surface, with physical proof pending for
+  the acceptance owner.
+- Acceptance agent: `/root/c1_b1_acceptance`; verdict `pass` after independent
+  secure replay loading, byte-identical CSV reconstruction, transition scan,
+  and accumulated validation.
+- Environment: macOS 15.7.7 (24G720), x86_64, Python 3.12.13, lock SHA-256
+  `931e790473b3ca014c248cdd3b665389ddb3f24425c4320124c40f1a608ab726`.
+- Objective evidence: exact normal rising/falling capture framing and bounds;
+  deterministic transactional CSV/NPZ writes; secure replay reload; explicit
+  port and finite failures; sanitized physical waveform evidence.
+- Focused commands: C1-B4 verifier pass (22 tests); physical capture,
+  replay-validation, and hardware-smoke commands all exited 0; manifest schema
+  and artifact digest checks pass.
+- Accumulated commands: `pip check`, `ruff check .`, `mypy src`, all verifier
+  tests (152), all non-hardware tests (188), module help, and `git diff
+  --check` pass. The only warning is the expected duplicate-ZIP hostile-fixture
+  construction warning whose archive the production loader rejects.
+- Hardware evidence: 100000 samples/s, D0/GPIO2 rising trigger, 2048 pre and
+  4096 post samples, 6144 requested/received samples, nonconstant D0, 41 rising
+  transitions over a 4000-sample endpoint span, and measured 1000.0 Hz within
+  the documented 2.05% combined source/quantization tolerance.
+- Evidence manifest: `Software/LogicAnalyzerPy/testdata/evidence/c1-b4.json`.
+- Decisions/discrepancies: the physical low-to-high transition appears at
+  sample 2047 while the settled logical trigger marker/time-zero boundary is
+  sample 2048. The requested polarity is present and periodic, so this does not
+  block the Cycle 1 gate; the sequencing relationship is explicitly recorded
+  for later protocol/firmware investigation rather than changing the settled
+  data contract.
+- Deferred findings: timeout/cancellation recovery, a fixed-level no-trigger
+  proof, close/reopen/re-identification, and the second physical capture remain
+  C1-B5. Wider modes, GUI, decoders, and any firmware changes remain later
+  cycles.
+- Known limitations: the provisional replay format is Cycle 1 only; the
+  physical edge is not claimed to coincide exactly with the logical time-zero
+  sample.
+- Repository state: the tested candidate preserves all tracked C# and firmware
+  sources. No firmware, bootloader, Wi-Fi, or persistent-device operation was
+  performed.
+- Next batch: C1-B5; awaiting operator confirmation of a fixed-level idle input
+  for the intentional no-trigger recovery proof.
+- Blocked: no
 
 ## Deferred work
 

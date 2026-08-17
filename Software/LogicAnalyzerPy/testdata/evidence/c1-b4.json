@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "checkpoint": "C1-B4",
+  "result": "pass",
+  "timestamp_utc": "2026-08-17T03:51:09Z",
+  "tested_commit": "53bfc2184c825296da20a644777729096cff3c1f",
+  "tested_tree": "7b5828208fbe72839fee2f59fd41652d5abee073",
+  "worktree_state": "Clean tracked worktree at physical capture and validation; raw physical CSV/NPZ were untracked evidence inputs. The sanitized summaries, final acceptance record, manifest, and checkpoint log were added afterward as evidence-only files.",
+  "environment": {
+    "os": "macOS 15.7.7 (24G720)",
+    "architecture": "x86_64",
+    "python": "3.12.13"
+  },
+  "lock_sha256": "931e790473b3ca014c248cdd3b665389ddb3f24425c4320124c40f1a608ab726",
+  "commands": [
+    {
+      "command": ".venv/bin/python -m pip check",
+      "exit_status": 0
+    },
+    {
+      "command": ".venv/bin/python -m ruff check .",
+      "exit_status": 0
+    },
+    {
+      "command": ".venv/bin/python -m mypy src",
+      "exit_status": 0
+    },
+    {
+      "command": ".venv/bin/python -m pytest tests/verification/test_c1_b4_capture_artifacts_blackbox.py -q",
+      "exit_status": 0
+    },
+    {
+      "command": ".venv/bin/python -m pytest tests/verification -q",
+      "exit_status": 0
+    },
+    {
+      "command": ".venv/bin/python -m pytest -m \"not hardware\" -q",
+      "exit_status": 0
+    },
+    {
+      "command": ".venv/bin/python -m pico_logic_analyzer --help",
+      "exit_status": 0
+    },
+    {
+      "command": "pico-la capture --port <PORT_SUPPLIED> --sample-rate 100000 --trigger-channel 0 --edge rising --pre-samples 2048 --post-samples 4096 --csv <RAW_CSV> --replay <RAW_NPZ> --timeout 10",
+      "exit_status": 0
+    },
+    {
+      "command": "pico-la replay-validate <RAW_NPZ> --json",
+      "exit_status": 0
+    },
+    {
+      "command": "pico-la hardware-smoke --port <PORT_SUPPLIED> --signal-hz 1000 --sample-rate 100000 --trigger-channel 0 --edge rising --pre-samples 2048 --post-samples 4096 --evidence <SMOKE_JSON> --timeout 10",
+      "exit_status": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit_status": 0
+    }
+  ],
+  "verifier": "/root/c1_b4_verification; /root/c1_b1_acceptance",
+  "sources": [
+    {
+      "category": "observed-wire",
+      "revision": "53bfc2184c825296da20a644777729096cff3c1f",
+      "artifact": "Software/LogicAnalyzerPy/testdata/evidence/c1-b4-capture-observation.json",
+      "artifact_sha256": "cbafbdc13f150486d45de9d85d05e52a13f9a585e6bafb75a82ec0de2f0aa3f2"
+    },
+    {
+      "category": "hardware-observation",
+      "revision": "53bfc2184c825296da20a644777729096cff3c1f",
+      "artifact": "Software/LogicAnalyzerPy/testdata/evidence/c1-b4-hardware-smoke.json",
+      "artifact_sha256": "c747cd8f881e24273562a8fe82a21e79ac70ca91bd026caed3267b98ba15df5f"
+    },
+    {
+      "category": "firmware-source",
+      "revision": "53bfc2184c825296da20a644777729096cff3c1f",
+      "artifact": "Software/LogicAnalyzerPy/docs/c1-b4-capture-procedure.md",
+      "artifact_sha256": "55e085a73903b271805e2d04868cdd234340a2dc89c6ee7bbf4c0167d8891048"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "Software/LogicAnalyzerPy/testdata/evidence/c1-b4-capture-observation.json",
+      "sha256": "cbafbdc13f150486d45de9d85d05e52a13f9a585e6bafb75a82ec0de2f0aa3f2"
+    },
+    {
+      "path": "Software/LogicAnalyzerPy/testdata/evidence/c1-b4-hardware-smoke.json",
+      "sha256": "c747cd8f881e24273562a8fe82a21e79ac70ca91bd026caed3267b98ba15df5f"
+    },
+    {
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c1-b4-verification-round-2.md",
+      "sha256": "55af91d7fcf0a0a01406d57e5842fcf9cb63f5c866e764ce4462cc80f0894f1f"
+    },
+    {
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c1-b4-acceptance.md",
+      "sha256": "3509d0ddb693ba6cf7a2401d40fa732d48ac1b9a6fd5fc1a72db491c28db9977"
+    },
+    {
+      "path": "Software/LogicAnalyzerPy/tests/verification/test_c1_b4_capture_artifacts_blackbox.py",
+      "sha256": "cb3f854b79093e6c6d4bf7540698c394062aea9120d6b2db94e318bcaf53a9af"
+    }
+  ],
+  "hardware": {
+    "port": "<PORT_SUPPLIED>",
+    "board": "Raspberry Pi Pico 2; integrated checked-in LogicAnalyzerV2 board",
+    "firmware": "latest checked-in Firmware/LogicAnalyzer_V2; BOARD_TYPE=BOARD_PICO_2; reported LOGIC_ANALYZER_PICO_2_V6_0",
+    "front_end": "integrated TXU0104 protection design; operator-confirmed 3.3 V VRef, 3.3 V signal, and common ground at labeled GND",
+    "parameters": {
+      "sample_rate_hz": 100000,
+      "signal_hz": 1000,
+      "trigger_channel": 0,
+      "trigger_channel_name": "D0",
+      "pico_gpio": 2,
+      "edge": "rising",
+      "pre_trigger_samples": 2048,
+      "post_trigger_samples": 4096,
+      "requested_count": 6144,
+      "actual_count": 6144,
+      "transition_count": 41,
+      "measured_frequency_hz": 1000.0,
+      "source_tolerance_fraction": 0.02,
+      "quantization_tolerance_fraction": 0.0005,
+      "total_tolerance_fraction": 0.0205,
+      "persistent_device_changes": false
+    }
+  }
+}

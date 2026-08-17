@@ -143,6 +143,8 @@ class SerialTransport:
                 except Exception as exc:
                     self.close()
                     raise SerialTransportError(f"serial read failed on {self.port}: {exc}") from exc
+                if not chunk and self._buffer.endswith(b"\r"):
+                    raise SerialTransportError("invalid carriage return in identity field")
                 if not chunk:
                     raise TransportTimeout(f"timed out reading identity from {self.port}")
                 self._buffer.extend(chunk)
@@ -151,8 +153,13 @@ class SerialTransport:
                 raise SerialTransportError("overlong identity field")
             raw = bytes(self._buffer[:end])
             del self._buffer[:end]
+            content = raw[:-1]
+            if content.endswith(b"\r"):
+                content = content[:-1]
+            if b"\r" in content or b" " in content or b"\t" in content:
+                raise SerialTransportError("invalid whitespace in identity field")
             try:
-                return raw[:-1].decode("ascii")
+                return content.decode("ascii")
             except UnicodeDecodeError as exc:
                 raise SerialTransportError("non-ASCII identity field") from exc
 

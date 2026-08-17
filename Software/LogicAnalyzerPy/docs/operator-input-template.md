@@ -7,13 +7,13 @@ Unknown electrical details block the hardware path.
 |---|---|
 | Explicit serial port (use placeholder in commits) | `<PORT_SUPPLIED>`; operator supplied a live port out of band |
 | Board variant and firmware identity/build, if known | Pico 2; latest checked-in V2 source, `BOARD_TYPE=BOARD_PICO_2`; reported identity pending C1-B3 |
-| Input-front-end / level-shifter revision | 5 V protection confirmed present; exact revision pending operator record before C1-B3 hardware I/O |
-| Target logic voltage | Pending operator record before hardware I/O |
-| Level-shifter VRef | Pending operator record before hardware I/O |
-| Permitted analyzer input range | Pending operator record before hardware I/O |
-| Confirmed common-ground point | Common ground confirmed connected; exact point pending operator record |
-| D0–D7 to target header/GPIO map | Firmware source maps D0–D7 to GPIO2–GPIO9; protection-board header mapping must be confirmed before hardware I/O |
-| Periodic signal source and expected frequency | 1 kHz on operator-described board “channel 1”; exact logical D0–D7 identity must be confirmed before capture |
+| Input-front-end / level-shifter revision | Operator confirms the integrated checked-in `LogicAnalyzerV2` protection-board design is installed and matches its documented input range |
+| Target logic voltage | Operator-confirmed 3.3 V periodic source |
+| Level-shifter VRef | Operator-confirmed 3.3 V selection |
+| Permitted analyzer input range | Operator confirms the installed board matches the checked-in design and that the 3.3 V source is within its permitted input range |
+| Confirmed common-ground point | Operator confirms common ground is connected at the board point labeled `GND` |
+| D0–D7 to target header/GPIO map | Checked-in `LogicAnalyzerV2` and `BOARD_PICO_2` sources map labeled inputs 1–8 to logical D0–D7 and GPIO2–GPIO9; operator confirms the signal is on labeled input `1`, therefore D0/GPIO2 |
+| Periodic signal source and expected frequency | Operator-confirmed 1 kHz, 3.3 V periodic signal on labeled input `1` = D0/GPIO2 |
 | Sample rate, trigger D0–D7, edge, pre/post samples | Orchestrator may select conservative valid values after capabilities and mapping are confirmed |
 | Physical polarity to exercise | Orchestrator may select and record rising or falling |
 

@@ -150,6 +150,64 @@ def test_serial_identity_service_handles_one_byte_fragments_and_closes() -> None
 
 
 @pytest.mark.parametrize(
+    ("wire", "expected"),
+    [(b"IDENTITY\n", "IDENTITY"), (b"IDENTITY\r\n", "IDENTITY")],
+)
+def test_serial_line_boundary_accepts_only_lf_or_crlf(wire: bytes, expected: str) -> None:
+    events: list[object] = []
+    factory, _ = _factory(events, [wire])
+    transport = SerialTransport(
+        "/dev/fake-v2",
+        serial_factory=factory,  # type: ignore[arg-type]
+        sleeper=lambda _: None,
+    )
+    transport.open()
+    assert transport.read_line(1.0) == expected
+    transport.close()
+
+
+@pytest.mark.parametrize("wire", [b"IDENTITY\r", b"IDENTITY\rX\n"])
+def test_serial_line_boundary_rejects_lone_or_embedded_cr(
+    wire: bytes,
+) -> None:
+    events: list[object] = []
+    factory, _ = _factory(events, [wire])
+    transport = SerialTransport(
+        "/dev/fake-v2",
+        serial_factory=factory,  # type: ignore[arg-type]
+        sleeper=lambda _: None,
+    )
+    transport.open()
+    with pytest.raises((TransportTimeout, SerialTransportError)):
+        transport.read_line(1.0)
+    transport.close()
+
+
+@pytest.mark.parametrize(
+    "identity",
+    [
+        b" LOGIC_ANALYZER_TEST_BOARD_V6_0\n",
+        b"LOGIC_ANALYZER_TEST_BOARD_V6_0 \n",
+        b"LOGIC_ANALYZER_TEST_BOARD_V6_0\t\n",
+    ],
+)
+def test_identity_grammar_rejects_smuggled_boundary_whitespace(identity: bytes) -> None:
+    events: list[object] = []
+    factory, created = _factory(
+        events,
+        [identity, b"FREQ:100\n", b"BLASTFREQ:100\n", b"BUFFER:128\n", b"CHANNELS:8\n"],
+    )
+    service = V2DeviceService(
+        lambda port, timeout: SerialTransport(  # type: ignore[arg-type]
+            port, timeout, serial_factory=factory, sleeper=lambda _: None
+        )
+    )
+    with pytest.raises((ProtocolError, ConnectionError)):
+        service.identify("/dev/fake-v2", timeout=1.0)
+    assert created[0].is_open is False
+
+
+@pytest.mark.parametrize(
     "responses,error_type",
     [
         ([b"LOGIC_ANALYZER_TEST_BOARD_V6_0\n"], TransportTimeout),
@@ -330,27 +388,30 @@ def test_cli_never_auto_selects_an_info_port(
 def test_cli_rejects_future_capture_command_without_opening_a_port(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    assert _CLI.main(
-        [
-            "capture",
-            "--port",
-            "/dev/not-opened",
-            "--sample-rate",
-            "1",
-            "--trigger-channel",
-            "0",
-            "--edge",
-            "rising",
-            "--pre-samples",
-            "0",
-            "--post-samples",
-            "1",
-            "--csv",
-            "out.csv",
-            "--replay",
-            "capture.npz",
-        ]
-    ) == 2
+    assert (
+        _CLI.main(
+            [
+                "capture",
+                "--port",
+                "/dev/not-opened",
+                "--sample-rate",
+                "1",
+                "--trigger-channel",
+                "0",
+                "--edge",
+                "rising",
+                "--pre-samples",
+                "0",
+                "--post-samples",
+                "1",
+                "--csv",
+                "out.csv",
+                "--replay",
+                "capture.npz",
+            ]
+        )
+        == 2
+    )
     captured = capsys.readouterr()
     assert captured.out == ""
     assert "not implemented" in captured.err

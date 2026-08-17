@@ -43,7 +43,9 @@ the compatible C# client asserts both. The source-derived timings and deployed
 identity remain pending physical C1-B3 confirmation.
 
 The transport owns one byte buffer for both identity text and later binary
-phases; it does not combine a text reader with a binary reader. Every success,
+phases; it does not combine a text reader with a binary reader. Identity fields
+strictly accept LF or CRLF termination; a lone or embedded carriage return is
+not normalized. Every success,
 timeout, malformed response, permission failure, and unplug path closes the
 port. The optional service API
 `V2DeviceService.identify_after_reopen(<PORT>, timeout)` intentionally performs

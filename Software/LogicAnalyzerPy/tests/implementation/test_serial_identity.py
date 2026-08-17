@@ -29,6 +29,8 @@ class _FakeSerial:
         if not self.reads:
             return b""
         chunk = self.reads.pop(0)
+        if len(chunk) > size:
+            self.reads.insert(0, chunk[size:])
         return chunk[:size]
 
     def write(self, data: bytes) -> int:
@@ -80,6 +82,29 @@ def test_serial_line_rejects_unterminated_limit() -> None:
     with pytest.raises(SerialTransportError):
         transport.read_line(10)
     assert not connection.closed
+
+
+@pytest.mark.parametrize("wire", [b"FREQ:200000000\n", b"FREQ:200000000\r\n"])
+def test_serial_line_accepts_only_lf_or_crlf_terminators(wire: bytes) -> None:
+    connection = _FakeSerial()
+    connection.reads = [wire]
+    transport = SerialTransport(
+        "fake", 1, serial_factory=lambda **_: connection, sleeper=lambda _: None
+    )
+    transport.open()
+    assert transport.read_line(1) == "FREQ:200000000"
+
+
+@pytest.mark.parametrize("wire", [b"FREQ:2\r000\n", b"FREQ:200000000\r", b" FREQ:2\n"])
+def test_serial_line_rejects_lone_or_embedded_carriage_return_or_whitespace(wire: bytes) -> None:
+    connection = _FakeSerial()
+    connection.reads = [wire]
+    transport = SerialTransport(
+        "fake", 1, serial_factory=lambda **_: connection, sleeper=lambda _: None
+    )
+    transport.open()
+    with pytest.raises(SerialTransportError):
+        transport.read_line(1)
 
 
 @dataclass

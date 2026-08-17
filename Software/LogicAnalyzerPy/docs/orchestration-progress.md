@@ -377,6 +377,61 @@
   for the intentional no-trigger recovery proof.
 - Blocked: no
 
+## C1-B5: Lifecycle hardening and final hardware proof
+
+- State: Ready
+- Objective: Prove bounded timeout/Ctrl-C recovery, exact single-byte V2
+  cancellation, drain/close/reopen/re-identification, and a second physical
+  1 kHz D0 capture without a power cycle, then assemble the final Cycle 1
+  stopping-condition proof.
+- Prerequisites: accepted C1-B4 checkpoint at
+  `b251b755fc0296c2f731fe26fb2109035f44d38e`; physical recovery additionally
+  awaits operator confirmation of a fixed-level idle input. The operator has
+  been asked to leave the 1 kHz signal on labeled input `1`/D0/GPIO2 and connect
+  labeled input `2`/D1/GPIO3 to ground as the simplest fixed-low setup.
+- Implementation agent: `/root/c1_b4_implementation` (stable implementation
+  identity reused after the C1-B4 checkpoint).
+- Verification agent: `/root/c1_b1_protocol_verification` (independent of the
+  C1-B5 implementation identity).
+- Acceptance agent: `/root/c1_b1_acceptance` (assigned only after integration,
+  clean bootstrap, and physical evidence).
+- In scope: production recovery-smoke CLI; a normal capture on the confirmed
+  fixed-level channel; bounded cancellation delay; exactly one `0xFF`; bounded
+  drain; close/reopen/re-identification; second normal capture of the known
+  periodic D0 signal; atomic sanitized evidence; Ctrl-C, timeout, malformed,
+  disconnect, cleanup, command-stream/exit, and Cycle 1 regression tests; final
+  clean Python 3.12 bootstrap and handoff evidence.
+- Out of scope: firmware or bootloader operations, persistent device changes,
+  public/general abort APIs, immediate/complex/fast/blast/burst modes, wider
+  captures, GUI, decoders, TCP/Wi-Fi, release packaging, and Cycle 2 work.
+- Owned files: implementation owns the minimal recovery service/CLI modules,
+  implementation-focused tests, and recovery procedure; verifier owns C1-B5
+  additions under `tests/verification/` and its immutable verification review;
+  acceptance owns only its C1-B5 acceptance review. The primary orchestrator
+  owns shared integration, physical execution, evidence manifests, final
+  stopping checklist, and this progress log.
+- Source evidence: accepted C1-B2 recovery primitive/tests; C1-B3 serial
+  lifecycle and observed CRLF identity; C1-B4 capture/smoke behavior and
+  artifacts; firmware V2 cancellation handling; C# capture cancellation and
+  reopen paths; settled recovery/CLI/evidence contracts in the governing
+  documents.
+- Acceptance evidence: literal fake transport and pySerial order proving one
+  `0xFF`, shared finite drain deadline/byte cap, cleanup under timeout/Ctrl-C,
+  malformed input and disconnect; exact CLI streams/exits and atomic evidence;
+  physical fixed-level no-trigger cancellation followed by reopen/identity and
+  second 1 kHz D0 capture without power cycle; clean Python 3.12 hash-locked
+  bootstrap; accumulated static/non-hardware gates; exact final candidate/tree
+  and all nine stopping-condition links.
+- Authority notes: non-hardware work may proceed while fixed-level wiring is
+  pending. Physical I/O may use only `<PORT_SUPPLIED>`, the confirmed idle and
+  periodic inputs, normal eight-channel requests, and exactly one `0xFF` while
+  recovering an in-flight capture. No firmware flash, bootloader, Wi-Fi, or
+  persistent-device action is allowed.
+- Risks/unknowns: the fixed-level jumper is not yet operator-confirmed; deployed
+  cancellation acknowledgement/drain timing must be bounded from observed wire
+  behavior without changing firmware; the C1-B4 one-sample physical-edge versus
+  logical-trigger-marker relationship remains a documented later-cycle issue.
+
 ## Deferred work
 
 - C1-B2 owns production models, codec, parser, fake/replay transport, and negative protocol tests.

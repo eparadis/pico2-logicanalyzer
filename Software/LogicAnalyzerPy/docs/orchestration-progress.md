@@ -262,6 +262,61 @@
   are confirmed.
 - Blocked: no
 
+## C1-B4: Physical capture, CSV, and provisional replay
+
+- State: In progress
+- Objective: Implement the exact normal eight-channel capture/export CLI and
+  prove a deterministic rising-edge capture of the operator's 1 kHz D0 signal
+  on the physical Pico 2.
+- Prerequisites: accepted C1-B3 checkpoint at
+  `70015f13b48d30b9710374a81284388aefa84b2f`; operator-confirmed integrated
+  protection design, 3.3 V VRef/source, common ground, and labeled input `1`
+  physically mapped to logical D0/GPIO2.
+- Implementation agent: `/root/c1_b4_implementation`.
+- Verification agent: `/root/c1_b4_verification`.
+- Acceptance agent: `/root/c1_b1_acceptance` (assigned after integration and
+  physical evidence).
+- In scope: narrow D0-D7 normal rising/falling capture; negotiated validation;
+  bounded sample receive; deterministic self-timed CSV; bounded provisional NPZ
+  writer compatible with the accepted loader; capture/replay-validate CLI;
+  transactional two-output collision/force/rollback behavior; explicit
+  hardware-smoke command and 1 kHz rising-edge proof.
+- Out of scope: recovery/cancellation, fixed-level checks without confirmed
+  wires, second post-recovery capture, wider/multidevice modes, rich
+  measurements, GUI, decoders, legacy `.lac`/CSV, TCP, firmware or persistent
+  device changes, and Cycle 2 work.
+- Owned files: implementation owns capture driver/service and artifact-writer
+  modules, CLI integration, implementation-focused tests, capture/format docs,
+  and the hardware-smoke procedure; verifier owns C1-B4 additions under
+  `tests/verification/`, independent golden artifact expectations, and its
+  C1-B4 verification record; acceptance owns only its later C1-B4 acceptance
+  record. The primary orchestrator owns physical execution, evidence manifests,
+  shared integration, and this progress log.
+- Source evidence: accepted C1-B1/B2 request/parser/replay fixtures; C1-B3
+  observed identity/capabilities; firmware `LogicAnalyzer.c`,
+  `LogicAnalyzer_Capture.c`, and structs; C# `LogicAnalyzerDriver.cs`; settled
+  capture/CSV/replay/CLI/atomic-output contracts.
+- Acceptance evidence: literal rising/falling requests; fragmented/coalesced
+  fake captures; negotiated count/width/bounds; independent CSV parsing and
+  exact-byte determinism; `allow_pickle=False` NPZ reload and hostile-loader
+  regression; collision/force/fsync/rollback subprocess tests; exact stream and
+  exit codes; physical 1 kHz D0 capture with sample count, nonconstant bit,
+  rising transition, measured-frequency tolerance, artifact validation, and
+  closed port.
+- Authority notes: the hardware run may open only `<PORT_SUPPLIED>`, send the
+  characterized identity and normal capture requests, read results, close the
+  port, and write sanitized evidence. No cancellation byte belongs to C1-B4;
+  no firmware, bootloader, Wi-Fi, or persistent-device operation is permitted.
+- Physical parameters: choose 100000 samples/s, rising edge on D0, 2048
+  pre-trigger samples, and 4096 post-trigger samples. This yields 100 nominal
+  samples per 1 kHz period and 61.44 ms total observation while remaining far
+  below the reported 200 MHz normal limit and 393216-byte buffer; the final
+  procedure must state and independently justify its frequency tolerance.
+- Risks/unknowns: deployed capture status/data framing, source-derived native
+  request padding/endianness, and physical polarity remain to be confirmed.
+  Any firmware limitation is recorded and deferred rather than repaired in
+  Cycle 1.
+
 ## Deferred work
 
 - C1-B2 owns production models, codec, parser, fake/replay transport, and negative protocol tests.

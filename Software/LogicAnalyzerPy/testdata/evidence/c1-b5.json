@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "checkpoint": "C1-B5",
+  "result": "pass",
+  "timestamp_utc": "2026-08-17T04:59:24Z",
+  "tested_commit": "aeba415939d2f3d3f6d21852d3b446c4b6fef69b",
+  "tested_tree": "ec839c5646c09fbab5403ddde62304a2049eac0a",
+  "worktree_state": "Clean tracked worktree at physical recovery execution; only the raw sanitized recovery JSON was untracked. Final acceptance, sanitized evidence copies, manifest, completion record, and checkpoint log were added afterward as evidence-only files.",
+  "environment": {
+    "os": "macOS 15.7.7 (24G720)",
+    "architecture": "x86_64",
+    "python": "3.12.13"
+  },
+  "lock_sha256": "931e790473b3ca014c248cdd3b665389ddb3f24425c4320124c40f1a608ab726",
+  "commands": [
+    {
+      "command": "python3.12 -m venv <FRESH_VENV>",
+      "exit_status": 0
+    },
+    {
+      "command": "<FRESH_VENV>/bin/python -m pip install --require-hashes -r requirements-dev.lock",
+      "exit_status": 0
+    },
+    {
+      "command": "<FRESH_VENV>/bin/python -m pip install --no-build-isolation --no-deps -e .",
+      "exit_status": 0
+    },
+    {
+      "command": "<FRESH_VENV>/bin/python -m pip check",
+      "exit_status": 0
+    },
+    {
+      "command": "<FRESH_VENV>/bin/python -m ruff check .",
+      "exit_status": 0
+    },
+    {
+      "command": "<FRESH_VENV>/bin/python -m mypy src",
+      "exit_status": 0
+    },
+    {
+      "command": "<FRESH_VENV>/bin/python -m pytest tests/verification/test_c1_b5_recovery_blackbox.py -q",
+      "exit_status": 0
+    },
+    {
+      "command": "<FRESH_VENV>/bin/python -m pytest tests/verification -q",
+      "exit_status": 0
+    },
+    {
+      "command": "<FRESH_VENV>/bin/python -m pytest -m \"not hardware\" -q",
+      "exit_status": 0
+    },
+    {
+      "command": "<FRESH_VENV>/bin/python -m pico_logic_analyzer --help",
+      "exit_status": 0
+    },
+    {
+      "command": "pico-la hardware-recovery-smoke --port <PORT_SUPPLIED> --idle-channel 1 --idle-level 0 --cancel-after 0.25 --signal-channel 0 --signal-hz 1000 --sample-rate 100000 --edge rising --pre-samples 2048 --post-samples 4096 --evidence <RAW_EVIDENCE_JSON> --timeout 3",
+      "exit_status": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit_status": 0
+    }
+  ],
+  "verifier": "/root/c1_b1_protocol_verification; /root/c1_b1_acceptance",
+  "sources": [
+    {
+      "category": "observed-wire",
+      "revision": "aeba415939d2f3d3f6d21852d3b446c4b6fef69b",
+      "artifact": "Software/LogicAnalyzerPy/testdata/evidence/c1-b5-recovery-observation.json",
+      "artifact_sha256": "252125b3c7daf504e3cd53222bf8fa48a26000014af39dfeb26902bf0585d8d0"
+    },
+    {
+      "category": "hardware-observation",
+      "revision": "operator-confirmed-2026-08-17",
+      "artifact": "Software/LogicAnalyzerPy/testdata/evidence/c1-b5-recovery-smoke.json",
+      "artifact_sha256": "44a7bffc0bcc7c415ba8fa09efb26624853dce26833216d78d408b9c45907815"
+    },
+    {
+      "category": "synthetic",
+      "revision": "aeba415939d2f3d3f6d21852d3b446c4b6fef69b",
+      "artifact": "Software/LogicAnalyzerPy/tests/verification/test_c1_b5_recovery_blackbox.py",
+      "artifact_sha256": "ac758ee8862cb40c157912d66042f0e9ef61f6375efd00ea1d171dec55b8274c"
+    },
+    {
+      "category": "firmware-source",
+      "revision": "aeba415939d2f3d3f6d21852d3b446c4b6fef69b",
+      "artifact": "Software/LogicAnalyzerPy/docs/c1-b5-recovery-procedure.md",
+      "artifact_sha256": "07be2cd903cb931f108a9a46ef6c942e275bf1f4eb8a557bbaef3ee0df49d5f5"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "Software/LogicAnalyzerPy/testdata/evidence/c1-b5-recovery-observation.json",
+      "sha256": "252125b3c7daf504e3cd53222bf8fa48a26000014af39dfeb26902bf0585d8d0"
+    },
+    {
+      "path": "Software/LogicAnalyzerPy/testdata/evidence/c1-b5-recovery-smoke.json",
+      "sha256": "44a7bffc0bcc7c415ba8fa09efb26624853dce26833216d78d408b9c45907815"
+    },
+    {
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c1-b5-verification.md",
+      "sha256": "6b5c802379c04e7872367b8670ac2007d1c1ec5a88c27a80141a15a35fb381ca"
+    },
+    {
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c1-b5-acceptance.md",
+      "sha256": "8fbe308c38750a1f404c92b0eba940ae22779f4322d075524bd6e7bc5c60ec25"
+    },
+    {
+      "path": "Software/LogicAnalyzerPy/tests/verification/test_c1_b5_recovery_blackbox.py",
+      "sha256": "ac758ee8862cb40c157912d66042f0e9ef61f6375efd00ea1d171dec55b8274c"
+    },
+    {
+      "path": "Software/LogicAnalyzerPy/docs/c1-b5-recovery-procedure.md",
+      "sha256": "07be2cd903cb931f108a9a46ef6c942e275bf1f4eb8a557bbaef3ee0df49d5f5"
+    }
+  ],
+  "hardware": {
+    "port": "<PORT_SUPPLIED>",
+    "board": "Raspberry Pi Pico 2; integrated checked-in LogicAnalyzerV2 board",
+    "firmware": "latest checked-in Firmware/LogicAnalyzer_V2; BOARD_TYPE=BOARD_PICO_2; reported LOGIC_ANALYZER_PICO_2_V6_0",
+    "front_end": "integrated TXU0104 protection; 3.3 V VRef; common analyzer ground; D1/GPIO3 fixed low and protected 3.3 V 1 kHz D0/GPIO2",
+    "parameters": {
+      "idle_channel": 1,
+      "idle_channel_name": "D1",
+      "idle_pico_gpio": 3,
+      "idle_level": 0,
+      "cancel_after_seconds": 0.25,
+      "cancel_byte_hex": "ff",
+      "drain_limit_bytes": 4096,
+      "recovery_timeout_seconds": 3.0,
+      "reidentified": true,
+      "power_cycle": false,
+      "signal_channel": 0,
+      "signal_channel_name": "D0",
+      "signal_pico_gpio": 2,
+      "signal_hz": 1000,
+      "sample_rate_hz": 100000,
+      "edge": "rising",
+      "pre_trigger_samples": 2048,
+      "post_trigger_samples": 4096,
+      "actual_count": 6144,
+      "transition_count": 42,
+      "span_samples": 4093,
+      "measured_frequency_hz": 1001.710236989983,
+      "tolerance_fraction": 0.020488639139995116,
+      "persistent_device_changes": false
+    }
+  }
+}

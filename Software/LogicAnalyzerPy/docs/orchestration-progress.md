@@ -379,7 +379,7 @@
 
 ## C1-B5: Lifecycle hardening and final hardware proof
 
-- State: Verifying
+- State: Complete
 - Objective: Prove bounded timeout/Ctrl-C recovery, exact single-byte V2
   cancellation, drain/close/reopen/re-identification, and a second physical
   1 kHz D0 capture without a power cycle, then assemble the final Cycle 1
@@ -431,6 +431,71 @@
   bounded from observed wire behavior without changing firmware; the C1-B4
   one-sample physical-edge versus logical-trigger-marker relationship remains a
   documented later-cycle issue.
+
+- Acceptance history: independent verification initially recorded
+  `changes_required` because Boolean `cancel_after` reached transport creation.
+  Exact pre-I/O numeric validation and a regression test resolved the finding;
+  final verification passed. Independent final acceptance passed the frozen
+  candidate, physical result, clean bootstrap, and all nine stopping conditions.
+
+### Checkpoint C1-B5 — Lifecycle hardening and final hardware proof
+
+- State: Complete
+- Completed at: 2026-08-17T04:59:24Z
+- Tested commit: `aeba415939d2f3d3f6d21852d3b446c4b6fef69b`
+- Tested tree: `ec839c5646c09fbab5403ddde62304a2049eac0a`
+- Worktree state: clean tracked worktree at physical recovery execution; only
+  the raw sanitized recovery result was untracked. Final acceptance, sanitized
+  evidence copies, manifest, completion proof, and this checkpoint record were
+  added afterward as evidence-only files.
+- Implementation agent: `/root/c1_b4_implementation`.
+- Verification agent and verdict: `/root/c1_b1_protocol_verification`; final
+  verdict `pass` after 10 focused and 162 accumulated verifier tests.
+- Acceptance agent: `/root/c1_b1_acceptance`; final C1-B5 and Cycle 1 verdict
+  `pass` after an independent nine-condition audit.
+- Environment: macOS 15.7.7 (24G720), x86_64, fresh Python 3.12.13 environment,
+  lock SHA-256
+  `931e790473b3ca014c248cdd3b665389ddb3f24425c4320124c40f1a608ab726`.
+- Objective evidence: exact single `0xFF` after an in-flight normal capture;
+  bounded shared-deadline/4096-byte drain; cleanup under timeout, Ctrl-C,
+  malformed setup, disconnect, and recovery failure; explicit close/reopen and
+  re-identification; atomic sanitized evidence; physical fixed-low no-trigger
+  recovery followed by a second D0 capture without a power cycle.
+- Files changed: minimal recovery service/CLI integration, focused
+  implementation and independent verification tests, recovery procedure,
+  verifier/acceptance records, sanitized hardware evidence, manifest, and final
+  completion proof.
+- Focused commands: C1-B5 verifier pass (10 tests); full verifier pass (162
+  tests); physical `hardware-recovery-smoke` exit 0; manifest schema and artifact
+  digest checks pass.
+- Accumulated commands: fresh hash-required install and no-isolation/no-deps
+  editable install pass; `pip check`, Ruff, mypy, 201 non-hardware tests, CLI
+  help, and `git diff --check` pass. The sole warning is the expected hostile
+  duplicate-ZIP fixture construction warning.
+- Hardware evidence: operator-confirmed input `2`/D1/GPIO3 directly grounded;
+  input `1`/D0/GPIO2 retained the protected 3.3 V 1 kHz source. After 0.25 s the
+  characterized cancellation/recovery path completed under the 3 s deadline,
+  re-identified `LOGIC_ANALYZER_PICO_2_V6_0`, and captured 6144 D0 samples with
+  42 rising transitions over 4093 samples, measuring 1001.710236989983 Hz within
+  the 2.0488639% combined tolerance. No power cycle or persistent change.
+- Evidence manifest: `Software/LogicAnalyzerPy/testdata/evidence/c1-b5.json`,
+  SHA-256 `3b5ef8eca10c4ce51692bc8356f4e6f0cfd24f0aa5b9826646d513691c23ab9d`.
+- Decisions/discrepancies: physical evidence is a sanitized command result, not
+  a raw timestamped serial trace. Literal independent fake transports prove the
+  exact one-byte/order contract against the same frozen path. The C1-B4
+  edge/marker offset remains documented without changing the Cycle 1 model.
+- Deferred findings: GUI, sigrok decoders, wider/more advanced modes, TCP/Wi-Fi,
+  public abort semantics, stable replay compatibility, packaging, and any
+  firmware performance/protocol changes remain separately reviewed later work.
+- Known limitations: normal eight-channel CLI only; provisional replay; no
+  claim that the physical edge is exactly the logical time-zero sample.
+- Repository state: tested implementation candidate preserves the existing C#
+  application and V2 firmware as rollback/comparison paths. No firmware,
+  bootloader, Wi-Fi, or persistent-device operation occurred. Subsequent files
+  are evidence/checkpoint records only.
+- Completion proof: `Software/LogicAnalyzerPy/docs/cycle-1-completion.md`.
+- Next batch: none; Cycle 1 complete. Do not begin Cycle 2.
+- Blocked: no
 
 ## Deferred work
 

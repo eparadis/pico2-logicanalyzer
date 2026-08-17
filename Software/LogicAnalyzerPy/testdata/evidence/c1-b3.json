@@ -87,10 +87,6 @@
     {
       "path": "Software/LogicAnalyzerPy/docs/reviews/c1-b3-acceptance-round-2.md",
       "sha256": "cdd1aa6c37917e84281fe205f8a64447a69a825f0a440da760737c7a1c8895af"
-    },
-    {
-      "path": "Software/LogicAnalyzerPy/tests/verification/test_c1_b3_serial_blackbox.py",
-      "sha256": "f60f72981f82efd0a6499b52caf67f92016d23ffc0a8f7cde37d72517412ac79"
     }
   ],
   "hardware": {

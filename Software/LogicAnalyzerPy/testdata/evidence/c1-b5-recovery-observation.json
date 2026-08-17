@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "checkpoint": "C1-B5",
+  "timestamp_utc": "2026-08-17T05:01:14Z",
+  "tested_commit": "aeba415939d2f3d3f6d21852d3b446c4b6fef69b",
+  "tested_tree": "ec839c5646c09fbab5403ddde62304a2049eac0a",
+  "operator_confirmed_wiring": {
+    "front_end": "integrated checked-in LogicAnalyzerV2 protection design",
+    "vref": "3.3 V",
+    "common_ground": "analyzer GND",
+    "idle_input": {
+      "label": "2",
+      "logical_channel": "D1",
+      "pico_gpio": 3,
+      "level": 0,
+      "connection": "directly connected to analyzer GND"
+    },
+    "periodic_input": {
+      "label": "1",
+      "logical_channel": "D0",
+      "pico_gpio": 2,
+      "voltage": "3.3 V",
+      "frequency_hz": 1000
+    }
+  },
+  "command": "pico-la hardware-recovery-smoke --port <PORT_SUPPLIED> --idle-channel 1 --idle-level 0 --cancel-after 0.25 --signal-channel 0 --signal-hz 1000 --sample-rate 100000 --edge rising --pre-samples 2048 --post-samples 4096 --evidence <RAW_EVIDENCE_JSON> --timeout 3",
+  "exit_status": 0,
+  "recovery": {
+    "intentional_no_trigger_channel": "D1",
+    "cancel_after_seconds": 0.25,
+    "cancel_byte_hex": "ff",
+    "drain_limit_bytes": 4096,
+    "timeout_seconds": 3.0,
+    "reidentified": true,
+    "identity": "LOGIC_ANALYZER_PICO_2_V6_0",
+    "power_cycle": false
+  },
+  "second_capture": {
+    "signal_channel": "D0",
+    "edge": "rising",
+    "sample_rate_hz": 100000,
+    "pre_trigger_samples": 2048,
+    "post_trigger_samples": 4096,
+    "actual_count": 6144,
+    "transition_count": 42,
+    "span_samples": 4093,
+    "measured_frequency_hz": 1001.710236989983,
+    "source_tolerance_fraction": 0.02,
+    "quantization_tolerance_fraction": 0.0004886391399951136,
+    "total_tolerance_fraction": 0.020488639139995116
+  },
+  "evidence": {
+    "path": "Software/LogicAnalyzerPy/testdata/evidence/c1-b5-recovery-smoke.json",
+    "sha256": "44a7bffc0bcc7c415ba8fa09efb26624853dce26833216d78d408b9c45907815",
+    "raw_serial_trace_committed": false,
+    "strength_note": "The physical result is a sanitized command artifact rather than a timestamped wire trace. Exact one-byte ordering is proven independently by literal fake-transport tests against the same frozen command path."
+  },
+  "persistent_device_change": false,
+  "prohibited_operations_performed": []
+}

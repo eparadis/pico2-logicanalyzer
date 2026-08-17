@@ -71,7 +71,7 @@
 
 ## C1-B2: Models, codec, and fake/replay contract
 
-- State: In progress
+- State: Complete
 - Objective: Implement and independently verify the bounded, hardware-free
   Cycle 1 data model, V2 codec/parser, fake transport/recovery lifecycle, and
   hostile provisional-replay validation surface.
@@ -108,6 +108,54 @@
   archive surface; text/binary phase ownership and cancellation lifecycle must
   remain one-buffer and finite; production source must not derive expectations
   from golden fixtures.
+
+### Checkpoint C1-B2 — Models, codec, and fake/replay contract
+
+- State: Complete
+- Completed at: 2026-08-17T00:10:28Z
+- Tested commit: `37bdd50da4c85f32eb0055ca2a34be92e7edb2f0`
+- Tested tree: `ba16e00fdc4a4bc88d9e02dcdf6742d840ee7a9c`
+- Worktree state: clean tracked worktree at independent acceptance; the
+  acceptance record, manifest, and this checkpoint record were added afterward
+  as evidence-only files.
+- Implementation agent: `/root/c1_b1_implementation`
+- Verification agent and verdict: `/root/c1_b1_protocol_verification`; final
+  expanded and post-integration verdict `pass`.
+- Acceptance agent: `/root/c1_b1_acceptance`; verdict `pass`.
+- Environment: macOS 15.7.7 (24G720), x86_64, Python 3.12.13, lock SHA-256
+  `1dd0a6e018394c276bc8a5e7939e7380b1a3ab3ac67fd306e53cfb75130c44c6`.
+- Objective evidence: exact identity/rising/falling golden frames; fragmented
+  and coalesced parsing; typed capture/time boundaries; bounded fake transport
+  and one-byte cancellation/recovery; pre-materialization NPY/header and full
+  hostile replay validation; forbidden-import checks.
+- Files changed: NumPy dependency/lock; new model, protocol, transport, driver,
+  and replay modules; implementation and independent verification tests;
+  replay fixture notes and verification/acceptance records.
+- Focused commands: `pytest tests/verification -q` pass (108 tests); exact
+  identity/capture vectors pass; replay hostile/boundary tests pass; recovery
+  deadline/byte-cap/failure-order tests pass.
+- Accumulated commands: fresh locked install and no-isolation/no-deps editable
+  install pass; `ruff check .` pass; `mypy src` pass; `pytest -m
+  "not hardware"` pass (124 tests); module and installed CLI help pass; `pip
+  check` pass; `git diff --check` pass.
+- Hardware evidence: not applicable to C1-B2; no serial I/O was performed.
+- Evidence manifest: `Software/LogicAnalyzerPy/testdata/evidence/c1-b2.json`,
+  SHA-256 `0fe57660c6d88116633a6bcdf28a0a998ca29fdec94fc324c5a2ed3a345238af`.
+- Decisions/discrepancies: NumPy `2.2.2` is the exact runtime/locked version;
+  replay rejects unsafe declarations before `np.load`; exact response phases
+  reject trailing bytes; recovery shares one deadline and 4096-byte drain cap.
+- Deferred findings: real pySerial/open ordering and physical identity move to
+  C1-B3; physical capture and artifact writing to C1-B4; physical recovery and
+  final lifecycle proof to C1-B5.
+- Known limitations: core is hardware-free; ABI/padding/polarity and deployed
+  identity remain source-derived pending their owning physical gates. One
+  expected warning is emitted while constructing the duplicate-ZIP hostile
+  fixture; production correctly rejects the archive.
+- Repository state: tested commit was clean and preserves tracked C# and
+  firmware sources; evidence-only files were then added for checkpointing.
+- Next batch: C1-B3; operator port and safety inputs require preflight
+  resolution before identity I/O.
+- Blocked: no
 
 ## Deferred work
 

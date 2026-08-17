@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "checkpoint": "C1-B2",
+  "result": "pass",
+  "timestamp_utc": "2026-08-17T00:10:28Z",
+  "tested_commit": "37bdd50da4c85f32eb0055ca2a34be92e7edb2f0",
+  "tested_tree": "ba16e00fdc4a4bc88d9e02dcdf6742d840ee7a9c",
+  "worktree_state": "Clean tracked worktree at independent acceptance; the acceptance record, manifest, and checkpoint log were added afterward as evidence-only files.",
+  "environment": {
+    "os": "macOS 15.7.7 (24G720)",
+    "architecture": "x86_64",
+    "python": "3.12.13"
+  },
+  "lock_sha256": "1dd0a6e018394c276bc8a5e7939e7380b1a3ab3ac67fd306e53cfb75130c44c6",
+  "commands": [
+    {
+      "command": "python3.12 -m venv <FRESH_TEMP_VENV>",
+      "exit_status": 0
+    },
+    {
+      "command": "<FRESH_TEMP_VENV>/bin/python -m pip install --require-hashes -r requirements-dev.lock",
+      "exit_status": 0
+    },
+    {
+      "command": "<FRESH_TEMP_VENV>/bin/python -m pip install --no-build-isolation --no-deps -e .",
+      "exit_status": 0
+    },
+    {
+      "command": "<FRESH_TEMP_VENV>/bin/python -m ruff check .",
+      "exit_status": 0
+    },
+    {
+      "command": "<FRESH_TEMP_VENV>/bin/python -m mypy src",
+      "exit_status": 0
+    },
+    {
+      "command": "<FRESH_TEMP_VENV>/bin/python -m pytest tests/verification -q",
+      "exit_status": 0
+    },
+    {
+      "command": "<FRESH_TEMP_VENV>/bin/python -m pytest -m \"not hardware\" -q",
+      "exit_status": 0
+    },
+    {
+      "command": "<FRESH_TEMP_VENV>/bin/python -m pico_logic_analyzer --help",
+      "exit_status": 0
+    },
+    {
+      "command": "git diff --check 37bdd50^ 37bdd50",
+      "exit_status": 0
+    }
+  ],
+  "verifier": "/root/c1_b1_protocol_verification; /root/c1_b1_acceptance",
+  "sources": [
+    {
+      "category": "firmware-source",
+      "revision": "b7a9f91962e952b5317b8239c794f3eed85955b4",
+      "artifact": "Software/LogicAnalyzerPy/docs/protocol-fixture-provenance.md",
+      "artifact_sha256": "a075e80d9c20eaf1b0069b974f1538e41167bc5f381d6487e1c178b1a7874d1f"
+    },
+    {
+      "category": "csharp-source",
+      "revision": "b7a9f91962e952b5317b8239c794f3eed85955b4",
+      "artifact": "Software/LogicAnalyzerPy/docs/protocol-fixture-provenance.md",
+      "artifact_sha256": "a075e80d9c20eaf1b0069b974f1538e41167bc5f381d6487e1c178b1a7874d1f"
+    },
+    {
+      "category": "synthetic",
+      "revision": "37bdd50da4c85f32eb0055ca2a34be92e7edb2f0",
+      "artifact": "Software/LogicAnalyzerPy/docs/reviews/c1-b2-verification.md",
+      "artifact_sha256": "94734d7425b95bfb6a39dc51f7340b9d2b267c3e128261a9851125ccf88639ae"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c1-b2-verification.md",
+      "sha256": "94734d7425b95bfb6a39dc51f7340b9d2b267c3e128261a9851125ccf88639ae"
+    },
+    {
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c1-b2-acceptance.md",
+      "sha256": "e3789a4a9878d8ea0bb79bd6790894a963b4069c872cb05e562e6615cc08443a"
+    },
+    {
+      "path": "Software/LogicAnalyzerPy/tests/verification/test_protocol_blackbox.py",
+      "sha256": "385eecee1afabda6013099c9e8293c50381ef6d2728e8bdf484ca855bab89ed8"
+    },
+    {
+      "path": "Software/LogicAnalyzerPy/tests/verification/test_replay_blackbox.py",
+      "sha256": "36a22653fd50255c26939f105f2c5a8c686113faf2c4a692ab4929563e94eb2b"
+    }
+  ]
+}

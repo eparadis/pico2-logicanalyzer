@@ -12,8 +12,8 @@ Unknown electrical details block the hardware path.
 | Level-shifter VRef | Operator-confirmed 3.3 V selection |
 | Permitted analyzer input range | Operator confirms the installed board matches the checked-in design and that the 3.3 V source is within its permitted input range |
 | Confirmed common-ground point | Operator confirms common ground is connected at the board point labeled `GND` |
-| D0–D7 to target header/GPIO map | Checked-in `LogicAnalyzerV2` and `BOARD_PICO_2` sources map labeled inputs 1–8 to logical D0–D7 and GPIO2–GPIO9; operator confirms the signal is on labeled input `1`, therefore D0/GPIO2 |
-| Periodic signal source and expected frequency | Operator-confirmed 1 kHz, 3.3 V periodic signal on labeled input `1` = D0/GPIO2 |
+| D0–D7 to target header/GPIO map | Checked-in `LogicAnalyzerV2` and `BOARD_PICO_2` sources map labeled inputs 1–8 to logical D0–D7 and GPIO2–GPIO9; after examining the installed circuit, the operator directly confirms labeled input `1` reaches Pico 2 GPIO2, therefore logical D0 |
+| Periodic signal source and expected frequency | Operator-confirmed 1 kHz, 3.3 V periodic signal on labeled input `1`, physically confirmed to reach D0/GPIO2 |
 | Sample rate, trigger D0–D7, edge, pre/post samples | Orchestrator may select conservative valid values after capabilities and mapping are confirmed |
 | Physical polarity to exercise | Orchestrator may select and record rising or falling |
 

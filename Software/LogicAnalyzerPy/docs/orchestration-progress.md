@@ -159,7 +159,7 @@
 
 ## C1-B3: pySerial discovery and physical identity
 
-- State: In progress
+- State: Complete
 - Objective: Implement explicit-port pySerial discovery/identity with finite
   lifecycle handling, then prove two physical V2 identities separated by
   close/reopen without changing persistent device state.
@@ -196,10 +196,71 @@
 - Authority notes: no port open until operator electrical/mapping template is
   complete; real I/O is identity-only and may not flash, enter bootloader,
   change Wi-Fi, or mutate persistent state.
-- Risks/unknowns: exact deployed identity/capabilities and USB CDC timing remain
-  unresolved until physical smoke; protection-board revision, target voltage,
-  VRef, permitted range, ground point, and channel-1 mapping await operator
-  confirmation.
+- Risks/unknowns: preflight unknowns were resolved by the operator record and
+  physical smoke. The deployed CRLF behavior differed from LF-only fixtures and
+  was corrected and independently regression-tested before acceptance.
+
+- Acceptance history: round 1 recorded `changes_required` while the operator
+  electrical/mapping gate and physical identity proof were pending. Observed
+  CRLF line endings reopened implementation and verification. Round 2 records
+  `pass` for the corrected candidate and sanitized two-identity close/reopen
+  evidence.
+
+### Checkpoint C1-B3 — pySerial discovery and physical identity
+
+- State: Complete
+- Completed at: 2026-08-17T03:12:54Z
+- Tested commit: `c71db28f17bd2ba8b68542b8514c383610bb7635`
+- Tested tree: `bc724c1f071062c4cfd397aac016c3af3083415d`
+- Worktree state: clean tracked worktree at physical validation; the final
+  operator confirmation, sanitized observation, acceptance record, manifest,
+  and this checkpoint record were added afterward as evidence-only files.
+- Implementation agent: `/root/c1_b3_implementation`
+- Verification agent and verdict: `/root/c1_b1_protocol_verification`; round-2
+  verdict `pass` after independently binding LF/CRLF, invalid-terminator,
+  whitespace, failure-cleanup, discovery, CLI, and reopen behavior.
+- Acceptance agent: `/root/c1_b1_acceptance`; round-2 verdict `pass`.
+- Environment: macOS 15.7.7 (24G720), x86_64, Python 3.12.13, lock SHA-256
+  `931e790473b3ca014c248cdd3b665389ddb3f24425c4320124c40f1a608ab726`.
+- Objective evidence: explicit-port-only pySerial at 115200/8N1 with flow
+  control disabled, finite timeouts, DTR/RTS, configure/open/stabilize/drain,
+  deterministic VID/PID discovery, exact CLI streams/exits, strict LF/CRLF
+  identity parsing, and two real identities separated by close/reopen.
+- Files changed: pySerial dependency/lock; serial transport and explicit-port
+  device service; `devices`/`info` CLI; implementation and independent tests;
+  CLI/operator procedures; immutable verification and acceptance records.
+- Focused commands: C1-B3 verifier pass (22 tests); physical
+  `V2DeviceService.identify_after_reopen(<PORT_SUPPLIED>, 10.0)` pass with two
+  equal identities and exit 0; manifest schema validation pass.
+- Accumulated commands: locked durable-environment install and editable install
+  pass; `ruff check .` pass; `mypy src` pass; `pytest -m "not hardware"` pass
+  (159 tests, one expected duplicate-ZIP construction warning); module help and
+  `pip check` pass; `git diff --check` pass.
+- Hardware evidence: `LOGIC_ANALYZER_PICO_2_V6_0`, normal maximum 200 MHz,
+  blast maximum 400 MHz, buffer 393216 bytes, 24 reported channels, CRLF wire
+  lines; two equal reads separated by close/reopen. The port is committed only
+  as `<PORT_SUPPLIED>`.
+- Wiring evidence: operator confirms the installed integrated checked-in
+  LogicAnalyzerV2 protection design, 3.3 V VRef, 3.3 V 1 kHz source, common
+  ground at labeled `GND`, and direct circuit inspection establishing labeled
+  input `1` as logical D0/Pico GPIO2.
+- Evidence manifest: `Software/LogicAnalyzerPy/testdata/evidence/c1-b3.json`.
+- Decisions/discrepancies: the deployed USB CDC stream uses CRLF although the
+  source-derived fixtures used LF. The transport now accepts exactly LF or
+  CRLF without arbitrary whitespace normalization. An initial evidence
+  formatter used a nonexistent convenience method after both reads completed;
+  the corrected dataclass formatter was rerun and exited 0.
+- Deferred findings: capture/export and physical waveform validation remain
+  C1-B4; cancellation, timeout recovery, and second post-recovery capture
+  remain C1-B5. Broader 24-channel support remains outside Cycle 1.
+- Known limitations: Cycle 1 intentionally uses only logical D0-D7 and normal
+  capture mode despite the device reporting 24 channels and higher modes.
+- Repository state: tested candidate preserves all tracked C# and firmware
+  sources; no firmware, bootloader, Wi-Fi, or persistent-device operation was
+  performed.
+- Next batch: C1-B4; the 1 kHz D0/GPIO2 signal and safe electrical parameters
+  are confirmed.
+- Blocked: no
 
 ## Deferred work
 

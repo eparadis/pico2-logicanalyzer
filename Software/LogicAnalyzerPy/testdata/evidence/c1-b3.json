@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "checkpoint": "C1-B3",
+  "result": "pass",
+  "timestamp_utc": "2026-08-17T03:12:54Z",
+  "tested_commit": "c71db28f17bd2ba8b68542b8514c383610bb7635",
+  "tested_tree": "bc724c1f071062c4cfd397aac016c3af3083415d",
+  "worktree_state": "Clean tracked worktree at physical identity validation; the updated operator record, sanitized hardware observation, final acceptance record, manifest, and checkpoint log were added afterward as evidence-only files.",
+  "environment": {
+    "os": "macOS 15.7.7 (24G720)",
+    "architecture": "x86_64",
+    "python": "3.12.13"
+  },
+  "lock_sha256": "931e790473b3ca014c248cdd3b665389ddb3f24425c4320124c40f1a608ab726",
+  "commands": [
+    {
+      "command": ".venv/bin/python -m pip install --require-hashes -r requirements-dev.lock",
+      "exit_status": 0
+    },
+    {
+      "command": ".venv/bin/python -m pip install --no-build-isolation --no-deps -e .",
+      "exit_status": 0
+    },
+    {
+      "command": ".venv/bin/python -m ruff check .",
+      "exit_status": 0
+    },
+    {
+      "command": ".venv/bin/python -m mypy src",
+      "exit_status": 0
+    },
+    {
+      "command": ".venv/bin/python -m pytest tests/verification/test_c1_b3_serial_blackbox.py -q",
+      "exit_status": 0
+    },
+    {
+      "command": ".venv/bin/python -m pytest -m \"not hardware\" -q",
+      "exit_status": 0
+    },
+    {
+      "command": ".venv/bin/python -m pico_logic_analyzer --help",
+      "exit_status": 0
+    },
+    {
+      "command": "pico-la devices --json",
+      "exit_status": 0
+    },
+    {
+      "command": "V2DeviceService.identify_after_reopen(<PORT_SUPPLIED>, 10.0)",
+      "exit_status": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit_status": 0
+    }
+  ],
+  "verifier": "/root/c1_b1_protocol_verification; /root/c1_b1_acceptance",
+  "sources": [
+    {
+      "category": "observed-wire",
+      "revision": "c71db28f17bd2ba8b68542b8514c383610bb7635",
+      "artifact": "Software/LogicAnalyzerPy/testdata/evidence/c1-b3-identity-observation.json",
+      "artifact_sha256": "2bdba98556f6dbe20150e85b433b19fe839b0aaa6535611ff71467b291db9148"
+    },
+    {
+      "category": "hardware-observation",
+      "revision": "operator-confirmed-2026-08-17",
+      "artifact": "Software/LogicAnalyzerPy/docs/operator-input-template.md",
+      "artifact_sha256": "d82b9e9b192ba976eb5ad9ee7ec84025cb02138a7fdfb653aceea186ca607c51"
+    },
+    {
+      "category": "firmware-source",
+      "revision": "c71db28f17bd2ba8b68542b8514c383610bb7635",
+      "artifact": "Software/LogicAnalyzerPy/docs/c1-b3-identity-procedure.md",
+      "artifact_sha256": "92ec846ad7b039d619ce13926a11297f39e0e5ac422e8aadad20fe35ada0732c"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "Software/LogicAnalyzerPy/testdata/evidence/c1-b3-identity-observation.json",
+      "sha256": "2bdba98556f6dbe20150e85b433b19fe839b0aaa6535611ff71467b291db9148"
+    },
+    {
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c1-b3-verification-round-2.md",
+      "sha256": "a12715467c90698f09bb052de6a86710e67ab009052b2311f108d23cf2be8f2d"
+    },
+    {
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c1-b3-acceptance-round-2.md",
+      "sha256": "cdd1aa6c37917e84281fe205f8a64447a69a825f0a440da760737c7a1c8895af"
+    },
+    {
+      "path": "Software/LogicAnalyzerPy/tests/verification/test_c1_b3_serial_blackbox.py",
+      "sha256": "f60f72981f82efd0a6499b52caf67f92016d23ffc0a8f7cde37d72517412ac79"
+    }
+  ],
+  "hardware": {
+    "port": "<PORT_SUPPLIED>",
+    "board": "Raspberry Pi Pico 2; integrated checked-in LogicAnalyzerV2 board",
+    "firmware": "latest checked-in Firmware/LogicAnalyzer_V2; BOARD_TYPE=BOARD_PICO_2; reported LOGIC_ANALYZER_PICO_2_V6_0",
+    "front_end": "integrated TXU0104 protection design; operator-confirmed 3.3 V VRef, 3.3 V signal, and common ground at labeled GND",
+    "parameters": {
+      "operation": "identity-only close/reopen",
+      "identity_count": 2,
+      "identities_equal": true,
+      "observed_line_ending": "CRLF",
+      "max_frequency_hz": 200000000,
+      "blast_frequency_hz": 400000000,
+      "buffer_size": 393216,
+      "device_channel_count": 24,
+      "cycle1_signal_hz": 1000,
+      "cycle1_signal_voltage": "3.3 V",
+      "cycle1_signal_label": "1",
+      "cycle1_logical_channel": "D0",
+      "cycle1_pico_gpio": 2,
+      "persistent_device_changes": false
+    }
+  }
+}

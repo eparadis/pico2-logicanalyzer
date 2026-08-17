@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "checkpoint": "C1-B3",
+  "timestamp_utc": "2026-08-17T03:10:25Z",
+  "tested_commit": "c71db28f17bd2ba8b68542b8514c383610bb7635",
+  "tested_tree": "bc724c1f071062c4cfd397aac016c3af3083415d",
+  "port": "<PORT_SUPPLIED>",
+  "operation": "two identity requests separated by close/reopen",
+  "request_hex": "55aa00aa55",
+  "observed_line_ending": "CRLF",
+  "operator_confirmation": {
+    "board": "Pico 2 with integrated checked-in LogicAnalyzerV2 protection design",
+    "signal": "1 kHz at 3.3 V",
+    "vref": "3.3 V",
+    "ground": "board point labeled GND",
+    "input_label": "1",
+    "logical_channel": "D0",
+    "pico_gpio": 2
+  },
+  "first": {
+    "identity": "LOGIC_ANALYZER_PICO_2_V6_0",
+    "max_frequency_hz": 200000000,
+    "blast_frequency_hz": 400000000,
+    "buffer_size": 393216,
+    "channel_count": 24
+  },
+  "second": {
+    "identity": "LOGIC_ANALYZER_PICO_2_V6_0",
+    "max_frequency_hz": 200000000,
+    "blast_frequency_hz": 400000000,
+    "buffer_size": 393216,
+    "channel_count": 24
+  },
+  "identities_equal": true,
+  "exit_status": 0,
+  "persistent_device_changes": false
+}

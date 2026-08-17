@@ -1,4 +1,4 @@
-"""Explicit-port V2 identity service; capture remains a later batch."""
+"""Explicit-port V2 identity and normal-capture services."""
 
 from __future__ import annotations
 
@@ -7,8 +7,14 @@ from dataclasses import asdict, dataclass
 from importlib import import_module
 from typing import Any
 
-from pico_logic_analyzer.model import DeviceInfo, ProtocolError
-from pico_logic_analyzer.protocol import ByteParser, encode_identity_request, parse_identity
+from pico_logic_analyzer.model import CaptureConfig, CaptureResult, DeviceInfo, ProtocolError
+from pico_logic_analyzer.protocol import (
+    ByteParser,
+    encode_capture_request,
+    encode_identity_request,
+    parse_capture_response,
+    parse_identity,
+)
 from pico_logic_analyzer.transport.serial import DEFAULT_TIMEOUT_SECONDS, SerialTransport
 
 
@@ -74,3 +80,40 @@ class V2DeviceService:
     ) -> tuple[DeviceInfo, DeviceInfo]:
         """Opt-in lifecycle smoke primitive; callers provide the one explicit port."""
         return self.identify(port, timeout), self.identify(port, timeout)
+
+    def capture(
+        self, port: str, config: CaptureConfig, timeout: float = DEFAULT_TIMEOUT_SECONDS
+    ) -> CaptureResult:
+        """Perform one bounded normal D0--D7 capture on the explicit port."""
+        transport = self._transport_factory(port, timeout)
+        try:
+            transport.open()
+            transport.write(encode_identity_request(), timeout)
+            identity = b"".join(
+                (transport.read_line(timeout) + "\n").encode("ascii") for _ in range(5)
+            )
+            device = parse_identity(ByteParser(identity))
+            config.validate_for(device)
+            transport.write(encode_capture_request(config, device), timeout)
+            status = transport.read_line(timeout)
+            count_bytes = transport.read_exact(4, timeout)
+            count = int.from_bytes(count_bytes, "little")
+            if count != config.requested_count or count > device.buffer_size:
+                raise ProtocolError("invalid capture count")
+            # Count was checked before this allocation-free, negotiated-bounded read.
+            count_and_payload = count_bytes + transport.read_exact(count + 1, timeout)
+            samples, _ = parse_capture_response(
+                ByteParser((status + "\n").encode("ascii") + count_and_payload), config, device
+            )
+            return CaptureResult(
+                config=config,
+                samples=samples,
+                device=device,
+                channel_mapping=tuple(f"GPIO{index}" for index in range(2, 10)),
+            )
+        except (ConnectionError, TimeoutError, ProtocolError, ValueError):
+            raise
+        except Exception as exc:
+            raise ConnectionError(f"capture failed on {port}: {exc}") from exc
+        finally:
+            transport.close()

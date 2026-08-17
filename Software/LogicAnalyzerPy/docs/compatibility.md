@@ -2,8 +2,10 @@
 
 Cycle 1 supports one V2 analyzer and only normal eight-channel edge captures.
 The existing C# implementation and firmware are retained unchanged as rollback
-and comparison paths. V2 identity version acceptance and deployed board layout
-remain physical-confirmation work in C1-B3.
+and comparison paths. The confirmed Cycle 1 signal connection is labelled `1`:
+logical D0, Pico 2 GPIO2. It is used only with the integrated LogicAnalyzerV2
+protection board, 3.3 V VRef and a 3.3 V input; common ground is the labelled
+`GND` point. A bare Pico GPIO must never receive 5 V.
 
 The Cycle 1 CSV is intentionally not the existing C# channel-only export. It is
 self-timed UTF-8 LF RFC-4180-compatible data with exact header:
@@ -18,3 +20,9 @@ must treat its time/trigger columns as authoritative and must not invent timing
 for unrelated CSV. A legacy CSV mode requires a separate named contract and
 fixtures. `.lac`, 16/24 channels, GUI, TCP, decoder hosting, and device
 management are deferred.
+
+The provisional `.npz` replay artifact is the authoritative replay format. It
+contains only `samples.npy` (rank-one `uint8`) and `metadata.npy` (canonical
+UTF-8 JSON represented as rank-one `uint8`), is loaded with pickling disabled,
+and has schema major version 1. It deliberately does not claim `.lac` or
+general future replay compatibility.

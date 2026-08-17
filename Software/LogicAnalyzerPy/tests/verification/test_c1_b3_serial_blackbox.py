@@ -385,15 +385,17 @@ def test_cli_never_auto_selects_an_info_port(
     assert captured.err
 
 
-def test_cli_rejects_future_capture_command_without_opening_a_port(
-    capsys: pytest.CaptureFixture[str],
+def test_capture_never_auto_selects_when_port_is_missing(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    assert (
+    def unexpected_service_construction() -> object:
+        raise AssertionError("capture must not construct a device service without --port")
+
+    monkeypatch.setattr(_CLI, "V2DeviceService", unexpected_service_construction)
+    with pytest.raises(SystemExit) as raised:
         _CLI.main(
             [
                 "capture",
-                "--port",
-                "/dev/not-opened",
                 "--sample-rate",
                 "1",
                 "--trigger-channel",
@@ -410,11 +412,10 @@ def test_cli_rejects_future_capture_command_without_opening_a_port(
                 "capture.npz",
             ]
         )
-        == 2
-    )
+    assert raised.value.code == 2
     captured = capsys.readouterr()
     assert captured.out == ""
-    assert "not implemented" in captured.err
+    assert "--port" in captured.err
 
 
 @pytest.mark.parametrize("failure", [PermissionError("denied"), OSError("unplugged")])

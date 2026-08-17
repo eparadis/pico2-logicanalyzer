@@ -167,8 +167,9 @@
   `5d9ceaf87766836d6989e040032d5d1e060a4932`; operator supplied a live port and
   host access. Hardware execution additionally awaits completion of the
   electrical/mapping fields in `docs/operator-input-template.md`.
-- Implementation agent: `/root/c1_b1_implementation` (stable implementation
-  identity reused for C1-B3).
+- Implementation agent: `/root/c1_b3_implementation` (the initially named
+  C1-B1 implementation identity reviewed scope but made no C1-B3 edits and was
+  replaced before implementation began).
 - Verification agent: `/root/c1_b1_protocol_verification` (stable independent
   verification identity reused for C1-B3).
 - Acceptance agent: `/root/c1_b1_acceptance` (assigned after integration).

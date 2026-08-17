@@ -157,6 +157,49 @@
   resolution before identity I/O.
 - Blocked: no
 
+## C1-B3: pySerial discovery and physical identity
+
+- State: In progress
+- Objective: Implement explicit-port pySerial discovery/identity with finite
+  lifecycle handling, then prove two physical V2 identities separated by
+  close/reopen without changing persistent device state.
+- Prerequisites: accepted C1-B2 checkpoint at
+  `5d9ceaf87766836d6989e040032d5d1e060a4932`; operator supplied a live port and
+  host access. Hardware execution additionally awaits completion of the
+  electrical/mapping fields in `docs/operator-input-template.md`.
+- Implementation agent: `/root/c1_b1_implementation` (stable implementation
+  identity reused for C1-B3).
+- Verification agent: `/root/c1_b1_protocol_verification` (stable independent
+  verification identity reused for C1-B3).
+- Acceptance agent: `/root/c1_b1_acceptance` (assigned after integration).
+- In scope: pySerial dependency/transport; exact 115200/8N1/no-flow-control,
+  DTR/RTS, configure/open/stabilize/drain/close/reopen sequence; best-effort
+  VID `0x1209`/PID `0x3020` discovery without auto-selection; exact `devices`
+  and explicit-port `info` CLI/JSON/exit contracts; finite errors and cleanup;
+  fake port/list-port tests; opt-in two-identity physical smoke.
+- Out of scope: capture/export, automatic selection, remembered devices,
+  hot-plug monitoring, TCP, persistent device management, firmware changes,
+  and later-cycle features.
+- Owned files: implementation owns serial transport/service modules, CLI
+  integration, pySerial dependency/lock, implementation tests, and the C1-B3
+  operator procedure; verifier owns C1-B3 additions under `tests/verification/`
+  and its C1-B3 verification record; acceptance owns only its later acceptance
+  record. The primary orchestrator owns this progress log and hardware run.
+- Source evidence: settled serial/receive/CLI contracts; accepted C1-B1/B2
+  protocol evidence; C# `LogicAnalyzerDriver.cs` serial constructor/open paths,
+  `SerialPortScanner.cs` discovery metadata, and `VersionValidator.cs`.
+- Acceptance evidence: constructor/configuration sequence and list-port fakes;
+  Linux/macOS-like/absent metadata; exact stdout/stderr/JSON/exit codes;
+  timeout/permission/unplug cleanup; explicit-port-only behavior; two real V2
+  identity reads separated by close/reopen with sanitized evidence.
+- Authority notes: no port open until operator electrical/mapping template is
+  complete; real I/O is identity-only and may not flash, enter bootloader,
+  change Wi-Fi, or mutate persistent state.
+- Risks/unknowns: exact deployed identity/capabilities and USB CDC timing remain
+  unresolved until physical smoke; protection-board revision, target voltage,
+  VRef, permitted range, ground point, and channel-1 mapping await operator
+  confirmation.
+
 ## Deferred work
 
 - C1-B2 owns production models, codec, parser, fake/replay transport, and negative protocol tests.

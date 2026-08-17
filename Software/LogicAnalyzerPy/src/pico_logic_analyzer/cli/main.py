@@ -1,9 +1,18 @@
-"""CLI surface declaration; hardware operations arrive in later Cycle 1 batches."""
+"""Cycle 1 command line; only discovery and identity are operational in C1-B3."""
 
 from __future__ import annotations
 
 import argparse
+import json
+import math
+import sys
 from collections.abc import Sequence
+
+from pico_logic_analyzer.driver import V2DeviceService, list_candidates
+from pico_logic_analyzer.model import ProtocolError
+
+EXIT_USAGE = 2
+EXIT_CONNECTION = 3
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -63,9 +72,73 @@ def _parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _timeout(value: float | None) -> float:
+    timeout = 10.0 if value is None else value
+    if not math.isfinite(timeout) or timeout <= 0:
+        raise ValueError("--timeout must be a finite positive number")
+    return timeout
+
+
+def _write_json(value: object) -> None:
+    print(json.dumps(value, sort_keys=True, separators=(",", ":")))
+
+
+def _devices(arguments: argparse.Namespace) -> int:
+    candidates = list_candidates()
+    if arguments.json:
+        _write_json({"devices": [candidate.json_object() for candidate in candidates]})
+    elif not candidates:
+        print("No supported Pico logic analyzer serial ports found.")
+    else:
+        for candidate in candidates:
+            metadata = []
+            if candidate.serial_number is not None:
+                metadata.append(f"serial={candidate.serial_number}")
+            if candidate.location is not None:
+                metadata.append(f"location={candidate.location}")
+            suffix = "" if not metadata else " " + " ".join(metadata)
+            print(f"{candidate.device} VID=1209 PID=3020{suffix}")
+    return 0
+
+
+def _info(arguments: argparse.Namespace) -> int:
+    device = V2DeviceService().identify(arguments.port, _timeout(arguments.timeout))
+    if arguments.json:
+        _write_json(
+            {
+                "blast_frequency_hz": device.blast_frequency_hz,
+                "buffer_size": device.buffer_size,
+                "channel_count": device.channel_count,
+                "identity": device.identity,
+                "max_frequency_hz": device.max_frequency_hz,
+            }
+        )
+    else:
+        print(device.identity)
+        print(f"FREQ:{device.max_frequency_hz}")
+        print(f"BLASTFREQ:{device.blast_frequency_hz}")
+        print(f"BUFFER:{device.buffer_size}")
+        print(f"CHANNELS:{device.channel_count}")
+    return 0
+
+
 def main(argv: Sequence[str] | None = None) -> int:
-    """Parse the declared contract; operational commands are intentionally deferred."""
+    """Run C1-B3 discovery/identity without ever selecting a port implicitly."""
     parser = _parser()
     arguments = parser.parse_args(argv)
-    parser.error(f"{arguments.command} is not implemented until its owning Cycle 1 batch")
-    return 2
+    try:
+        if arguments.command == "devices":
+            return _devices(arguments)
+        if arguments.command == "info":
+            return _info(arguments)
+        print(
+            f"pico-la: {arguments.command} is not implemented until its owning Cycle 1 batch",
+            file=sys.stderr,
+        )
+        return EXIT_USAGE
+    except (ConnectionError, TimeoutError, ProtocolError) as exc:
+        print(f"pico-la: {exc}", file=sys.stderr)
+        return EXIT_CONNECTION
+    except ValueError as exc:
+        print(f"pico-la: {exc}", file=sys.stderr)
+        return EXIT_USAGE

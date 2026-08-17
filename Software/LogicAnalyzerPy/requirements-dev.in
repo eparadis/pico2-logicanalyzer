@@ -2,6 +2,7 @@
 # Regenerate requirements-dev.lock with Python 3.12 and hashes.
 mypy==1.15.0
 numpy==2.2.2
+pyserial==3.5
 pytest==8.3.4
 ruff==0.9.10
 setuptools==75.8.0

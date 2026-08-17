@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 license = {text = "MIT"}
 authors = [{name = "Pico logic analyzer contributors"}]
-dependencies = ["numpy==2.2.2"]
+dependencies = ["numpy==2.2.2", "pyserial==3.5"]
 
 [project.scripts]
 pico-la = "pico_logic_analyzer.cli.main:main"

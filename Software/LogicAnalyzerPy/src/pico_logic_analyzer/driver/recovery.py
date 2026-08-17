@@ -16,7 +16,7 @@ class RecoveryError(RuntimeError):
 class CaptureRecovery:
     """Recover an in-flight normal capture without exposing a public abort API."""
 
-    def __init__(self, transport: ByteTransport, reopen_and_identify: Callable[[], None]) -> None:
+    def __init__(self, transport: ByteTransport, reopen_and_identify: Callable[[], object]) -> None:
         self._transport = transport
         self._reopen_and_identify = reopen_and_identify
         self._recovering = False

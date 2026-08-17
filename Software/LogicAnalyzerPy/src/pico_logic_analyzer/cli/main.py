@@ -81,6 +81,7 @@ def _parser() -> argparse.ArgumentParser:
     recovery.add_argument("--pre-samples", required=True, type=int, metavar="N")
     recovery.add_argument("--post-samples", required=True, type=int, metavar="N")
     recovery.add_argument("--evidence", required=True, metavar="PATH")
+    recovery.add_argument("--timeout", type=float, metavar="SECONDS")
     return parser
 
 
@@ -249,6 +250,60 @@ def _hardware_smoke(arguments: argparse.Namespace) -> int:
     return 0
 
 
+def _hardware_recovery_smoke(arguments: argparse.Namespace) -> int:
+    timeout = _timeout(arguments.timeout)
+    idle = CaptureConfig(
+        arguments.sample_rate,
+        arguments.pre_samples,
+        arguments.post_samples,
+        arguments.idle_channel,
+        arguments.edge,
+    )
+    signal = CaptureConfig(
+        arguments.sample_rate,
+        arguments.pre_samples,
+        arguments.post_samples,
+        arguments.signal_channel,
+        arguments.edge,
+    )
+    result = V2DeviceService().recovery_capture(
+        arguments.port, idle, signal, arguments.cancel_after, timeout
+    )
+    measured, transitions, span, quantization = _frequency_measurement(
+        result.samples, signal.trigger_channel, signal.trigger_edge, signal.sample_rate_hz
+    )
+    tolerance = UNCALIBRATED_SOURCE_TOLERANCE_FRACTION + quantization
+    if abs(measured - arguments.signal_hz) / arguments.signal_hz > tolerance:
+        raise ProtocolError("recovered periodic waveform is outside validation tolerance")
+    _atomic_json(
+        Path(arguments.evidence),
+        {
+            "actual_count": len(result.samples),
+            "cancel_after_seconds": arguments.cancel_after,
+            "cancel_byte": "ff",
+            "device_identity": result.device.identity,
+            "edge": signal.trigger_edge,
+            "idle_channel": arguments.idle_channel,
+            "idle_level": arguments.idle_level,
+            "measured_frequency_hz": measured,
+            "persistent_device_change": False,
+            "port": "<PORT_SUPPLIED>",
+            "post_trigger_samples": signal.post_trigger_samples,
+            "pre_trigger_samples": signal.pre_trigger_samples,
+            "quantization_tolerance_fraction": quantization,
+            "reidentified": True,
+            "sample_rate_hz": signal.sample_rate_hz,
+            "signal_channel": arguments.signal_channel,
+            "signal_hz": arguments.signal_hz,
+            "source_tolerance_fraction": UNCALIBRATED_SOURCE_TOLERANCE_FRACTION,
+            "span_samples": span,
+            "tolerance_fraction": tolerance,
+            "transition_count": transitions,
+        },
+    )
+    return 0
+
+
 def _replay_validate(arguments: argparse.Namespace) -> int:
     samples, metadata = load_replay(Path(arguments.path))
     if arguments.json:
@@ -277,6 +332,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             return _replay_validate(arguments)
         if arguments.command == "hardware-smoke":
             return _hardware_smoke(arguments)
+        if arguments.command == "hardware-recovery-smoke":
+            return _hardware_recovery_smoke(arguments)
         print(
             f"pico-la: {arguments.command} is not implemented until its owning Cycle 1 batch",
             file=sys.stderr,
@@ -285,13 +342,15 @@ def main(argv: Sequence[str] | None = None) -> int:
     except TimeoutError as exc:
         print(f"pico-la: {exc}", file=sys.stderr)
         return (
-            EXIT_CAPTURE if arguments.command in {"capture", "hardware-smoke"} else EXIT_CONNECTION
+            EXIT_CAPTURE
+            if arguments.command in {"capture", "hardware-smoke", "hardware-recovery-smoke"}
+            else EXIT_CONNECTION
         )
     except ProtocolError as exc:
         print(f"pico-la: {exc}", file=sys.stderr)
         return (
             EXIT_VALIDATION
-            if arguments.command in {"replay-validate", "hardware-smoke"}
+            if arguments.command in {"replay-validate", "hardware-smoke", "hardware-recovery-smoke"}
             else EXIT_CONNECTION
         )
     except ConnectionError as exc:
@@ -303,3 +362,6 @@ def main(argv: Sequence[str] | None = None) -> int:
     except OutputError as exc:
         print(f"pico-la: {exc}", file=sys.stderr)
         return EXIT_OUTPUT
+    except KeyboardInterrupt:
+        print("pico-la: capture cancelled", file=sys.stderr)
+        return EXIT_CAPTURE

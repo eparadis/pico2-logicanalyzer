@@ -379,16 +379,16 @@
 
 ## C1-B5: Lifecycle hardening and final hardware proof
 
-- State: Ready
+- State: Verifying
 - Objective: Prove bounded timeout/Ctrl-C recovery, exact single-byte V2
   cancellation, drain/close/reopen/re-identification, and a second physical
   1 kHz D0 capture without a power cycle, then assemble the final Cycle 1
   stopping-condition proof.
 - Prerequisites: accepted C1-B4 checkpoint at
-  `b251b755fc0296c2f731fe26fb2109035f44d38e`; physical recovery additionally
-  awaits operator confirmation of a fixed-level idle input. The operator has
-  been asked to leave the 1 kHz signal on labeled input `1`/D0/GPIO2 and connect
-  labeled input `2`/D1/GPIO3 to ground as the simplest fixed-low setup.
+  `b251b755fc0296c2f731fe26fb2109035f44d38e`; the 1 kHz signal remains on
+  operator-confirmed labeled input `1`/D0/GPIO2 and labeled input
+  `2`/D1/GPIO3 is connected directly to analyzer ground as the
+  operator-confirmed fixed-low input.
 - Implementation agent: `/root/c1_b4_implementation` (stable implementation
   identity reused after the C1-B4 checkpoint).
 - Verification agent: `/root/c1_b1_protocol_verification` (independent of the
@@ -427,10 +427,10 @@
   periodic inputs, normal eight-channel requests, and exactly one `0xFF` while
   recovering an in-flight capture. No firmware flash, bootloader, Wi-Fi, or
   persistent-device action is allowed.
-- Risks/unknowns: the fixed-level jumper is not yet operator-confirmed; deployed
-  cancellation acknowledgement/drain timing must be bounded from observed wire
-  behavior without changing firmware; the C1-B4 one-sample physical-edge versus
-  logical-trigger-marker relationship remains a documented later-cycle issue.
+- Risks/unknowns: deployed cancellation acknowledgement/drain timing must be
+  bounded from observed wire behavior without changing firmware; the C1-B4
+  one-sample physical-edge versus logical-trigger-marker relationship remains a
+  documented later-cycle issue.
 
 ## Deferred work
 

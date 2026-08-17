@@ -5,6 +5,8 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from importlib import import_module
+from math import isfinite
+from time import sleep
 from typing import Any
 
 from pico_logic_analyzer.model import CaptureConfig, CaptureResult, DeviceInfo, ProtocolError
@@ -16,6 +18,8 @@ from pico_logic_analyzer.protocol import (
     parse_identity,
 )
 from pico_logic_analyzer.transport.serial import DEFAULT_TIMEOUT_SECONDS, SerialTransport
+
+from .recovery import CaptureRecovery
 
 
 @dataclass(frozen=True, slots=True)
@@ -117,3 +121,60 @@ class V2DeviceService:
             raise ConnectionError(f"capture failed on {port}: {exc}") from exc
         finally:
             transport.close()
+
+    def recovery_capture(
+        self,
+        port: str,
+        idle_config: CaptureConfig,
+        signal_config: CaptureConfig,
+        cancel_after: float,
+        timeout: float = DEFAULT_TIMEOUT_SECONDS,
+        *,
+        sleeper: Callable[[float], None] = sleep,
+    ) -> CaptureResult:
+        """Internally cancel one in-flight idle capture, then re-identify and recapture.
+
+        This is deliberately only the hardware-smoke orchestration primitive, not
+        a general public abort facility.
+        """
+        if (
+            type(cancel_after) not in (int, float)
+            or type(timeout) not in (int, float)
+            or not isfinite(cancel_after)
+            or not isfinite(timeout)
+            or cancel_after <= 0
+            or timeout <= 0
+            or cancel_after >= timeout
+        ):
+            raise ValueError("cancel-after must be finite, positive, and less than timeout")
+        transport = self._transport_factory(port, timeout)
+        in_flight = False
+        recovered = False
+        try:
+            transport.open()
+            transport.write(encode_identity_request(), timeout)
+            identity = b"".join(
+                (transport.read_line(timeout) + "\n").encode("ascii") for _ in range(5)
+            )
+            device = parse_identity(ByteParser(identity))
+            idle_config.validate_for(device)
+            transport.write(encode_capture_request(idle_config, device), timeout)
+            in_flight = True
+            try:
+                sleeper(cancel_after)
+            except (KeyboardInterrupt, TimeoutError):
+                CaptureRecovery(transport, lambda: self.identify(port, timeout)).timeout_or_cancel(
+                    timeout, drain_limit=4096
+                )
+                recovered = True
+                raise
+            CaptureRecovery(transport, lambda: self.identify(port, timeout)).timeout_or_cancel(
+                timeout, drain_limit=4096
+            )
+            recovered = True
+            return self.capture(port, signal_config, timeout)
+        finally:
+            # Recovery owns its close on the in-flight path; ordinary setup
+            # failures still close immediately and never send cancellation.
+            if not recovered or not in_flight:
+                transport.close()

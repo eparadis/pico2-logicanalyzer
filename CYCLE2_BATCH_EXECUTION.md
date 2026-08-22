@@ -82,7 +82,7 @@ API schema, TypeScript API type, dependency lock, workflow, or generated-assets
 path. The orchestrator preserves one available coordination slot when using
 subagents.
 
-## Active-batch manifest
+## Active-batch progress entry
 
 Before assigning work, update
 `Software/LogicAnalyzerPy/docs/cycle-2-orchestration-progress.md` with:
@@ -105,9 +105,10 @@ Before assigning work, update
 - Risks and unknowns: <resolve, defer, or request input>
 ```
 
-For C2-B1, append the manifest immediately after creating the new Cycle 2
-progress file and before accepting any implementation. Never rewrite the
-historical Cycle 1 progress record.
+For C2-B1, append this progress entry immediately after creating the new Cycle
+2 progress file and before accepting any implementation. This entry is planning
+state, not a machine-readable evidence manifest, and cannot satisfy a
+checkpoint. Never rewrite the historical Cycle 1 progress record.
 
 ## Standard batch procedure
 
@@ -231,9 +232,20 @@ The verifier and acceptance agent each create an immutable review record under
 evidence, requested resolution, and disposition. Corrections receive another
 review; prior findings are not erased.
 
-The orchestrator writes the machine-readable batch manifest atomically, checks
-artifact digests independently, and appends the checkpoint record. Mark the
-batch complete only when all acceptance items pass.
+Only after the owning batch's implementation results, independent verification
+evidence, and acceptance verdict exist, the orchestrator assembles and writes
+that batch's machine-readable evidence manifest atomically and checks artifact
+digests independently. The manifest must validate against the Cycle 2 schema
+before the checkpoint record is appended. Mark the batch complete only after
+all acceptance items pass, the validated manifest is committed, and the
+checkpoint record is appended.
+
+Do not create or pre-populate `c2-bN.json` for a future batch. A reserved
+filename, placeholder, empty object, sample, or template is not evidence and
+must not be described as accepted. C2-B1 creates only the schema, validator,
+an optional explicitly non-evidence directory marker or template, and—after its
+own evidence exists—its own atomic `c2-b1.json`. Each of C2-B2 through C2-B6
+creates only its own manifest at the equivalent point in its owning batch.
 
 ### 8. Decide the next action
 
@@ -521,11 +533,13 @@ reviews; accepted Cycle 1 baseline; writable workspace.
 
 **In scope:**
 
-- Create the Cycle 2 progress log, evidence-schema extension, B1 manifest,
-  frontend directory, package metadata, lock, test configuration, and asset
-  build/install path. Freeze the strict Cycle 2 schema version, required fields,
-  validator command, recursive no-extra-properties policy, and secret scan
-  specified by the orchestration contract before accepting any B1 evidence.
+- Create the Cycle 2 progress log, evidence-schema extension, frontend
+  directory, package metadata, lock, test configuration, and asset build/install
+  path. Freeze the strict Cycle 2 schema version, required fields, validator
+  command, recursive no-extra-properties policy, and secret scan specified by
+  the orchestration contract before accepting any B1 evidence. Create the B1
+  evidence manifest atomically only after B1 verification and acceptance
+  evidence exists; do not create B2-B6 manifests.
 - Select and pin the supported Node runtime and minimal Python HTTP/WebSocket
   stack after clean macOS/Linux probes. Use React, TypeScript, Vite, and a
   browser automation stack. Record licenses and direct/transitive lock digests.

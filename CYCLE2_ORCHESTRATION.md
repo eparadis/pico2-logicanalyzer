@@ -431,8 +431,18 @@ C2-B1 creates:
 - a Cycle 2 machine-readable evidence schema at
   `Software/LogicAnalyzerPy/docs/evidence-manifest/cycle2-schema.json` and its
   validator at `Software/LogicAnalyzerPy/scripts/validate_cycle2_evidence.py`;
-  and
-- `Software/LogicAnalyzerPy/testdata/evidence/c2-b1.json` through `c2-b6.json`.
+  and, if useful, a directory marker or template whose name and contents state
+  unambiguously that it is not evidence and cannot satisfy a checkpoint.
+
+C2-B1 does not pre-create any future batch manifest. After C2-B1 verification
+and acceptance evidence exists, the orchestrator atomically creates only
+`Software/LogicAnalyzerPy/testdata/evidence/c2-b1.json`, validates it, commits
+it, and only then appends the C2-B1 checkpoint. C2-B2 through C2-B6 follow the
+same lifecycle: the owning batch alone atomically creates its `c2-bN.json` only
+after that batch's verification and acceptance evidence exists; schema
+validation passes before the checkpoint record is appended. A filename,
+placeholder, empty object, example, or template for a future manifest is not
+evidence and must never be pre-populated or presented as an accepted manifest.
 
 The Cycle 2 evidence schema is JSON Schema draft 2020-12 with
 `schema_version: 2`, checkpoint pattern `^C2-B[1-6]$`, and
@@ -474,7 +484,9 @@ credentials, user-selected filename, and sensitive target details must not be
 committed or reflected in evidence. Record the serial path only as
 `<PORT_SUPPLIED>` and token-bearing values only as `<TOKEN_REDACTED>`. Schema
 validation is a gate for every checkpoint and final completion, not a
-best-effort documentation check.
+best-effort documentation check. An evidence manifest is immutable once its
+checkpoint is accepted; a reopened checkpoint produces a separately identified
+replacement or correction record rather than silently mutating prior evidence.
 
 Final accumulated, physical, performance, and native-browser proofs must run
 against one identified candidate with no implementation changes afterward.

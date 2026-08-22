@@ -66,11 +66,14 @@ candidate commit and tree:
 5. Fake, replay, API, and browser tests cover success, fragmentation, malformed
    inputs, hostile files, bounds before allocation, finite timeouts,
    cancellation, disconnect, reconnect, concurrent-operation rejection, and
-   cleanup without weakening Cycle 1 recovery behavior.
+   cleanup without weakening Cycle 1 recovery behavior. Local-web negative
+   tests also prove the capability-cookie, canonical-Origin, file-transfer, and
+   secret-redaction contracts defined in `CYCLE2_BATCH_EXECUTION.md`.
 6. Replay schema 1 remains readable. Canonical replay schema 2 and generalized
-   self-timed CSV round-trip deterministically, preserve ordered channel
-   metadata and mode-appropriate samples, use no pickle or executable metadata,
-   and contain no machine-local values.
+   self-timed CSV with the explicit import metadata defined in
+   `CYCLE2_BATCH_EXECUTION.md` round-trip deterministically, preserve ordered
+   channel metadata and mode-appropriate samples, use no pickle or executable
+   metadata, and contain no machine-local values.
 7. Transition and strobe-sampled parallel-bus modes have independent fixtures
    proving LSB-first ordering, sample/time semantics, edge selection, value
    formatting, interval fields, and deterministic CSV.
@@ -126,19 +129,22 @@ reported as success.
   CLI/API export and the browser table.
 - A local Python application server with a versioned API and deterministic
   lifecycle.
-- A Python `web` optional dependency extra. The reviewed development lock and
-  CI include it, while CLI/library installation remains possible without the
-  web stack and fails with an actionable message if `pico-la web` is requested
-  without the extra.
+- A Python `web` optional dependency extra and a separate hash-checked
+  `requirements-web.lock` that installs the complete supported web runtime
+  before a `--no-deps` source install. The reviewed development lock and CI
+  include the same web versions, while CLI/library installation remains
+  possible without the web stack and fails with an actionable message if
+  `pico-la web` is requested without the extra.
 - React, TypeScript, Vite, Canvas waveform rendering, offline production assets,
   and browser automation.
 - Deterministically built frontend assets committed with a build manifest and a
   CI drift check, so an end user can run the source-installed web application
   without Node.js or network access.
-- Loopback-only default binding, same-origin browser policy, no permissive CORS,
-  and an unpredictable per-launch capability token for device-mutating or
-  filesystem-mutating API operations. Tokens and local URLs are sanitized from
-  committed evidence.
+- Loopback-only default binding, the canonical-Origin and capability-cookie
+  policy frozen in `CYCLE2_BATCH_EXECUTION.md`, no CORS, and an unpredictable
+  per-launch capability token for every mutating API operation, including
+  cancellation and shutdown. Tokens and local URLs are sanitized from all
+  output and committed evidence.
 - Finite limits for requests, uploads, decoded samples, response windows, table
   rows, connections, capture concurrency, and shutdown.
 - Background capture/file work that does not block the browser event loop or
@@ -383,6 +389,17 @@ python3.12 -m venv .venv
 .venv/bin/python -m pico_logic_analyzer --help
 ```
 
+C2-B1 additionally freezes this supported clean web-runtime installation path,
+which is run independently on macOS and Linux CI before production web smoke:
+
+```bash
+cd Software/LogicAnalyzerPy
+python3.12 -m venv .venv-web
+.venv-web/bin/python -m pip install --require-hashes -r requirements-web.lock
+.venv-web/bin/python -m pip install --no-build-isolation --no-deps -e '.[web]'
+.venv-web/bin/python -m pip check
+```
+
 C2-B1 must establish and document canonical frontend commands equivalent to:
 
 ```bash
@@ -411,28 +428,53 @@ checks.
 C2-B1 creates:
 
 - `Software/LogicAnalyzerPy/docs/cycle-2-orchestration-progress.md`;
-- a Cycle 2 extension or new version of the machine-readable evidence-manifest
-  schema; and
+- a Cycle 2 machine-readable evidence schema at
+  `Software/LogicAnalyzerPy/docs/evidence-manifest/cycle2-schema.json` and its
+  validator at `Software/LogicAnalyzerPy/scripts/validate_cycle2_evidence.py`;
+  and
 - `Software/LogicAnalyzerPy/testdata/evidence/c2-b1.json` through `c2-b6.json`.
 
+The Cycle 2 evidence schema is JSON Schema draft 2020-12 with
+`schema_version: 2`, checkpoint pattern `^C2-B[1-6]$`, and
+`additionalProperties: false` recursively for every object. Each manifest must
+validate with:
+
+```bash
+cd Software/LogicAnalyzerPy
+.venv/bin/python scripts/validate_cycle2_evidence.py \
+  docs/evidence-manifest/cycle2-schema.json testdata/evidence/c2-bN.json
+```
+
+The validator rejects fields or values containing an actual serial path,
+capability token, machine-local URL, credential, user home, or other secret.
 Each accepted manifest records:
 
 - full tested commit and tree, plus clean or explicitly qualified worktree;
-- UTC time, OS/version, architecture, Python version, Node version, browser and
-  version where applicable;
-- SHA-256 of Python and JavaScript dependency locks and built-asset manifest;
-- normalized command, exit status, stable verifier identity, and CI run/job URL
-  or identifier when CI is required;
+- UTC time; OS/version and architecture; Python and Node versions; browser name,
+  version, and automation version where applicable;
+- separate SHA-256 values for `requirements-dev.lock`,
+  `requirements-web.lock`, `package-lock.json`, and the built-asset manifest,
+  using an explicit not-applicable value only where the schema permits it;
+- normalized command, exit status, stable command-verifier identity, and CI
+  run/job URL or identifier plus the exact CI commit when CI is required;
 - evidence source category (`firmware-source`, `cycle1-accepted`, `synthetic`,
   `hardware-observation`, `browser-observation`, or `generated-fixture`), source
   revision, artifact path, and SHA-256;
 - for hardware, sanitized board/firmware/front-end identity, mapping, voltage,
   ground, signal, capture parameters, expected masks, and results; and
-- decisions, findings and disposition, limitations, and deferred work.
+- stable and mutually distinct implementation, verification, and acceptance
+  identities and their verdicts; decisions; numbered findings and disposition;
+  limitations; deferred work; and
+- explicit identifiers for every applicable one of the fourteen stopping
+  conditions, with evidence artifact references and digests. C2-B5/B6 also
+  record the approved performance-threshold record digest.
 
-The actual serial path, launch capability token, machine-local URL, credentials,
-and sensitive target details must not be committed. Record the serial path only
-as `<PORT_SUPPLIED>` and tokens only as `<TOKEN_REDACTED>`.
+The actual serial path, launch capability token or cookie, machine-local URL,
+credentials, user-selected filename, and sensitive target details must not be
+committed or reflected in evidence. Record the serial path only as
+`<PORT_SUPPLIED>` and token-bearing values only as `<TOKEN_REDACTED>`. Schema
+validation is a gate for every checkpoint and final completion, not a
+best-effort documentation check.
 
 Final accumulated, physical, performance, and native-browser proofs must run
 against one identified candidate with no implementation changes afterward.

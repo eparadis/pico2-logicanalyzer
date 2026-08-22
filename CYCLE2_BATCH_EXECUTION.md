@@ -174,7 +174,7 @@ The orchestrator checks:
 - explicit byte order, word width, padding, counts, and bounds;
 - mode-appropriate dtype and zero upper byte for 24-channel words;
 - deterministic replay/CSV/API schemas without executable metadata;
-- loopback, same-origin, capability-token, request-limit, and concurrency
+- loopback, canonical-Origin, capability-cookie, request-limit, and concurrency
   behavior;
 - nonblocking server/browser lifecycle and cleanup;
 - work proportional to visible transitions/pixels rather than all samples;
@@ -285,12 +285,21 @@ operator direction under the approved goal.
 - The native capture payload remains the source-proven 48-byte structure and
   uses the accepted V2 frame delimiters and escaping.
 - All 24 channel slots, count, mode, padding, trigger fields, frequency, pre,
-  post, and other fixed fields have literal offset/byte fixtures. Unused channel
-  slots and padding use the exact source-derived values frozen in C2-B2.
+  post, and other fixed fields have literal offset/byte fixtures. Firmware is
+  authoritative for offsets, widths, and the fact that slots at or above the
+  channel count are ignored. Canonical Python requests use host-defined zero
+  bytes for every unused channel slot and explicit padding byte; fixtures prove
+  that convention and frame escaping without claiming those zero values are
+  firmware-required.
+- Normal edge-trigger requests set `loopCount` at offset 44 and `measure` at
+  offset 45 to zero. Timestamped and burst responses remain excluded.
 - Capture responses consume a bounded status line, four-byte little-endian word
   count, exactly `count * bytes_per_word` payload bytes, and the accepted
-  trailing non-burst timestamp-count byte. Count and multiplication overflow are
-  rejected before payload allocation/read.
+  trailing non-burst timestamp-count byte, which must be exactly zero. Count and
+  multiplication overflow are rejected before payload allocation/read. A
+  nonzero timestamp count is a protocol error: reject it and any would-be
+  timestamp payload before another request is permitted, then close/recover the
+  transport so trailing binary bytes cannot contaminate a later exchange.
 - One byte-oriented receive owner preserves coalesced ASCII/binary boundaries.
   Fragmentation from one byte through whole-response reads produces identical
   results.
@@ -333,12 +342,42 @@ operator direction under the approved goal.
   escaping/duplicate-label rule.
 - Data values are `0` or `1` extracted by packed request position. The trigger
   flag and time-zero convention remain identical to Cycle 1.
-- Import accepts only the exact supported self-timed contract. It validates
-  header, row width, monotonic zero-based indices, one time-zero trigger row,
-  constant timing consistent with the declared/inferred sample rate, binary
-  cells, bounded counts and fields, and explicit channel metadata supplied by
-  the schema or import command. It does not reinterpret arbitrary C# or generic
-  CSV files.
+- A generalized import is a CSV byte stream plus an explicit import-metadata
+  object supplied by CLI options or the browser import form. The object contains
+  exactly `channel_ids` in CSV column/request order, integer `sample_rate_hz`,
+  `trigger_channel`, and `trigger_edge`. Display labels come from the CSV
+  header; packed positions are `0..N-1`; firmware mode is derived from the
+  highest physical ID; trigger index and pre/post/actual counts are derived from
+  the sole trigger row and row count. The metadata object is subject to the same
+  exact-type, uniqueness, membership, channel-count, string, and numeric bounds
+  as a capture configuration. Neither a filename nor a label implies physical
+  identity.
+- The one legacy exception is the exact accepted Cycle 1 header
+  `sample_index,time_seconds,trigger,D0,D1,D2,D3,D4,D5,D6,D7`: it supplies
+  channel IDs D0-D7 in order. Its integer sample rate may be inferred as
+  described below; trigger channel/edge must still be supplied because those
+  facts are absent from CSV bytes. No other labels imply IDs.
+- A browser CSV-open workflow uploads the bounded bytes, displays the header,
+  and requires the operator to enter or confirm the metadata fields before
+  import. It shows the physical-ID-to-packed-position mapping before accepting
+  the import. CLI import requires equivalent explicit options.
+- Import accepts only the exact supported self-timed contract. Decimal time
+  cells use ASCII syntax `-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?` and
+  must parse to finite values; leading plus, whitespace, `NaN`, and infinities
+  are rejected. Indices are consecutive zero-based integers, there is exactly
+  one trigger row whose parsed time is zero, and binary cells are `0` or `1`.
+  For supplied rates, every time cell must equal the parsed value of
+  `format((index - trigger_index) / sample_rate_hz, ".12g")`; validation uses
+  exact decimal values rather than adjacent rounded-text differences. For the
+  legacy header, form integer-rate candidates by rounding
+  `abs(index-trigger_index)/abs(parsed_time)` for every nonzero row; exactly one
+  in-range candidate must reproduce every canonical `.12g` time cell or import
+  fails. Zero/one-row input therefore requires an explicit sample rate.
+- Accepted imports are canonicalized on export using the frozen header/order,
+  RFC-4180 escaping, LF, and `.12g` timing. Canonical exported CSV, including
+  reordered/noncontiguous generalized captures and non-terminating sample
+  periods, reimports and re-exports byte-identically. Noncanonical but otherwise
+  accepted generalized input is not promised byte preservation.
 - For the exact accepted D0-D7 configuration, Cycle 2 export remains
   byte-identical to Cycle 1.
 
@@ -353,15 +392,19 @@ operator direction under the approved goal.
 - Sampled mode emits a row only on the selected rising or falling transition of
   one distinct captured strobe channel. The bus value is taken from the sample
   at the selected edge index under the same trigger-relative timing convention.
+  Sample index zero is never a sampled edge because there is no preceding
+  captured strobe value; no synthetic prior level is assumed. Rising and
+  falling transitions compare only samples `i-1` and `i` for `i >= 1`.
 - Rows include sample index, trigger-relative time, binary with bus-width
   padding, fixed-width hexadecimal, unsigned decimal, and the mode-appropriate
   interval fields. Exact headers and numeric formatting are frozen in C2-B4.
 - CLI/API CSV is deterministic and produced from the Python analysis core. The
   React client displays returned rows and does not independently reinterpret raw
   samples into a conflicting bus result.
-- Empty captures, one-sample captures, no transitions, edge at index zero,
-  absent edge, noncontiguous/reordered channels, bus widths not divisible by
-  four, and maximum bounded row counts have explicit tests.
+- Empty captures, one-sample captures, no transitions, initial high and low at
+  index zero for both selected polarities, later rising/falling edges, absent
+  edge, noncontiguous/reordered channels, bus widths not divisible by four, and
+  maximum bounded row counts have explicit tests.
 
 ### Local web application boundary
 
@@ -370,10 +413,31 @@ operator direction under the approved goal.
   explicit loopback port; wildcard and non-loopback addresses are rejected.
 - Production serves checked-in or packaged Vite build assets. It neither starts
   a Vite development server nor invokes Node.
-- API paths are versioned under `/api/v1/`. Health/readiness is inert. Device,
-  capture, filesystem output, and shutdown operations require a cryptographically
-  unpredictable per-launch capability token and same-origin validation. No
-  permissive CORS is enabled.
+- At bind time the server constructs one canonical origin from its configured
+  literal loopback address and actual port; it never derives that origin from
+  `Host`, `Forwarded`, or `X-Forwarded-*` request headers. Requests with a Host
+  authority different from that canonical authority are rejected and redirects
+  never carry the capability. Wildcard, non-loopback, and alternate Host forms
+  are not aliases.
+- On the initial canonical top-level HTML response the server delivers the
+  per-launch capability only as a host-only, `HttpOnly`, `SameSite=Strict`,
+  `Path=/` cookie. It never places the capability in a URL, query, fragment,
+  HTML/JavaScript body, browser storage, API body, error, redirect, log, or
+  evidence. The cookie expires when the server process ends and is explicitly
+  expired during orderly shutdown. Browser code uses same-origin credentials
+  and cannot read the token.
+- API paths are versioned under `/api/v1/`. Health/readiness and static reads are
+  inert. Every state-changing endpoint, including capture, cancel, import,
+  export generation, and shutdown, requires the cookie and an `Origin` exactly
+  equal to the canonical origin. Token comparison is constant-time. Missing,
+  malformed, duplicated, expired, or invalid cookies and missing, `null`,
+  opaque, malformed, or foreign Origin values are rejected before work begins.
+  WebSocket upgrades, if retained, require the same exact Host, Origin, and
+  cookie checks before upgrade and on every new connection.
+- No CORS headers or credentialed cross-origin policy are emitted. `OPTIONS`
+  does not grant cross-origin access. Capability values are never echoed; test
+  logs, exceptions, snapshots, URLs, Referer observations, API responses, and
+  committed evidence are scanned for the launch value and must contain none.
 - Tokens, machine paths, serial ports, and local URLs are not logged to committed
   evidence. Browser-visible errors are bounded and do not expose tracebacks or
   secrets; detailed diagnostics remain sanitized server-side.
@@ -381,10 +445,23 @@ operator direction under the approved goal.
   Conflicting requests receive a deterministic bounded error rather than queue
   indefinitely. Disconnect/cancel closes resources and leaves the board
   recoverable under the accepted lifecycle.
-- File upload/import, JSON bodies, response sample windows, bus rows, request
-  rates/connections, and server shutdown have explicit limits. Paths are not
-  accepted from untrusted browser input unless constrained to a user-selected
-  operation with the settled safe file contract.
+- Browser file import accepts only bounded uploaded bytes using the frozen
+  multipart field and media type; client filenames are ignored except for a
+  bounded display label and never become paths. `Content-Length` is checked when
+  present and streaming accounting aborts before the upload limit is exceeded;
+  malformed multipart, extra parts, cancellation, and disconnect discard all
+  buffered or temporary data. Import creates no persistent server-side file.
+- Export returns bounded bytes as an HTTP download with a server-generated,
+  sanitized filename and fixed safe `Content-Type`/`Content-Disposition`.
+  Browser input cannot supply a server path, output directory, absolute name,
+  traversal component, overwrite target, or symlink. Export creates no
+  persistent server-side file; the browser's user-selected download destination
+  is outside the server API contract. Tests cover traversal/symlink-like names,
+  overwrite attempts, malformed multipart, declared and streamed quota excess,
+  cancellation/disconnect, generated response headers, and zero temporary-file
+  residue.
+- JSON bodies, response sample windows, bus rows, request rates/connections, and
+  server shutdown have explicit limits.
 - Waveform data is windowed and transition-reduced. The server/browser boundary
   must not require transmitting every sample for every pan or creating a DOM
   object per sample/transition.
@@ -446,22 +523,30 @@ reviews; accepted Cycle 1 baseline; writable workspace.
 
 - Create the Cycle 2 progress log, evidence-schema extension, B1 manifest,
   frontend directory, package metadata, lock, test configuration, and asset
-  build/install path.
+  build/install path. Freeze the strict Cycle 2 schema version, required fields,
+  validator command, recursive no-extra-properties policy, and secret scan
+  specified by the orchestration contract before accepting any B1 evidence.
 - Select and pin the supported Node runtime and minimal Python HTTP/WebSocket
   stack after clean macOS/Linux probes. Use React, TypeScript, Vite, and a
   browser automation stack. Record licenses and direct/transitive lock digests.
 - Expose the Python server stack as an optional `web` project extra while
-  including it in the reviewed development lock. CLI/library installation
-  without that extra must remain valid; invoking `pico-la web` without it gives
-  an actionable deterministic error.
+  including the exact same versions in the reviewed development lock. Create a
+  hash-checked `requirements-web.lock` containing the complete web runtime
+  closure. The supported runtime installation is
+  `pip install --require-hashes -r requirements-web.lock` followed by
+  `pip install --no-build-isolation --no-deps -e '.[web]'`; it performs no
+  dependency resolution after the lock. CLI/library installation without that
+  extra remains valid; invoking `pico-la web` without it gives an actionable
+  deterministic error.
 - Commit deterministic production frontend assets plus a build manifest and
   make CI fail when a clean frontend rebuild differs from them. Production
   source execution uses those assets and requires neither Node nor network.
 - Freeze capture/replay/CSV/bus/API/server/render/performance contracts in ADRs
   or focused documents matching the settled section above.
-- Add a loopback-only `pico-la web` shell with readiness, capability token,
-  same-origin enforcement, inert health, production assets, and deterministic
-  shutdown. It must not import/open serial or accept capture requests yet.
+- Add a loopback-only `pico-la web` shell with readiness, the canonical-Origin
+  and capability-cookie policy, inert health, production assets, and
+  deterministic shutdown. It must not import/open serial or accept capture
+  requests yet.
 - Rename/replace the single Cycle 1 workflow with one Cycle 2 macOS/Linux matrix
   running the canonical clean Python and Node/frontend gates. Preserve Cycle 1
   tests and avoid duplicate full workflows.
@@ -479,12 +564,22 @@ Electron, `.lac`, .NET, packaging, or public serving.
   headless start/readiness/shutdown smoke pass.
 - Production starts with network disabled, uses built local assets, and does not
   invoke Node or a development server.
-- Non-loopback binds, absent/invalid token on protected endpoints, foreign
-  Origin, oversized requests, and duplicate server ownership fail
-  deterministically without serial I/O.
+- Non-loopback binds; alternate/forged Host; absent, duplicated, expired, or
+  invalid capability cookie; absent/null/opaque/foreign Origin; invalid
+  WebSocket upgrade; permissive preflight; oversized requests; and duplicate
+  server ownership fail deterministically without serial I/O. Independent tests
+  prove the token never appears in URLs, Referer, browser-visible state, logs,
+  errors, responses other than its initial `Set-Cookie` header, snapshots, or
+  evidence and that shutdown expires the cookie.
 - Core/CLI installation remains possible without Node at runtime.
 - Core/CLI installation remains possible without Python web dependencies; the
   `web` extra path and missing-extra diagnostic are tested.
+- Clean macOS and Linux CI jobs install the web runtime through
+  `requirements-web.lock`, perform the no-deps source install, run `pip check`,
+  and record the runtime-lock digest separately from the development lock.
+- The Cycle 2 evidence schema and secret scanner accept the complete B1
+  manifest, reject extra/missing/secret-bearing fields, and require all three
+  role identities even in B1.
 - The exact Python/frontend canonical commands and supported versions are
   documented.
 - The renamed/replaced workflow passes macOS and Linux jobs at the exact
@@ -505,8 +600,9 @@ reloads ordered 1-24-channel normal captures across all three word modes.
 - Generalize `CaptureConfig`, `CaptureResult`, capability validation, and
   extraction utilities under the settled model.
 - Generalize the 48-byte normal request and response parser for mode 0/1/2.
-- Add source-derived literal request/response fixtures for contiguous and
-  reordered subsets, reserved bytes, every word width, and invalid bounds.
+- Add literal request/response fixtures for contiguous and reordered subsets,
+  reserved bytes, every word width, and invalid bounds. Host-defined canonical
+  zero slots/padding are identified as such rather than source-derived.
 - Implement canonical replay schema 2 writer/reader plus retained schema 1
   reads and all pre-materialization security checks.
 - Generalize deterministic self-timed CSV export and add its exact importer.
@@ -525,7 +621,11 @@ API, viewer, performance optimization, other firmware modes, or decoders.
   sample-rate, byte-buffer, multiplication-overflow, count, dtype, rank,
   contiguity, and upper-byte validation pass before unsafe I/O/allocation.
 - One-byte and coalesced fragmentation, truncation, extra data, malformed status,
-  timeout, disconnect, and cleanup tests pass for every word width.
+  timeout, disconnect, and cleanup tests pass for every word width. Literal
+  adverse responses at every width include a nonzero timestamp-count byte plus
+  its would-be four-byte-per-count payload; the parser rejects them, invalidates
+  the receive owner, and cannot issue a subsequent request on the contaminated
+  transport.
 - Schema 1 reads still pass; schema 2 round-trips all modes and ordered subsets
   deterministically; hostile NPZ/NPY/JSON cases are bounded and inert.
 - CSV imports/exports all widths/subsets deterministically; exact D0-D7 Cycle 1
@@ -601,7 +701,9 @@ offline captures without serial or UI-domain duplication.
 - Share Python capture/replay/export/bus authority; TypeScript consumes the
   versioned contract rather than recomputing domain results.
 - Add fake/replay tests for token/origin, bounds, malformed JSON/files,
-  pagination/windowing, conflicts, disconnect, cancellation, and cleanup.
+  pagination/windowing, conflicts, disconnect, cancellation, cleanup, every
+  capability-cookie/Host/Origin/WebSocket negative case, and the upload/download
+  file boundary frozen above.
 - Generate or validate TypeScript types against one reviewed API schema.
 
 **Out of scope:** Real serial API, complete viewer interaction, performance
@@ -612,8 +714,9 @@ thresholds, remote serving, authentication for remote users, or decoders.
 - Independent bus fixtures prove LSB order, noncontiguous and reordered physical
   IDs, transitions, both strobe edges, trigger-relative time, formatting,
   intervals, empty/no-edge limits, and deterministic CSV.
-- Browser API cannot mutate device/filesystem state without token and valid
-  Origin; non-loopback/public access remains unreachable.
+- Browser API cannot mutate state without the valid capability cookie and exact
+  canonical Origin; non-loopback/public access remains unreachable. Import and
+  export accept no server paths and leave no persistent or temporary file.
 - Uploads, JSON, sample windows, row counts, connections, and concurrent
   operations are bounded and return deterministic errors.
 - Schema drift tests bind Python responses to TypeScript types.
@@ -678,6 +781,9 @@ performance acceptance.
 - Baseline evidence is reproducible and the operator-approved threshold record
   is committed.
 - Clean accumulated Python/frontend/browser gates pass.
+- Browser automation proves token non-disclosure in its location/Referer,
+  storage, DOM, console/network logs, errors, and snapshots while protected
+  requests still succeed through the host-only HttpOnly cookie.
 
 ### C2-B6: Live browser capture integration and final proof
 
@@ -714,6 +820,9 @@ or threshold rebasing.
   sanitized evidence.
 - Device/API concurrency, browser disconnect, cancellation, timeout, server
   shutdown, and serial cleanup are independently verified.
+- Final security regression repeats the canonical Host/Origin/cookie,
+  WebSocket, token-redaction, bounded upload/download, cancellation, and
+  zero-residue checks against the production build.
 - The final candidate meets the approved rendering thresholds.
 - Every stopping condition in `CYCLE2_ORCHESTRATION.md` maps to an immutable
   evidence path and digest.
@@ -738,7 +847,8 @@ Append one record after each accepted batch:
 - Verification agent and verdict: <different identity; pass>
 - Acceptance agent and verdict: <third identity; pass>
 - Environment: <OS/arch, Python, Node, browser as applicable>
-- Dependency identity: <Python lock SHA-256; JS lock SHA-256>
+- Dependency identity: <development Python lock SHA-256; web-runtime Python
+  lock SHA-256; JS lock SHA-256>
 - Build identity: <production asset manifest/digest as applicable>
 - Objective evidence: <tests, artifacts, observations>
 - Files changed: <paths or concise groups>
@@ -748,7 +858,7 @@ Append one record after each accepted batch:
 - Hardware evidence: <sanitized summary, or not applicable>
 - Browser evidence: <sanitized summary, or not applicable>
 - Performance evidence: <record/digest, or not applicable>
-- Evidence manifest: <path and SHA-256>
+- Evidence manifest: <path and SHA-256; Cycle 2 schema-validation command/result>
 - Findings and dispositions: <review record links>
 - Decisions/discrepancies: <settled behavior and provenance>
 - Deferred findings: <destination>

@@ -106,6 +106,9 @@ to:
 
 Do not paste source, diffs, long logs, fixture bodies, or detailed findings into
 the orchestrator conversation. Preserve full detail in repository artifacts.
+The acceptance agent receives and may read the durable evidence and exact gate
+results for the candidate it audits; compact conversational handoffs limit the
+orchestrator's context, not the acceptance lane's required audit inputs.
 
 The orchestrator may inspect repository status, changed-path lists, commit/tree
 identity, concise command results, manifest-schema validation, checkpoint state,
@@ -128,24 +131,38 @@ Execute C2-B1 through C2-B6 in order using the complete procedure and gates in
    state, and authority inputs.
 2. Give the implementor the bounded batch assignment. The implementor changes
    only owned product/test paths and runs focused checks.
-3. Record an immutable implementation candidate commit without independently
-   reviewing its contents.
+3. Only after the focused checks pass, record an immutable implementation
+   candidate commit without independently reviewing its contents. A focused
+   failure remains with the implementor; after correction and passing focused
+   checks, record a new candidate that starts again at independent verification.
 4. Give the verifier that exact candidate. The verifier writes an immutable
    review record and returns only its compact verdict.
 5. If verification requires changes, return the durable record to the same
-   implementor, record a new candidate, and reuse the same verifier. Repeat until
-   verification passes.
-6. Give the verified candidate to the acceptance agent. If acceptance requires
-   changes, return its durable record to the same implementor, then require the
-   same verifier to pass the corrected candidate before reusing the same
-   acceptance agent.
-7. After both independent review lanes pass, run the accumulated gates required
-   by the batch and record concise results. Delegate diagnosis of failures to the
-   owning worker rather than loading detailed logs into orchestrator context.
-8. After implementation, verification, and acceptance evidence exists, create
+   implementor. The implementor corrects the work and reruns focused checks;
+   record a new immutable candidate and reuse the same verifier. Repeat until
+   that exact candidate passes independent verification.
+6. Run every accumulated validation gate required by the active batch against
+   that exact verified candidate and record the exact durable results plus a
+   concise handoff. Delegate diagnosis of failures to the owning worker rather
+   than loading detailed logs into orchestrator context.
+7. Only after the exact candidate passes independent verification and the
+   complete required accumulated validation, give that candidate, its verifier
+   record, and its exact accumulated-gate results to the acceptance agent. The
+   acceptance agent audits that same candidate and complete batch gate, writes
+   an immutable review record, and returns only its compact verdict.
+8. Any focused or accumulated validation failure, and every implementation
+   correction made in response, requires a new immutable candidate. The new
+   candidate must repeat independent verification and the complete accumulated
+   validation before it can be submitted to acceptance. If acceptance requires
+   changes, return its durable record to the same implementor; after correction
+   and focused checks, record a new candidate and require that candidate to pass
+   the same verifier and the complete accumulated validation before reusing the
+   same acceptance agent. No earlier pass transfers to a corrected candidate.
+9. After implementation, verification, accumulated-validation, and acceptance
+   evidence exists for the same candidate, create
    only the owning batch's evidence manifest atomically. Validate and commit it
    before appending the checkpoint record.
-9. Advance only after the complete checkpoint passes. Reopen the earliest owning
+10. Advance only after the complete checkpoint passes. Reopen the earliest owning
    checkpoint when a regression is found.
 
 Never precreate future manifests, weaken assertions, replace physical evidence

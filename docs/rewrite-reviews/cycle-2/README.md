@@ -2,6 +2,7 @@
 
 This directory stores immutable, commit-anchored reviews of:
 
+- `CYCLE2_GOAL.md`
 - `CYCLE2_ORCHESTRATION.md`
 - `CYCLE2_BATCH_EXECUTION.md`
 - `Software/LogicAnalyzerPy/docs/cycle-2-discovery-review.md`
@@ -19,4 +20,3 @@ substantive objective, scope, contract, authority, ownership, batch, validation,
 security, checkpoint, or stopping-condition change requires a fresh review by
 all three reviewers. Preparatory approval requires three final `pass` records
 that name the same full commit.
-

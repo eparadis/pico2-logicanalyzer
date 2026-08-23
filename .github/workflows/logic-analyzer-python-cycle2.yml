@@ -41,16 +41,31 @@ jobs:
         working-directory: Software/LogicAnalyzerPy
         run: |
           log_file="$(mktemp)"
-          trap 'rm -f "$log_file"' EXIT
+          probe_file="$(mktemp)"
+          trap 'rm -f "$log_file" "$probe_file"' EXIT
+          sanitize_report() {
+            LC_ALL=C tail -c 12000 "$1" | LC_ALL=C tr -cd '\11\12\15\40-\176' | sed -E \
+              -e 's#https?://[^[:space:]]+#<URL_REDACTED>#g' \
+              -e 's#/dev/(tty|cu\.|serial/)[^[:space:]]*#<PORT_REDACTED>#g' \
+              -e 's#/(Users|home)/[^[:space:]]*#<PATH_REDACTED>#g' \
+              -e 's#pico_la_capability=[^;[:space:]]+#pico_la_capability=<TOKEN_REDACTED>#g' \
+              -e 's#(^|[^[:alnum:]_-])[[:alnum:]_-]{43}([^[:alnum:]_-]|$)#\1<TOKEN_REDACTED>\2#g'
+          }
+          hostile_token='AbCdEfGhIjKlMnOpQrStUvWxYz0123456789_-abcde'
+          printf 'actual=%s port=/dev/serial/by-id/hostile-device\n' "$hostile_token" >"$probe_file"
+          probe="$(sanitize_report "$probe_file")"
+          rm -f "$probe_file"
+          case "$probe" in
+            *"$hostile_token"*|*'/dev/serial/'*|*'<TOKEN_REDACTED>'*'<PORT_REDACTED>'*)
+              printf '%s\n' 'workflow sanitizer self-test failed' >&2
+              exit 2
+              ;;
+          esac
           set +e
           .venv/bin/python -m pytest -m "not hardware" >"$log_file" 2>&1
           status=$?
           set -e
-          report="$(LC_ALL=C tail -c 12000 "$log_file" | LC_ALL=C tr -cd '\11\12\15\40-\176' | sed -E \
-            -e 's#https?://[^[:space:]]+#<URL_REDACTED>#g' \
-            -e 's#/dev/(tty|cu\.)[^[:space:]]*#<PORT_REDACTED>#g' \
-            -e 's#/(Users|home)/[^[:space:]]*#<PATH_REDACTED>#g' \
-            -e 's#pico_la_capability=[^;[:space:]]+#pico_la_capability=<TOKEN_REDACTED>#g')"
+          report="$(sanitize_report "$log_file")"
           printf '%s\n' "$report"
           if [ "$status" -ne 0 ]; then
             annotation=${report//%/%25}

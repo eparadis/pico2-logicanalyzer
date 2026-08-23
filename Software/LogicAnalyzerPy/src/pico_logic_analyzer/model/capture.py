@@ -176,3 +176,11 @@ class CaptureResult:
         if not 0 <= index < len(self.samples):
             raise IndexError(index)
         return (index - self.trigger_index) / self.config.sample_rate_hz
+
+    def channel_samples(self, channel_id: int) -> NDArray[np.uint8]:
+        """Return one packed-request-position bit as a vectorized uint8 view."""
+        if type(channel_id) is not int or channel_id not in self.config.channel_ids:
+            raise ValidationError("channel is not captured")
+        bit = self.config.channel_ids.index(channel_id)
+        words = self.samples.astype(np.uint32, copy=False)
+        return cast(NDArray[np.uint8], ((words >> bit) & 1).astype(np.uint8, copy=False))

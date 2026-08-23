@@ -170,3 +170,17 @@ accepted evidence remain unchanged.
 - Evidence lifecycle: no `c2-b2.json` exists or may be created until one exact
   candidate passes implementation checks, independent verification, complete
   accumulated macOS validation, and independent acceptance.
+
+### C2-B2 implementor identity change
+
+- Original B2 identity: `cycle2-implementor-replacement-1`
+  (`/root/implementor_replacement_1`)
+- New replacement identity: `cycle2-implementor-replacement-2`
+- Reason: the first replacement preserved partial B2 work but twice ended a
+  continuation turn without advancing or producing the required complete
+  candidate.
+- Lane/model/reasoning preserved: Implementor, `gpt-5.6-terra`, low.
+- Existing uncommitted B2 product and implementation-test changes remain in the
+  shared worktree for the new replacement to inspect, validate, correct, and
+  complete. No partial candidate is accepted.
+- Verification and acceptance identities remain unchanged.

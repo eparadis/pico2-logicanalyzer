@@ -655,3 +655,49 @@ accepted evidence remain unchanged.
   packaging/publication, or Cycle 3 action occurred.
 - Next boundary: C2-B4 may begin against the accepted B2 schemas and B3 physical
   artifacts.
+
+## C2-B4: Parallel-bus core and versioned browser API
+
+- State: Ready
+- Activated: 2026-08-23 (America/Los_Angeles)
+- Activation HEAD: `1fe22ffaadbaefd0bc3fafa22e4723388a6b4c30`
+- Activation tree: `9037e8e85de6c12524f963f310e929f126be9b05`
+- Objective: implement deterministic transition and distinct-strobe sampled
+  parallel-bus analysis plus a bounded, secured, versioned loopback API that
+  exposes shared Python capture/replay/export/bus authority without serial I/O.
+- Prerequisites: corrected C2-B2 checkpoint complete; C2-B3 physical checkpoint
+  complete; `testdata/evidence/c2-b3.json` strictly validates with SHA-256
+  `9db03e119c6cacb40e87ef61d8f7ef1e24692ea45527f5e331e2103ecc59ff1b`.
+- Implementation agent: `cycle2-implementor-replacement-5`.
+- Verification agent: `cycle2-verifier-replacement-3`.
+- Acceptance agent: `cycle2-acceptance-replacement-2`.
+- In scope: pure Python transition and distinct-strobe bus analysis and
+  deterministic CSV; versioned health/readiness, bounded replay/CSV import,
+  capture metadata/channel/waveform/bus/export/operation/cancel/shutdown API;
+  loopback/canonical-Origin/capability-cookie/Host/WebSocket/file-transfer and
+  concurrency boundaries; reviewed schema and generated/validated TypeScript
+  types; fake/replay/API tests and accumulated headless shell gates.
+- Out of scope: real serial API, device opening, complete viewer interaction,
+  performance thresholds, native browser acceptance, remote serving, TLS,
+  multi-user authentication, decoders, firmware/C# changes, packaging, and
+  Cycle 3.
+- Ownership: implementation owns B4 Python product/API/schema, corresponding
+  TypeScript API types, focused tests/fixtures, and implementation records;
+  verifier owns independent bus/security/API fixtures/tests and immutable
+  records; acceptance owns immutable acceptance records; orchestrator owns
+  integration, accumulated validation, manifest, and checkpoint.
+- Authoritative evidence: settled bus/API/security/file-transfer contracts,
+  accepted B2 schema/CSV behavior, accepted B3 8/16/24 physical semantics and
+  sanitized evidence, standards-based loopback/origin/cookie behavior, and
+  independently fixed literal bus samples.
+- Acceptance evidence: independent LSB-first transition/strobe fixtures;
+  deterministic bus CSV; exact API/schema/type agreement; bounded hostile
+  imports/windows/rows/connections; token/origin/Host/WebSocket negatives;
+  no-path upload/download and cleanup; conflict/cancel/disconnect behavior;
+  accumulated Python/frontend/headless-browser gates with no serial open.
+- Authority notes: dependency downloads and loopback/browser execution use the
+  normal centralized approval broker. No USB, hardware, firmware, .NET,
+  persistent-state, public-server, or future-batch action is authorized.
+- Risks: shared Python/API/TypeScript interfaces remain single-writer; any
+  unsettled substantive choice must return for contract/operator direction
+  rather than expanding scope.

@@ -786,3 +786,27 @@ accepted evidence remain unchanged.
   inspect, validate, correct, and complete. They are not accepted by
   inheritance and no partial candidate exists.
 - Verification and acceptance identities remain distinct and unchanged.
+
+### C2-B4 implementation candidate
+
+- Implementation identity: `cycle2-implementor-replacement-6`.
+- Exact product candidate: `296feec8d9a6441b0194fa95c06128be173d234e`;
+  tree `660a1f3d7689002c588c583591d8bf30b589d09f`.
+- Implemented complete scoped bus analysis, bounded secured REST/polling API,
+  Python-owned OpenAPI 3.1 closed schemas, deterministic schema checker, and
+  generated/validated TypeScript types. No WebSocket or serial surface exists.
+- Focused implementation: 17 passed and 1 sandbox-loopback skip. Full Python:
+  283 passed and 2 sandbox-loopback skips. Ruff, mypy, OpenAPI/type drift, CLI,
+  Node lint/type/unit/build, and diff checks passed.
+- OpenAPI SHA-256
+  `d4ed2aeb0c4181858002b057b3b44f1a90d14d3a4125a5bb6587f5b229a2c3a2`;
+  generated TypeScript SHA-256
+  `acb72dad34116e7b562da3e5f6afea8f608aa73573b8127d433fba2f823de734`;
+  checker SHA-256
+  `0bfdec71e13fd9edec13a80d8455bccb26aaf6519e824c10feef87132d4309e9`.
+- Immutable implementation record committed separately at `28032cf`:
+  `docs/reviews/c2-b4-implementation-round-1.md`, SHA-256
+  `5735ad3c47b8f3dc7fcf18f6a3a8a981d3e08e4c2e867ab924b948ffbd5ccee2`.
+- Loopback/browser skips are not credited and remain for independent/root
+  brokered execution. No device, firmware, persistent-state, public-server,
+  .NET, packaging/publication, B5/B6 feature, or Cycle 3 action occurred.

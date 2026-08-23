@@ -20,7 +20,7 @@ accepted evidence remain unchanged.
 
 ## C2-B1: Contracts, dependencies, workflow, and web shell
 
-- State: Ready
+- State: In progress
 - Objective: Establish the reproducible Python/React development and CI
   foundation, freeze the Cycle 2 data/API/security contracts, and provide a
   production-built loopback-only offline shell that starts and stops without
@@ -439,3 +439,26 @@ accepted evidence remain unchanged.
   authorized on the discovered runtime port; committed evidence must sanitize
   it as `<PORT_SUPPLIED>` and must not contain serial numbers or machine-local
   location values.
+
+### C2-B3 bounded identity result
+
+- The root used the approved source-installed `pico-la info` command with a
+  finite 10-second application timeout on the discovered runtime port.
+- Identity passed: `LOGIC_ANALYZER_PICO_2_V6_0`; reported capabilities are 24
+  channels, 393216-byte buffer, 200000000 Hz maximum capture frequency, and
+  400000000 Hz blast frequency.
+- The runtime port and device serial/location values remain uncommitted and
+  must be represented as `<PORT_SUPPLIED>` or redacted in durable evidence.
+- This read-only identity request made no firmware, bootloader, Wi-Fi, power,
+  wiring, or persistent-state change.
+
+### C2-B3 implementation identity change
+
+- Prior identity: `cycle2-implementor-replacement-4`
+- New replacement identity: `cycle2-implementor-replacement-5`
+- Reason: the prior B2 implementor lane is no longer available when the
+  operator-authorized B3 physical gate becomes executable.
+- Lane/model/reasoning preserved: Implementor, `gpt-5.6-terra`, low.
+- State advances to In progress for the bounded physical procedure. Verification
+  and acceptance remain separate and will receive fresh same-lane replacements
+  if their prior identities are unavailable.

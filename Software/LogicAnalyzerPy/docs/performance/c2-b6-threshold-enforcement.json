@@ -31,7 +31,7 @@
   },
   "fixture_manifest_sha256": "dd3ccbb4b5da4952422f2c3fc4f60dfbd4f7d2d81e789a697a19750668a1c350",
   "fixture_generator_sha256": "3e0be8f90e6dc846803a28bb278b21f797ddc0576f5371149beb9ad185fb29c4",
-  "benchmark_script_sha256": "a27469a29753612128fa71e6093bfd36bda4d6afb93cee20d165452e629d7758",
+  "benchmark_script_sha256": "68dd480c3e8df3cc0409053c81834cb082e64243d22e08d2217a675d63e18265",
   "production_asset_manifest_sha256": "c27b08c3fbbce7ead5e7afa4b92bffdaf9623f46f4319d92c78942ab2e59059d",
   "fixtures": [
     {
@@ -456,5 +456,18 @@
     }
   ],
   "used_js_heap_bytes": null,
-  "memory_reliable": false
+  "memory_reliable": false,
+  "bounds": {
+    "waveform_request_max_span_samples": 393216,
+    "waveform_pixel_width": 960,
+    "canvas_command_formula": "channel_count * (pixel_width * 2 + 2) + 1",
+    "canvas_command_ceiling": 46129,
+    "dom_node_ceiling_exclusive": 1000
+  },
+  "nondisclosure": {
+    "raw_port": false,
+    "serial_number": false,
+    "location": false,
+    "token": false
+  }
 }

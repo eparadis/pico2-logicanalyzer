@@ -97,6 +97,8 @@ test("frozen production rendering baseline", async ({ page, browser }) => {
     load_median_ms: nearestRank(loads.map((item) => item.milliseconds), 0.5), load_p95_ms: nearestRank(loads.map((item) => item.milliseconds), 0.95),
     interactions_ms: interactions, interaction_median_ms: nearestRank(interactions, 0.5), interaction_p95_ms: nearestRank(interactions, 0.95),
     bus_observations: busObservations, used_js_heap_bytes: heap, memory_reliable: heap !== null,
+    bounds: { waveform_request_max_span_samples: 393216, waveform_pixel_width: 960, canvas_command_formula: "channel_count * (pixel_width * 2 + 2) + 1", canvas_command_ceiling: 46129, dom_node_ceiling_exclusive: 1000 },
+    nondisclosure: { raw_port: false, serial_number: false, location: false, token: false },
   };
   writeFileSync("test-results/c2-b6-performance.json", JSON.stringify(report, null, 2) + "\n");
   expect(loads).toHaveLength(16); expect(loadStatistics.every((item) => item.iterations === 2)).toBe(true);

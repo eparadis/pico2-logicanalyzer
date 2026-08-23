@@ -1,7 +1,8 @@
 {
   "schema_version": 1,
   "checkpoint": "C2-B6-implementation",
-  "source_revision": "844cf3fbcf8a01530ea05a63b02260f3d22ffedc",
+  "candidate_commit": "4640f746c080087fc9783d89a18e3c8e5573a454",
+  "candidate_tree": "50945a9387709e7637d98294ba5b9cc08dc87cfd",
   "hardware_boundary": {
     "public_device_id": "device-1",
     "port": "<PORT_SUPPLIED>",
@@ -14,24 +15,47 @@
         "width": 8,
         "observed_signal_channels": [0],
         "sample_count": 4096,
-        "trigger_index": 1024
+        "trigger_index": 1024,
+        "dtype": "uint8",
+        "driven_mask_hex": "0x01",
+        "driven_projection": [0, 1],
+        "expected_signal_frequency_hz": 1000,
+        "rising_edges_per_driven_channel": 31,
+        "npz_sha256": "edd4ca5f3d6b70575f540f09bb6e77e648f3e2ed8d1bb14a5954aefa7cb76c71",
+        "csv_sha256": "af443f08089ac51aa3d93343730a864f172a948c14be68fa972399dbceb66311"
       },
       {
         "width": 16,
         "observed_signal_channels": [0, 8],
         "sample_count": 4096,
-        "trigger_index": 1024
+        "trigger_index": 1024,
+        "dtype": "uint16",
+        "driven_mask_hex": "0x0101",
+        "driven_projection": [0, 257],
+        "expected_signal_frequency_hz": 1000,
+        "rising_edges_per_driven_channel": 31,
+        "npz_sha256": "63f3ecc846c1b451f6832ff1c8adba864c70e6ec14901cc5c6b4e143511b24a0",
+        "csv_sha256": "67830a7eafdadfced8145ba50a388fe7714002db23d3f9675ae5ce0f047d5548"
       },
       {
         "width": 24,
         "observed_signal_channels": [0, 8, 16, 23],
         "sample_count": 4096,
-        "trigger_index": 1024
+        "trigger_index": 1024,
+        "dtype": "uint32",
+        "driven_mask_hex": "0x810101",
+        "driven_projection": [0, 8454401],
+        "expected_signal_frequency_hz": 1000,
+        "rising_edges_per_driven_channel": 31,
+        "bits_24_through_31_zero": true,
+        "npz_sha256": "75ae2fa1884f1725800babc37321bf653c989336bba3bc922d423f7e1ff0622e",
+        "csv_sha256": "5cc335356ba8271ff20d44b81b9a8460f442b8f0147ec8228a29cc1dacbd2264"
       }
     ],
     "reidentified_after_reopen": true,
     "second_capture_sample_count": 4096,
     "serial_closed_between_operations": true,
+    "csv_channel_order_labels_and_bits_match_npz": true,
     "persistent_device_change": false
   },
   "production_browser": {
@@ -44,8 +68,10 @@
     "cancel_byte_hex": "ff",
     "reidentified": true,
     "sample_count": 6144,
-    "transition_count": 41,
-    "signal_frequency_hz": 1000,
+    "transition_count": 42,
+    "measured_frequency_hz": 1011.5963483839131,
+    "expected_frequency_hz": 1000,
+    "artifact_sha256": "f72dd947d455b84ee0a12bbce48b7ff84c9c27ed749486b9f2d2623c45cd8862",
     "persistent_device_change": false
   },
   "sanitization": {

@@ -11,7 +11,7 @@
     "build": "vite build",
     "test:browser": "playwright test --config=playwright.config.ts tests/verification-b5-round1.spec.ts && playwright test --config=playwright.config.ts tests/b6-live.spec.ts tests/shell.spec.ts",
     "benchmark": "B5_BENCHMARK=1 playwright test --config=playwright.config.ts tests/performance.spec.ts",
-    "benchmark:b6": "playwright test --config=playwright.b6-performance.config.ts tests/b6-performance.spec.ts",
+    "benchmark:b6": "playwright test --config=playwright.b6-performance.config.ts tests/b6-performance.spec.ts && python3 ../tools/check_b5_thresholds.py test-results/c2-b6-performance.json",
     "test:native": "playwright test --config=playwright.native.config.ts tests/b6-native.spec.ts"
   },
   "dependencies": {"@vitejs/plugin-react": "4.3.4", "react": "18.3.1", "react-dom": "18.3.1", "typescript": "5.7.3", "vite": "6.1.0"},

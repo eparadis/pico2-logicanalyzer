@@ -311,7 +311,7 @@ accepted evidence remain unchanged.
 
 ## C2-B3: Physical byte-boundary capture gate
 
-- State: Blocked
+- State: Pending
 - Selected: 2026-08-23 (America/Los_Angeles)
 - Selection HEAD: `4919c52432e76070c2b65c579466a53dcb769fc9`
 - Selection tree: `4dd57406c729032b692b52f16411d231802ffe15`
@@ -321,9 +321,9 @@ accepted evidence remain unchanged.
 - Prerequisite present: C2-B2 checkpoint complete; manifest
   `testdata/evidence/c2-b2.json` strictly validates with SHA-256
   `6e3a42fa4955e17c39a3c13fe09613327d21b572696fd3ecd69d485a3bd21b2a`.
-- Missing operator prerequisite: the explicit serial port and explicit
-  confirmation that the attached board is a Raspberry Pi Pico 2 running the
-  fixed checked-in V2 firmware built with `BOARD_TYPE=BOARD_PICO_2`.
+- Missing operator prerequisite: explicit confirmation that the attached board
+  is a Raspberry Pi Pico 2 running the fixed checked-in V2 firmware built with
+  `BOARD_TYPE=BOARD_PICO_2`.
 - Implementation agent: `cycle2-implementor-replacement-4`
 - Verification agent: `cycle2-verifier-replacement-2`
 - Acceptance agent: `cycle2-acceptance-replacement-1`
@@ -415,3 +415,16 @@ accepted evidence remain unchanged.
 - Resume condition: the operator supplies the explicit serial port and confirms
   the attached Raspberry Pi Pico 2 is running the fixed checked-in V2 firmware
   built with `BOARD_TYPE=BOARD_PICO_2`.
+
+### C2-B3 authorized port discovery
+
+- The operator explicitly authorized the source-installed `pico-la devices`
+  command to discover candidate serial ports.
+- `pico-la devices --json` exited 0 and returned exactly one candidate described
+  as `LogicAnalyzer`. Its machine-local port, location, and serial number are
+  retained only as runtime inputs and will be committed as `<PORT_SUPPLIED>` or
+  otherwise redacted.
+- No serial port was opened and no identity request or capture was issued by
+  discovery. The port prerequisite is satisfied for runtime execution.
+- The prior blocked state is reopened as Pending. Current Pico 2/fixed V2
+  firmware confirmation remains required before opening the discovered port.

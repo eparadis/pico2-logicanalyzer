@@ -1,0 +1,182 @@
+{
+  "schema_version": 2,
+  "checkpoint": "C2-B1",
+  "tested_commit": "e266d88815b0dabdd1397cbfcf3e1187bf8dfc24",
+  "tested_tree": "9ec8c3ef73e47c940fd686656708cfaa212d9058",
+  "timestamp_utc": "2026-08-23T07:06:17Z",
+  "worktree_state": "Exact candidate committed and clean; immutable verification and acceptance records were committed afterward.",
+  "environment": {
+    "os": "macOS 15.7.7 locally and macOS latest in hosted CI",
+    "architecture": "x86_64 locally; hosted runner architecture recorded by CI",
+    "python": "3.12.13 locally; 3.12 in hosted CI",
+    "node": "22.14.0",
+    "browser": "Playwright Chromium build 1155",
+    "automation": "Playwright 1.50.1"
+  },
+  "locks": {
+    "requirements_dev": "6f78ec8f0219b919c44ed9b9f1d30c2337fcce7c911b8d3dc4c13edb707a6575",
+    "requirements_web": "6f78ec8f0219b919c44ed9b9f1d30c2337fcce7c911b8d3dc4c13edb707a6575",
+    "package_lock": "d388a2668b3f65edeb62ee99da3ad37ffc56ab1ca3439b6d418a6bbe92e838d9",
+    "assets": "1d1b44794eed6f288f1140e67c1520d847fb3263718672cf743ff70b9da0ece9"
+  },
+  "roles": {
+    "implementation": "cycle2-implementor-replacement-1: B1 implementation complete",
+    "verification": "cycle2-verifier: round 18 pass",
+    "acceptance": "cycle2-acceptance: round 3 pass"
+  },
+  "commands": [
+    {
+      "command": "python -m pip install --require-hashes -r requirements-dev.lock; python -m pip install --no-build-isolation --no-deps -e .; python -m pip check",
+      "exit_status": 0,
+      "verifier": "cycle2-verifier"
+    },
+    {
+      "command": "python -m pip install --require-hashes -r requirements-web.lock; python -m pip install --no-build-isolation --no-deps -e '.[web]'; python -m pip check",
+      "exit_status": 0,
+      "verifier": "cycle2-verifier"
+    },
+    {
+      "command": "python -m ruff check Software/LogicAnalyzerPy",
+      "exit_status": 0,
+      "verifier": "cycle2-verifier"
+    },
+    {
+      "command": "python -m mypy Software/LogicAnalyzerPy/src",
+      "exit_status": 0,
+      "verifier": "cycle2-verifier"
+    },
+    {
+      "command": "python -m pytest -m 'not hardware' Software/LogicAnalyzerPy",
+      "exit_status": 0,
+      "verifier": "cycle2-verifier"
+    },
+    {
+      "command": "pico-la --help",
+      "exit_status": 0,
+      "verifier": "cycle2-verifier"
+    },
+    {
+      "command": "npm ci --no-audit --no-fund; npm run lint; npm run typecheck; npm test -- --run; npm run build; npm run test:browser",
+      "exit_status": 0,
+      "verifier": "cycle2-verifier"
+    },
+    {
+      "command": "python scripts/check_web_assets.py",
+      "exit_status": 0,
+      "verifier": "cycle2-verifier"
+    },
+    {
+      "command": "Logic analyzer Python Cycle 2 hosted macOS suite at exact commit e266d88815b0dabdd1397cbfcf3e1187bf8dfc24",
+      "exit_status": 0,
+      "verifier": "github-actions",
+      "ci": "run 32624529709; macOS job 97157701532"
+    },
+    {
+      "command": "python scripts/validate_cycle2_evidence.py docs/evidence-manifest/cycle2-schema.json testdata/evidence/c2-b1.json",
+      "exit_status": 0,
+      "verifier": "cycle2-orchestrator"
+    }
+  ],
+  "sources": [
+    {
+      "category": "generated-fixture",
+      "revision": "e266d88815b0dabdd1397cbfcf3e1187bf8dfc24",
+      "artifact": "Software/LogicAnalyzerPy/web/production-assets.json",
+      "sha256": "1d1b44794eed6f288f1140e67c1520d847fb3263718672cf743ff70b9da0ece9"
+    },
+    {
+      "category": "synthetic",
+      "revision": "e266d88815b0dabdd1397cbfcf3e1187bf8dfc24",
+      "artifact": ".github/workflows/logic-analyzer-python-cycle2.yml",
+      "sha256": "a0a56f92c7f0e29a74457140b76fd2077598a553122c09d8842fc8335d222a68"
+    },
+    {
+      "category": "browser-observation",
+      "revision": "e266d88815b0dabdd1397cbfcf3e1187bf8dfc24",
+      "artifact": "Software/LogicAnalyzerPy/docs/reviews/c2-b1-verification-round-18.md",
+      "sha256": "28b3c6e8349982e3faec8517572cedc42e7086da12a3c3c5f6858d8149f08feb"
+    },
+    {
+      "category": "synthetic",
+      "revision": "e266d88815b0dabdd1397cbfcf3e1187bf8dfc24",
+      "artifact": "Software/LogicAnalyzerPy/docs/reviews/c2-b1-acceptance-round-3.md",
+      "sha256": "c79618342a5c18b246c01e530fa35e67fc77afc11fabb9296349d06490dee957"
+    },
+    {
+      "category": "synthetic",
+      "revision": "e266d88815b0dabdd1397cbfcf3e1187bf8dfc24",
+      "artifact": "Software/LogicAnalyzerPy/docs/reviews/cycle2-platform-revision-acceptance.md",
+      "sha256": "ae07e21b9038b0ad58a59b68801878a083710b6df1929ce672f8ab20833e5925"
+    }
+  ],
+  "stopping_conditions": [
+    {
+      "id": 1,
+      "artifacts": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c2-b1-verification-round-18.md",
+          "sha256": "28b3c6e8349982e3faec8517572cedc42e7086da12a3c3c5f6858d8149f08feb"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "artifacts": [
+        {
+          "path": "Software/LogicAnalyzerPy/web/production-assets.json",
+          "sha256": "1d1b44794eed6f288f1140e67c1520d847fb3263718672cf743ff70b9da0ece9"
+        },
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c2-b1-verification-round-18.md",
+          "sha256": "28b3c6e8349982e3faec8517572cedc42e7086da12a3c3c5f6858d8149f08feb"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "artifacts": [
+        {
+          "path": ".github/workflows/logic-analyzer-python-cycle2.yml",
+          "sha256": "a0a56f92c7f0e29a74457140b76fd2077598a553122c09d8842fc8335d222a68"
+        },
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c2-b1-acceptance-round-3.md",
+          "sha256": "c79618342a5c18b246c01e530fa35e67fc77afc11fabb9296349d06490dee957"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "artifacts": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c2-b1-acceptance-round-3.md",
+          "sha256": "c79618342a5c18b246c01e530fa35e67fc77afc11fabb9296349d06490dee957"
+        },
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/cycle2-platform-revision-acceptance.md",
+          "sha256": "ae07e21b9038b0ad58a59b68801878a083710b6df1929ce672f8ab20833e5925"
+        }
+      ]
+    }
+  ],
+  "findings": [
+    "All prior C2-B1 findings are accepted closed.",
+    "No open C2-B1 findings under the macOS-only contract."
+  ],
+  "decisions": [
+    "macOS is the only supported Cycle 2 platform.",
+    "Historical platform records remain immutable and do not establish current support.",
+    "Node 22.14.0 and Playwright 1.50.1 are frozen for Cycle 2.",
+    "Production web execution uses packaged local assets and a loopback-only Python server.",
+    "Cycle 2 evidence rejects sensitive runtime values while accepting benign security prose."
+  ],
+  "limitations": [
+    "Operating systems other than macOS are outside Cycle 2 support and acceptance scope.",
+    "C2-B1 establishes earliest proof for stopping conditions 1, 2, 3, and 14; final proof remains owned by C2-B6."
+  ],
+  "deferred_work": [
+    "C2-B2 through C2-B6 remain unstarted and retain their approved scopes.",
+    "Physical hardware validation remains deferred to C2-B3 and later owning batches.",
+    "Performance-threshold approval remains deferred to C2-B5."
+  ]
+}

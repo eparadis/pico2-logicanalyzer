@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Literal, cast
 
 import numpy as np
 from numpy.typing import NDArray
 
 Edge = Literal["rising", "falling"]
+_DEFAULT_CHANNEL_METADATA = cast(tuple[str, ...], object())
 
 
 class ValidationError(ValueError):
@@ -140,10 +141,18 @@ class CaptureResult:
     config: CaptureConfig
     samples: NDArray[np.generic]
     device: DeviceInfo
-    channel_labels: tuple[str, ...] = tuple(f"D{i}" for i in range(8))
-    channel_mapping: tuple[str, ...] = tuple(f"D{i}" for i in range(8))
+    channel_labels: tuple[str, ...] = field(default_factory=lambda: _DEFAULT_CHANNEL_METADATA)
+    channel_mapping: tuple[str, ...] = field(default_factory=lambda: _DEFAULT_CHANNEL_METADATA)
 
     def __post_init__(self) -> None:
+        if self.channel_labels is _DEFAULT_CHANNEL_METADATA:
+            object.__setattr__(
+                self, "channel_labels", tuple(f"D{i}" for i in self.config.channel_ids)
+            )
+        if self.channel_mapping is _DEFAULT_CHANNEL_METADATA:
+            object.__setattr__(
+                self, "channel_mapping", tuple(f"D{i}" for i in self.config.channel_ids)
+            )
         if (
             not isinstance(self.samples, np.ndarray)
             or self.samples.dtype != self.config.sample_dtype

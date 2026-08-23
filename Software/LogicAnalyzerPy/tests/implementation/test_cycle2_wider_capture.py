@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import struct
+from argparse import Namespace
 from pathlib import Path
 
 import numpy as np
@@ -66,6 +67,38 @@ def test_wider_model_rejects_duplicates_and_nonzero_24bit_padding() -> None:
     parser = ByteParser(b"CAPTURE_STARTED\n\x01\0\0\0\x01\0\0\xff\0")
     with pytest.raises(ProtocolError):
         parse_capture_response(parser, config, _device())
+
+
+def test_24_channel_result_uses_ordered_default_labels_and_rejects_invalid_metadata() -> None:
+    config = cli._capture_config(
+        Namespace(
+            sample_rate=100,
+            pre_samples=1,
+            post_samples=2,
+            trigger_channel=0,
+            edge="rising",
+            channels=",".join(str(channel) for channel in range(24)),
+        )
+    )
+    result = CaptureResult(config, np.zeros(3, dtype=np.uint32), _device())
+    assert result.channel_labels == tuple(f"D{channel}" for channel in range(24))
+    assert result.channel_mapping == tuple(f"D{channel}" for channel in range(24))
+    with pytest.raises(ValidationError, match="invalid channel labels or mappings"):
+        CaptureResult(
+            config,
+            np.zeros(3, dtype=np.uint32),
+            _device(),
+            tuple(f"D{channel}" for channel in range(23)),
+            tuple(f"D{channel}" for channel in range(24)),
+        )
+    with pytest.raises(ValidationError, match="channel labels must be unique"):
+        CaptureResult(
+            config,
+            np.zeros(3, dtype=np.uint32),
+            _device(),
+            ("same",) * 24,
+            tuple(f"D{channel}" for channel in range(24)),
+        )
 
 
 def test_timestamp_contamination_invalidates_receive_owner() -> None:

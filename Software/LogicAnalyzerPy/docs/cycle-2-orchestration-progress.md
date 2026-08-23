@@ -1033,3 +1033,38 @@ accepted evidence remain unchanged.
   implementation work for the replacement to inspect, correct, validate, and
   complete. No candidate or acceptance transfers by inheritance.
 - Verification and acceptance identities remain distinct and unchanged.
+
+### C2-B5 verified product and threshold decision gate
+
+- Exact product candidate: `b5d502b5ded71fdf03b38058cb4fd6438d9110ad`;
+  tree `06d6498f010f9cf230697aa922c2a550f8cca24c`.
+- Independent product verification round 2 passed with `C2B5-V001` closed and
+  no open or deferred findings. Record:
+  `docs/reviews/c2-b5-verification-round-2.md`, SHA-256
+  `ebcf3d9aac7dd1e9b3817f6567ab997cc90cf537f11cb4f5b3344a7949fc0541`.
+- Frozen corrected baseline:
+  `docs/performance/c2-b5-baseline-round-1.json`, SHA-256
+  `c4ad9dab9ed9f53495bba5b93714f069d6f3192bc554148ae68401d2020082d5`.
+  It retains raw samples for 16 initial loads, 30 response-complete pan/zoom
+  interactions, and four transition/distinct-strobe representative/worst bus
+  groups, with exact independently recomputable nearest-rank statistics.
+- Threshold proposal round 1 remains immutable failed history. Corrected round
+  2 is committed at `c5eb657`:
+  `docs/performance/c2-b5-threshold-proposal-round-2.md`, SHA-256
+  `d314eea0979b567086eed7b346162eef76865507f9d8a111c736c94f62bbc597`.
+- Independent threshold verification round 2 passed and closed
+  `C2B5-TV001`/`C2B5-TV002`; record SHA-256
+  `7e77999b30650ab19f3b623def7f11b4e1c72b666e1c6f5791b984881eb79b71`.
+- Distinct threshold acceptance passed with no findings; a fresh benchmark
+  remained below all six timing limits and deterministic resource ceilings.
+  Record `docs/reviews/c2-b5-threshold-acceptance-round-1.md`, SHA-256
+  `c8f0211ec189a0e5bc5c62bf610f3b40c62e95d08b8109b657ba2be86536f5e6`.
+- Proposed effective regression ceilings are 772.10 ms load, 580.30 ms
+  pan/zoom, 261.45/116.73 ms representative transition/strobe bus, and
+  710.15/263.20 ms worst transition/strobe bus, each also subject to its
+  absolute ceiling. Resource ceilings are 46,129 Canvas commands, fewer than
+  1,000 DOM nodes, 100,000 samples and 960 pixels per waveform request, and
+  100 rows per bus page.
+- State: Awaiting approval. The proposal is not an acceptance criterion until
+  the operator explicitly approves or amends the exact round-2 record. Overall
+  B5 acceptance, manifest, checkpoint, and B6 remain prohibited until then.

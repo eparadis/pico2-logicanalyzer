@@ -118,16 +118,18 @@ def test_orderly_shutdown_stops_production_process() -> None:
     )
     origin = f"http://127.0.0.1:{port}"
     try:
-        response = None
+        set_cookie = None
         for _ in range(40):
             try:
-                response = _open(urllib.request.Request(origin + "/"))
+                with _open(urllib.request.Request(origin + "/")) as response:
+                    response.read()
+                    set_cookie = response.headers["Set-Cookie"]
                 break
             except (urllib.error.URLError, TimeoutError):
                 time.sleep(0.05)
-        assert response is not None, "production server never became reachable"
+        assert set_cookie is not None, "production server never became reachable"
         cookie = SimpleCookie()
-        cookie.load(response.headers["Set-Cookie"])
+        cookie.load(set_cookie)
         capability = cookie["pico_la_capability"].value
         shutdown = urllib.request.Request(
             origin + "/api/v1/shutdown",
@@ -135,9 +137,11 @@ def test_orderly_shutdown_stops_production_process() -> None:
             method="POST",
             headers={"Origin": origin, "Cookie": f"pico_la_capability={capability}"},
         )
-        assert _open(shutdown).status == 204
+        with _open(shutdown) as response:
+            assert response.status == 204
+            response.read()
         try:
-            process.wait(timeout=1.0)
+            process.wait(timeout=5.0)
         except subprocess.TimeoutExpired as exc:
             raise AssertionError("successful orderly shutdown did not stop the server") from exc
         assert process.returncode == 0

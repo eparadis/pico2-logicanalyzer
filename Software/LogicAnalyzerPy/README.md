@@ -1,24 +1,22 @@
 # Pico Logic Analyzer (Python)
 
-This is the native Python 3.12 command-line client for the V2 Pico logic
-analyzer firmware. It runs on macOS without the original C# desktop
-application. Other operating systems are outside the supported scope.
+This is the native Python 3.12 application for the V2 Pico logic analyzer
+firmware. Its preferred interface is the local web frontend; the command-line
+capture and validation tools remain available for automation and diagnostics.
+It runs on macOS without the original C# desktop application. Other operating
+systems are outside the supported scope.
 
-The Cycle 2 foundation retains the accepted Cycle 1 client, which can:
+The application can:
 
 - list candidate USB serial devices;
 - read and validate V2 identity and capabilities;
-- capture the normal eight-channel D0-D7 sample format with a rising or falling
-  edge trigger;
-- export deterministic, trigger-relative CSV;
-- write and safely validate a provisional NumPy replay file; and
+- capture explicit ordered channel selections in the supported 8-, 16-, and
+  24-channel modes with a rising or falling edge trigger;
+- display captures and imported replay/CSV data in the local web frontend;
+- analyze transition and strobe-sampled parallel buses;
+- export deterministic, trigger-relative CSV and secure replay data; and
 - recover a timed-out or interrupted capture through the bounded V2
   cancellation, close/reopen, and re-identification sequence.
-
-The current shell remains intentionally bounded: it is not a replacement GUI.
-Wider capture modes, sigrok decoder hosting, TCP/Wi-Fi operation, and stable
-long-term replay compatibility remain future work. The existing C# applications
-and firmware remain available as comparison and rollback paths.
 
 ## Install from source
 
@@ -45,17 +43,81 @@ pico-la --help
 `python -m pico_logic_analyzer` is equivalent to `pico-la` in the activated
 environment.
 
-## Offline web shell
+## Start the web frontend
 
-Install the reviewed web runtime before its no-dependency-resolution editable
-install, then start the checked-in production assets on a literal loopback
-address. This shell neither invokes Node nor accesses serial hardware.
+The local web frontend is the preferred way to use `pico-la`. With one Pico
+logic analyzer connected, run this from the repository root:
 
 ```bash
+./Software/LogicAnalyzerPy/start_web.sh
+```
+
+The launcher creates `.venv` and installs the reviewed, hash-locked web runtime
+when needed. It then runs `pico-la devices` and starts the server only when
+exactly one matching analyzer is present. It prints the local browser address,
+an SSH command for access from another computer, and keeps running until you
+press `Ctrl-C`.
+
+The default address is <http://127.0.0.1:4173>. To select another loopback
+address or port:
+
+```bash
+PICO_LA_WEB_HOST=127.0.0.1 PICO_LA_WEB_PORT=8080 \
+  ./Software/LogicAnalyzerPy/start_web.sh
+```
+
+The launcher never automatically chooses between multiple devices and does not
+print the selected serial path. The path remains server-side and is not exposed
+to browser code.
+
+### Connect from another computer
+
+Keep `start_web.sh` running on the Mac connected to the analyzer. Enable
+**Remote Login** under **System Settings → General → Sharing** on that Mac, then
+run the SSH command printed by the launcher on the other computer. It will look
+like this:
+
+```bash
+ssh -N -L 4173:127.0.0.1:4173 USER@ANALYZER_MAC.local
+```
+
+Leave that SSH command running and open <http://127.0.0.1:4173> on the other
+computer. The browser traffic travels through the authenticated, encrypted SSH
+tunnel; the `pico-la` server itself remains bound to loopback and is not exposed
+directly to the LAN.
+
+If the printed SSH hostname or username is not suitable for your network,
+override either value when starting the launcher:
+
+```bash
+PICO_LA_SSH_HOST=192.168.1.50 PICO_LA_SSH_USER=myuser \
+  ./Software/LogicAnalyzerPy/start_web.sh
+```
+
+For manual startup or troubleshooting, enter the application directory and
+install the web runtime:
+
+```bash
+cd Software/LogicAnalyzerPy
 .venv/bin/python -m pip install --require-hashes -r requirements-web.lock
 .venv/bin/python -m pip install --no-build-isolation --no-deps -e '.[web]'
+.venv/bin/pico-la devices
+.venv/bin/pico-la web \
+  --host 127.0.0.1 \
+  --port 4173 \
+  --device-port PORT_FROM_DEVICES_OUTPUT
+```
+
+To view replay or self-timed CSV files without connecting an analyzer, omit the
+device port:
+
+```bash
 .venv/bin/pico-la web --host 127.0.0.1 --port 4173
 ```
+
+Both modes serve the checked-in production assets from a literal loopback
+address. Starting the frontend does not invoke Node, contact a CDN, or expose a
+public server.
 
 ## Connect to an analyzer
 

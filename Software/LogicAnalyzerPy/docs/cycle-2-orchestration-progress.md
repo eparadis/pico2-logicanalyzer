@@ -566,3 +566,32 @@ accepted evidence remain unchanged.
 - State advances to In progress for the bounded physical procedure. Verification
   and acceptance remain separate and will receive fresh same-lane replacements
   if their prior identities are unavailable.
+
+### C2-B3 corrected-candidate implementation result
+
+- Corrected product candidate:
+  `90adb3adb38a938ce470fa854e6fc7b98e1501c9`; tree
+  `5a09d57e4caa266a43f164edaffc94fc9a3236d7`.
+- Implementation evidence commit: `cdea2946f18e111db31c60b25efd0f53132ddbda`;
+  evidence tree `4415fc8a0131ece3c889b041ac642a3c4fe28a45`.
+- Recovery: bounded fixed-low D1 cancellation/drain, close/reopen,
+  re-identification, and second 6144-sample D0 capture passed without a power
+  cycle; 41 rising transitions measured 1000.0 Hz.
+- D0-D7: `uint8`, 6144 samples, driven mask `0x01`, all-low/all-high driven
+  projections, 42 rising transitions, 1005.641403 Hz.
+- D0-D15: `uint16`, 6144 samples, driven mask `0x0101`, all-low/all-high driven
+  projections, 42 rising transitions, 1010.349926 Hz.
+- D0-D23: `uint32`, 6144 samples, driven mask `0x810101`, all-low/all-high driven
+  projections, 42 rising transitions, 1005.394801 Hz, and bits 24-31 zero.
+- Independent implementation helper reconstructed byte-exact deterministic CSV
+  from each raw schema-2 artifact. Helper
+  `scripts/validate_c2_b3_capture.py` SHA-256
+  `993f9c7691f9ded4b70049e5fe685d2fc2d5b20c430d999fab74e654b19cd5ec`;
+  sanitized record `docs/reviews/c2-b3-implementation-round-1.md` SHA-256
+  `2549b62755eec859bf34954d1f8a612e8be77bdba6e12fc88a6a5d4dd2dff27e`.
+- Focused/accumulated implementation gates: 45 focused; Ruff; mypy; 276
+  non-hardware passed with 1 covered sandbox skip; CLI; frontend
+  lint/typecheck/unit/build; and diff check passed.
+- Runtime raw artifacts remain outside the repository for independent verifier
+  inspection. Durable artifacts contain no port, serial, location, or
+  capability values. State advances to Verifying; no result is accepted yet.

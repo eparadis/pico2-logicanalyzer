@@ -704,7 +704,7 @@ accepted evidence remain unchanged.
 
 ### C2-B4 shared-interface contract gap
 
-- State: Awaiting approval
+- State: Blocked
 - Implementation completed only an uncommitted focused bus-core slice with 3
   passing tests, then stopped before API work or candidate creation.
 - Independent read-only verifier verdict: `contract_gap`. The governing sources
@@ -733,3 +733,16 @@ accepted evidence remain unchanged.
 - No API implementation, server launch, dependency change, candidate, or
   prohibited action occurred. The uncommitted bus core is preserved but is not
   accepted evidence.
+
+### C2-B4 interface-decision blocked audit
+
+- The same operator decision remained absent for three consecutive durable-goal
+  turns after the independent verifier confirmed the substantive contract gap.
+- All safe work outside the unsettled shared interface is exhausted. The
+  partial bus core is not a candidate, B4 cannot implement or freeze the
+  Python/API/TypeScript boundary without direction, and B5 cannot begin before
+  B4 is accepted.
+- Resume condition: the operator selects the recommended REST plus polling with
+  Python-owned OpenAPI 3.1 and generated/validated TypeScript types, selects one
+  of the documented alternatives, or supplies another in-scope interface for
+  independent review. A resumed run starts a fresh blocked audit.

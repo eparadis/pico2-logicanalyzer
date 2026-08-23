@@ -233,3 +233,16 @@ accepted evidence remain unchanged.
   and starts from the current clean descendant containing review/progress
   records.
 - Verification and acceptance identities remain distinct.
+
+### C2-B2 acceptance identity change
+
+- Original identity: `cycle2-acceptance` (`/root/acceptance`)
+- Replacement identity: `cycle2-acceptance-replacement-1`
+- Reason: the original acceptance agent is no longer available before the B2
+  exact candidate entered independent acceptance.
+- Lane/model/reasoning preserved: Acceptance, `gpt-5.6-sol`, low.
+- The replacement audits exact candidate
+  `c3f43a9ef0311c34ece3f95c94871fcfcd2c12a3`, tree
+  `782f101981348ebdde23a338c8db5a92eb81f73b`, from a fresh acceptance
+  assignment. Verification and implementation evidence does not transfer
+  acceptance authority.

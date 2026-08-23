@@ -1068,3 +1068,53 @@ accepted evidence remain unchanged.
 - State: Awaiting approval. The proposal is not an acceptance criterion until
   the operator explicitly approves or amends the exact round-2 record. Overall
   B5 acceptance, manifest, checkpoint, and B6 remain prohibited until then.
+
+## C2-B5 checkpoint
+
+- State: Complete
+- Recorded: 2026-08-23T21:01:06Z
+- Exact accepted product candidate:
+  `b5d502b5ded71fdf03b38058cb4fd6438d9110ad`
+- Exact accepted product tree:
+  `06d6498f010f9cf230697aa922c2a550f8cca24c`
+- Product result: bounded offline production React viewer for schema-1/schema-2
+  replay and self-timed CSV; 8/16/24 labels and visibility; reduced-transition
+  Canvas waveforms; pointer/keyboard pan and cursor-centered zoom; trigger and
+  exact cursor readout; transition/distinct-strobe bus tables, pagination and
+  exports; explicit lifecycle/failure/cancel/reconnect/shutdown states; bounded
+  DOM/requests/commands; no Node/CDN/serial/development-server runtime.
+- Independent product verification: pass with no findings,
+  `docs/reviews/c2-b5-verification-round-2.md`, SHA-256
+  `ebcf3d9aac7dd1e9b3817f6567ab997cc90cf537f11cb4f5b3344a7949fc0541`.
+- Operator-approved threshold record:
+  `docs/performance/c2-b5-threshold-approval.md`, committed at `4bd025f`,
+  SHA-256
+  `57183190d5d48642e9621862aeed343b0a435477a5b4b6276551e55dd01a6053`.
+  It incorporates verified proposal round 2 exactly and is a mandatory C2-B6
+  acceptance input; silent rebasing is prohibited.
+- Overall acceptance: pass with no findings,
+  `docs/reviews/c2-b5-acceptance-round-1.md`, SHA-256
+  `32252c54a2cd3e0e88370009316a2557659d0132fca7c4c0f66842aa9954771a`.
+  Fresh validation reported 354 Python tests with 2 covered sandbox skips, 19
+  evidence/baseline tests, frontend lint/typecheck/5 Vitest tests/29-module
+  production build, DPR/security browser 1 pass, viewer workflows 2 pass,
+  benchmark 1 pass, and root-brokered loopback 1 pass.
+- Fresh acceptance benchmark p95 values 450.30/331.30/153.70/66.00/403.10/
+  155.50 ms all passed approved dual ceilings; maximum Canvas commands 12,755,
+  DOM nodes 216, and bus rows 100 passed deterministic resource ceilings.
+- Evidence manifest: `testdata/evidence/c2-b5.json`, committed separately at
+  `f561d31`, SHA-256
+  `8fcdf9714e2ad94af845d9676227bf6750159075bb49416d9c78c16d5b3c14e9`;
+  strict validation and the 9-test evidence-schema suite passed.
+- Checkpoint proves B5-owned stopping conditions 10 and 12 and refreshes
+  prohibited-action proof for condition 14. Final native/browser/hardware and
+  accumulated proof remains owned by C2-B6.
+- Unrelated state: untracked repository-root `.ORCHESTRATION.md.swp` was found
+  during acceptance, ownership is unknown, and it remains preserved and
+  excluded from all B5 staging/evidence.
+- Prohibited actions: no live serial/device open, firmware, C#/.NET, public
+  serving, packaging/publication, non-macOS support claim, B6 implementation,
+  or Cycle 3 action occurred.
+- Next boundary: C2-B6 may now be selected only after rechecking the fresh
+  operator-confirmed physical setup and explicit runtime port required by the
+  governing contract.

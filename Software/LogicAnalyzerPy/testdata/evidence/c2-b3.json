@@ -1,0 +1,189 @@
+{
+  "schema_version": 2,
+  "checkpoint": "C2-B3",
+  "tested_commit": "90adb3adb38a938ce470fa854e6fc7b98e1501c9",
+  "tested_tree": "5a09d57e4caa266a43f164edaffc94fc9a3236d7",
+  "timestamp_utc": "2026-08-23T17:46:00Z",
+  "worktree_state": "Exact corrected product candidate was reverified and reaccepted before a fresh complete physical sequence; immutable sanitized implementation, verification, accumulated-validation, and acceptance records were committed afterward.",
+  "environment": {
+    "os": "macOS 15.7.7",
+    "architecture": "x86_64",
+    "python": "3.12.13",
+    "node": "22.14.0",
+    "browser": "Playwright Chromium build 1155",
+    "automation": "Playwright 1.50.1"
+  },
+  "locks": {
+    "requirements_dev": "6f78ec8f0219b919c44ed9b9f1d30c2337fcce7c911b8d3dc4c13edb707a6575",
+    "requirements_web": "6f78ec8f0219b919c44ed9b9f1d30c2337fcce7c911b8d3dc4c13edb707a6575",
+    "package_lock": "d388a2668b3f65edeb62ee99da3ad37ffc56ab1ca3439b6d418a6bbe92e838d9",
+    "assets": "1d1b44794eed6f288f1140e67c1520d847fb3263718672cf743ff70b9da0ece9"
+  },
+  "roles": {
+    "implementation": "cycle2-implementor-replacement-5: B3 physical execution pass",
+    "verification": "cycle2-verifier-replacement-3: B3 round 1 pass",
+    "acceptance": "cycle2-acceptance-replacement-2: B3 round 1 pass"
+  },
+  "commands": [
+    {
+      "command": "pico-la devices --json; pico-la info --port <PORT_SUPPLIED> --json --timeout 10",
+      "exit_status": 0,
+      "verifier": "cycle2-orchestrator"
+    },
+    {
+      "command": "pico-la hardware-recovery-smoke --port <PORT_SUPPLIED> --idle-channel 1 --idle-level 0 --cancel-after 0.25 --signal-channel 0 --signal-hz 1000 --sample-rate 100000 --edge rising --pre-samples 2048 --post-samples 4096 --evidence <RUNTIME_EVIDENCE> --timeout 3",
+      "exit_status": 0,
+      "verifier": "cycle2-implementor-replacement-5"
+    },
+    {
+      "command": "pico-la capture --port <PORT_SUPPLIED> --sample-rate 100000 --trigger-channel 0 --edge rising --pre-samples 2048 --post-samples 4096 --channels D0-D7 --csv <RUNTIME_CSV> --replay <RUNTIME_NPZ> --timeout 10",
+      "exit_status": 0,
+      "verifier": "cycle2-implementor-replacement-5"
+    },
+    {
+      "command": "pico-la capture --port <PORT_SUPPLIED> --sample-rate 100000 --trigger-channel 0 --edge rising --pre-samples 2048 --post-samples 4096 --channels D0-D15 --csv <RUNTIME_CSV> --replay <RUNTIME_NPZ> --timeout 10",
+      "exit_status": 0,
+      "verifier": "cycle2-implementor-replacement-5"
+    },
+    {
+      "command": "pico-la capture --port <PORT_SUPPLIED> --sample-rate 100000 --trigger-channel 0 --edge rising --pre-samples 2048 --post-samples 4096 --channels D0-D23 --csv <RUNTIME_CSV> --replay <RUNTIME_NPZ> --timeout 10",
+      "exit_status": 0,
+      "verifier": "cycle2-implementor-replacement-5"
+    },
+    {
+      "command": "python -m pytest tests/verification/test_c2_b3_physical_artifacts_blackbox.py",
+      "exit_status": 0,
+      "verifier": "cycle2-verifier-replacement-3"
+    },
+    {
+      "command": "python -m pip check; python -m ruff check .; python -m mypy src; python -m pytest -m 'not hardware'; python -m pico_logic_analyzer --help",
+      "exit_status": 0,
+      "verifier": "cycle2-orchestrator"
+    },
+    {
+      "command": "npm run lint; npm run typecheck; npm test -- --run; npm run build; npm run test:browser; python scripts/check_web_assets.py; git diff --check",
+      "exit_status": 0,
+      "verifier": "cycle2-orchestrator"
+    },
+    {
+      "command": "python scripts/validate_cycle2_evidence.py docs/evidence-manifest/cycle2-schema.json testdata/evidence/c2-b3.json",
+      "exit_status": 0,
+      "verifier": "cycle2-orchestrator"
+    }
+  ],
+  "sources": [
+    {
+      "category": "cycle1-accepted",
+      "revision": "90adb3adb38a938ce470fa854e6fc7b98e1501c9",
+      "artifact": "Software/LogicAnalyzerPy/testdata/evidence/c2-b2.json",
+      "sha256": "d930bce4ae20576ea030e35cf0e993a3caf89e95f5eb5195638471c1790c2be4"
+    },
+    {
+      "category": "firmware-source",
+      "revision": "90adb3adb38a938ce470fa854e6fc7b98e1501c9",
+      "artifact": "Firmware/LogicAnalyzer_V2/LogicAnalyzer_Build_Settings.cmake",
+      "sha256": "2a80e102a89bae1b554afb2df3d9aec96b955f1cf6b1edd1794873e92ea3297b"
+    },
+    {
+      "category": "cycle1-accepted",
+      "revision": "90adb3adb38a938ce470fa854e6fc7b98e1501c9",
+      "artifact": "Software/LogicAnalyzerPy/testdata/evidence/c1-b5-recovery-smoke.json",
+      "sha256": "44a7bffc0bcc7c415ba8fa09efb26624853dce26833216d78d408b9c45907815"
+    },
+    {
+      "category": "hardware-observation",
+      "revision": "90adb3adb38a938ce470fa854e6fc7b98e1501c9",
+      "artifact": "Software/LogicAnalyzerPy/docs/reviews/c2-b3-implementation-round-1.md",
+      "sha256": "2549b62755eec859bf34954d1f8a612e8be77bdba6e12fc88a6a5d4dd2dff27e"
+    },
+    {
+      "category": "synthetic",
+      "revision": "90adb3adb38a938ce470fa854e6fc7b98e1501c9",
+      "artifact": "Software/LogicAnalyzerPy/scripts/validate_c2_b3_capture.py",
+      "sha256": "993f9c7691f9ded4b70049e5fe685d2fc2d5b20c430d999fab74e654b19cd5ec"
+    },
+    {
+      "category": "hardware-observation",
+      "revision": "90adb3adb38a938ce470fa854e6fc7b98e1501c9",
+      "artifact": "Software/LogicAnalyzerPy/docs/reviews/c2-b3-verification-round-1.md",
+      "sha256": "ebeee036728cada9a9046fdcdee4e4a356955a5e3a1a3f10d075ba66ff4fad78"
+    },
+    {
+      "category": "synthetic",
+      "revision": "90adb3adb38a938ce470fa854e6fc7b98e1501c9",
+      "artifact": "Software/LogicAnalyzerPy/tests/verification/test_c2_b3_physical_artifacts_blackbox.py",
+      "sha256": "cbf2bf036e6edfe264964f6ab286cf993e5577573abb951a9027cc9243e2d8d1"
+    },
+    {
+      "category": "hardware-observation",
+      "revision": "90adb3adb38a938ce470fa854e6fc7b98e1501c9",
+      "artifact": "Software/LogicAnalyzerPy/docs/reviews/c2-b3-acceptance-round-1.md",
+      "sha256": "5e2eba90c93b610220fb77105bbed968374a5a375739e85142b45d385a508985"
+    }
+  ],
+  "stopping_conditions": [
+    {
+      "id": 8,
+      "artifacts": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c2-b3-implementation-round-1.md",
+          "sha256": "2549b62755eec859bf34954d1f8a612e8be77bdba6e12fc88a6a5d4dd2dff27e"
+        },
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c2-b3-verification-round-1.md",
+          "sha256": "ebeee036728cada9a9046fdcdee4e4a356955a5e3a1a3f10d075ba66ff4fad78"
+        },
+        {
+          "path": "Software/LogicAnalyzerPy/tests/verification/test_c2_b3_physical_artifacts_blackbox.py",
+          "sha256": "cbf2bf036e6edfe264964f6ab286cf993e5577573abb951a9027cc9243e2d8d1"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "artifacts": [
+        {
+          "path": "Software/LogicAnalyzerPy/testdata/evidence/c1-b5-recovery-smoke.json",
+          "sha256": "44a7bffc0bcc7c415ba8fa09efb26624853dce26833216d78d408b9c45907815"
+        },
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c2-b3-verification-round-1.md",
+          "sha256": "ebeee036728cada9a9046fdcdee4e4a356955a5e3a1a3f10d075ba66ff4fad78"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "artifacts": [
+        {
+          "path": "Firmware/LogicAnalyzer_V2/LogicAnalyzer_Build_Settings.cmake",
+          "sha256": "2a80e102a89bae1b554afb2df3d9aec96b955f1cf6b1edd1794873e92ea3297b"
+        },
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c2-b3-acceptance-round-1.md",
+          "sha256": "5e2eba90c93b610220fb77105bbed968374a5a375739e85142b45d385a508985"
+        }
+      ]
+    }
+  ],
+  "findings": [
+    "C2B3-I001 exposed by the first physical D0-D23 attempt is accepted closed in the corrected B2 candidate.",
+    "No open C2-B3 findings."
+  ],
+  "decisions": [
+    "Board-labeled pins 1, 9, 17, and 24 correspond to logical D0, D8, D16, and D23 and share the protected approximately 1 kHz source.",
+    "D1 remains fixed low at analyzer ground for the bounded Cycle 1 recovery regression.",
+    "Only the driven-bit projections are asserted; uncontrolled floating inputs are observational.",
+    "Runtime capture artifacts remain outside Git while sanitized independently reproducible results and digests are durable."
+  ],
+  "limitations": [
+    "Operating systems other than macOS are outside Cycle 2 support and acceptance scope.",
+    "Uncontrolled input bits may vary and are not interpreted as driven-signal evidence.",
+    "The physical artifacts prove the fixed normal edge-trigger path only; excluded firmware modes remain unsupported."
+  ],
+  "deferred_work": [
+    "Parallel-bus analysis and the versioned browser API remain deferred to C2-B4.",
+    "Viewer performance thresholds remain deferred to C2-B5.",
+    "Live native-browser capture integration and final proof remain deferred to C2-B6."
+  ]
+}

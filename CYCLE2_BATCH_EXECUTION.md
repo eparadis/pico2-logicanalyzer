@@ -507,7 +507,7 @@ earlier batch.
 | --- | --- | --- |
 | 1. Python/Cycle 1 installation and regression | C2-B1 | C2-B6 clean accumulated gate |
 | 2. Locked frontend checks and production build | C2-B1 | C2-B6 clean build |
-| 3. macOS/Linux CI matrix | C2-B1 | C2-B6 exact-candidate CI |
+| 3. macOS CI suite | C2-B1 | C2-B6 exact-candidate CI |
 | 4. Literal 8/16/24 protocol fixtures | C2-B2 | C2-B6 fixture regression |
 | 5. Adverse fake/replay/API/browser lifecycle | C2-B2, completed through B5 | C2-B6 accumulated gate |
 | 6. Replay 1/2 and generalized CSV | C2-B2 | C2-B6 artifact audit |
@@ -541,7 +541,7 @@ reviews; accepted Cycle 1 baseline; writable workspace.
   evidence manifest atomically only after B1 verification and acceptance
   evidence exists; do not create B2-B6 manifests.
 - Select and pin the supported Node runtime and minimal Python HTTP/WebSocket
-  stack after clean macOS/Linux probes. Use React, TypeScript, Vite, and a
+  stack after clean macOS probes. Use React, TypeScript, Vite, and a
   browser automation stack. Record licenses and direct/transitive lock digests.
 - Expose the Python server stack as an optional `web` project extra while
   including the exact same versions in the reviewed development lock. Create a
@@ -561,7 +561,7 @@ reviews; accepted Cycle 1 baseline; writable workspace.
   and capability-cookie policy, inert health, production assets, and
   deterministic shutdown. It must not import/open serial or accept capture
   requests yet.
-- Rename/replace the single Cycle 1 workflow with one Cycle 2 macOS/Linux matrix
+- Rename/replace the single Cycle 1 workflow with one Cycle 2 macOS suite
   running the canonical clean Python and Node/frontend gates. Preserve Cycle 1
   tests and avoid duplicate full workflows.
 - Correct stale Cycle 1 wording in project metadata and active documentation
@@ -588,7 +588,7 @@ Electron, `.lac`, .NET, packaging, or public serving.
 - Core/CLI installation remains possible without Node at runtime.
 - Core/CLI installation remains possible without Python web dependencies; the
   `web` extra path and missing-extra diagnostic are tested.
-- Clean macOS and Linux CI jobs install the web runtime through
+- The clean macOS CI job installs the web runtime through
   `requirements-web.lock`, perform the no-deps source install, run `pip check`,
   and record the runtime-lock digest separately from the development lock.
 - The Cycle 2 evidence schema and secret scanner accept the complete B1
@@ -596,7 +596,7 @@ Electron, `.lac`, .NET, packaging, or public serving.
   role identities even in B1.
 - The exact Python/frontend canonical commands and supported versions are
   documented.
-- The renamed/replaced workflow passes macOS and Linux jobs at the exact
+- The renamed/replaced workflow passes its macOS job at the exact
   checkpoint commit; pushing to obtain CI evidence requires normal user
   authority.
 - All accumulated Cycle 1 non-hardware tests pass.
@@ -784,7 +784,7 @@ performance acceptance.
 
 **Acceptance:**
 
-- Offline user workflows pass in the production build on macOS/Linux headless
+- Offline user workflows pass in the production build on macOS headless
   CI, including all three widths and both bus modes.
 - Browser data transfer and Canvas work are bounded by the visible window and
   reduced transitions; DOM size does not scale with raw sample count.
@@ -821,14 +821,15 @@ explicit port remain operator-confirmed.
 - Complete independent implementation verification, acceptance, manifests,
   rollback audit, support qualification, and final handoff.
 
-**Out of scope:** Feature polish unrelated to a stopping condition, native Linux
-hardware claims, firmware tuning, remote access, packaging, decoders, Cycle 3,
+**Out of scope:** Feature polish unrelated to a stopping condition, native
+hardware claims for non-macOS platforms, firmware tuning, remote access,
+packaging, decoders, Cycle 3,
 or threshold rebasing.
 
 **Acceptance:**
 
 - The exact final commit/tree passes clean Python/Node bootstraps and every
-  accumulated test on macOS/Linux CI.
+  accumulated test on macOS CI.
 - Native macOS production-build startup, browser interaction, real capture,
   waveform, bus, export, close/reopen, second capture, and shutdown pass with
   sanitized evidence.
@@ -840,8 +841,8 @@ or threshold rebasing.
 - The final candidate meets the approved rendering thresholds.
 - Every stopping condition in `CYCLE2_ORCHESTRATION.md` maps to an immutable
   evidence path and digest.
-- `docs/cycle-2-completion.md` accurately limits Linux support to CI and records
-  native Linux hardware/desktop evidence as deferred.
+- `docs/cycle-2-completion.md` identifies macOS as the only supported platform
+  and records other operating systems as outside Cycle 2 scope.
 - Firmware/C# sources and Cycle 1 regression paths remain; no prohibited action
   occurred; repository state is recorded; Cycle 3 has not begun.
 
@@ -962,7 +963,7 @@ Before declaring C2-B6 complete, assemble links to:
 - literal protocol fixtures and provenance;
 - schema-1/schema-2 replay and CSV determinism/security evidence;
 - bus-analysis fixtures and exports;
-- accumulated Python/React/API/browser results and exact macOS/Linux CI jobs;
+- accumulated Python/React/API/browser results and the exact macOS CI job;
 - operator confirmation and sanitized D0/D8/D16/D23 physical evidence;
 - Cycle 1 hardware recovery regression and Cycle 2 second-capture evidence;
 - native macOS browser workflow evidence;
@@ -970,7 +971,8 @@ Before declaring C2-B6 complete, assemble links to:
 - dependency/build digests, repository status, rollback audit, limitations, and
   deferrals; and
 - confirmation that firmware, .NET, `.lac`, public serving, packaging,
-  publishing, native Linux hardware claims, and Cycle 3 remained untouched.
+  publishing, unsupported-platform hardware claims, and Cycle 3 remained
+  untouched.
 
 Preparatory review of this document and `CYCLE2_ORCHESTRATION.md` occurs before
 the durable goal. The packet above is instead the final completion evidence; it

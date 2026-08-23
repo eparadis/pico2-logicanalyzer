@@ -1,8 +1,8 @@
 # Pico Logic Analyzer (Python)
 
 This is the native Python 3.12 command-line client for the V2 Pico logic
-analyzer firmware. It runs on macOS and Linux without the original C# desktop
-application.
+analyzer firmware. It runs on macOS without the original C# desktop
+application. Other operating systems are outside the supported scope.
 
 The Cycle 2 foundation retains the accepted Cycle 1 client, which can:
 

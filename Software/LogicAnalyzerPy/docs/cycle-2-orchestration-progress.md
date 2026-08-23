@@ -71,3 +71,23 @@ accepted evidence remain unchanged.
 ## Deferred work
 
 - No deferred Cycle 2 finding recorded at B1 selection.
+
+## Operator-approved platform requirement revision
+
+- Recorded: 2026-08-23 (America/Los_Angeles)
+- Authority: the operator directed removal of the active Linux requirements and
+  workflows while preserving immutable historical records for possible future
+  use.
+- Active support scope: macOS only.
+- Revised active artifacts: `CYCLE2_GOAL.md`,
+  `CYCLE2_ORCHESTRATION.md`, `CYCLE2_BATCH_EXECUTION.md`, the Cycle 2
+  workflow, and the Python client README support statement.
+- Historical discovery, review, acceptance, CI, and evidence records remain
+  unchanged. Their Linux references describe the requirements or results in
+  force when those records were created; they are not current support claims.
+- The prior uncommitted C2-B1 manifest was discarded before checkpoint
+  finalization. C2-B1 must be reverified and reaccepted under the revised
+  macOS-only contract before its manifest and checkpoint may be recorded.
+- Future Linux support, if requested, requires a separately approved contract
+  revision and new verification; historical records may be used as provenance
+  but do not establish current support.

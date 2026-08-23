@@ -174,7 +174,7 @@ its own work.
 Use the exact Python, Node, browser, API, CI, evidence-schema, physical, and
 performance commands established by the governing contracts and C2-B1. Run
 focused checks after each change and accumulated non-hardware validation after
-each integration. Clean bootstraps, hosted macOS/Linux CI, native macOS browser
+each integration. Clean bootstraps, hosted macOS CI, native macOS browser
 work, physical captures, and performance thresholds remain mandatory in their
 owning batches.
 
@@ -223,7 +223,7 @@ is `pass`. Produce `Software/LogicAnalyzerPy/docs/cycle-2-completion.md` and the
 handoff required by `CYCLE2_ORCHESTRATION.md`, including exact commit/tree,
 dependency/build digests, commands/results, CI identity, sanitized hardware and
 browser evidence, checkpoint manifests, performance thresholds/results,
-limitations, deferrals, repository status, the macOS-native/Linux-CI support
+limitations, deferrals, repository status, the macOS-only support
 qualification, and confirmation that no prohibited action occurred.
 
 ## Launch command

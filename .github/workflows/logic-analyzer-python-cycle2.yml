@@ -8,11 +8,7 @@ on:
 
 jobs:
   validate:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -114,12 +110,7 @@ jobs:
       - name: Check production asset drift
         working-directory: Software/LogicAnalyzerPy
         run: .venv/bin/python scripts/check_web_assets.py
-      - name: Install Chromium and Linux browser dependencies
-        if: runner.os == 'Linux'
-        working-directory: Software/LogicAnalyzerPy/web
-        run: npx playwright install --with-deps chromium
       - name: Install Chromium for macOS browser smoke
-        if: runner.os == 'macOS'
         working-directory: Software/LogicAnalyzerPy/web
         run: npx playwright install chromium
       - name: Run production browser smoke

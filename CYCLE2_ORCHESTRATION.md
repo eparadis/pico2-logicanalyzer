@@ -38,10 +38,9 @@ parallel-bus analysis, and exposes those capabilities through a loopback-only
 local web application built with React, TypeScript, Vite, and bounded Canvas
 waveform rendering.
 
-macOS is the primary accepted platform. The complete native browser and
-USB-attached-board workflow must pass on macOS. Linux is supported through clean
-installation, build, API, and headless-browser CI; Cycle 2 does not claim native
-Linux USB or interactive-desktop acceptance.
+macOS is the only accepted and supported platform. The complete native browser,
+hosted-CI, and USB-attached-board workflow must pass on macOS. Other operating
+systems are outside Cycle 2 scope and have no support claim.
 
 The application should be useful for debugging a simple 8-bit SBC by viewing an
 8-bit bus together with selected address or control signals and by sampling an
@@ -57,8 +56,8 @@ candidate commit and tree:
    accepted Cycle 1 non-hardware tests pass.
 2. A clean locked Node installation, TypeScript checks, React tests, production
    Vite build, and browser test entry point pass without runtime CDN access.
-3. The accumulated Python, frontend, API, and headless-browser matrix passes on
-   both macOS and Linux CI for the exact final candidate.
+3. The accumulated Python, frontend, API, and headless-browser suite passes on
+   macOS CI for the exact final candidate.
 4. Provenance-tagged literal fixtures cover 8-, 16-, and 24-channel V2 normal
    requests and responses, including ordered subsets, packed request positions,
    little-endian word widths, reserved-byte escaping, and the zero upper byte
@@ -101,7 +100,7 @@ candidate commit and tree:
 13. Final checkpoint and completion records identify the exact commit/tree,
     dependency-lock digests, commands and results, sanitized hardware identity
     and parameters, evidence paths and digests, limitations, deferrals,
-    repository status, and the precise macOS-versus-Linux support claim.
+    repository status, and the precise macOS-only support claim.
 14. Checked-in firmware, the existing C# applications, Cycle 1 fixtures, and the
     accepted Python CLI remain present as rollback or regression paths. No
     firmware, .NET, persistent-device, public-server, packaging, or publication
@@ -149,7 +148,7 @@ reported as success.
   rows, connections, capture concurrency, and shutdown.
 - Background capture/file work that does not block the browser event loop or
   server request handling.
-- macOS native browser/hardware acceptance and Linux/macOS CI.
+- macOS native browser/hardware acceptance and macOS CI.
 - Deterministic generated and sanitized hardware-derived fixtures with
   provenance and digests.
 
@@ -174,7 +173,7 @@ reported as success.
   annotations.
 - Self-contained installers, Electron-style packaging, signing, notarization,
   release publication, or distribution support.
-- Native Linux USB/hardware or interactive desktop acceptance in this cycle.
+- Native support or acceptance for non-macOS platforms in this cycle.
 - Removal or material refactoring of the existing C# application or firmware.
 - Beginning Cycle 3.
 
@@ -205,7 +204,7 @@ discovery record:
    bus analysis, API handoff, React/Canvas behavior, usability, and performance
    evidence.
 3. **Delivery, web security, verification, and orchestration:** dependency and
-   asset reproducibility, loopback/token/origin boundaries, macOS/Linux CI,
+   asset reproducibility, loopback/token/origin boundaries, macOS CI,
    agent ownership, authority, checkpoints, evidence, and the durable stop.
 
 Create a Cycle 2 review directory under `docs/rewrite-reviews/` and update its
@@ -321,7 +320,7 @@ editing or weakening this top-level stopping condition.
   `Software/LogicAnalyzerPy/web/` and install its reviewed dependencies.
 - Rename or replace only
   `.github/workflows/logic-analyzer-python-cycle1.yml` with one Cycle 2 workflow
-  that runs the approved macOS/Linux Python, Node, and browser matrix. Creating
+  that runs the approved macOS Python, Node, and browser suite. Creating
   redundant full workflows is not authorized.
 - Run deterministic format, lint, type, unit, integration, replay, API,
   frontend, production-build, and headless-browser tests.
@@ -390,7 +389,7 @@ python3.12 -m venv .venv
 ```
 
 C2-B1 additionally freezes this supported clean web-runtime installation path,
-which is run independently on macOS and Linux CI before production web smoke:
+which is run on macOS CI before production web smoke:
 
 ```bash
 cd Software/LogicAnalyzerPy
@@ -521,7 +520,7 @@ At completion, produce
 - sanitized device, firmware, electrical, signal, and capture parameters;
 - replay/CSV/bus determinism and security evidence;
 - rendering baselines, approved thresholds, method, and final measurements;
-- the macOS native acceptance result and qualified Linux CI support statement;
+- the macOS native acceptance result and macOS-only support statement;
 - every checkpoint/review/evidence path and digest;
 - known limitations and deferred work; and
 - repository status plus confirmation that firmware, .NET, persistent device

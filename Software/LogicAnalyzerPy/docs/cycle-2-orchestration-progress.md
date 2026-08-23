@@ -870,3 +870,18 @@ accepted evidence remain unchanged.
 - No pass transfers. The same implementation lane must read the durable record,
   correct every open finding without weakening the approved interface/security,
   and produce a new immutable candidate for a complete fresh round.
+
+### C2-B4 second implementation identity change
+
+- Prior identity: `cycle2-implementor-replacement-6`.
+- New replacement identity: `cycle2-implementor-replacement-7`.
+- Reason: during round-2 corrections the prior lane twice ended continuation
+  turns with required asynchronous operation/cancellation and connection/rate
+  ownership incomplete, despite an explicit instruction to continue through
+  complete gates.
+- Lane/model/reasoning preserved: Implementor, `gpt-5.6-terra`, low.
+- The inherited uncommitted replay/server/OpenAPI corrections reportedly make
+  the seven independent round-2 tests pass, but the replacement must inspect,
+  validate, correct, and complete them. They are not accepted by inheritance
+  and no new candidate exists.
+- Verification and acceptance identities remain distinct and unchanged.

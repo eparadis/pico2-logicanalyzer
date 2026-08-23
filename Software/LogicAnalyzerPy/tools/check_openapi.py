@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).parents[1]
@@ -69,21 +70,25 @@ def _typescript_primitive(schema: dict[str, object]) -> str | None:
     return None
 
 
-def _typescript_fields(schema: dict[str, object], types: str) -> None:
+def _interfaces(types: str) -> dict[str, str]:
+    return dict(re.findall(r"export interface (\w+)\s*\{(.*?)\}", types, re.DOTALL))
+
+
+def _typescript_fields(schema: dict[str, object], fields: str) -> None:
     for name, value in schema.get("properties", {}).items():
         assert isinstance(value, dict)
         primitive = _typescript_primitive(value)
         if primitive is not None:
             expected = f"{name}: {primitive}"
-            if name == "state" and "state: OperationState" in types:
-                assert primitive in types
+            if name == "state" and "state: OperationState" in fields:
+                continue
             else:
-                assert expected in types, f"missing TypeScript field {expected}"
-        _typescript_fields(value, types)
+                assert expected in fields, f"missing TypeScript field {expected}"
         if value.get("type") == "array":
             items = value.get("items")
-            if isinstance(items, dict):
-                _typescript_fields(items, types)
+            if isinstance(items, dict) and _typescript_primitive(items) is not None:
+                assert f"{name}: {_typescript_primitive(items)}[]" in fields
+        _typescript_fields(value, fields)
 
 
 def validate(document: dict[str, object], types: str) -> None:
@@ -121,15 +126,20 @@ def validate(document: dict[str, object], types: str) -> None:
     assert artifact.get("maxLength") == 34603008
     schemas = document["components"]["schemas"]
     assert isinstance(schemas, dict)
-    for schema in schemas.values():
+    interfaces = _interfaces(types)
+    for name, schema in schemas.items():
         _closed(schema)
-        _typescript_fields(schema, types)
+        if name in interfaces:
+            _typescript_fields(schema, interfaces[name])
     bus_decimal = schemas["BusPage"]["properties"]["rows"]["items"]["properties"]["decimal"]
     assert bus_decimal == {"type": "integer"}
     assert "decimal: number" in types
     edge = schemas["CaptureMetadata"]["properties"]["trigger_edge"]
     assert edge == {"enum": ["rising", "falling"]}
     assert 'trigger_edge: "rising" | "falling"' in types
+    strobe = schemas["BusRequest"]["properties"]["strobe_channel"]
+    assert strobe == {"type": ["integer", "null"]}
+    assert "strobe_channel: number | null" in interfaces["BusRequest"]
     for required in TS_TYPES:
         assert f"{required}" in types
     assert "capture_id: string" in types and "sample_count: number" in types

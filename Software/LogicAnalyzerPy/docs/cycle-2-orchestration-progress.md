@@ -246,3 +246,32 @@ accepted evidence remain unchanged.
   `782f101981348ebdde23a338c8db5a92eb81f73b`, from a fresh acceptance
   assignment. Verification and implementation evidence does not transfer
   acceptance authority.
+
+### C2-B2 exact-candidate accumulated validation
+
+- Candidate: `c3f43a9ef0311c34ece3f95c94871fcfcd2c12a3`; tree
+  `782f101981348ebdde23a338c8db5a92eb81f73b`.
+- Independent verification: pass with no open findings; round 3 record SHA-256
+  `765e00cfe542ce29f712bf433b05e99c7175500b9bacb4cc5868348c98caa85a`.
+- Clean core: Python 3.12.13; hash-locked install; `pip check`, Ruff, and mypy
+  (19 source files) passed; non-hardware pytest reported 265 passed, 1 skipped,
+  and 94 warnings; CLI help passed and exposed `csv-import`. The sandbox-only
+  loopback skip is covered by the separately authorized production browser
+  smoke below.
+- Locked frontend: official Node 22.14.0 archive SHA-256
+  `6698587713ab565a94a360e091df9f6d91c8fadda6d00f0cf6526e9b40bed250`;
+  clean `npm ci` installed 215 packages; lint, typecheck, one Vitest unit test,
+  production Vite build, and deterministic asset validation passed; Playwright
+  1.50.1 production-shell smoke passed 1 test.
+- Lock/evidence inputs: `requirements-dev.lock` and `requirements-web.lock`
+  SHA-256 `6f78ec8f0219b919c44ed9b9f1d30c2337fcce7c911b8d3dc4c13edb707a6575`;
+  `web/package-lock.json` SHA-256
+  `d388a2668b3f65edeb62ee99da3ad37ffc56ab1ca3439b6d418a6bbe92e838d9`;
+  `web/production-assets.json` SHA-256
+  `1d1b44794eed6f288f1140e67c1520d847fb3263718672cf743ff70b9da0ece9`.
+- Repository hygiene: asset drift check and `git diff --check` passed; generated
+  browser residue was removed; no hardware, serial, firmware, .NET, persistent
+  state, public-server, packaging/publication, or Cycle 3 action occurred.
+- B2 requires the complete local non-hardware Python/frontend shell gate; a
+  separate exact-candidate hosted-CI run is not an owning B2 acceptance item.
+  Hosted macOS CI remains mandatory for the final candidate at C2-B6.

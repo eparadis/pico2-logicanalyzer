@@ -885,3 +885,89 @@ accepted evidence remain unchanged.
   validate, correct, and complete them. They are not accepted by inheritance
   and no new candidate exists.
 - Verification and acceptance identities remain distinct and unchanged.
+
+### C2-B4 final correction and review sequence
+
+- Replacement implementation identity `cycle2-implementor-replacement-7`
+  completed the asynchronous import ownership/cancellation foundation. After
+  that lane repeatedly stopped at the OpenAPI artifact boundary,
+  `cycle2-implementor-replacement-6` resumed the same implementation role and
+  completed the bounded contract corrections; neither identity performed
+  verification or acceptance.
+- Candidate `c627cc33999e3d1caef03dd281f99ef0487e4c6a` was rejected in independent
+  verification round 3 for incomplete schema/type drift enforcement, a
+  simultaneous-first-upload ownership race, an upload ceiling below the
+  accepted B2 replay bound, and implementation modification of verifier-owned
+  evidence.
+- Candidate `f618455a370c7de57c1a310335c0095b2660cc58` corrected ownership,
+  cleanup, accepted replay capacity, and lane separation. Verification round 4
+  closed those findings but retained `C2B4-V001` because primitive TypeScript
+  and OpenAPI type mutations could evade the drift checker.
+- Candidates `9b1e3058b07cda1b69c89ca2371d563e2959aa1d` and
+  `85125528e5fa65f43b4550541ef0114c800aefe3` successively closed sampled
+  primitive, enum, nullability, array-item, and interface-scoping gaps.
+  Independent rounds 5 and 6 demonstrated that incremental field sampling
+  still allowed other deep, reference, interface, and enum mutations.
+- Final candidate `c8029a1c431092f5cf08de23ecc394ecc8e721d4`, tree
+  `d8a5e64f9a64f96a6c52c3cdd6da574a6f6a0c33`, replaced spot-check-only drift
+  enforcement with canonical full-OpenAPI and whole-generated-TypeScript
+  fingerprints while retaining semantic diagnostics and runtime tests.
+- Final implementation record:
+  `docs/reviews/c2-b4-implementation-round-7.md`, SHA-256
+  `ff283b698a10c8bcda747b8fa8567b69e2af22d5d3f807ae2f6f1b05057cad2e`.
+- Independent verification round 7 passed 49 focused checks, including all
+  prior mutations, more than 100 individual OpenAPI scalar-leaf mutations,
+  route/container/array mutations, every generated-TypeScript character
+  replacement, and named interface/reference/type/nullability/identifier/enum/
+  field mutations. JSON whitespace and recursive mapping-key reorder remained
+  accepted. Record: `docs/reviews/c2-b4-verification-round-7.md`, SHA-256
+  `59fb4849d5a0f415dd183892911a484c91dfde49483f956a29944f2e74f0653e`.
+- All B4 findings `C2B4-V001`, `C2B4-V004`, `C2B4-V006`, and `C2B4-V011`
+  are closed with no open or deferred finding.
+
+### C2-B4 acceptance identity change
+
+- The previously recorded acceptance identity was unavailable when the final
+  candidate entered acceptance. Fresh identity
+  `cycle2-acceptance-replacement-3` performed no implementation or
+  verification work and independently audited the exact final candidate,
+  every immutable finding/disposition, accumulated validation, scope,
+  security, evidence integrity, and checkpoint readiness.
+- Acceptance passed with no findings. Record:
+  `docs/reviews/c2-b4-acceptance-round-1.md`, SHA-256
+  `ef31d583d6df874ceb8a92fe8e54246e903d1265a93ef28a00a45cbbc4f0a906`.
+
+## C2-B4 checkpoint
+
+- State: Complete
+- Recorded: 2026-08-23T19:25:14Z
+- Exact accepted product candidate:
+  `c8029a1c431092f5cf08de23ecc394ecc8e721d4`
+- Exact accepted product tree:
+  `d8a5e64f9a64f96a6c52c3cdd6da574a6f6a0c33`
+- Product result: deterministic transition and distinct-strobe parallel-bus
+  analysis; deterministic bus CSV; bounded secured REST/polling API; closed
+  Python-owned OpenAPI 3.1 schemas; generated/validated TypeScript types;
+  bounded asynchronous imports, polling, cancellation, conflict handling, and
+  cleanup; no serial, WebSocket, remote, persistent-file, or public surface.
+- Accumulated acceptance validation: 344 non-hardware Python tests with 2
+  covered sandbox-loopback skips; 50 B4 verifier checks; 9 evidence-schema
+  tests; pip check; Ruff; mypy; OpenAPI drift checker; CLI; diff check; Node
+  22.14.0 lint/typecheck/Vitest/production build/assets; root-brokered real
+  loopback API and Playwright production shell each passed 1 test.
+- Evidence manifest: `testdata/evidence/c2-b4.json`, committed separately at
+  `ef74970`, SHA-256
+  `4876b781f4569ae1599b6c5df4d824fbd54223c736c87c96746e6bb821806fd0`;
+  strict validation and the 9-test evidence-schema suite passed.
+- Checkpoint records B4-owned proof for stopping conditions 5 and 7 and
+  refreshes prohibited-action proof for condition 14. Final accumulated proof
+  remains owned by C2-B6.
+- Process limitation: intentional approved OpenAPI or generated-TypeScript
+  regeneration requires a reviewed fingerprint update; this is a review
+  trigger, not an open product finding.
+- Prohibited actions: none performed; no serial/device open, firmware, C#/.NET,
+  persistent state, public serving, packaging/publication, non-macOS support
+  claim, B5/B6 implementation, or Cycle 3 action occurred.
+- Next boundary: C2-B5 may now be selected. Its concrete rendering thresholds
+  require the governing proposal-and-operator-approval procedure before they
+  can become acceptance criteria.

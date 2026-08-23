@@ -704,7 +704,7 @@ accepted evidence remain unchanged.
 
 ### C2-B4 shared-interface contract gap
 
-- State: Blocked
+- State: In progress
 - Implementation completed only an uncommitted focused bus-core slice with 3
   passing tests, then stopped before API work or candidate creation.
 - Independent read-only verifier verdict: `contract_gap`. The governing sources
@@ -746,3 +746,30 @@ accepted evidence remain unchanged.
   Python-owned OpenAPI 3.1 and generated/validated TypeScript types, selects one
   of the documented alternatives, or supplies another in-scope interface for
   independent review. A resumed run starts a fresh blocked audit.
+
+### C2-B4 operator-approved shared interface
+
+- The operator approved the verifier-recommended interface after the documented
+  blocked decision gate.
+- Approved architecture: REST plus polling; no WebSockets; one Python-owned
+  OpenAPI 3.1 document with closed schemas and generated/validated TypeScript
+  types.
+- Approved resource boundary: retain existing versioned health, readiness, and
+  shutdown routes; add bounded multipart replay/CSV import with a single
+  artifact part and CSV-only metadata part; capture metadata and channels;
+  transition-reduced bounded waveform windows; closed transition/strobe bus
+  requests with bounded pagination; direct deterministic byte exports with
+  generated safe filenames/headers; and explicit polling/cancel operation
+  states `pending`, `running`, `cancelling`, `succeeded`, `failed`, and
+  `cancelled`.
+- Approved error/security boundary: one closed redacted error envelope; opaque
+  process-local identifiers with no filesystem meaning; no server paths,
+  persistent import/export files, capability values, URL credentials, wildcard
+  CORS, remote deployment, or WebSocket surface. Existing canonical
+  Host/Origin/capability-cookie and bounded-request guarantees remain mandatory.
+- Exact route/method/schema details and numeric limits must be frozen in the
+  machine-readable OpenAPI artifact and independently verified against the
+  approved Cycle 2 bounds; they may not weaken or expand the governing
+  contracts.
+- B4 reopens as In progress. The preserved uncommitted bus core remains
+  implementation-lane work and receives no acceptance by inheritance.

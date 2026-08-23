@@ -184,3 +184,17 @@ accepted evidence remain unchanged.
   shared worktree for the new replacement to inspect, validate, correct, and
   complete. No partial candidate is accepted.
 - Verification and acceptance identities remain unchanged.
+
+### C2-B2 second implementor identity change
+
+- Prior identity: `cycle2-implementor-replacement-2`
+  (`/root/implementor_replacement_2`)
+- New replacement identity: `cycle2-implementor-replacement-3`
+- Reason: the prior agent became unavailable during the round-one correction
+  iteration while scoped CLI, CSV, and implementation-test changes remained
+  uncommitted in the shared worktree.
+- Lane/model/reasoning preserved: Implementor, `gpt-5.6-terra`, low.
+- The replacement must inspect and validate the inherited changes against
+  `docs/reviews/c2-b2-verification-round-1.md`; no partial correction is
+  accepted by inheritance.
+- Verification and acceptance remain distinct fixed lanes.

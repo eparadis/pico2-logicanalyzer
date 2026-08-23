@@ -98,13 +98,13 @@
     {
       "artifact": "fixtures/bus-representative-8.npz",
       "name": "bus-representative-8",
-      "pattern": "sparse",
+      "pattern": "bus",
       "payload_bytes": 5180,
       "roles": [
         "bus-representative"
       ],
       "sample_count": 4096,
-      "sha256": "3d7a2bb58cca6f607506ea573939fc52b3d4ff7863b1dc933e6c45db679a8944",
+      "sha256": "6cbd86b4346e7922d1685c08e8c49ed49bb7e820a5714bea1ba5e10c266328c3",
       "width": 8
     }
   ],

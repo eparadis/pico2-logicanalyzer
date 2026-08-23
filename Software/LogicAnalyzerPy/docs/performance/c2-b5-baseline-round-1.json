@@ -1,6 +1,6 @@
 {
-  "schema_version": 1,
-  "method": "c2-b5-playwright-production-v1",
+  "schema_version": 2,
+  "method": "c2-b5-playwright-production-v2",
   "threshold": null,
   "viewport": {
     "width": 1280,
@@ -8,9 +8,19 @@
     "device_pixel_ratio": 1
   },
   "warmup_iterations": 3,
-  "load_iterations": 15,
+  "load_iterations_per_case": 2,
+  "load_iterations": 16,
   "interaction_iterations": 30,
-  "timing": "performance.now around UI action, API completion, Canvas dataset update, and next animation frame",
+  "bus_iterations_per_mode_and_role": 2,
+  "statistics": {
+    "method": "nearest-rank",
+    "index_formula": "max(0, ceil(p * n) - 1) on ascending raw samples",
+    "median_p": 0.5,
+    "high_percentile": "p95",
+    "high_percentile_p": 0.95,
+    "rounding": "none; JSON retains the raw IEEE-754 millisecond values returned by the timing clocks"
+  },
+  "timing": "performance.now around UI action through API completion, rendered Canvas/table DOM, and next animation frame; Node performance.now brackets empty navigation/load/paint",
   "browser": "133.0.6943.16",
   "automation": "Playwright 1.50.1",
   "node": "v22.14.0",
@@ -19,9 +29,9 @@
     "release": "24.6.0",
     "architecture": "x64"
   },
-  "fixture_manifest_sha256": "9e2372ac1861b2b47bdaaf5cedab9a9b1faf671e459f640753ccf1124408e496",
-  "fixture_generator_sha256": "6b66f9a994084c650a385ba44e76bed8900be6a33338e2dace476c3774455440",
-  "benchmark_script_sha256": "3f15d8e6820b8ec7b2e937566db13aabd3871cee6cbbc158f9aa9171cab246f2",
+  "fixture_manifest_sha256": "dd3ccbb4b5da4952422f2c3fc4f60dfbd4f7d2d81e789a697a19750668a1c350",
+  "fixture_generator_sha256": "3e0be8f90e6dc846803a28bb278b21f797ddc0576f5371149beb9ad185fb29c4",
+  "benchmark_script_sha256": "2efeca32fcac6eb8c98480d49d02b304b9985121d9f2fe3f85e8ffe47e1c930b",
   "production_asset_manifest_sha256": "00d553697834509104a5751affc2abad48ec619bbd7f167ac2f8a1de0953d9d9",
   "fixtures": [
     {
@@ -121,127 +131,330 @@
     {
       "artifact": "fixtures/bus-representative-8.npz",
       "name": "bus-representative-8",
-      "pattern": "sparse",
+      "pattern": "bus",
       "payload_bytes": 5180,
       "roles": [
         "bus-representative"
       ],
       "sample_count": 4096,
-      "sha256": "3d7a2bb58cca6f607506ea573939fc52b3d4ff7863b1dc933e6c45db679a8944",
+      "sha256": "6cbd86b4346e7922d1685c08e8c49ed49bb7e820a5714bea1ba5e10c266328c3",
       "width": 8
     }
   ],
   "loads": [
     {
       "name": "empty",
-      "milliseconds": 30.100000001490116,
+      "milliseconds": 61.30168200000003,
       "commands": 0,
       "transitions": 0,
       "dom_nodes": 21
     },
     {
-      "name": "schema1-8",
-      "milliseconds": 446.5999999977648,
-      "commands": 1039,
-      "transitions": 1038,
-      "dom_nodes": 90
+      "name": "empty",
+      "milliseconds": 42.609627000000046,
+      "commands": 0,
+      "transitions": 0,
+      "dom_nodes": 21
     },
     {
       "name": "constant-8",
-      "milliseconds": 413,
+      "milliseconds": 441.19999999925494,
       "commands": 17,
       "transitions": 16,
       "dom_nodes": 90
     },
     {
       "name": "sparse-16",
-      "milliseconds": 414.8999999985099,
+      "milliseconds": 410.4000000022352,
       "commands": 246,
       "transitions": 245,
       "dom_nodes": 138
     },
     {
       "name": "dense-24",
-      "milliseconds": 407.80000000074506,
+      "milliseconds": 416.80000000074506,
       "commands": 9775,
       "transitions": 9774,
       "dom_nodes": 186
     },
     {
-      "name": "maximum-8",
-      "milliseconds": 405.30000000074506,
-      "commands": 12349,
-      "transitions": 12349,
-      "dom_nodes": 90
-    },
-    {
       "name": "maximum-16",
-      "milliseconds": 401,
+      "milliseconds": 417.80000000074506,
       "commands": 12755,
       "transitions": 12754,
-      "dom_nodes": 138
-    },
-    {
-      "name": "maximum-24",
-      "milliseconds": 408.69999999925494,
-      "commands": 12719,
-      "transitions": 12718,
-      "dom_nodes": 186
+      "dom_nodes": 160
     },
     {
       "name": "bus-representative-8",
-      "milliseconds": 409.5,
-      "commands": 17,
-      "transitions": 16,
-      "dom_nodes": 90
+      "milliseconds": 407.6000000014901,
+      "commands": 775,
+      "transitions": 774,
+      "dom_nodes": 104
     },
     {
-      "name": "schema1-8",
-      "milliseconds": 409.69999999925494,
-      "commands": 1039,
-      "transitions": 1038,
-      "dom_nodes": 90
-    },
-    {
-      "name": "constant-8",
-      "milliseconds": 403.1000000014901,
-      "commands": 17,
-      "transitions": 16,
-      "dom_nodes": 90
-    },
-    {
-      "name": "sparse-16",
-      "milliseconds": 411.5,
-      "commands": 246,
-      "transitions": 245,
-      "dom_nodes": 138
-    },
-    {
-      "name": "dense-24",
-      "milliseconds": 408.30000000074506,
-      "commands": 9775,
-      "transitions": 9774,
-      "dom_nodes": 186
+      "name": "maximum-24",
+      "milliseconds": 412.9000000022352,
+      "commands": 12719,
+      "transitions": 12718,
+      "dom_nodes": 216
     },
     {
       "name": "maximum-8",
-      "milliseconds": 403.79999999701977,
+      "milliseconds": 402.19999999925494,
       "commands": 12349,
       "transitions": 12349,
-      "dom_nodes": 90
+      "dom_nodes": 104
+    },
+    {
+      "name": "constant-8",
+      "milliseconds": 403.5999999977648,
+      "commands": 17,
+      "transitions": 16,
+      "dom_nodes": 104
+    },
+    {
+      "name": "sparse-16",
+      "milliseconds": 409.5,
+      "commands": 246,
+      "transitions": 245,
+      "dom_nodes": 160
+    },
+    {
+      "name": "dense-24",
+      "milliseconds": 413.5999999977648,
+      "commands": 9775,
+      "transitions": 9774,
+      "dom_nodes": 216
     },
     {
       "name": "maximum-16",
-      "milliseconds": 405.6000000014901,
+      "milliseconds": 411.80000000074506,
       "commands": 12755,
       "transitions": 12754,
-      "dom_nodes": 138
+      "dom_nodes": 160
+    },
+    {
+      "name": "bus-representative-8",
+      "milliseconds": 410.3999999985099,
+      "commands": 775,
+      "transitions": 774,
+      "dom_nodes": 104
+    },
+    {
+      "name": "maximum-24",
+      "milliseconds": 404.6000000014901,
+      "commands": 12719,
+      "transitions": 12718,
+      "dom_nodes": 216
+    },
+    {
+      "name": "maximum-8",
+      "milliseconds": 411.19999999925494,
+      "commands": 12349,
+      "transitions": 12349,
+      "dom_nodes": 104
     }
   ],
-  "load_median_ms": 408.30000000074506,
-  "load_p95_ms": 446.5999999977648,
-  "interaction_median_ms": 347.8999999985099,
-  "interaction_p95_ms": 365.30000000074506,
+  "load_statistics": [
+    {
+      "name": "constant-8",
+      "iterations": 2,
+      "initial_ready_paint_ms": [
+        441.19999999925494,
+        403.5999999977648
+      ],
+      "median_ms": 403.5999999977648,
+      "p95_ms": 441.19999999925494
+    },
+    {
+      "name": "sparse-16",
+      "iterations": 2,
+      "initial_ready_paint_ms": [
+        410.4000000022352,
+        409.5
+      ],
+      "median_ms": 409.5,
+      "p95_ms": 410.4000000022352
+    },
+    {
+      "name": "dense-24",
+      "iterations": 2,
+      "initial_ready_paint_ms": [
+        416.80000000074506,
+        413.5999999977648
+      ],
+      "median_ms": 413.5999999977648,
+      "p95_ms": 416.80000000074506
+    },
+    {
+      "name": "maximum-16",
+      "iterations": 2,
+      "initial_ready_paint_ms": [
+        417.80000000074506,
+        411.80000000074506
+      ],
+      "median_ms": 411.80000000074506,
+      "p95_ms": 417.80000000074506
+    },
+    {
+      "name": "bus-representative-8",
+      "iterations": 2,
+      "initial_ready_paint_ms": [
+        407.6000000014901,
+        410.3999999985099
+      ],
+      "median_ms": 407.6000000014901,
+      "p95_ms": 410.3999999985099
+    },
+    {
+      "name": "maximum-24",
+      "iterations": 2,
+      "initial_ready_paint_ms": [
+        412.9000000022352,
+        404.6000000014901
+      ],
+      "median_ms": 404.6000000014901,
+      "p95_ms": 412.9000000022352
+    },
+    {
+      "name": "maximum-8",
+      "iterations": 2,
+      "initial_ready_paint_ms": [
+        402.19999999925494,
+        411.19999999925494
+      ],
+      "median_ms": 402.19999999925494,
+      "p95_ms": 411.19999999925494
+    },
+    {
+      "name": "empty",
+      "iterations": 2,
+      "initial_ready_paint_ms": [
+        61.30168200000003,
+        42.609627000000046
+      ],
+      "median_ms": 42.609627000000046,
+      "p95_ms": 61.30168200000003
+    }
+  ],
+  "load_median_ms": 410.3999999985099,
+  "load_p95_ms": 441.19999999925494,
+  "interactions_ms": [
+    331.5,
+    309.5,
+    313.20000000298023,
+    294.1000000014901,
+    314.30000000074506,
+    311.19999999925494,
+    312.1000000014901,
+    323.4000000022352,
+    295.3999999985099,
+    311,
+    295.80000000074506,
+    314.69999999925494,
+    315.69999999925494,
+    305.80000000074506,
+    333.19999999925494,
+    309.69999999925494,
+    310.30000000074506,
+    314.30000000074506,
+    295.4000000022352,
+    306.5,
+    303.6000000014901,
+    310.9000000022352,
+    309.69999999925494,
+    310.6000000014901,
+    331.6000000014901,
+    306.19999999925494,
+    314.3999999985099,
+    312.70000000298023,
+    308.19999999925494,
+    299.30000000074506
+  ],
+  "interaction_median_ms": 310.6000000014901,
+  "interaction_p95_ms": 331.6000000014901,
+  "bus_observations": [
+    {
+      "fixture": "bus-representative-8",
+      "roles": [
+        "bus-representative"
+      ],
+      "mode": "transition",
+      "iterations": 2,
+      "timings_ms": [
+        148.30000000074506,
+        149.39999999850988
+      ],
+      "median_ms": 148.30000000074506,
+      "p95_ms": 149.39999999850988,
+      "rows": 100,
+      "row_counts": [
+        100,
+        100
+      ],
+      "payload_bytes": 5180
+    },
+    {
+      "fixture": "bus-representative-8",
+      "roles": [
+        "bus-representative"
+      ],
+      "mode": "distinct-strobe",
+      "iterations": 2,
+      "timings_ms": [
+        66.5,
+        66.70000000298023
+      ],
+      "median_ms": 66.5,
+      "p95_ms": 66.70000000298023,
+      "rows": 100,
+      "row_counts": [
+        100,
+        100
+      ],
+      "payload_bytes": 5180
+    },
+    {
+      "fixture": "dense-24",
+      "roles": [
+        "bus-worst"
+      ],
+      "mode": "transition",
+      "iterations": 2,
+      "timings_ms": [
+        398.80000000074506,
+        405.79999999701977
+      ],
+      "median_ms": 398.80000000074506,
+      "p95_ms": 405.79999999701977,
+      "rows": 100,
+      "row_counts": [
+        100,
+        100
+      ],
+      "payload_bytes": 132396
+    },
+    {
+      "fixture": "dense-24",
+      "roles": [
+        "bus-worst"
+      ],
+      "mode": "distinct-strobe",
+      "iterations": 2,
+      "timings_ms": [
+        144.80000000074506,
+        150.39999999850988
+      ],
+      "median_ms": 144.80000000074506,
+      "p95_ms": 150.39999999850988,
+      "rows": 100,
+      "row_counts": [
+        100,
+        100
+      ],
+      "payload_bytes": 132396
+    }
+  ],
   "used_js_heap_bytes": null,
   "memory_reliable": false
 }

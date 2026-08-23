@@ -27,6 +27,10 @@ def result(width: int, count: int, pattern: str) -> CaptureResult:
         samples = np.zeros(count, dtype=dtype)
     elif pattern == "sparse":
         samples = (((indices // 4096) * np.uint32(0x9E37)) & mask).astype(dtype)
+    elif pattern == "bus":
+        data = (indices // 32) & np.uint32((1 << (width - 1)) - 1)
+        strobe = ((indices // 8) & np.uint32(1)) << np.uint32(width - 1)
+        samples = (data | strobe).astype(dtype)
     else:
         samples = ((indices ^ (indices >> 1)) & mask).astype(dtype)
     trigger = count // 2
@@ -82,7 +86,7 @@ def main() -> int:
         ("maximum-8", 8, 393_216, "dense", ["maximum-8"]),
         ("maximum-16", 16, 196_608, "dense", ["maximum-16"]),
         ("maximum-24", 24, 98_304, "dense", ["maximum-24"]),
-        ("bus-representative-8", 8, 4_096, "sparse", ["bus-representative"]),
+        ("bus-representative-8", 8, 4_096, "bus", ["bus-representative"]),
     ]
     entries: list[dict[str, object]] = [
         {"name": "empty", "roles": ["empty"], "sample_count": 0, "artifact": None, "sha256": None}

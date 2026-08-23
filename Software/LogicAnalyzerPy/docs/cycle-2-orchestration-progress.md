@@ -971,3 +971,52 @@ accepted evidence remain unchanged.
 - Next boundary: C2-B5 may now be selected. Its concrete rendering thresholds
   require the governing proposal-and-operator-approval procedure before they
   can become acceptance criteria.
+
+## C2-B5: Offline browser viewer and performance-threshold checkpoint
+
+- State: In progress
+- Activated: 2026-08-23 (America/Los_Angeles)
+- Activation HEAD: `eb693ed`
+- Prerequisite: C2-B4 checkpoint complete; manifest
+  `testdata/evidence/c2-b4.json` strictly validates with SHA-256
+  `4876b781f4569ae1599b6c5df4d824fbd54223c736c87c96746e6bb821806fd0`.
+- Objective: deliver a useful bounded offline production React waveform/bus
+  workflow for schema-1/schema-2 replay and self-timed CSV across 8/16/24
+  channels, then freeze reproducible evidence-based rendering thresholds.
+- Implementation agent: `cycle2-implementor-replacement-6`.
+- Verification agent: `cycle2-verifier-replacement-3`.
+- Acceptance agent: `cycle2-acceptance-replacement-3`.
+- In scope: labels/visibility; bounded Canvas digital waveforms; pan;
+  cursor-centered zoom; trigger marker; cursor sample/time/value readout;
+  transition/strobe bus table; deterministic export; loading/ready/empty/error/
+  disconnected/cancelling/shutdown states; production-browser interaction,
+  failure, reconnect, cleanup, secret-nondisclosure, and geometry/Canvas/DOM
+  bounds; frozen empty/constant/sparse/dense/maximum-width/bus fixtures and
+  reproducible primary-macOS performance method.
+- Out of scope: live serial capture, device opening, arbitrary million-row DOM,
+  pixel-perfect screenshot acceptance, public serving, packaging, threshold
+  rebasing without operator approval, B6 integration, and Cycle 3.
+- Ownership: implementation owns B5 frontend product, implementation tests,
+  production assets, benchmark fixtures/scripts, and implementation records;
+  verification owns independent geometry/browser/performance tests and review
+  records; acceptance owns independent acceptance and threshold-proposal review
+  records; orchestrator owns integration, threshold proposal, operator decision,
+  manifest, and checkpoint.
+- Authoritative evidence: governing Cycle 2 contracts; accepted B2 replay/CSV
+  and 8/16/24 model semantics; accepted B4 API/OpenAPI/TypeScript contract and
+  security bounds; fixed independent geometry mathematics; production-browser
+  observation; and frozen benchmark fixture digests.
+- Acceptance evidence: offline production workflow for all widths and both bus
+  modes; bounded visible-window/transition Canvas work and DOM; pointer/keyboard
+  pan/zoom/readout; failure/cancel/reconnect/shutdown and secret-nondisclosure;
+  clean production runtime without Node/CDN/serial/dev server; clean accumulated
+  gates; reproducible performance baseline; independently checked threshold
+  proposal; operator-approved immutable threshold record.
+- Authority notes: loopback/browser launch uses the centralized approval broker.
+  Thresholds are not acceptance criteria until baseline evidence exists,
+  verification reproduces the method, acceptance passes the proposal, and the
+  operator approves or amends the immutable record.
+- Risks: rendering work must remain proportional to visible pixels/transitions,
+  baseline fixtures must include dense and maximum-width cases, CI timing is
+  informational absent a repeatable relative method, and exact approved
+  thresholds cannot be inferred before measurement.

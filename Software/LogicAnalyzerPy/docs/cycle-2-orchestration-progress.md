@@ -452,6 +452,26 @@ accepted evidence remain unchanged.
 - This read-only identity request made no firmware, bootloader, Wi-Fi, power,
   wiring, or persistent-state change.
 
+### C2-B3 physical implementation finding and B2 reopen
+
+- Runtime recovery regression exited 0. The bounded 8-channel and 16-channel
+  physical capture commands succeeded, but this partial evidence is not
+  accepted or checkpointed independently.
+- The required ordered D0-D23 capture failed before artifact creation with exit
+  3 and `invalid channel labels or mappings`.
+- Finding `C2B3-I001`: the accepted B2 generalized CLI/model path does not
+  currently admit the contract-required 24-channel default-label/mapping
+  request. This is a product defect in the earliest B2-owned interface, not an
+  electrical or operator-input failure.
+- C2-B2 is reopened for a focused failing test and bounded correction by the
+  implementation lane. Any correction requires a new immutable candidate,
+  fresh independent B2 verification, the complete accumulated validation, and
+  fresh acceptance before B3 can rerun its entire physical sequence.
+- No 8/16/recovery partial pass transfers to the corrected candidate. The
+  runtime artifacts remain uncommitted and do not constitute B3 evidence.
+- No firmware, bootloader, Wi-Fi, power-cycle, persistent-state, .NET,
+  public-server, packaging/publication, or Cycle 3 action occurred.
+
 ### C2-B3 implementation identity change
 
 - Prior identity: `cycle2-implementor-replacement-4`

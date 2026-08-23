@@ -500,6 +500,34 @@ accepted evidence remain unchanged.
   candidate and prior B2 finding dispositions; no prior verification or partial
   physical pass transfers.
 
+### C2-B2 reopened verification and accumulated validation
+
+- Corrected candidate: `90adb3adb38a938ce470fa854e6fc7b98e1501c9`;
+  tree `5a09d57e4caa266a43f164edaffc94fc9a3236d7`.
+- Independent verification: pass with no open findings; round 4 record
+  `docs/reviews/c2-b2-verification-round-4.md`, SHA-256
+  `56f5a99c0d34464ae09081145ef2b9d1378e6b6c792276152515cb3dc47e443a`.
+- Independent results: 45 focused tests; 276 passed and 1 covered sandbox skip
+  in full non-hardware Python; Ruff; mypy over 19 files; CLI; Node 22.14.0
+  lint/typecheck/unit/build/assets; and brokered Playwright smoke all passed.
+- Root accumulated results: pip check; Ruff; mypy over 19 files; 276 passed and
+  1 covered sandbox-loopback skip with 94 warnings; CLI help; deterministic
+  assets; Node 22.14.0 lint/typecheck/one unit/production build; brokered
+  Playwright production-shell smoke 1 passed; and `git diff --check` passed.
+- The untracked B3 validation helper is excluded from the product candidate and
+  does not affect the accumulated product gate. No hardware result transfers.
+
+### C2-B2 reopened acceptance identity change
+
+- Prior identity: `cycle2-acceptance-replacement-1`.
+- New replacement identity: `cycle2-acceptance-replacement-2`.
+- Reason: the prior acceptance lane is no longer available when C2B3-I001
+  requires fresh acceptance of the corrected B2 candidate.
+- Lane/model/reasoning preserved: Acceptance, `gpt-5.6-sol`, low.
+- The replacement must audit the exact corrected candidate, fresh round-4
+  verification, complete accumulated gate, scope, and the prior B2 checkpoint
+  reopening. No earlier acceptance transfers.
+
 ### C2-B3 implementation identity change
 
 - Prior identity: `cycle2-implementor-replacement-4`

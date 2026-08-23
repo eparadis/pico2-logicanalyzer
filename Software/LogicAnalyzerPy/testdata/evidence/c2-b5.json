@@ -1,0 +1,169 @@
+{
+  "schema_version": 2,
+  "checkpoint": "C2-B5",
+  "tested_commit": "b5d502b5ded71fdf03b38058cb4fd6438d9110ad",
+  "tested_tree": "06d6498f010f9cf230697aa922c2a550f8cca24c",
+  "timestamp_utc": "2026-08-23T21:01:06Z",
+  "worktree_state": "The exact product candidate was immutable before separate implementation, verification, threshold-review, operator-approval, and overall acceptance records. An unrelated untracked repository-root .ORCHESTRATION.md.swp was preserved and excluded from every B5 commit and evidence artifact.",
+  "environment": {
+    "os": "macOS 15.7.7",
+    "architecture": "x86_64",
+    "python": "3.12.13",
+    "node": "22.14.0",
+    "browser": "Chromium 133.0.6943.16",
+    "automation": "Playwright 1.50.1"
+  },
+  "locks": {
+    "requirements_dev": "6f78ec8f0219b919c44ed9b9f1d30c2337fcce7c911b8d3dc4c13edb707a6575",
+    "requirements_web": "6f78ec8f0219b919c44ed9b9f1d30c2337fcce7c911b8d3dc4c13edb707a6575",
+    "package_lock": "d388a2668b3f65edeb62ee99da3ad37ffc56ab1ca3439b6d418a6bbe92e838d9",
+    "assets": "00d553697834509104a5751affc2abad48ec619bbd7f167ac2f8a1de0953d9d9"
+  },
+  "roles": {
+    "implementation": "cycle2-b5-implementor-replacement-1: B5 implementation round 2 pass",
+    "verification": "cycle2-verifier-replacement-3: B5 verification round 2 and threshold verification round 2 pass",
+    "acceptance": "cycle2-acceptance-replacement-3: threshold and overall B5 acceptance pass"
+  },
+  "commands": [
+    {
+      "command": "clean Python 3.12 venv; pip install --require-hashes -r requirements-dev.lock; source install --no-build-isolation --no-deps; pip check; ruff; mypy; pytest -m 'not hardware'; CLI help",
+      "exit_status": 0,
+      "verifier": "cycle2-b5-implementor-replacement-1"
+    },
+    {
+      "command": "python -m pytest tests/verification/test_c2_b5_baseline_round1.py tests/verification/test_c2_b5_baseline_round2.py",
+      "exit_status": 0,
+      "verifier": "cycle2-verifier-replacement-3"
+    },
+    {
+      "command": "npm ci; npm run lint; npm run typecheck; npm test -- --run; npm run build; python scripts/check_web_assets.py",
+      "exit_status": 0,
+      "verifier": "cycle2-acceptance-replacement-3"
+    },
+    {
+      "command": "npm run test:browser",
+      "exit_status": 0,
+      "verifier": "cycle2-orchestrator"
+    },
+    {
+      "command": "npm run benchmark",
+      "exit_status": 0,
+      "verifier": "cycle2-orchestrator"
+    },
+    {
+      "command": "python -m pytest tests/implementation/test_web_api.py -q",
+      "exit_status": 0,
+      "verifier": "cycle2-orchestrator"
+    },
+    {
+      "command": "python scripts/validate_cycle2_evidence.py docs/evidence-manifest/cycle2-schema.json testdata/evidence/c2-b5.json",
+      "exit_status": 0,
+      "verifier": "cycle2-orchestrator"
+    }
+  ],
+  "sources": [
+    {
+      "category": "cycle1-accepted",
+      "revision": "b5d502b5ded71fdf03b38058cb4fd6438d9110ad",
+      "artifact": "Software/LogicAnalyzerPy/testdata/evidence/c2-b4.json",
+      "sha256": "4876b781f4569ae1599b6c5df4d824fbd54223c736c87c96746e6bb821806fd0"
+    },
+    {
+      "category": "browser-observation",
+      "revision": "b5d502b5ded71fdf03b38058cb4fd6438d9110ad",
+      "artifact": "Software/LogicAnalyzerPy/docs/reviews/c2-b5-implementation-round-2.md",
+      "sha256": "84549590c2d2b5ebdc0e59fb7e53fbdacef730473d1a2db5e973f90676434c33"
+    },
+    {
+      "category": "browser-observation",
+      "revision": "b5d502b5ded71fdf03b38058cb4fd6438d9110ad",
+      "artifact": "Software/LogicAnalyzerPy/docs/reviews/c2-b5-verification-round-2.md",
+      "sha256": "ebcf3d9aac7dd1e9b3817f6567ab997cc90cf537f11cb4f5b3344a7949fc0541"
+    },
+    {
+      "category": "synthetic",
+      "revision": "b5d502b5ded71fdf03b38058cb4fd6438d9110ad",
+      "artifact": "Software/LogicAnalyzerPy/tests/verification/test_c2_b5_baseline_round2.py",
+      "sha256": "22d66df16106042bfa8b326eaf9129572124fe0d5bb060242f03226acfe314ff"
+    },
+    {
+      "category": "generated-fixture",
+      "revision": "b5d502b5ded71fdf03b38058cb4fd6438d9110ad",
+      "artifact": "Software/LogicAnalyzerPy/web/benchmarks/fixtures.json",
+      "sha256": "dd3ccbb4b5da4952422f2c3fc4f60dfbd4f7d2d81e789a697a19750668a1c350"
+    },
+    {
+      "category": "browser-observation",
+      "revision": "b5d502b5ded71fdf03b38058cb4fd6438d9110ad",
+      "artifact": "Software/LogicAnalyzerPy/docs/performance/c2-b5-baseline-round-1.json",
+      "sha256": "c4ad9dab9ed9f53495bba5b93714f069d6f3192bc554148ae68401d2020082d5"
+    },
+    {
+      "category": "browser-observation",
+      "revision": "b5d502b5ded71fdf03b38058cb4fd6438d9110ad",
+      "artifact": "Software/LogicAnalyzerPy/docs/performance/c2-b5-threshold-approval.md",
+      "sha256": "57183190d5d48642e9621862aeed343b0a435477a5b4b6276551e55dd01a6053"
+    },
+    {
+      "category": "browser-observation",
+      "revision": "b5d502b5ded71fdf03b38058cb4fd6438d9110ad",
+      "artifact": "Software/LogicAnalyzerPy/docs/reviews/c2-b5-acceptance-round-1.md",
+      "sha256": "32252c54a2cd3e0e88370009316a2557659d0132fca7c4c0f66842aa9954771a"
+    }
+  ],
+  "stopping_conditions": [
+    {
+      "id": 10,
+      "artifacts": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c2-b5-verification-round-2.md",
+          "sha256": "ebcf3d9aac7dd1e9b3817f6567ab997cc90cf537f11cb4f5b3344a7949fc0541"
+        },
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c2-b5-acceptance-round-1.md",
+          "sha256": "32252c54a2cd3e0e88370009316a2557659d0132fca7c4c0f66842aa9954771a"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "artifacts": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/performance/c2-b5-baseline-round-1.json",
+          "sha256": "c4ad9dab9ed9f53495bba5b93714f069d6f3192bc554148ae68401d2020082d5"
+        },
+        {
+          "path": "Software/LogicAnalyzerPy/docs/performance/c2-b5-threshold-approval.md",
+          "sha256": "57183190d5d48642e9621862aeed343b0a435477a5b4b6276551e55dd01a6053"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "artifacts": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c2-b5-acceptance-round-1.md",
+          "sha256": "32252c54a2cd3e0e88370009316a2557659d0132fca7c4c0f66842aa9954771a"
+        }
+      ]
+    }
+  ],
+  "findings": [
+    "C2B5-V001, C2B5-TV001, and C2B5-TV002 are closed.",
+    "No open or deferred C2-B5 findings."
+  ],
+  "decisions": [
+    "The operator approved the unchanged threshold proposal round 2 at commit c5eb6575625158d05b12fdd16b1c35167af385d5.",
+    "C2-B6 must enforce the approved dual timing and deterministic resource ceilings without silent rebasing.",
+    "Fresh raw timing arrays vary by run while all frozen capture and method identities must match before evaluation."
+  ],
+  "limitations": [
+    "Operating systems other than macOS are outside Cycle 2 support and acceptance scope.",
+    "Heap collection was not reliable, so no memory threshold is approved.",
+    "Shared-CI timing is informational unless it reproduces the exact primary-host method."
+  ],
+  "deferred_work": [
+    "Live native-browser capture integration, approved-threshold enforcement, hosted exact-candidate CI, and final completion proof remain owned by C2-B6."
+  ],
+  "performance_threshold_sha256": "57183190d5d48642e9621862aeed343b0a435477a5b4b6276551e55dd01a6053"
+}

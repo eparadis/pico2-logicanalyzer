@@ -1,0 +1,247 @@
+{
+  "schema_version": 1,
+  "method": "c2-b5-playwright-production-v1",
+  "threshold": null,
+  "viewport": {
+    "width": 1280,
+    "height": 900,
+    "device_pixel_ratio": 1
+  },
+  "warmup_iterations": 3,
+  "load_iterations": 15,
+  "interaction_iterations": 30,
+  "timing": "performance.now around UI action, API completion, Canvas dataset update, and next animation frame",
+  "browser": "133.0.6943.16",
+  "automation": "Playwright 1.50.1",
+  "node": "v22.14.0",
+  "host": {
+    "platform": "darwin",
+    "release": "24.6.0",
+    "architecture": "x64"
+  },
+  "fixture_manifest_sha256": "9e2372ac1861b2b47bdaaf5cedab9a9b1faf671e459f640753ccf1124408e496",
+  "fixture_generator_sha256": "6b66f9a994084c650a385ba44e76bed8900be6a33338e2dace476c3774455440",
+  "benchmark_script_sha256": "3f15d8e6820b8ec7b2e937566db13aabd3871cee6cbbc158f9aa9171cab246f2",
+  "production_asset_manifest_sha256": "00d553697834509104a5751affc2abad48ec619bbd7f167ac2f8a1de0953d9d9",
+  "fixtures": [
+    {
+      "artifact": null,
+      "name": "empty",
+      "roles": [
+        "empty"
+      ],
+      "sample_count": 0,
+      "sha256": null
+    },
+    {
+      "artifact": "fixtures/schema1-8.npz",
+      "name": "schema1-8",
+      "pattern": "dense",
+      "payload_bytes": 2083,
+      "roles": [
+        "schema-1"
+      ],
+      "sample_count": 1024,
+      "sha256": "c2f4d446b754c09e57412f02bde8d751f18a997d14d1df72bdc49654ab0a7457",
+      "width": 8
+    },
+    {
+      "artifact": "fixtures/constant-8.npz",
+      "name": "constant-8",
+      "pattern": "constant",
+      "payload_bytes": 66625,
+      "roles": [
+        "constant"
+      ],
+      "sample_count": 65536,
+      "sha256": "51b98c66622aa724118713ad1dcb409d6415ce3491f431e12ee9f770640c26e1",
+      "width": 8
+    },
+    {
+      "artifact": "fixtures/sparse-16.npz",
+      "name": "sparse-16",
+      "pattern": "sparse",
+      "payload_bytes": 394422,
+      "roles": [
+        "sparse"
+      ],
+      "sample_count": 196608,
+      "sha256": "39e53e363b6aab3cdd6f1fdae2083e5f7ffe78196ccf033fb4496e6ca0a36f6a",
+      "width": 16
+    },
+    {
+      "artifact": "fixtures/dense-24.npz",
+      "name": "dense-24",
+      "pattern": "dense",
+      "payload_bytes": 132396,
+      "roles": [
+        "dense",
+        "bus-worst"
+      ],
+      "sample_count": 32768,
+      "sha256": "f48f87ecaf743a224b0344c0a4025dee72e0ecb6c64f1e546f7c85f514e3f5e3",
+      "width": 24
+    },
+    {
+      "artifact": "fixtures/maximum-8.npz",
+      "name": "maximum-8",
+      "pattern": "dense",
+      "payload_bytes": 394310,
+      "roles": [
+        "maximum-8"
+      ],
+      "sample_count": 393216,
+      "sha256": "13a1de3c93c24f3a2ffcf51f7e635a1180fed5bc376ada689933c9e5505e5ccc",
+      "width": 8
+    },
+    {
+      "artifact": "fixtures/maximum-16.npz",
+      "name": "maximum-16",
+      "pattern": "dense",
+      "payload_bytes": 394422,
+      "roles": [
+        "maximum-16"
+      ],
+      "sample_count": 196608,
+      "sha256": "a05394ce8b4ffd1efb54e023afe54fd311698f7a671f2a089c0773c3cfbddd14",
+      "width": 16
+    },
+    {
+      "artifact": "fixtures/maximum-24.npz",
+      "name": "maximum-24",
+      "pattern": "dense",
+      "payload_bytes": 394540,
+      "roles": [
+        "maximum-24"
+      ],
+      "sample_count": 98304,
+      "sha256": "c582841605c6d4c212057864eb01fe200aaa3c085aaf532643dea575669ce702",
+      "width": 24
+    },
+    {
+      "artifact": "fixtures/bus-representative-8.npz",
+      "name": "bus-representative-8",
+      "pattern": "sparse",
+      "payload_bytes": 5180,
+      "roles": [
+        "bus-representative"
+      ],
+      "sample_count": 4096,
+      "sha256": "3d7a2bb58cca6f607506ea573939fc52b3d4ff7863b1dc933e6c45db679a8944",
+      "width": 8
+    }
+  ],
+  "loads": [
+    {
+      "name": "empty",
+      "milliseconds": 30.100000001490116,
+      "commands": 0,
+      "transitions": 0,
+      "dom_nodes": 21
+    },
+    {
+      "name": "schema1-8",
+      "milliseconds": 446.5999999977648,
+      "commands": 1039,
+      "transitions": 1038,
+      "dom_nodes": 90
+    },
+    {
+      "name": "constant-8",
+      "milliseconds": 413,
+      "commands": 17,
+      "transitions": 16,
+      "dom_nodes": 90
+    },
+    {
+      "name": "sparse-16",
+      "milliseconds": 414.8999999985099,
+      "commands": 246,
+      "transitions": 245,
+      "dom_nodes": 138
+    },
+    {
+      "name": "dense-24",
+      "milliseconds": 407.80000000074506,
+      "commands": 9775,
+      "transitions": 9774,
+      "dom_nodes": 186
+    },
+    {
+      "name": "maximum-8",
+      "milliseconds": 405.30000000074506,
+      "commands": 12349,
+      "transitions": 12349,
+      "dom_nodes": 90
+    },
+    {
+      "name": "maximum-16",
+      "milliseconds": 401,
+      "commands": 12755,
+      "transitions": 12754,
+      "dom_nodes": 138
+    },
+    {
+      "name": "maximum-24",
+      "milliseconds": 408.69999999925494,
+      "commands": 12719,
+      "transitions": 12718,
+      "dom_nodes": 186
+    },
+    {
+      "name": "bus-representative-8",
+      "milliseconds": 409.5,
+      "commands": 17,
+      "transitions": 16,
+      "dom_nodes": 90
+    },
+    {
+      "name": "schema1-8",
+      "milliseconds": 409.69999999925494,
+      "commands": 1039,
+      "transitions": 1038,
+      "dom_nodes": 90
+    },
+    {
+      "name": "constant-8",
+      "milliseconds": 403.1000000014901,
+      "commands": 17,
+      "transitions": 16,
+      "dom_nodes": 90
+    },
+    {
+      "name": "sparse-16",
+      "milliseconds": 411.5,
+      "commands": 246,
+      "transitions": 245,
+      "dom_nodes": 138
+    },
+    {
+      "name": "dense-24",
+      "milliseconds": 408.30000000074506,
+      "commands": 9775,
+      "transitions": 9774,
+      "dom_nodes": 186
+    },
+    {
+      "name": "maximum-8",
+      "milliseconds": 403.79999999701977,
+      "commands": 12349,
+      "transitions": 12349,
+      "dom_nodes": 90
+    },
+    {
+      "name": "maximum-16",
+      "milliseconds": 405.6000000014901,
+      "commands": 12755,
+      "transitions": 12754,
+      "dom_nodes": 138
+    }
+  ],
+  "load_median_ms": 408.30000000074506,
+  "load_p95_ms": 446.5999999977648,
+  "interaction_median_ms": 347.8999999985099,
+  "interaction_p95_ms": 365.30000000074506,
+  "used_js_heap_bytes": null,
+  "memory_reliable": false
+}

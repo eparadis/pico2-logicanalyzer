@@ -1,0 +1,114 @@
+{
+  "device_buffer_bytes": 393216,
+  "fixtures": [
+    {
+      "artifact": null,
+      "name": "empty",
+      "roles": [
+        "empty"
+      ],
+      "sample_count": 0,
+      "sha256": null
+    },
+    {
+      "artifact": "fixtures/schema1-8.npz",
+      "name": "schema1-8",
+      "pattern": "dense",
+      "payload_bytes": 2083,
+      "roles": [
+        "schema-1"
+      ],
+      "sample_count": 1024,
+      "sha256": "c2f4d446b754c09e57412f02bde8d751f18a997d14d1df72bdc49654ab0a7457",
+      "width": 8
+    },
+    {
+      "artifact": "fixtures/constant-8.npz",
+      "name": "constant-8",
+      "pattern": "constant",
+      "payload_bytes": 66625,
+      "roles": [
+        "constant"
+      ],
+      "sample_count": 65536,
+      "sha256": "51b98c66622aa724118713ad1dcb409d6415ce3491f431e12ee9f770640c26e1",
+      "width": 8
+    },
+    {
+      "artifact": "fixtures/sparse-16.npz",
+      "name": "sparse-16",
+      "pattern": "sparse",
+      "payload_bytes": 394422,
+      "roles": [
+        "sparse"
+      ],
+      "sample_count": 196608,
+      "sha256": "39e53e363b6aab3cdd6f1fdae2083e5f7ffe78196ccf033fb4496e6ca0a36f6a",
+      "width": 16
+    },
+    {
+      "artifact": "fixtures/dense-24.npz",
+      "name": "dense-24",
+      "pattern": "dense",
+      "payload_bytes": 132396,
+      "roles": [
+        "dense",
+        "bus-worst"
+      ],
+      "sample_count": 32768,
+      "sha256": "f48f87ecaf743a224b0344c0a4025dee72e0ecb6c64f1e546f7c85f514e3f5e3",
+      "width": 24
+    },
+    {
+      "artifact": "fixtures/maximum-8.npz",
+      "name": "maximum-8",
+      "pattern": "dense",
+      "payload_bytes": 394310,
+      "roles": [
+        "maximum-8"
+      ],
+      "sample_count": 393216,
+      "sha256": "13a1de3c93c24f3a2ffcf51f7e635a1180fed5bc376ada689933c9e5505e5ccc",
+      "width": 8
+    },
+    {
+      "artifact": "fixtures/maximum-16.npz",
+      "name": "maximum-16",
+      "pattern": "dense",
+      "payload_bytes": 394422,
+      "roles": [
+        "maximum-16"
+      ],
+      "sample_count": 196608,
+      "sha256": "a05394ce8b4ffd1efb54e023afe54fd311698f7a671f2a089c0773c3cfbddd14",
+      "width": 16
+    },
+    {
+      "artifact": "fixtures/maximum-24.npz",
+      "name": "maximum-24",
+      "pattern": "dense",
+      "payload_bytes": 394540,
+      "roles": [
+        "maximum-24"
+      ],
+      "sample_count": 98304,
+      "sha256": "c582841605c6d4c212057864eb01fe200aaa3c085aaf532643dea575669ce702",
+      "width": 24
+    },
+    {
+      "artifact": "fixtures/bus-representative-8.npz",
+      "name": "bus-representative-8",
+      "pattern": "sparse",
+      "payload_bytes": 5180,
+      "roles": [
+        "bus-representative"
+      ],
+      "sample_count": 4096,
+      "sha256": "3d7a2bb58cca6f607506ea573939fc52b3d4ff7863b1dc933e6c45db679a8944",
+      "width": 8
+    }
+  ],
+  "generator": "generate_fixtures.py",
+  "sample_rate_hz": 1000000,
+  "schema_version": 1
+}

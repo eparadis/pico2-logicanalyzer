@@ -16,7 +16,6 @@ from pathlib import Path
 
 import pytest
 
-
 ROOT = Path(__file__).parents[2]
 VALIDATOR = ROOT / "scripts" / "validate_cycle2_evidence.py"
 
@@ -38,11 +37,32 @@ def _manifest() -> dict[str, object]:
         "tested_tree": "c" * 40,
         "timestamp_utc": "2026-08-22T00:00:00Z",
         "worktree_state": "clean",
-        "environment": {"os": "test", "architecture": "x86_64", "python": "3.12", "node": "22.14.0"},
-        "locks": {"requirements_dev": digest, "requirements_web": digest, "package_lock": digest, "assets": digest},
-        "roles": {"implementation": "implementor", "verification": "verifier", "acceptance": "acceptance"},
+        "environment": {
+            "os": "test",
+            "architecture": "x86_64",
+            "python": "3.12",
+            "node": "22.14.0",
+        },
+        "locks": {
+            "requirements_dev": digest,
+            "requirements_web": digest,
+            "package_lock": digest,
+            "assets": digest,
+        },
+        "roles": {
+            "implementation": "implementor",
+            "verification": "verifier",
+            "acceptance": "acceptance",
+        },
         "commands": [{"command": "check", "exit_status": 0, "verifier": "verifier"}],
-        "sources": [{"category": "synthetic", "revision": "literal", "artifact": "fixture", "sha256": digest}],
+        "sources": [
+            {
+                "category": "synthetic",
+                "revision": "literal",
+                "artifact": "fixture",
+                "sha256": digest,
+            }
+        ],
         "stopping_conditions": [{"id": 1, "artifacts": [{"path": "proof.json", "sha256": digest}]}],
         "findings": [],
         "decisions": [],

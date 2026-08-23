@@ -198,3 +198,15 @@ accepted evidence remain unchanged.
   `docs/reviews/c2-b2-verification-round-1.md`; no partial correction is
   accepted by inheritance.
 - Verification and acceptance remain distinct fixed lanes.
+
+### C2-B2 verifier identity change
+
+- Original identity: `cycle2-verifier` (`/root/verifier`)
+- Replacement identity: `cycle2-verifier-replacement-1`
+- Reason: the original verifier became unavailable after completing and
+  durably recording C2-B2 verification round 1.
+- Lane/model/reasoning preserved: Verifier, `gpt-5.6-sol`, low.
+- The replacement begins a fresh independent round against the new immutable
+  candidate and may rely on the prior immutable record only as finding
+  provenance, not as transferred acceptance.
+- Implementation and acceptance identities remain distinct.

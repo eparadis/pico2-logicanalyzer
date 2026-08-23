@@ -9,6 +9,7 @@ import pytest
 from pico_logic_analyzer.cli import main as cli
 from pico_logic_analyzer.driver import V2DeviceService
 from pico_logic_analyzer.formats import csv_bytes, import_csv_bytes, load_replay, replay_bytes
+from pico_logic_analyzer.formats.capture import MAX_CSV_INPUT_BYTES
 from pico_logic_analyzer.model import (
     CaptureConfig,
     CaptureResult,
@@ -198,6 +199,73 @@ def test_cli_csv_import_maps_invalid_metadata_to_validation_exit(tmp_path: Path)
             str(tmp_path / "output.npz"),
         ]
     ) == 5
+
+
+@pytest.mark.parametrize("rate", (0, -1, 0x1_0000_0000, True, 1.5))
+def test_csv_import_validates_explicit_rate_before_timing(rate: object) -> None:
+    with pytest.raises(ProtocolError, match="invalid CSV capture"):
+        import_csv_bytes(
+            b"sample_index,time_seconds,trigger,D8\n0,0,1,1\n",
+            channel_ids=(8,),
+            sample_rate_hz=rate,  # type: ignore[arg-type]
+            trigger_channel=8,
+            trigger_edge="rising",
+        )
+
+
+@pytest.mark.parametrize("rate", ("0", "-1", "4294967296"))
+def test_cli_csv_import_rejects_invalid_rate_with_validation_exit(
+    tmp_path: Path, rate: str
+) -> None:
+    source = tmp_path / "input.csv"
+    output, replay = tmp_path / "output.csv", tmp_path / "output.npz"
+    source.write_bytes(b"sample_index,time_seconds,trigger,D8\n0,0,1,1\n")
+    assert cli.main(
+        [
+            "csv-import", str(source), "--channels", "8", "--sample-rate", rate,
+            "--trigger-channel", "8", "--edge", "rising", "--csv", str(output),
+            "--replay", str(replay),
+        ]
+    ) == 5
+    assert not output.exists() and not replay.exists()
+
+
+def test_cli_csv_import_bounds_sparse_input_before_full_read(tmp_path: Path) -> None:
+    source = tmp_path / "large.csv"
+    with source.open("wb") as file:
+        file.truncate(MAX_CSV_INPUT_BYTES + 1)
+    output, replay = tmp_path / "output.csv", tmp_path / "output.npz"
+    assert cli.main(
+        [
+            "csv-import", str(source), "--channels", "8", "--sample-rate", "100",
+            "--trigger-channel", "8", "--edge", "rising", "--csv", str(output),
+            "--replay", str(replay),
+        ]
+    ) == 5
+    assert not output.exists() and not replay.exists()
+
+
+def test_cli_csv_import_reads_exact_limit_and_maps_read_failure(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "input.csv"
+    source.write_bytes(b"x" * MAX_CSV_INPUT_BYTES)
+    output, replay = tmp_path / "output.csv", tmp_path / "output.npz"
+    assert cli.main(
+        [
+            "csv-import", str(source), "--channels", "8", "--sample-rate", "100",
+            "--trigger-channel", "8", "--edge", "rising", "--csv", str(output),
+            "--replay", str(replay),
+        ]
+    ) == 5
+    assert cli.main(
+        [
+            "csv-import", str(tmp_path / "missing.csv"), "--channels", "8", "--sample-rate", "100",
+            "--trigger-channel", "8", "--edge", "rising", "--csv", str(output),
+            "--replay", str(replay),
+        ]
+    ) == 6
+    assert not output.exists() and not replay.exists()
 
 
 def test_schema2_replay_round_trips_wider_words(tmp_path: Path) -> None:

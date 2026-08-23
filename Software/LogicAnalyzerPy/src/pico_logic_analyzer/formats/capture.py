@@ -31,6 +31,7 @@ class OutputError(OSError):
 _TIME = re.compile(r"-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?$")
 _CSV_PREFIX = ("sample_index", "time_seconds", "trigger")
 _MAX_SAMPLE_RATE_HZ = 0xFFFFFFFF
+MAX_CSV_INPUT_BYTES = 16 * 1024 * 1024
 
 
 def _canonical_time(index: int, trigger_index: int, sample_rate_hz: int) -> Decimal:
@@ -67,6 +68,26 @@ def _infer_legacy_sample_rate(times: list[Decimal], trigger_index: int) -> int:
     return matches.pop()
 
 
+def _validate_import_metadata(
+    channel_ids: tuple[int, ...],
+    sample_rate_hz: int,
+    trigger_channel: int,
+    trigger_edge: Edge,
+) -> None:
+    """Validate supplied import metadata before parsing values which use its rate."""
+    try:
+        CaptureConfig(
+            sample_rate_hz,
+            0,
+            1,
+            trigger_channel,
+            trigger_edge,
+            channel_ids,
+        )
+    except ValidationError as exc:
+        raise ProtocolError("invalid CSV capture") from exc
+
+
 def import_csv_bytes(
     data: bytes,
     *,
@@ -81,7 +102,7 @@ def import_csv_bytes(
     imports require explicit ordered IDs and a rate, keeping display text apart
     from wire identity.
     """
-    if len(data) > 16 * 1024 * 1024:
+    if len(data) > MAX_CSV_INPUT_BYTES:
         raise ProtocolError("CSV input is too large")
     try:
         text = data.decode("utf-8")
@@ -96,6 +117,8 @@ def import_csv_bytes(
         if not legacy:
             raise ProtocolError("CSV channel ids must be supplied explicitly")
         channel_ids = tuple(range(8))
+    if sample_rate_hz is not None:
+        _validate_import_metadata(channel_ids, sample_rate_hz, trigger_channel, trigger_edge)
     if len(labels) != len(channel_ids) or len(set(labels)) != len(labels):
         raise ProtocolError("invalid CSV channel labels")
     if any(type(label) is not str or not label or len(label) > 128 for label in labels):
@@ -131,6 +154,7 @@ def import_csv_bytes(
         if not legacy or len(words) < 2:
             raise ProtocolError("CSV sample rate must be supplied explicitly")
         sample_rate_hz = _infer_legacy_sample_rate(parsed_times, trigger_index)
+        _validate_import_metadata(channel_ids, sample_rate_hz, trigger_channel, trigger_edge)
     for index, row in enumerate(rows[1:]):
         if parsed_times[index] != _canonical_time(index, trigger_index, sample_rate_hz):
             raise ProtocolError("CSV time does not match sample rate")

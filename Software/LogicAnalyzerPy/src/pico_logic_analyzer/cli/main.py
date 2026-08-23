@@ -16,6 +16,7 @@ from numpy.typing import NDArray
 
 from pico_logic_analyzer.driver import V2DeviceService, list_candidates
 from pico_logic_analyzer.formats import (
+    MAX_CSV_INPUT_BYTES,
     OutputError,
     import_csv_bytes,
     load_replay,
@@ -195,8 +196,12 @@ def _capture(arguments: argparse.Namespace) -> int:
 
 
 def _csv_import(arguments: argparse.Namespace) -> int:
+    source_path = Path(arguments.path)
     try:
-        source = Path(arguments.path).read_bytes()
+        if source_path.stat().st_size > MAX_CSV_INPUT_BYTES:
+            raise ProtocolError("CSV input is too large")
+        with source_path.open("rb") as file:
+            source = file.read(MAX_CSV_INPUT_BYTES + 1)
     except OSError as exc:
         raise OutputError(f"could not read CSV input: {exc}") from exc
     result = import_csv_bytes(

@@ -1,9 +1,9 @@
 {
   "schema_version": 2,
   "checkpoint": "C2-B2",
-  "tested_commit": "c3f43a9ef0311c34ece3f95c94871fcfcd2c12a3",
-  "tested_tree": "782f101981348ebdde23a338c8db5a92eb81f73b",
-  "timestamp_utc": "2026-08-23T15:38:59Z",
+  "tested_commit": "90adb3adb38a938ce470fa854e6fc7b98e1501c9",
+  "tested_tree": "5a09d57e4caa266a43f164edaffc94fc9a3236d7",
+  "timestamp_utc": "2026-08-23T17:35:29Z",
   "worktree_state": "Exact product candidate committed and clean; immutable verification, accumulated-validation, acceptance, and orchestration records were committed afterward.",
   "environment": {
     "os": "macOS 15.7.7",
@@ -20,9 +20,9 @@
     "assets": "1d1b44794eed6f288f1140e67c1520d847fb3263718672cf743ff70b9da0ece9"
   },
   "roles": {
-    "implementation": "cycle2-implementor-replacement-4: B2 correction candidate complete",
-    "verification": "cycle2-verifier-replacement-2: round 3 pass",
-    "acceptance": "cycle2-acceptance-replacement-1: round 1 pass"
+    "implementation": "cycle2-implementor-replacement-5: physical-finding correction complete",
+    "verification": "cycle2-verifier-replacement-3: round 4 pass",
+    "acceptance": "cycle2-acceptance-replacement-2: round 2 pass"
   },
   "commands": [
     {
@@ -38,7 +38,7 @@
     {
       "command": "python -m pytest tests/implementation/test_cycle2_wider_capture.py",
       "exit_status": 0,
-      "verifier": "cycle2-verifier-replacement-2"
+      "verifier": "cycle2-verifier-replacement-3"
     },
     {
       "command": "npm ci --ignore-scripts --no-audit --no-fund; npm run lint; npm run typecheck; npm test -- --run; npm run build; npm run test:browser",
@@ -65,21 +65,21 @@
     },
     {
       "category": "generated-fixture",
-      "revision": "c3f43a9ef0311c34ece3f95c94871fcfcd2c12a3",
+      "revision": "90adb3adb38a938ce470fa854e6fc7b98e1501c9",
       "artifact": "Software/LogicAnalyzerPy/tests/implementation/test_cycle2_wider_capture.py",
-      "sha256": "591543094dec74d0e4a3716019ba65cabd069a7c1bcdde40093e0d507f3df88c"
+      "sha256": "091974a0987f0538963109b263b955701dbd5a502487fbad4482277f3f3bec32"
     },
     {
       "category": "synthetic",
-      "revision": "c3f43a9ef0311c34ece3f95c94871fcfcd2c12a3",
-      "artifact": "Software/LogicAnalyzerPy/docs/reviews/c2-b2-verification-round-3.md",
-      "sha256": "765e00cfe542ce29f712bf433b05e99c7175500b9bacb4cc5868348c98caa85a"
+      "revision": "90adb3adb38a938ce470fa854e6fc7b98e1501c9",
+      "artifact": "Software/LogicAnalyzerPy/docs/reviews/c2-b2-verification-round-4.md",
+      "sha256": "56f5a99c0d34464ae09081145ef2b9d1378e6b6c792276152515cb3dc47e443a"
     },
     {
       "category": "synthetic",
-      "revision": "c3f43a9ef0311c34ece3f95c94871fcfcd2c12a3",
-      "artifact": "Software/LogicAnalyzerPy/docs/reviews/c2-b2-acceptance-round-1.md",
-      "sha256": "b5eca46652d8449438be5d228a055aad91f8e9dcb8ac5221295df6785ab3fdc8"
+      "revision": "90adb3adb38a938ce470fa854e6fc7b98e1501c9",
+      "artifact": "Software/LogicAnalyzerPy/docs/reviews/c2-b2-acceptance-round-2.md",
+      "sha256": "9930b43a96adcbebfa4670f3c01507c5c5bc89e2bf7640a953fdb9a0f1fa2d3e"
     }
   ],
   "stopping_conditions": [
@@ -88,11 +88,11 @@
       "artifacts": [
         {
           "path": "Software/LogicAnalyzerPy/tests/implementation/test_cycle2_wider_capture.py",
-          "sha256": "591543094dec74d0e4a3716019ba65cabd069a7c1bcdde40093e0d507f3df88c"
+          "sha256": "091974a0987f0538963109b263b955701dbd5a502487fbad4482277f3f3bec32"
         },
         {
-          "path": "Software/LogicAnalyzerPy/docs/reviews/c2-b2-verification-round-3.md",
-          "sha256": "765e00cfe542ce29f712bf433b05e99c7175500b9bacb4cc5868348c98caa85a"
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c2-b2-verification-round-4.md",
+          "sha256": "56f5a99c0d34464ae09081145ef2b9d1378e6b6c792276152515cb3dc47e443a"
         }
       ]
     },
@@ -104,8 +104,8 @@
           "sha256": "31692b2161a2da7ddd9c05ecbb10e2aa16ec8307b7bc98b9b5f78f14783dfb28"
         },
         {
-          "path": "Software/LogicAnalyzerPy/docs/reviews/c2-b2-verification-round-3.md",
-          "sha256": "765e00cfe542ce29f712bf433b05e99c7175500b9bacb4cc5868348c98caa85a"
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c2-b2-verification-round-4.md",
+          "sha256": "56f5a99c0d34464ae09081145ef2b9d1378e6b6c792276152515cb3dc47e443a"
         }
       ]
     },
@@ -114,23 +114,24 @@
       "artifacts": [
         {
           "path": "Software/LogicAnalyzerPy/tests/implementation/test_cycle2_wider_capture.py",
-          "sha256": "591543094dec74d0e4a3716019ba65cabd069a7c1bcdde40093e0d507f3df88c"
+          "sha256": "091974a0987f0538963109b263b955701dbd5a502487fbad4482277f3f3bec32"
         },
         {
-          "path": "Software/LogicAnalyzerPy/docs/reviews/c2-b2-acceptance-round-1.md",
-          "sha256": "b5eca46652d8449438be5d228a055aad91f8e9dcb8ac5221295df6785ab3fdc8"
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c2-b2-acceptance-round-2.md",
+          "sha256": "9930b43a96adcbebfa4670f3c01507c5c5bc89e2bf7640a953fdb9a0f1fa2d3e"
         }
       ]
     }
   ],
   "findings": [
-    "C2B2-V001 through C2B2-V006 are accepted closed.",
+    "C2B2-V001 through C2B2-V006 and C2B3-I001 are accepted closed.",
     "No open C2-B2 findings."
   ],
   "decisions": [
     "Ordered physical channels remain distinct from packed request positions.",
     "New replay writes use canonical schema 2 while valid schema 1 remains readable.",
     "Generalized self-timed CSV import requires explicit bounded physical metadata except for the exact Cycle 1 legacy form.",
+    "Default labels and mappings cover every ordered requested channel through D23 while malformed metadata remains rejected.",
     "C2-B2 uses the complete local non-hardware Python and locked frontend shell gate; hosted macOS CI remains final-candidate owned."
   ],
   "limitations": [
@@ -139,7 +140,7 @@
     "Physical byte-boundary behavior is not claimed by synthetic B2 evidence and remains owned by C2-B3."
   ],
   "deferred_work": [
-    "Physical Pico 2 identity, recovery, and 8-, 16-, and 24-bit captures remain deferred to C2-B3 pending fresh operator confirmation.",
+    "Physical Pico 2 recovery and complete corrected-candidate 8-, 16-, and 24-bit captures remain pending in C2-B3; operator confirmation is complete.",
     "Parallel-bus analysis and the versioned browser API remain deferred to C2-B4.",
     "Viewer performance thresholds and live browser integration remain deferred to C2-B5 and C2-B6."
   ]

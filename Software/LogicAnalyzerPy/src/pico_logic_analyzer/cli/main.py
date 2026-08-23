@@ -1,4 +1,4 @@
-"""Cycle 1 command line; only discovery and identity are operational in C1-B3."""
+"""Cycle 2 command line retaining the accepted Cycle 1 commands."""
 
 from __future__ import annotations
 
@@ -82,6 +82,9 @@ def _parser() -> argparse.ArgumentParser:
     recovery.add_argument("--post-samples", required=True, type=int, metavar="N")
     recovery.add_argument("--evidence", required=True, metavar="PATH")
     recovery.add_argument("--timeout", type=float, metavar="SECONDS")
+    web = subcommands.add_parser("web", help="start the loopback-only offline web shell")
+    web.add_argument("--host", default="127.0.0.1", metavar="LOOPBACK_ADDRESS")
+    web.add_argument("--port", default=4173, type=int, metavar="PORT")
     return parser
 
 
@@ -317,8 +320,23 @@ def _replay_validate(arguments: argparse.Namespace) -> int:
     return 0
 
 
+def _web(arguments: argparse.Namespace) -> int:
+    try:
+        from pico_logic_analyzer.web.server import run
+    except ModuleNotFoundError as exc:
+        if exc.name in {"aiohttp", "pico_logic_analyzer.web"}:
+            print(
+                "pico-la: web support is not installed; run "
+                "pip install 'pico-logic-analyzer[web]'",
+                file=sys.stderr,
+            )
+            return EXIT_USAGE
+        raise
+    return run(arguments.host, arguments.port)
+
+
 def main(argv: Sequence[str] | None = None) -> int:
-    """Run the bounded Cycle 1 CLI without ever selecting a port implicitly."""
+    """Run the bounded CLI without ever selecting a port implicitly."""
     parser = _parser()
     arguments = parser.parse_args(argv)
     try:
@@ -330,12 +348,14 @@ def main(argv: Sequence[str] | None = None) -> int:
             return _capture(arguments)
         if arguments.command == "replay-validate":
             return _replay_validate(arguments)
+        if arguments.command == "web":
+            return _web(arguments)
         if arguments.command == "hardware-smoke":
             return _hardware_smoke(arguments)
         if arguments.command == "hardware-recovery-smoke":
             return _hardware_recovery_smoke(arguments)
         print(
-            f"pico-la: {arguments.command} is not implemented until its owning Cycle 1 batch",
+            f"pico-la: {arguments.command} is not implemented until its owning batch",
             file=sys.stderr,
         )
         return EXIT_USAGE

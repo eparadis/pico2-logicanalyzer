@@ -5,12 +5,15 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "pico-logic-analyzer"
 version = "0.1.0"
-description = "Cycle 1 command-line scaffold for the Pico logic analyzer"
+description = "Python client and local browser shell for the Pico logic analyzer"
 readme = "README.md"
 requires-python = ">=3.12"
 license = {text = "MIT"}
 authors = [{name = "Pico logic analyzer contributors"}]
 dependencies = ["numpy==2.2.2", "pyserial==3.5"]
+
+[project.optional-dependencies]
+web = ["aiohttp==3.11.12"]
 
 [project.scripts]
 pico-la = "pico_logic_analyzer.cli.main:main"
@@ -20,6 +23,9 @@ package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+pico_logic_analyzer = ["web/assets/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

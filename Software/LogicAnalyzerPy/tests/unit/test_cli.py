@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import sys
+
 import pytest
 
 from pico_logic_analyzer.cli import main as cli
@@ -19,6 +21,17 @@ def test_capture_help_exposes_both_edges(capsys: pytest.CaptureFixture[str]) -> 
         main(["capture", "--help"])
     assert raised.value.code == 0
     assert "{rising,falling}" in capsys.readouterr().out
+
+
+def test_web_without_optional_extra_has_actionable_error(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.setitem(sys.modules, "aiohttp", None)
+    monkeypatch.delitem(sys.modules, "pico_logic_analyzer.web.server", raising=False)
+    assert main(["web"]) == 2
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert "pip install 'pico-logic-analyzer[web]'" in captured.err
 
 
 def test_devices_json_is_stdout_only(

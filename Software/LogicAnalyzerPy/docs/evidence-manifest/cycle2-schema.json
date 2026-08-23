@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Pico logic analyzer Cycle 2 checkpoint evidence manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "checkpoint", "tested_commit", "tested_tree", "timestamp_utc", "worktree_state", "environment", "locks", "roles", "commands", "sources", "stopping_conditions", "findings", "decisions", "limitations", "deferred_work"],
+  "properties": {
+    "schema_version": {"const": 2},
+    "checkpoint": {"type": "string", "pattern": "^C2-B[1-6]$"},
+    "tested_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "tested_tree": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "timestamp_utc": {"type": "string", "format": "date-time"},
+    "worktree_state": {"type": "string", "maxLength": 2048},
+    "environment": {"$ref": "#/$defs/environment"},
+    "locks": {"$ref": "#/$defs/locks"},
+    "roles": {"$ref": "#/$defs/roles"},
+    "commands": {"type": "array", "items": {"$ref": "#/$defs/command"}},
+    "sources": {"type": "array", "items": {"$ref": "#/$defs/source"}},
+    "stopping_conditions": {"type": "array", "items": {"$ref": "#/$defs/condition"}},
+    "findings": {"type": "array", "items": {"type": "string"}},
+    "decisions": {"type": "array", "items": {"type": "string"}},
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "deferred_work": {"type": "array", "items": {"type": "string"}},
+    "performance_threshold_sha256": {"$ref": "#/$defs/digest"}
+  },
+  "$defs": {
+    "digest": {"oneOf": [{"type": "string", "pattern": "^[0-9a-f]{64}$"}, {"const": "not-applicable"}]},
+    "environment": {"type": "object", "additionalProperties": false, "required": ["os", "architecture", "python", "node"], "properties": {"os": {"type": "string"}, "architecture": {"type": "string"}, "python": {"type": "string"}, "node": {"type": "string"}, "browser": {"type": "string"}, "automation": {"type": "string"}}},
+    "locks": {"type": "object", "additionalProperties": false, "required": ["requirements_dev", "requirements_web", "package_lock", "assets"], "properties": {"requirements_dev": {"$ref": "#/$defs/digest"}, "requirements_web": {"$ref": "#/$defs/digest"}, "package_lock": {"$ref": "#/$defs/digest"}, "assets": {"$ref": "#/$defs/digest"}}},
+    "roles": {"type": "object", "additionalProperties": false, "required": ["implementation", "verification", "acceptance"], "properties": {"implementation": {"type": "string"}, "verification": {"type": "string"}, "acceptance": {"type": "string"}}},
+    "command": {"type": "object", "additionalProperties": false, "required": ["command", "exit_status", "verifier"], "properties": {"command": {"type": "string"}, "exit_status": {"type": "integer", "minimum": 0, "maximum": 255}, "verifier": {"type": "string"}, "ci": {"type": "string"}}},
+    "source": {"type": "object", "additionalProperties": false, "required": ["category", "revision", "artifact", "sha256"], "properties": {"category": {"enum": ["firmware-source", "cycle1-accepted", "synthetic", "hardware-observation", "browser-observation", "generated-fixture"]}, "revision": {"type": "string"}, "artifact": {"type": "string"}, "sha256": {"$ref": "#/$defs/digest"}}},
+    "condition": {"type": "object", "additionalProperties": false, "required": ["id", "artifacts"], "properties": {"id": {"type": "integer", "minimum": 1, "maximum": 14}, "artifacts": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["path", "sha256"], "properties": {"path": {"type": "string"}, "sha256": {"$ref": "#/$defs/digest"}}}}}}
+  }
+}

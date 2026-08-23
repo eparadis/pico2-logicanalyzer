@@ -1,8 +1,11 @@
 # CLI contract
 
 The installed executable is `pico-la`; `python -m pico_logic_analyzer --help`
-is equivalent for source installs. C1-B3 implements only `devices` and `info`;
-capture, replay, and hardware-smoke commands remain owned by later batches.
+is equivalent for source installs. The accepted Cycle 1 discovery, capture,
+replay, and hardware-smoke behavior remains available while its Cycle 2
+successors are owned by their respective batches. The `web` command currently
+starts only the inert, loopback-only offline shell; it does not open serial
+hardware.
 
 ```text
 pico-la devices [--json]
@@ -11,6 +14,7 @@ pico-la capture --port PORT --sample-rate HZ --trigger-channel CHANNEL
                 --edge {rising,falling} --pre-samples N --post-samples N
                 --csv PATH --replay PATH [--timeout SECONDS] [--force]
 pico-la replay-validate PATH [--json]
+pico-la web [--host LOOPBACK_ADDRESS] [--port PORT]
 pico-la hardware-smoke --port PORT --signal-hz HZ --sample-rate HZ
                        --trigger-channel CHANNEL --edge {rising,falling}
                        --pre-samples N --post-samples N --evidence PATH

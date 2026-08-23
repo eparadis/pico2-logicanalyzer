@@ -1,1 +1,1 @@
-"""Command-line interface for the Cycle 1 vertical slice."""
+"""Command-line interface retaining the Cycle 1 vertical slice during Cycle 2."""

@@ -1,0 +1,43 @@
+name: Logic analyzer Python Cycle 2
+
+on:
+  push:
+    paths: ["Software/LogicAnalyzerPy/**", ".github/workflows/logic-analyzer-python-cycle2.yml"]
+  pull_request:
+    paths: ["Software/LogicAnalyzerPy/**", ".github/workflows/logic-analyzer-python-cycle2.yml"]
+
+jobs:
+  validate:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22.14.0", cache: "npm", cache-dependency-path: "Software/LogicAnalyzerPy/web/package-lock.json"}
+      - working-directory: Software/LogicAnalyzerPy
+        run: |
+          python3.12 -m venv .venv
+          .venv/bin/python -m pip install --require-hashes -r requirements-dev.lock
+          .venv/bin/python -m pip install --no-build-isolation --no-deps -e .
+          .venv/bin/python -m pip check
+          .venv/bin/python -m ruff check .
+          .venv/bin/python -m mypy src
+          .venv/bin/python -m pytest -m "not hardware"
+          .venv/bin/python -m pico_logic_analyzer --help
+          python3.12 -m venv .venv-web
+          .venv-web/bin/python -m pip install --require-hashes -r requirements-web.lock
+          .venv-web/bin/python -m pip install --no-build-isolation --no-deps -e '.[web]'
+          .venv-web/bin/python -m pip check
+      - working-directory: Software/LogicAnalyzerPy/web
+        run: |
+          npm ci
+          npm run lint
+          npm run typecheck
+          npm test -- --run
+          npm run build
+          npm run test:browser

@@ -1,4 +1,5 @@
-# Direct development and PEP 517 build requirements for Cycle 1.
+# Direct development, web-runtime, and PEP 517 build requirements for Cycle 2.
+aiohttp==3.11.12
 # Regenerate requirements-dev.lock with Python 3.12 and hashes.
 mypy==1.15.0
 numpy==2.2.2

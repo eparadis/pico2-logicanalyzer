@@ -4,7 +4,7 @@ This is the native Python 3.12 command-line client for the V2 Pico logic
 analyzer firmware. It runs on macOS and Linux without the original C# desktop
 application.
 
-The completed Cycle 1 client can:
+The Cycle 2 foundation retains the accepted Cycle 1 client, which can:
 
 - list candidate USB serial devices;
 - read and validate V2 identity and capabilities;
@@ -15,10 +15,10 @@ The completed Cycle 1 client can:
 - recover a timed-out or interrupted capture through the bounded V2
   cancellation, close/reopen, and re-identification sequence.
 
-It is currently a focused CLI, not a replacement GUI. Wider capture modes,
-sigrok decoder hosting, TCP/Wi-Fi operation, and stable long-term replay
-compatibility remain future work. The existing C# applications and firmware
-remain available as comparison and rollback paths.
+The current shell remains intentionally bounded: it is not a replacement GUI.
+Wider capture modes, sigrok decoder hosting, TCP/Wi-Fi operation, and stable
+long-term replay compatibility remain future work. The existing C# applications
+and firmware remain available as comparison and rollback paths.
 
 ## Install from source
 
@@ -44,6 +44,18 @@ pico-la --help
 
 `python -m pico_logic_analyzer` is equivalent to `pico-la` in the activated
 environment.
+
+## Offline web shell
+
+Install the reviewed web runtime before its no-dependency-resolution editable
+install, then start the checked-in production assets on a literal loopback
+address. This shell neither invokes Node nor accesses serial hardware.
+
+```bash
+.venv/bin/python -m pip install --require-hashes -r requirements-web.lock
+.venv/bin/python -m pip install --no-build-isolation --no-deps -e '.[web]'
+.venv/bin/pico-la web --host 127.0.0.1 --port 4173
+```
 
 ## Connect to an analyzer
 

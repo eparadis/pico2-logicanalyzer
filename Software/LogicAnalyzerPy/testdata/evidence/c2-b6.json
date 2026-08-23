@@ -1,0 +1,216 @@
+{
+  "schema_version": 2,
+  "checkpoint": "C2-B6",
+  "tested_commit": "2d5484a73d881496cdf5a35c799dfb01eedad229",
+  "tested_tree": "8c76bce79922263468cb6ceaa4f1990703a84bfc",
+  "timestamp_utc": "2026-08-23T22:49:28Z",
+  "worktree_state": "The exact product candidate was immutable before separate implementation round 4, verification round 4, and acceptance round 2 records. The canonical manifest was created only after all three final records passed. An unrelated repository-root editor swap file was preserved and excluded.",
+  "environment": {
+    "os": "macOS 15.7.7",
+    "architecture": "x86_64",
+    "python": "3.12.13",
+    "node": "22.14.0",
+    "browser": "Chromium 133.0.6943.16",
+    "automation": "Playwright 1.50.1"
+  },
+  "locks": {
+    "requirements_dev": "6f78ec8f0219b919c44ed9b9f1d30c2337fcce7c911b8d3dc4c13edb707a6575",
+    "requirements_web": "6f78ec8f0219b919c44ed9b9f1d30c2337fcce7c911b8d3dc4c13edb707a6575",
+    "package_lock": "d388a2668b3f65edeb62ee99da3ad37ffc56ab1ca3439b6d418a6bbe92e838d9",
+    "assets": "c27b08c3fbbce7ead5e7afa4b92bffdaf9623f46f4319d92c78942ab2e59059d"
+  },
+  "roles": {
+    "implementation": "cycle2-b5-implementor-replacement-1: B6 implementation round 4 pass",
+    "verification": "cycle2-verifier-replacement-3: B6 verification round 4 pass",
+    "acceptance": "cycle2-acceptance-replacement-3: B6 acceptance round 2 pass"
+  },
+  "commands": [
+    {
+      "command": "clean Python 3.12 environments; hash-locked development and web installs; no-build-isolation/no-deps source installs; pip check; Ruff; strict mypy; pytest -m 'not hardware'; CLI help",
+      "exit_status": 0,
+      "verifier": "cycle2-acceptance-replacement-3"
+    },
+    {
+      "command": "focused workflow, artifact-availability, complete physical-artifact, live API, evidence, native-harness, OpenAPI, and threshold validation",
+      "exit_status": 0,
+      "verifier": "cycle2-verifier-replacement-3"
+    },
+    {
+      "command": "npm ci; npm run lint; npm run typecheck; npm test -- --run; npm run build; production asset drift check",
+      "exit_status": 0,
+      "verifier": "cycle2-acceptance-replacement-3"
+    },
+    {
+      "command": "npm run test:browser",
+      "exit_status": 0,
+      "verifier": "cycle2-orchestrator"
+    },
+    {
+      "command": "npm run benchmark:b6 with automatic approved-threshold enforcement",
+      "exit_status": 0,
+      "verifier": "cycle2-orchestrator"
+    },
+    {
+      "command": "bounded native browser identify, 8/16/24 capture, waveform, bus, export, close/reopen, second capture, and shutdown using runtime-supplied explicit port",
+      "exit_status": 0,
+      "verifier": "cycle2-orchestrator"
+    },
+    {
+      "command": "hosted macOS workflow complete accumulated suite at exact candidate 2d5484a73d881496cdf5a35c799dfb01eedad229",
+      "exit_status": 0,
+      "verifier": "cycle2-acceptance-replacement-3",
+      "ci": "run 32671356406; job 97272584254; success"
+    },
+    {
+      "command": "python scripts/validate_cycle2_evidence.py docs/evidence-manifest/cycle2-schema.json testdata/evidence/c2-b6.json",
+      "exit_status": 0,
+      "verifier": "cycle2-orchestrator"
+    }
+  ],
+  "sources": [
+    {
+      "category": "cycle1-accepted",
+      "revision": "2d5484a73d881496cdf5a35c799dfb01eedad229",
+      "artifact": "Software/LogicAnalyzerPy/testdata/evidence/c2-b5.json",
+      "sha256": "8fcdf9714e2ad94af845d9676227bf6750159075bb49416d9c78c16d5b3c14e9"
+    },
+    {
+      "category": "hardware-observation",
+      "revision": "2d5484a73d881496cdf5a35c799dfb01eedad229",
+      "artifact": "Software/LogicAnalyzerPy/testdata/evidence/c2-b6-implementation.json",
+      "sha256": "dfe1e7504e3289e21a556a423d1c5d417e3072bdf5be3156557e279567864a6a"
+    },
+    {
+      "category": "browser-observation",
+      "revision": "2d5484a73d881496cdf5a35c799dfb01eedad229",
+      "artifact": "Software/LogicAnalyzerPy/docs/performance/c2-b6-threshold-enforcement.json",
+      "sha256": "09b5d5238b35d55d6122e13a69ec9e6608a75c863cac7b6302e5416ddbf8c555"
+    },
+    {
+      "category": "browser-observation",
+      "revision": "a349cc5a855c4c73c74c2ca79d5058ec6a3f8c77",
+      "artifact": "Software/LogicAnalyzerPy/docs/reviews/c2-b6-implementation-round-4.md",
+      "sha256": "655c56b770e35e2bb4b4dbb6a78116b5e7842b714cf29c2e5f61d7dca3a379af"
+    },
+    {
+      "category": "browser-observation",
+      "revision": "436e18735831e4db3501ff3bb1cc08c2761a0e1d",
+      "artifact": "Software/LogicAnalyzerPy/docs/reviews/c2-b6-verification-round-4.md",
+      "sha256": "9907b1f50de115f37a7181b1bf0a43ce8108a4633e027222d192315bd7b01926"
+    },
+    {
+      "category": "browser-observation",
+      "revision": "605400422b4affbd84793686a8431769de9913ef",
+      "artifact": "Software/LogicAnalyzerPy/docs/reviews/c2-b6-acceptance-round-2.md",
+      "sha256": "7a6abbf69f48bd0e720f446b2713be581a893376f9724c4fbc9a7a68dd934216"
+    },
+    {
+      "category": "synthetic",
+      "revision": "2d5484a73d881496cdf5a35c799dfb01eedad229",
+      "artifact": "Software/LogicAnalyzerPy/tests/implementation/test_b6_live_api.py",
+      "sha256": "92a2fe0035e7ef08f913b64b433dd32cdedbdbfdc957e566abb8c2f676f8b426"
+    },
+    {
+      "category": "browser-observation",
+      "revision": "2d5484a73d881496cdf5a35c799dfb01eedad229",
+      "artifact": "Software/LogicAnalyzerPy/web/tests/b6-native.spec.ts",
+      "sha256": "7783e48969366651bc54b339f3dcfa20d037c2e253cad531037a3b01a69e1bd9"
+    },
+    {
+      "category": "synthetic",
+      "revision": "2d5484a73d881496cdf5a35c799dfb01eedad229",
+      "artifact": ".github/workflows/logic-analyzer-python-cycle2.yml",
+      "sha256": "ab0809523370ecfe308fe733be011c83f926315eeca12e7a0d3ab294b357ea22"
+    }
+  ],
+  "stopping_conditions": [
+    {
+      "id": 1,
+      "artifacts": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c2-b6-acceptance-round-2.md", "sha256": "7a6abbf69f48bd0e720f446b2713be581a893376f9724c4fbc9a7a68dd934216"}]
+    },
+    {
+      "id": 2,
+      "artifacts": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c2-b6-acceptance-round-2.md", "sha256": "7a6abbf69f48bd0e720f446b2713be581a893376f9724c4fbc9a7a68dd934216"}]
+    },
+    {
+      "id": 3,
+      "artifacts": [
+        {"path": ".github/workflows/logic-analyzer-python-cycle2.yml", "sha256": "ab0809523370ecfe308fe733be011c83f926315eeca12e7a0d3ab294b357ea22"},
+        {"path": "Software/LogicAnalyzerPy/docs/reviews/c2-b6-acceptance-round-2.md", "sha256": "7a6abbf69f48bd0e720f446b2713be581a893376f9724c4fbc9a7a68dd934216"}
+      ]
+    },
+    {
+      "id": 4,
+      "artifacts": [{"path": "Software/LogicAnalyzerPy/testdata/evidence/c2-b6-implementation.json", "sha256": "dfe1e7504e3289e21a556a423d1c5d417e3072bdf5be3156557e279567864a6a"}]
+    },
+    {
+      "id": 5,
+      "artifacts": [{"path": "Software/LogicAnalyzerPy/tests/implementation/test_b6_live_api.py", "sha256": "92a2fe0035e7ef08f913b64b433dd32cdedbdbfdc957e566abb8c2f676f8b426"}]
+    },
+    {
+      "id": 6,
+      "artifacts": [{"path": "Software/LogicAnalyzerPy/testdata/evidence/c2-b5.json", "sha256": "8fcdf9714e2ad94af845d9676227bf6750159075bb49416d9c78c16d5b3c14e9"}]
+    },
+    {
+      "id": 7,
+      "artifacts": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c2-b6-verification-round-4.md", "sha256": "9907b1f50de115f37a7181b1bf0a43ce8108a4633e027222d192315bd7b01926"}]
+    },
+    {
+      "id": 8,
+      "artifacts": [{"path": "Software/LogicAnalyzerPy/testdata/evidence/c2-b6-implementation.json", "sha256": "dfe1e7504e3289e21a556a423d1c5d417e3072bdf5be3156557e279567864a6a"}]
+    },
+    {
+      "id": 9,
+      "artifacts": [{"path": "Software/LogicAnalyzerPy/testdata/evidence/c2-b6-implementation.json", "sha256": "dfe1e7504e3289e21a556a423d1c5d417e3072bdf5be3156557e279567864a6a"}]
+    },
+    {
+      "id": 10,
+      "artifacts": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c2-b6-verification-round-4.md", "sha256": "9907b1f50de115f37a7181b1bf0a43ce8108a4633e027222d192315bd7b01926"}]
+    },
+    {
+      "id": 11,
+      "artifacts": [
+        {"path": "Software/LogicAnalyzerPy/web/tests/b6-native.spec.ts", "sha256": "7783e48969366651bc54b339f3dcfa20d037c2e253cad531037a3b01a69e1bd9"},
+        {"path": "Software/LogicAnalyzerPy/testdata/evidence/c2-b6-implementation.json", "sha256": "dfe1e7504e3289e21a556a423d1c5d417e3072bdf5be3156557e279567864a6a"}
+      ]
+    },
+    {
+      "id": 12,
+      "artifacts": [
+        {"path": "Software/LogicAnalyzerPy/docs/performance/c2-b5-threshold-approval.md", "sha256": "57183190d5d48642e9621862aeed343b0a435477a5b4b6276551e55dd01a6053"},
+        {"path": "Software/LogicAnalyzerPy/docs/performance/c2-b6-threshold-enforcement.json", "sha256": "09b5d5238b35d55d6122e13a69ec9e6608a75c863cac7b6302e5416ddbf8c555"}
+      ]
+    },
+    {
+      "id": 13,
+      "artifacts": [
+        {"path": "Software/LogicAnalyzerPy/docs/reviews/c2-b6-implementation-round-4.md", "sha256": "655c56b770e35e2bb4b4dbb6a78116b5e7842b714cf29c2e5f61d7dca3a379af"},
+        {"path": "Software/LogicAnalyzerPy/docs/reviews/c2-b6-verification-round-4.md", "sha256": "9907b1f50de115f37a7181b1bf0a43ce8108a4633e027222d192315bd7b01926"},
+        {"path": "Software/LogicAnalyzerPy/docs/reviews/c2-b6-acceptance-round-2.md", "sha256": "7a6abbf69f48bd0e720f446b2713be581a893376f9724c4fbc9a7a68dd934216"}
+      ]
+    },
+    {
+      "id": 14,
+      "artifacts": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c2-b6-acceptance-round-2.md", "sha256": "7a6abbf69f48bd0e720f446b2713be581a893376f9724c4fbc9a7a68dd934216"}]
+    }
+  ],
+  "findings": [
+    "C2B6-V001, C2B6-V002, C2B6-V003, C2B6-A001, C2B6-A001-AVAILABILITY, and C2B6-A001-DIAGNOSTICS are closed.",
+    "No open or deferred C2-B6 findings."
+  ],
+  "decisions": [
+    "The explicit port remains a runtime-only input; public identity is opaque and no machine-local identity is persisted.",
+    "Physical 8, 16, and 24 channel evidence proves masks 0x01, 0x0101, and 0x810101, exact dtypes, zero high byte, approximately 1 kHz activity, close/reopen, reidentification, and second capture.",
+    "The strengthened native browser proof validates physical values, trigger and cursor readout, ordered bus rows, exported bytes, reopen, second capture, nondisclosure, and shutdown.",
+    "The final benchmark enforces the operator-approved timing and resource ceilings, including an observed and approved maximum waveform request span of 100000 samples, without rebasing.",
+    "A wholly absent default machine-local physical artifact set is unavailable and skipped; partial, explicitly missing, or corrupt supplied sets fail, while checked-in sanitized evidence validation is mandatory.",
+    "Hosted macOS run 32671356406 and job 97272584254 passed every accumulated gate for the exact candidate."
+  ],
+  "limitations": [
+    "Only macOS is supported and accepted in Cycle 2.",
+    "Reliable browser heap measurement is unavailable, so no memory threshold is claimed.",
+    "Machine-local physical artifacts are intentionally not committed; their complete supplied set remains required to rerun offline physical assertions."
+  ],
+  "deferred_work": [],
+  "performance_threshold_sha256": "57183190d5d48642e9621862aeed343b0a435477a5b4b6276551e55dd01a6053"
+}

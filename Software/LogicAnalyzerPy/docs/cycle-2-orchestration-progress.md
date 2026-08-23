@@ -221,3 +221,15 @@ accepted evidence remain unchanged.
 - The new replacement must independently reconcile the exact candidate and the
   uncommitted record; the record is not accepted merely because it exists.
 - Implementation and acceptance identities remain distinct.
+
+### C2-B2 third implementor identity change
+
+- Prior identity: `cycle2-implementor-replacement-3`
+- New replacement identity: `cycle2-implementor-replacement-4`
+- Reason: the prior implementor completed its candidate handoff and then became
+  unavailable before round-two product corrections were assigned.
+- Lane/model/reasoning preserved: Implementor, `gpt-5.6-terra`, low.
+- The replacement owns only product findings in the immutable round-two review
+  and starts from the current clean descendant containing review/progress
+  records.
+- Verification and acceptance identities remain distinct.

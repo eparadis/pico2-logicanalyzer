@@ -773,3 +773,16 @@ accepted evidence remain unchanged.
   contracts.
 - B4 reopens as In progress. The preserved uncommitted bus core remains
   implementation-lane work and receives no acceptance by inheritance.
+
+### C2-B4 implementation identity change
+
+- Prior identity: `cycle2-implementor-replacement-5`.
+- New replacement identity: `cycle2-implementor-replacement-6`.
+- Reason: after the operator resolved the shared-interface decision, the prior
+  lane acknowledged the durable decision but ended without advancing the
+  preserved partial bus core or beginning the required API/schema work.
+- Lane/model/reasoning preserved: Implementor, `gpt-5.6-terra`, low.
+- The replacement inherits the uncommitted bus-core files only as work to
+  inspect, validate, correct, and complete. They are not accepted by
+  inheritance and no partial candidate exists.
+- Verification and acceptance identities remain distinct and unchanged.

@@ -701,3 +701,35 @@ accepted evidence remain unchanged.
 - Risks: shared Python/API/TypeScript interfaces remain single-writer; any
   unsettled substantive choice must return for contract/operator direction
   rather than expanding scope.
+
+### C2-B4 shared-interface contract gap
+
+- State: Awaiting approval
+- Implementation completed only an uncommitted focused bus-core slice with 3
+  passing tests, then stopped before API work or candidate creation.
+- Independent read-only verifier verdict: `contract_gap`. The governing sources
+  settle B4 bus semantics, loopback/Host/Origin/capability-cookie/file/security
+  invariants, bounds classes, required resources, and schema/type drift
+  enforcement, but do not settle exact routes/methods/statuses, JSON and
+  multipart shapes, waveform/bus/export representations, operation lifecycle,
+  WebSocket inclusion, numeric limits, or schema/type generation format.
+- Minimal alternatives: REST plus polling with OpenAPI 3.1; REST plus polling
+  with a JSON-Schema bundle and route manifest; or REST plus a secured WebSocket
+  progress stream. The last materially enlarges B4 security, reconnect,
+  ordering, and cleanup work.
+- Verifier recommendation: REST plus polling; omit WebSockets; freeze one
+  Python-owned OpenAPI 3.1 document with closed schemas and generated/validated
+  TypeScript types. Retain existing health/readiness/shutdown routes and add
+  bounded multipart imports, capture metadata/channels/waveform resources,
+  paginated transition/strobe bus analysis, direct byte exports, and explicit
+  polling/cancel operation states with one redacted error envelope.
+- Operator direction is required before defining this shared Python/API/
+  TypeScript interface. A three-reviewer governing-contract revision is not
+  required for an operator-selected interface that remains within B4 and is
+  frozen in a new machine-readable B4 contract under normal independent
+  implementation/verification/acceptance. Editing the governing contracts,
+  weakening security, requiring WebSockets, or expanding scope would require
+  the common-commit review process.
+- No API implementation, server launch, dependency change, candidate, or
+  prohibited action occurred. The uncommitted bus core is preserved but is not
+  accepted evidence.

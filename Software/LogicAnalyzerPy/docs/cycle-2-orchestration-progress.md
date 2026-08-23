@@ -620,3 +620,38 @@ accepted evidence remain unchanged.
 - No additional USB operation, firmware/persistent action, power cycle, or
   sensitive durable value occurred during verification/accumulated validation.
   C2-B3 is ready for fresh independent acceptance of this complete gate.
+
+## C2-B3 checkpoint
+
+- State: Complete
+- Exact accepted product candidate:
+  `90adb3adb38a938ce470fa854e6fc7b98e1501c9`
+- Exact accepted product tree: `5a09d57e4caa266a43f164edaffc94fc9a3236d7`
+- Implementation: pass; sanitized record
+  `docs/reviews/c2-b3-implementation-round-1.md`, SHA-256
+  `2549b62755eec859bf34954d1f8a612e8be77bdba6e12fc88a6a5d4dd2dff27e`.
+- Verification: pass with no open findings; record
+  `docs/reviews/c2-b3-verification-round-1.md`, SHA-256
+  `ebeee036728cada9a9046fdcdee4e4a356955a5e3a1a3f10d075ba66ff4fad78`.
+- Acceptance: pass with no open findings; record
+  `docs/reviews/c2-b3-acceptance-round-1.md`, SHA-256
+  `5e2eba90c93b610220fb77105bbed968374a5a375739e85142b45d385a508985`.
+- Accepted physical proof: fixed V2 identity; complete fresh recovery and
+  D0-D7/D0-D15/D0-D23 sequence; exact masks `0x01`, `0x0101`, `0x810101`;
+  `uint8`/`uint16`/`uint32`; 6144 samples each; approximately 1 kHz activity;
+  both driven states; zero bits 24-31; deterministic CSV; bounded recovery,
+  reopen/re-identification, and second capture without a power cycle.
+- Accumulated gate: 280 non-hardware passed with 1 covered sandbox skip; Ruff;
+  mypy; CLI; assets; Node 22 lint/typecheck/unit/build; Playwright; and diff
+  check passed.
+- Evidence manifest: `testdata/evidence/c2-b3.json`, committed separately at
+  `4635bf4`, SHA-256
+  `9db03e119c6cacb40e87ef61d8f7ef1e24692ea45527f5e331e2103ecc59ff1b`;
+  strict validation and the 9-test evidence-schema suite passed.
+- Checkpoint proves stopping conditions 8 and 9 and refreshes B3-owned rollback
+  proof for condition 14; final accumulated audit remains owned by C2-B6.
+- Runtime port/serial/location and raw artifacts remain uncommitted. No firmware,
+  bootloader, Wi-Fi, power-cycle, persistent-state, .NET, public-server,
+  packaging/publication, or Cycle 3 action occurred.
+- Next boundary: C2-B4 may begin against the accepted B2 schemas and B3 physical
+  artifacts.

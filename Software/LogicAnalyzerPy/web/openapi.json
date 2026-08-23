@@ -1,0 +1,24 @@
+{
+  "openapi": "3.1.0",
+  "info": {"title": "Pico Logic Analyzer local API", "version": "v1"},
+  "paths": {
+    "/api/v1/health": {"get": {"responses": {"200": {"description": "ready"}}}},
+    "/api/v1/readiness": {"get": {"responses": {"200": {"description": "ready"}}}},
+    "/api/v1/imports": {"post": {"requestBody": {"required": true, "content": {"multipart/form-data": {}}}, "responses": {"201": {"description": "capture"}, "400": {"$ref": "#/components/responses/Error"}, "403": {"$ref": "#/components/responses/Error"}}}},
+    "/api/v1/captures/{capture_id}": {"get": {"responses": {"200": {"description": "capture"}, "404": {"$ref": "#/components/responses/Error"}}}},
+    "/api/v1/captures/{capture_id}/channels": {"get": {"responses": {"200": {"description": "channels"}}}},
+    "/api/v1/captures/{capture_id}/waveform": {"get": {"responses": {"200": {"description": "reduced waveform"}}}},
+    "/api/v1/captures/{capture_id}/bus": {"post": {"responses": {"200": {"description": "bus page"}}}},
+    "/api/v1/captures/{capture_id}/exports": {"post": {"responses": {"200": {"description": "CSV bytes"}}}},
+    "/api/v1/operations/{operation_id}": {"get": {"responses": {"200": {"description": "operation"}}}},
+    "/api/v1/operations/{operation_id}/cancel": {"post": {"responses": {"200": {"description": "cancelled"}}}},
+    "/api/v1/shutdown": {"post": {"responses": {"204": {"description": "shutdown"}}}}
+  },
+  "components": {
+    "responses": {"Error": {"description": "redacted error", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}}}}},
+    "schemas": {
+      "Error": {"type": "object", "additionalProperties": false, "required": ["error"], "properties": {"error": {"type": "object", "additionalProperties": false, "required": ["code", "message"], "properties": {"code": {"type": "string", "maxLength": 64}, "message": {"type": "string", "maxLength": 64}}}}},
+      "Operation": {"type": "object", "additionalProperties": false, "required": ["operation_id", "state"], "properties": {"operation_id": {"type": "string", "maxLength": 32}, "state": {"enum": ["pending", "running", "cancelling", "succeeded", "failed", "cancelled"]}}}
+    }
+  }
+}

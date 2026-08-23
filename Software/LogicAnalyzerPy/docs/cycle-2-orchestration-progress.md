@@ -350,3 +350,32 @@ accepted evidence remain unchanged.
 - Independent later-batch work cannot advance because C2-B4 requires accepted
   B2 schemas plus the B3 physical artifacts. No later-batch implementation is
   started while this prerequisite is pending.
+
+### C2-B3 read-only preflight
+
+- Checked-in firmware authority is present and unchanged by Cycle 2 product
+  work. `Firmware/LogicAnalyzer_V2/LogicAnalyzer_Build_Settings.cmake` selects
+  `BOARD_PICO_2`; `CMakeLists.txt` maps it to `pico2` and defines firmware
+  version `V6_0`.
+- Firmware authority SHA-256 values: build settings
+  `2a80e102a89bae1b554afb2df3d9aec96b955f1cf6b1edd1794873e92ea3297b`;
+  CMake configuration
+  `93263c2402dfc44595555570d252c025c5da743e283cb917ca200c4338b3e662`;
+  command source
+  `6039a08c07e364a2aaa519561ee80f02b7caa5707b5ce31512a15c59cf06e32e`;
+  capture source
+  `c0cb981ec60fc780fbc5e98a76ccfcb290756b7eca5224e5d7a10a27454b0d8a`;
+  protocol structures
+  `0180750a5b9327da346b730d58c044ddd9f24d8a9dc66c542aab5142e46c8b6b`.
+- Accepted Cycle 1 recovery baseline remains present at
+  `testdata/evidence/c1-b5-recovery-smoke.json`, SHA-256
+  `44a7bffc0bcc7c415ba8fa09efb26624853dce26833216d78d408b9c45907815`;
+  it records the sanitized `LOGIC_ANALYZER_PICO_2_V6_0` identity, fixed-low
+  D1/GPIO3 recovery, re-identification, and a successful second capture.
+- Source-installed CLI read-only help passed for `capture`, `hardware-smoke`,
+  and `hardware-recovery-smoke`. `capture` exposes explicit ordered physical
+  channels plus finite timeout and explicit output paths; the recovery command
+  exposes explicit idle channel/level and bounded cancel/timeout settings.
+- No device enumeration, serial open, device request, capture, wiring change,
+  firmware build/flash, bootloader entry, or persistent operation occurred.
+  Operator confirmation remains the only missing B3 prerequisite.

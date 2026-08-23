@@ -15,7 +15,12 @@ import numpy as np
 from numpy.typing import NDArray
 
 from pico_logic_analyzer.driver import V2DeviceService, list_candidates
-from pico_logic_analyzer.formats import OutputError, load_replay, write_capture_outputs
+from pico_logic_analyzer.formats import (
+    OutputError,
+    import_csv_bytes,
+    load_replay,
+    write_capture_outputs,
+)
 from pico_logic_analyzer.model import CaptureConfig, ProtocolError
 
 EXIT_USAGE = 2
@@ -58,6 +63,16 @@ def _parser() -> argparse.ArgumentParser:
     replay = subcommands.add_parser("replay-validate", help="validate a replay artifact")
     replay.add_argument("path", metavar="PATH")
     replay.add_argument("--json", action="store_true")
+
+    csv_import = subcommands.add_parser("csv-import", help="import bounded self-timed CSV")
+    csv_import.add_argument("path", metavar="PATH")
+    csv_import.add_argument("--channels", metavar="D0,D1,...")
+    csv_import.add_argument("--sample-rate", type=int, metavar="HZ")
+    csv_import.add_argument("--trigger-channel", required=True, type=int, metavar="CHANNEL")
+    csv_import.add_argument("--edge", required=True, choices=("rising", "falling"))
+    csv_import.add_argument("--csv", required=True, metavar="PATH")
+    csv_import.add_argument("--replay", required=True, metavar="PATH")
+    csv_import.add_argument("--force", action="store_true")
 
     smoke = subcommands.add_parser(
         "hardware-smoke", help="run the opt-in capture hardware procedure"
@@ -143,6 +158,15 @@ def _info(arguments: argparse.Namespace) -> int:
     return 0
 
 
+def _channel_ids(value: str | None) -> tuple[int, ...] | None:
+    if value is None:
+        return None
+    try:
+        return tuple(int(channel) for channel in value.split(","))
+    except ValueError as exc:
+        raise ValueError("--channels must be comma-separated integer IDs") from exc
+
+
 def _capture_config(arguments: argparse.Namespace) -> CaptureConfig:
     channel_ids = tuple(range(8))
     if getattr(arguments, "channels", None) is not None:
@@ -163,6 +187,24 @@ def _capture_config(arguments: argparse.Namespace) -> CaptureConfig:
 def _capture(arguments: argparse.Namespace) -> int:
     result = V2DeviceService().capture(
         arguments.port, _capture_config(arguments), _timeout(arguments.timeout)
+    )
+    write_capture_outputs(
+        result, Path(arguments.csv), Path(arguments.replay), force=arguments.force
+    )
+    return 0
+
+
+def _csv_import(arguments: argparse.Namespace) -> int:
+    try:
+        source = Path(arguments.path).read_bytes()
+    except OSError as exc:
+        raise OutputError(f"could not read CSV input: {exc}") from exc
+    result = import_csv_bytes(
+        source,
+        channel_ids=_channel_ids(arguments.channels),
+        sample_rate_hz=arguments.sample_rate,
+        trigger_channel=arguments.trigger_channel,
+        trigger_edge=arguments.edge,
     )
     write_capture_outputs(
         result, Path(arguments.csv), Path(arguments.replay), force=arguments.force
@@ -358,6 +400,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             return _info(arguments)
         if arguments.command == "capture":
             return _capture(arguments)
+        if arguments.command == "csv-import":
+            return _csv_import(arguments)
         if arguments.command == "replay-validate":
             return _replay_validate(arguments)
         if arguments.command == "web":
@@ -382,7 +426,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"pico-la: {exc}", file=sys.stderr)
         return (
             EXIT_VALIDATION
-            if arguments.command in {"replay-validate", "hardware-smoke", "hardware-recovery-smoke"}
+            if arguments.command
+            in {"csv-import", "replay-validate", "hardware-smoke", "hardware-recovery-smoke"}
             else EXIT_CONNECTION
         )
     except ConnectionError as exc:

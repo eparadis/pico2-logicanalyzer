@@ -6,6 +6,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from pico_logic_analyzer.cli import main as cli
 from pico_logic_analyzer.driver import V2DeviceService
 from pico_logic_analyzer.formats import csv_bytes, import_csv_bytes, load_replay, replay_bytes
 from pico_logic_analyzer.model import (
@@ -115,6 +116,88 @@ def test_general_csv_never_infers_ids_from_labels() -> None:
             trigger_channel=8,
             trigger_edge="rising",
         )
+
+
+def test_legacy_csv_infers_unique_integer_rate() -> None:
+    data = (
+        b"sample_index,time_seconds,trigger,D0,D1,D2,D3,D4,D5,D6,D7\n"
+        b"0,-0.01,0,0,0,0,0,0,0,0,0\n"
+        b"1,0,1,1,0,0,0,0,0,0,0\n"
+        b"2,0.01,0,0,0,0,0,0,0,0,0\n"
+    )
+    result = import_csv_bytes(
+        data,
+        channel_ids=None,
+        sample_rate_hz=None,
+        trigger_channel=0,
+        trigger_edge="rising",
+    )
+    assert result.config.sample_rate_hz == 100 and csv_bytes(result) == data
+
+
+def test_legacy_csv_rejects_ambiguous_or_missing_rate() -> None:
+    header = b"sample_index,time_seconds,trigger,D0,D1,D2,D3,D4,D5,D6,D7\n"
+    ambiguous = (
+        header
+        + b"0,-0.01,0,0,0,0,0,0,0,0,0\n"
+        + b"1,0,1,0,0,0,0,0,0,0,0\n"
+        + b"2,0.009,0,0,0,0,0,0,0,0,0\n"
+    )
+    one_row = header + b"0,0,1,0,0,0,0,0,0,0,0\n"
+    for data in (ambiguous, one_row):
+        with pytest.raises(ProtocolError):
+            import_csv_bytes(
+                data,
+                channel_ids=None,
+                sample_rate_hz=None,
+                trigger_channel=0,
+                trigger_edge="rising",
+            )
+
+
+def test_legacy_csv_rate_inference_uses_exact_decimal_canonical_times() -> None:
+    data = (
+        b"sample_index,time_seconds,trigger,D0,D1,D2,D3,D4,D5,D6,D7\n"
+        b"0,-0.333333333333,0,0,0,0,0,0,0,0,0\n"
+        b"1,0,1,0,0,0,0,0,0,0,0\n"
+        b"2,0.333333333333,0,0,0,0,0,0,0,0,0\n"
+    )
+    result = import_csv_bytes(
+        data,
+        channel_ids=None,
+        sample_rate_hz=None,
+        trigger_channel=0,
+        trigger_edge="rising",
+    )
+    assert result.config.sample_rate_hz == 3
+
+
+def test_cli_csv_import_preserves_explicit_paths(tmp_path: Path) -> None:
+    source = tmp_path / "input.csv"
+    output, replay = tmp_path / "output.csv", tmp_path / "output.npz"
+    source.write_bytes(
+        b"sample_index,time_seconds,trigger,D8,D0\n0,0,1,1,0\n1,0.01,0,0,1\n"
+    )
+    assert cli.main(
+        [
+            "csv-import", str(source), "--channels", "8,0", "--sample-rate", "100",
+            "--trigger-channel", "8", "--edge", "rising", "--csv", str(output),
+            "--replay", str(replay),
+        ]
+    ) == 0
+    assert output.read_bytes() == source.read_bytes() and load_replay(replay)[0].tolist() == [1, 2]
+
+
+def test_cli_csv_import_maps_invalid_metadata_to_validation_exit(tmp_path: Path) -> None:
+    source = tmp_path / "input.csv"
+    source.write_bytes(b"sample_index,time_seconds,trigger,D8\n0,0,1,1\n")
+    assert cli.main(
+        [
+            "csv-import", str(source), "--sample-rate", "100", "--trigger-channel", "8",
+            "--edge", "rising", "--csv", str(tmp_path / "output.csv"), "--replay",
+            str(tmp_path / "output.npz"),
+        ]
+    ) == 5
 
 
 def test_schema2_replay_round_trips_wider_words(tmp_path: Path) -> None:

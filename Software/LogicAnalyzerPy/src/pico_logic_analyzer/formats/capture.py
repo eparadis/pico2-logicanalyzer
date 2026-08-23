@@ -8,6 +8,7 @@ import json
 import os
 import re
 import tempfile
+from decimal import Decimal, DecimalException, InvalidOperation
 from pathlib import Path
 
 import numpy as np
@@ -29,6 +30,41 @@ class OutputError(OSError):
 
 _TIME = re.compile(r"-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?$")
 _CSV_PREFIX = ("sample_index", "time_seconds", "trigger")
+_MAX_SAMPLE_RATE_HZ = 0xFFFFFFFF
+
+
+def _canonical_time(index: int, trigger_index: int, sample_rate_hz: int) -> Decimal:
+    """Return the exact decimal represented by the frozen CSV formatter."""
+    return Decimal(format((index - trigger_index) / sample_rate_hz, ".12g"))
+
+
+def _infer_legacy_sample_rate(times: list[Decimal], trigger_index: int) -> int:
+    """Infer only a unique rate which recreates every legacy time cell."""
+    candidates: set[int] = set()
+    try:
+        for index, time_value in enumerate(times):
+            if index == trigger_index:
+                continue
+            if time_value == 0:
+                raise ProtocolError("CSV time does not identify a sample rate")
+            candidate = int(
+                (Decimal(abs(index - trigger_index)) / abs(time_value)).to_integral_value()
+            )
+            if 0 < candidate <= _MAX_SAMPLE_RATE_HZ:
+                candidates.add(candidate)
+    except DecimalException as exc:
+        raise ProtocolError("CSV time does not identify a sample rate") from exc
+    matches = {
+        candidate
+        for candidate in candidates
+        if all(
+            time_value == _canonical_time(index, trigger_index, candidate)
+            for index, time_value in enumerate(times)
+        )
+    }
+    if len(matches) != 1:
+        raise ProtocolError("CSV sample rate is ambiguous")
+    return matches.pop()
 
 
 def import_csv_bytes(
@@ -60,19 +96,12 @@ def import_csv_bytes(
         if not legacy:
             raise ProtocolError("CSV channel ids must be supplied explicitly")
         channel_ids = tuple(range(8))
-    if sample_rate_hz is None:
-        raise ProtocolError("CSV sample rate must be supplied explicitly")
-    try:
-        CaptureConfig(
-            sample_rate_hz, 0, 1, trigger_channel, trigger_edge, channel_ids
-        )
-    except ValidationError as exc:
-        raise ProtocolError("invalid CSV import metadata") from exc
     if len(labels) != len(channel_ids) or len(set(labels)) != len(labels):
         raise ProtocolError("invalid CSV channel labels")
     if any(type(label) is not str or not label or len(label) > 128 for label in labels):
         raise ProtocolError("invalid CSV channel labels")
     trigger_index: int | None = None
+    parsed_times: list[Decimal] = []
     words: list[int] = []
     for index, row in enumerate(rows[1:]):
         if len(row) != len(rows[0]) or row[0] != str(index) or row[2] not in {"0", "1"}:
@@ -80,11 +109,12 @@ def import_csv_bytes(
         if _TIME.fullmatch(row[1]) is None:
             raise ProtocolError("invalid CSV time")
         try:
-            time_value = float(row[1])
-        except ValueError as exc:  # regex has already excluded NaN/inf
+            time_value = Decimal(row[1])
+        except InvalidOperation as exc:
             raise ProtocolError("invalid CSV time") from exc
-        if not np.isfinite(time_value):
+        if not time_value.is_finite():
             raise ProtocolError("invalid CSV time")
+        parsed_times.append(time_value)
         if row[2] == "1":
             if trigger_index is not None:
                 raise ProtocolError("CSV must contain one trigger row")
@@ -97,8 +127,12 @@ def import_csv_bytes(
         words.append(value)
     if trigger_index is None or rows[trigger_index + 1][1] != "0":
         raise ProtocolError("CSV trigger time must be zero")
+    if sample_rate_hz is None:
+        if not legacy or len(words) < 2:
+            raise ProtocolError("CSV sample rate must be supplied explicitly")
+        sample_rate_hz = _infer_legacy_sample_rate(parsed_times, trigger_index)
     for index, row in enumerate(rows[1:]):
-        if row[1] != format((index - trigger_index) / sample_rate_hz, ".12g"):
+        if parsed_times[index] != _canonical_time(index, trigger_index, sample_rate_hz):
             raise ProtocolError("CSV time does not match sample rate")
     try:
         config = CaptureConfig(

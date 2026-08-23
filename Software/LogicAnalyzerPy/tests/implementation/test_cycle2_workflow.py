@@ -46,7 +46,7 @@ def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:
         "python -m pip check",
         "python -m ruff check .",
         "python -m mypy src",
-        'python -m pytest -m "not hardware"',
+        'python -m pytest -m "not hardware" --tb=short --disable-warnings',
         "workflow sanitizer self-test failed",
         "requirements-web.lock",
         "npm ci --no-audit --no-fund",
@@ -59,3 +59,4 @@ def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:
         "npm run test:browser",
     )
     assert all(fragment in text for fragment in required)
+    assert text.count("--tb=short --disable-warnings") == 1

@@ -308,3 +308,45 @@ accepted evidence remain unchanged.
   hardware, electrical, mapping, firmware-identity, idle-input, and explicit
   serial-port confirmation required by the governing contracts. No physical
   I/O is authorized before that confirmation.
+
+## C2-B3: Physical byte-boundary capture gate
+
+- State: Pending
+- Selected: 2026-08-23 (America/Los_Angeles)
+- Selection HEAD: `4919c52432e76070c2b65c579466a53dcb769fc9`
+- Selection tree: `4dd57406c729032b692b52f16411d231802ffe15`
+- Objective: prove genuine protected Pico 2 normal captures through the 8-, 16-,
+  and 24-bit byte boundaries while retaining the accepted Cycle 1 identity,
+  recovery, reopen, and second-capture paths without a power cycle.
+- Prerequisite present: C2-B2 checkpoint complete; manifest
+  `testdata/evidence/c2-b2.json` strictly validates with SHA-256
+  `6e3a42fa4955e17c39a3c13fe09613327d21b572696fd3ecd69d485a3bd21b2a`.
+- Missing operator prerequisite: explicit serial port; current Raspberry Pi
+  Pico 2 and fixed checked-in V2 firmware identity built with
+  `BOARD_TYPE=BOARD_PICO_2`; integrated LogicAnalyzerV2 protection, 3.3 V
+  VRef, and common ground; exact D0, D8, D16, and D23 labels/mapping and input
+  direction; confirmation that the approximately 1 kHz 3.3 V source can safely
+  fan out to those four high-impedance analyzer inputs; and D1/GPIO3 fixed low
+  at analyzer ground or another explicit fixed-level idle input for recovery.
+- Implementation agent: `cycle2-implementor-replacement-4`
+- Verification agent: `cycle2-verifier-replacement-2`
+- Acceptance agent: `cycle2-acceptance-replacement-1`
+- In scope after confirmation: accepted Cycle 1 identity/recovery regression;
+  simultaneous protected-source captures of D0-D7, D0-D15, and D0-D23;
+  independently checked masks, dtypes, counts, timing, activity, zero upper
+  byte, artifacts, reopen, and reuse.
+- Out of scope: firmware changes or flashing, bootloader entry, probing unknown
+  pins, requiring floating inputs to remain zero, browser UI, other capture
+  modes, performance-limit exploration, persistent-state change, and Cycle 3.
+- Ownership: implementor owns bounded physical capture execution and sanitized
+  implementation evidence after confirmation; verifier owns independent raw
+  artifact checks and immutable review records; acceptance owns immutable
+  acceptance records; orchestrator owns operator confirmation, accumulated
+  validation, manifest, and checkpoint.
+- Authority note: no serial open, device request, wiring transition, capture,
+  cancellation, or other physical I/O is authorized until every missing
+  operator prerequisite above is explicitly confirmed. Port and capability
+  values must be sanitized in committed evidence.
+- Independent later-batch work cannot advance because C2-B4 requires accepted
+  B2 schemas plus the B3 physical artifacts. No later-batch implementation is
+  started while this prerequisite is pending.

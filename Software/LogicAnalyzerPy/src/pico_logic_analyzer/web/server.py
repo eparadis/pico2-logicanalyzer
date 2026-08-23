@@ -23,9 +23,11 @@ from pico_logic_analyzer.model import CaptureResult, ProtocolError, ValidationEr
 
 ASSET_ROOT = Path(__file__).with_name("assets")
 COOKIE = "pico_la_capability"
-MAX_REQUEST_BYTES = 4 * 1024 * 1024
-# Schema-2 permits a 2 MiB archive; multipart framing and metadata have headroom.
-MAX_UPLOAD_BYTES = 3 * 1024 * 1024
+# Schema-1 replay compatibility permits a 32 MiB archive.  The aggregate
+# multipart budget reserves finite framing/metadata headroom without relaxing
+# the separate replay member or JSON metadata bounds.
+MAX_UPLOAD_BYTES = 33 * 1024 * 1024
+MAX_REQUEST_BYTES = 34 * 1024 * 1024
 MAX_WINDOW_SAMPLES = 100_000
 MAX_PIXEL_WIDTH = 4096
 MAX_BUS_ROWS = 10_000
@@ -325,14 +327,9 @@ def create_app(host: str, port: int) -> web.Application:
             # This deliberately precedes multipart consumption: a conflicting
             # upload is rejected without allocating or reading its body.
             return _error(409, "operation_conflict")
-        parsed = await _multipart_import(request)
-        if parsed is None:
-            return _error(400, "invalid_multipart")
-        if len(parsed) == 2:  # compatibility with direct focused handler fixtures
-            artifact, metadata = parsed
-            media_type = "application/x-pico-la-replay" if metadata is None else "text/csv"
-        else:
-            artifact, metadata, media_type = parsed
+        # There is no await between conflict inspection and this reservation;
+        # concurrent first uploads therefore have one deterministic owner
+        # before either can cause multipart parsing or body allocation.
         operation = {
             "operation_id": f"op-{app['next_operation']}",
             "state": "pending",
@@ -342,7 +339,17 @@ def create_app(host: str, port: int) -> web.Application:
         app["operation"] = operation
         cancelled = asyncio.Event()
         app["operation_cancel"] = cancelled
-
+        parsed = await _multipart_import(request)
+        if parsed is None:
+            if app["operation"] is operation:
+                app["operation"] = None
+                app["operation_cancel"] = None
+            return _error(400, "invalid_multipart")
+        if len(parsed) == 2:  # compatibility with direct focused handler fixtures
+            artifact, metadata = parsed
+            media_type = "application/x-pico-la-replay" if metadata is None else "text/csv"
+        else:
+            artifact, metadata, media_type = parsed
         async def run_import() -> None:
             try:
                 # Guarantee a pollable pending state before offline CPU work.

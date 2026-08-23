@@ -210,3 +210,14 @@ accepted evidence remain unchanged.
   candidate and may rely on the prior immutable record only as finding
   provenance, not as transferred acceptance.
 - Implementation and acceptance identities remain distinct.
+
+### C2-B2 second verifier identity change
+
+- Prior identity: `cycle2-verifier-replacement-1`
+- New replacement identity: `cycle2-verifier-replacement-2`
+- Reason: the first replacement became unavailable after leaving an
+  uncommitted round-two review record without a compact verdict handoff.
+- Lane/model/reasoning preserved: Verifier, `gpt-5.6-sol`, low.
+- The new replacement must independently reconcile the exact candidate and the
+  uncommitted record; the record is not accepted merely because it exists.
+- Implementation and acceptance identities remain distinct.

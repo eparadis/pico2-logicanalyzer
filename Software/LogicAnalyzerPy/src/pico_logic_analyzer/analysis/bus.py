@@ -7,6 +7,7 @@ import io
 from dataclasses import asdict, dataclass
 
 import numpy as np
+from numpy.typing import NDArray
 
 from pico_logic_analyzer.model import CaptureResult, ValidationError
 
@@ -41,7 +42,7 @@ def _validate(result: CaptureResult, channels: tuple[int, ...], strobe: int | No
         raise ValidationError("strobe must be a distinct captured channel")
 
 
-def _values(result: CaptureResult, channels: tuple[int, ...]) -> np.ndarray:
+def _values(result: CaptureResult, channels: tuple[int, ...]) -> NDArray[np.uint32]:
     values = np.zeros(len(result.samples), dtype=np.uint32)
     words = result.samples.astype(np.uint32, copy=False)
     for output_bit, channel in enumerate(channels):
@@ -60,7 +61,7 @@ def _time(result: CaptureResult, index: int) -> str:
 
 
 def _row(
-    result: CaptureResult, values: np.ndarray, width: int, index: int, end: int | None
+    result: CaptureResult, values: NDArray[np.uint32], width: int, index: int, end: int | None
 ) -> BusRow:
     value = int(values[index])
     binary, hexadecimal = _format(value, width)

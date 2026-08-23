@@ -11,16 +11,20 @@ from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import Final, Literal, cast
 
+import numpy as np
 from aiohttp import BodyPartReader, web
+from numpy.typing import NDArray
 
 from pico_logic_analyzer.analysis import bus_csv_bytes, sampled_rows, transition_rows
 from pico_logic_analyzer.formats.capture import import_csv_bytes
+from pico_logic_analyzer.formats.replay import import_replay_bytes
 from pico_logic_analyzer.model import CaptureResult, ProtocolError, ValidationError
 
 ASSET_ROOT = Path(__file__).with_name("assets")
 COOKIE = "pico_la_capability"
 MAX_REQUEST_BYTES = 1 << 20
-MAX_UPLOAD_BYTES = 1 << 20
+# Schema-2 permits a 2 MiB archive; multipart framing and metadata have headroom.
+MAX_UPLOAD_BYTES = 3 * 1024 * 1024
 MAX_WINDOW_SAMPLES = 100_000
 MAX_PIXEL_WIDTH = 4096
 MAX_BUS_ROWS = 10_000
@@ -112,6 +116,23 @@ def _channels_json(result: CaptureResult) -> dict[str, object]:
     }
 
 
+def _reduced_transitions(
+    bits: NDArray[np.uint8], start: int, end: int, pixels: int
+) -> list[dict[str, int]]:
+    """Keep endpoint state and first/last change in each pixel bucket."""
+    changes = np.flatnonzero(bits[start + 1 : end] != bits[start : end - 1]) + start + 1
+    width = end - start
+    selected = {start, end - 1}
+    for bucket in range(pixels):
+        low = start + (bucket * width) // pixels
+        high = start + ((bucket + 1) * width) // pixels
+        visible = changes[(changes >= low) & (changes < high)]
+        if len(visible):
+            selected.add(int(visible[0]))
+            selected.add(int(visible[-1]))
+    return [{"sample_index": index, "value": int(bits[index])} for index in sorted(selected)]
+
+
 def _parse_metadata(value: bytes) -> dict[str, object] | None:
     try:
         import json
@@ -142,14 +163,18 @@ def _integer(value: object) -> int:
     return value
 
 
-async def _multipart_import(request: web.Request) -> tuple[bytes, dict[str, object] | None] | None:
+async def _multipart_import(
+    request: web.Request,
+) -> tuple[bytes, dict[str, object] | None, str] | None:
     try:
         reader = await request.multipart()
         parts: dict[str, bytes] = {}
+        artifact_type: str | None = None
         while (part := await reader.next()) is not None:
             if not isinstance(part, BodyPartReader):
                 return None
-            if part.name not in {"artifact", "metadata"} or part.name in parts:
+            name = part.name
+            if not isinstance(name, str) or name not in {"artifact", "metadata"} or name in parts:
                 return None
             total = 0
             chunks: list[bytes] = []
@@ -158,17 +183,18 @@ async def _multipart_import(request: web.Request) -> tuple[bytes, dict[str, obje
                 if total > MAX_UPLOAD_BYTES:
                     return None
                 chunks.append(chunk)
-            parts[cast(str, part.name)] = b"".join(chunks)
-            if part.name == "artifact" and part.headers.get("Content-Type") not in {
-                "text/csv",
-                "application/x-pico-la-replay",
-            }:
+            parts[name] = b"".join(chunks)
+            if name == "artifact":
+                artifact_type = part.headers.get("Content-Type")
+                if artifact_type not in {"text/csv", "application/x-pico-la-replay"}:
+                    return None
+            if name == "metadata" and part.headers.get("Content-Type") != "application/json":
                 return None
-            if part.name == "metadata" and part.headers.get("Content-Type") != "application/json":
-                return None
-        if set(parts) != {"artifact", "metadata"}:
+        if set(parts) not in ({"artifact"}, {"artifact", "metadata"}) or artifact_type is None:
             return None
-        return parts["artifact"], _parse_metadata(parts["metadata"])
+        if artifact_type == "text/csv" and set(parts) != {"artifact", "metadata"}:
+            return None
+        return parts["artifact"], _parse_metadata(parts.get("metadata", b"")), artifact_type
     except (ValueError, web.HTTPException):
         return None
 
@@ -187,7 +213,8 @@ def create_app(host: str, port: int) -> web.Application:
         shutdown_requested=False,
         shutdown_event=asyncio.Event(),
         captures={},
-        operation={"operation_id": "op-1", "state": "succeeded"},
+        operation=None,
+        next_operation=1,
     )
 
     @web.middleware
@@ -241,31 +268,44 @@ def create_app(host: str, port: int) -> web.Application:
         parsed = await _multipart_import(request)
         if parsed is None:
             return _error(400, "invalid_multipart")
-        artifact, metadata = parsed
-        if metadata is None:
-            return _error(400, "invalid_metadata")
+        if len(parsed) == 2:  # compatibility with direct focused handler fixtures
+            artifact, metadata = parsed
+            media_type = "application/x-pico-la-replay" if metadata is None else "text/csv"
+        else:
+            artifact, metadata, media_type = parsed
+        current = app["operation"]
+        if current is not None and current["state"] in {"pending", "running", "cancelling"}:
+            return _error(409, "operation_conflict")
+        operation = {"operation_id": f"op-{app['next_operation']}", "state": "running"}
+        app["next_operation"] += 1
+        app["operation"] = operation
         try:
-            channel_ids = _channel_ids(metadata["channel_ids"])
-            sample_rate_hz = _integer(metadata["sample_rate_hz"])
-            trigger_channel = _integer(metadata["trigger_channel"])
-            trigger_edge = _edge(metadata["trigger_edge"])
-            result = import_csv_bytes(
-                artifact,
-                channel_ids=channel_ids,
-                sample_rate_hz=sample_rate_hz,
-                trigger_channel=trigger_channel,
-                trigger_edge=trigger_edge,
-            )
+            if media_type == "application/x-pico-la-replay":
+                result = import_replay_bytes(artifact)
+            else:
+                if metadata is None:
+                    return _error(400, "invalid_metadata")
+                result = import_csv_bytes(
+                    artifact,
+                    channel_ids=_channel_ids(metadata["channel_ids"]),
+                    sample_rate_hz=_integer(metadata["sample_rate_hz"]),
+                    trigger_channel=_integer(metadata["trigger_channel"]),
+                    trigger_edge=_edge(metadata["trigger_edge"]),
+                )
         except (ProtocolError, ValidationError, TypeError):
-            return _error(400, "invalid_import")
+            operation["state"] = "failed"
+            return _error(
+                422 if media_type == "application/x-pico-la-replay" else 400, "invalid_import"
+            )
         if len(app["captures"]) >= MAX_CAPTURES:
             return _error(409, "capture_limit")
         capture_id = f"c{len(app['captures']) + 1:08x}"
         app["captures"][capture_id] = result
+        operation["state"] = "succeeded"
         return web.json_response(_capture_json(result, capture_id), status=201)
 
     def capture(request: web.Request) -> CaptureResult | None:
-        return app["captures"].get(request.match_info["capture_id"])
+        return cast(dict[str, CaptureResult], app["captures"]).get(request.match_info["capture_id"])
 
     async def capture_metadata(request: web.Request) -> web.Response:
         result = capture(request)
@@ -304,16 +344,10 @@ def create_app(host: str, port: int) -> web.Application:
             or any(channel not in result.config.channel_ids for channel in ids)
         ):
             return _error(400, "invalid_window")
-        stride = max(1, (end - start + pixels - 1) // pixels)
         output = []
         for channel in ids:
             bits = result.channel_samples(channel)
-            points = [
-                {"sample_index": index, "value": int(bits[index])}
-                for index in range(start, end, stride)
-            ]
-            if points[-1]["sample_index"] != end - 1:
-                points.append({"sample_index": end - 1, "value": int(bits[end - 1])})
+            points = _reduced_transitions(bits, start, end, pixels)
             output.append({"channel_id": channel, "transitions": points})
         return web.json_response({"start": start, "end": end, "channels": output})
 
@@ -339,13 +373,16 @@ def create_app(host: str, port: int) -> web.Application:
                 or not 1 <= limit <= MAX_BUS_ROWS
             ):
                 raise ValueError
-            rows = (
-                transition_rows(result, ids)
-                if value["mode"] == "transition"
-                else sampled_rows(
+            if value["mode"] == "transition":
+                if value["strobe_channel"] is not None or value["edge"] is not None:
+                    raise ValueError
+                rows = transition_rows(result, ids)
+            elif value["mode"] == "sampled":
+                rows = sampled_rows(
                     result, ids, _integer(value["strobe_channel"]), _edge(value["edge"])
                 )
-            )
+            else:
+                raise ValueError
         except (ValueError, TypeError, ValidationError):
             return _error(400, "invalid_bus_request")
         page = rows[offset : offset + limit]
@@ -370,16 +407,19 @@ def create_app(host: str, port: int) -> web.Application:
             )
             if value is None:
                 raise ValueError
-            rows = (
-                transition_rows(result, _channel_ids(value["channel_ids"]))
-                if value["format"] == "bus-transition-csv"
-                else sampled_rows(
+            if value["format"] == "bus-transition-csv":
+                if value["strobe_channel"] is not None or value["edge"] is not None:
+                    raise ValueError
+                rows = transition_rows(result, _channel_ids(value["channel_ids"]))
+            elif value["format"] == "bus-sampled-csv":
+                rows = sampled_rows(
                     result,
                     _channel_ids(value["channel_ids"]),
                     _integer(value["strobe_channel"]),
                     _edge(value["edge"]),
                 )
-            )
+            else:
+                raise ValueError
         except (ValueError, TypeError, ValidationError):
             return _error(400, "invalid_export_request")
         return web.Response(
@@ -392,21 +432,23 @@ def create_app(host: str, port: int) -> web.Application:
         )
 
     async def operation(request: web.Request) -> web.Response:
+        current = app["operation"]
         return (
             _error(404, "not_found")
-            if request.match_info["operation_id"] != app["operation"]["operation_id"]
-            else web.json_response(app["operation"])
+            if current is None or request.match_info["operation_id"] != current["operation_id"]
+            else web.json_response(current)
         )
 
     async def cancel(request: web.Request) -> web.Response:
         if (denied := mutation(request)) is not None:
             return denied
-        if request.match_info["operation_id"] != app["operation"]["operation_id"]:
+        current = app["operation"]
+        if current is None or request.match_info["operation_id"] != current["operation_id"]:
             return _error(404, "not_found")
-        if app["operation"]["state"] in {"succeeded", "failed", "cancelled"}:
+        if current["state"] in {"succeeded", "failed", "cancelled"}:
             return _error(409, "operation_terminal")
-        app["operation"]["state"] = "cancelled"
-        return web.json_response(app["operation"])
+        current["state"] = "cancelled"
+        return web.json_response(current)
 
     async def shutdown(request: web.Request) -> web.Response:
         if (denied := mutation(request)) is not None:

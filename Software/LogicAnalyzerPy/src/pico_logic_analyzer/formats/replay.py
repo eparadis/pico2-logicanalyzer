@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import io
 import json
 import zipfile
 from pathlib import Path
@@ -10,6 +11,7 @@ from numpy.typing import NDArray
 
 from pico_logic_analyzer.model.capture import (
     CaptureConfig,
+    CaptureResult,
     DeviceInfo,
     ProtocolError,
     ValidationError,
@@ -42,21 +44,28 @@ def _validate_npy_header(archive: zipfile.ZipFile, name: str) -> None:
     ):
         raise ProtocolError("invalid replay NPY dtype or rank")
     count = shape[0]
-    if not isinstance(count, int) or count < 0 or (
-        name == "samples.npy" and count > _SCHEMA1_SAMPLE_LIMIT
+    if (
+        not isinstance(count, int)
+        or count < 0
+        or (name == "samples.npy" and count > _SCHEMA1_SAMPLE_LIMIT)
     ):
         raise ProtocolError("invalid replay NPY count")
 
 
 def load_replay(path: Path) -> tuple[NDArray[Any], dict[str, object]]:
     try:
-        archive_size = path.stat().st_size
+        return load_replay_bytes(path.read_bytes())
     except OSError as exc:
         raise ProtocolError("cannot read replay archive") from exc
+
+
+def load_replay_bytes(data: bytes) -> tuple[NDArray[Any], dict[str, object]]:
+    """Load a bounded inert replay from request bytes without a temporary file."""
+    archive_size = len(data)
     if archive_size > 2 * 1024 * 1024:
         raise ProtocolError("replay archive too large")
     try:
-        archive = zipfile.ZipFile(path)
+        archive = zipfile.ZipFile(io.BytesIO(data))
     except (OSError, zipfile.BadZipFile) as exc:
         raise ProtocolError("invalid replay archive") from exc
     with archive:
@@ -77,7 +86,7 @@ def load_replay(path: Path) -> tuple[NDArray[Any], dict[str, object]]:
         _validate_npy_header(archive, "samples.npy")
         _validate_npy_header(archive, "metadata.npy")
         try:
-            with np.load(path, allow_pickle=False) as payload:
+            with np.load(io.BytesIO(data), allow_pickle=False) as payload:
                 samples = payload["samples"]
                 metadata_bytes = payload["metadata"]
         except (ValueError, TypeError, KeyError, OSError) as exc:
@@ -200,6 +209,38 @@ def load_replay(path: Path) -> tuple[NDArray[Any], dict[str, object]]:
     ):
         raise ProtocolError("inconsistent replay counts")
     return samples, metadata
+
+
+def import_replay_bytes(data: bytes) -> CaptureResult:
+    """Turn a validated schema-1/schema-2 container into the shared capture model."""
+    samples, metadata = load_replay_bytes(data)
+    try:
+        values = cast(dict[str, Any], metadata)
+        config = CaptureConfig(
+            values["sample_rate_hz"],
+            values["pre_trigger_samples"],
+            values["post_trigger_samples"],
+            values["trigger_channel"],
+            values["trigger_edge"],
+            tuple(values["channel_ids"]),
+        )
+        capabilities = values["device"]["capabilities"]
+        device = DeviceInfo(
+            values["device"]["identity"],
+            capabilities["max_frequency_hz"],
+            capabilities["blast_frequency_hz"],
+            capabilities["buffer_size"],
+            capabilities["channel_count"],
+        )
+        return CaptureResult(
+            config,
+            samples,
+            device,
+            tuple(values["channel_labels"]),
+            tuple(values["channel_mapping"]),
+        )
+    except (KeyError, TypeError, ValidationError) as exc:
+        raise ProtocolError("invalid replay capture") from exc
 
 
 def _load_schema2(

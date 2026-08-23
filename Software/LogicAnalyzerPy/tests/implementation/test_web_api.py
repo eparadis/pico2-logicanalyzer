@@ -55,12 +55,18 @@ async def _exercise() -> None:
                 "limit": 10,
             },
         )
-        assert bus.status == 200 and (await bus.json())["total"] == 2
+        bus_payload = await bus.json()
+        assert bus.status == 200
+        assert [(row["sample_index"], row["decimal"]) for row in bus_payload["rows"]] == [
+            (0, 0),
+            (1, 1),
+            (2, 3),
+        ]
         wave = await client.get(
             f"/api/v1/captures/{capture_id}/waveform?start=0&end=3&channel_ids=0&pixel_width=1",
             headers={"Host": host},
         )
-        assert wave.status == 200 and len((await wave.json())["channels"][0]["transitions"]) == 2
+        assert wave.status == 200 and len((await wave.json())["channels"][0]["transitions"]) == 3
         exported = await client.post(
             f"/api/v1/captures/{capture_id}/exports",
             headers=headers,

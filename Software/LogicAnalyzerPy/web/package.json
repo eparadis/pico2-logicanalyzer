@@ -9,8 +9,10 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "build": "vite build",
-    "test:browser": "playwright test --config=playwright.config.ts tests/verification-b5-round1.spec.ts && playwright test --config=playwright.config.ts tests/shell.spec.ts",
-    "benchmark": "B5_BENCHMARK=1 playwright test --config=playwright.config.ts tests/performance.spec.ts"
+    "test:browser": "playwright test --config=playwright.config.ts tests/verification-b5-round1.spec.ts && playwright test --config=playwright.config.ts tests/b6-live.spec.ts tests/shell.spec.ts",
+    "benchmark": "B5_BENCHMARK=1 playwright test --config=playwright.config.ts tests/performance.spec.ts",
+    "benchmark:b6": "playwright test --config=playwright.b6-performance.config.ts tests/b6-performance.spec.ts",
+    "test:native": "playwright test --config=playwright.native.config.ts tests/b6-native.spec.ts"
   },
   "dependencies": {"@vitejs/plugin-react": "4.3.4", "react": "18.3.1", "react-dom": "18.3.1", "typescript": "5.7.3", "vite": "6.1.0"},
   "devDependencies": {"@eslint/js": "9.19.0", "@playwright/test": "1.50.1", "@types/react": "19.0.8", "@types/react-dom": "19.0.3", "eslint": "9.19.0", "typescript-eslint": "8.24.0", "vitest": "3.0.5"}

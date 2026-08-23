@@ -106,6 +106,11 @@ def _parser() -> argparse.ArgumentParser:
     web = subcommands.add_parser("web", help="start the loopback-only offline web shell")
     web.add_argument("--host", default="127.0.0.1", metavar="LOOPBACK_ADDRESS")
     web.add_argument("--port", default=4173, type=int, metavar="PORT")
+    web.add_argument(
+        "--device-port",
+        metavar="PORT",
+        help="explicit serial port for live capture (never exposed to the browser)",
+    )
     return parser
 
 
@@ -391,7 +396,14 @@ def _web(arguments: argparse.Namespace) -> int:
             )
             return EXIT_USAGE
         raise
-    return run(arguments.host, arguments.port)
+    environment_port = os.environ.get("PICO_LA_DEVICE_PORT")
+    if arguments.device_port and environment_port and arguments.device_port != environment_port:
+        raise ValueError("conflicting explicit device ports")
+    return run(
+        arguments.host,
+        arguments.port,
+        device_port=arguments.device_port or environment_port,
+    )
 
 
 def main(argv: Sequence[str] | None = None) -> int:

@@ -1,6 +1,7 @@
 import type {
   BusPage, BusRequest, CaptureMetadata, Channel, ExportRequest, Operation, WaveformWindow,
 } from "./api.generated";
+import type { DeviceInfo, LiveCaptureRequest } from "./api.b6.generated";
 
 export class ApiError extends Error {
   constructor(readonly status: number, message: string) { super(message); }
@@ -21,6 +22,10 @@ const request = (input: RequestInfo | URL, init: RequestInit = {}): Promise<Resp
 
 export const api = {
   health: (): Promise<{ status: "ready"; api_version: "v1" }> => json(request("/api/v1/readiness")),
+  identify: (): Promise<DeviceInfo> => json(request("/api/v1/device/identify", { method: "POST" })),
+  reconnectDevice: (): Promise<DeviceInfo> => json(request("/api/v1/device/reconnect", { method: "POST" })),
+  liveCapture: (body: LiveCaptureRequest): Promise<Operation> =>
+    json(request("/api/v1/device/captures", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })),
   import: (artifact: File, metadata?: object, signal?: AbortSignal): Promise<Operation> => {
     const csv = artifact.type === "text/csv" || artifact.name.toLowerCase().endsWith(".csv");
     const safeArtifact = new File([artifact], artifact.name.slice(0, 128), {

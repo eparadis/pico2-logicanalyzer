@@ -1,0 +1,732 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Pico Logic Analyzer local API",
+    "version": "v1"
+  },
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Ready"
+          }
+        }
+      }
+    },
+    "/api/v1/readiness": {
+      "get": {
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Ready"
+          }
+        }
+      }
+    },
+    "/api/v1/imports": {
+      "post": {
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "artifact"
+                ],
+                "properties": {
+                  "artifact": {
+                    "type": "string",
+                    "format": "binary",
+                    "maxLength": 34603008
+                  },
+                  "metadata": {
+                    "type": "string",
+                    "contentMediaType": "application/json",
+                    "maxLength": 65536
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/Operation"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error"
+          },
+          "422": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/device/identify": {
+      "post": {
+        "requestBody": {"required": false, "content": {"application/json": {"schema": {"type": "object", "additionalProperties": false, "required": [], "properties": {}}}}},
+        "responses": {"200": {"$ref": "#/components/responses/Device"}, "400": {"$ref": "#/components/responses/Error"}, "403": {"$ref": "#/components/responses/Error"}, "409": {"$ref": "#/components/responses/Error"}, "503": {"$ref": "#/components/responses/Error"}}
+      }
+    },
+    "/api/v1/device/reconnect": {
+      "post": {
+        "requestBody": {"required": false, "content": {"application/json": {"schema": {"type": "object", "additionalProperties": false, "required": [], "properties": {}}}}},
+        "responses": {"200": {"$ref": "#/components/responses/Device"}, "400": {"$ref": "#/components/responses/Error"}, "403": {"$ref": "#/components/responses/Error"}, "409": {"$ref": "#/components/responses/Error"}, "503": {"$ref": "#/components/responses/Error"}}
+      }
+    },
+    "/api/v1/device/captures": {
+      "post": {
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/LiveCaptureRequest"}}}},
+        "responses": {"202": {"$ref": "#/components/responses/Operation"}, "400": {"$ref": "#/components/responses/Error"}, "403": {"$ref": "#/components/responses/Error"}, "409": {"$ref": "#/components/responses/Error"}}
+      }
+    },
+    "/api/v1/captures/{capture_id}": {
+      "get": {
+        "parameters": [{"name": "capture_id", "in": "path", "required": true, "schema": {"type": "string", "maxLength": 32}}],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Capture"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/captures/{capture_id}/channels": {
+      "get": {
+        "parameters": [{"name": "capture_id", "in": "path", "required": true, "schema": {"type": "string", "maxLength": 32}}],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Channels"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/captures/{capture_id}/waveform": {
+      "get": {
+        "parameters": [{"name": "capture_id", "in": "path", "required": true, "schema": {"type": "string", "maxLength": 32}}],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Waveform"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/captures/{capture_id}/bus": {
+      "post": {
+        "parameters": [{"name": "capture_id", "in": "path", "required": true, "schema": {"type": "string", "maxLength": 32}}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BusRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/BusPage"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/captures/{capture_id}/exports": {
+      "post": {
+        "parameters": [{"name": "capture_id", "in": "path", "required": true, "schema": {"type": "string", "maxLength": 32}}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExportRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Csv"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/operations/{operation_id}": {
+      "get": {
+        "parameters": [{"name": "operation_id", "in": "path", "required": true, "schema": {"type": "string", "maxLength": 32}}],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Operation"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/operations/{operation_id}/cancel": {
+      "post": {
+        "parameters": [{"name": "operation_id", "in": "path", "required": true, "schema": {"type": "string", "maxLength": 32}}],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [],
+                "properties": {}
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Operation"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/shutdown": {
+      "post": {
+        "responses": {
+          "204": {
+            "description": "shutdown"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "responses": {
+      "Error": {
+        "description": "redacted",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Ready": {
+        "description": "ready",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Ready"
+            }
+          }
+        }
+      },
+      "Capture": {
+        "description": "capture",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/CaptureMetadata"
+            }
+          }
+        }
+      },
+      "Channels": {
+        "description": "channels",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Channels"
+            }
+          }
+        }
+      },
+      "Waveform": {
+        "description": "waveform",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/WaveformWindow"
+            }
+          }
+        }
+      },
+      "BusPage": {
+        "description": "bus",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/BusPage"
+            }
+          }
+        }
+      },
+      "Csv": {
+        "description": "csv",
+        "content": {
+          "text/csv": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        }
+      },
+      "Operation": {
+        "description": "operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Operation"
+            }
+          }
+        }
+      },
+      "Device": {
+        "description": "sanitized device capabilities",
+        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/DeviceInfo"}}}
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "code",
+              "message"
+            ],
+            "properties": {
+              "code": {
+                "type": "string",
+                "maxLength": 64
+              },
+              "message": {
+                "type": "string",
+                "maxLength": 64
+              }
+            }
+          }
+        }
+      },
+      "Ready": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status",
+          "api_version"
+        ],
+        "properties": {
+          "status": {
+            "const": "ready"
+          },
+          "api_version": {
+            "const": "v1"
+          }
+        }
+      },
+      "CaptureMetadata": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "capture_id",
+          "sample_count",
+          "sample_rate_hz",
+          "trigger_index",
+          "trigger_channel",
+          "trigger_edge",
+          "channel_ids"
+        ],
+        "properties": {
+          "capture_id": {
+            "type": "string"
+          },
+          "sample_count": {
+            "type": "integer"
+          },
+          "sample_rate_hz": {
+            "type": "integer"
+          },
+          "trigger_index": {
+            "type": "integer"
+          },
+          "trigger_channel": {
+            "type": "integer"
+          },
+          "trigger_edge": {
+            "enum": [
+              "rising",
+              "falling"
+            ]
+          },
+          "channel_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "DeviceInfo": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["device_id", "connected", "max_frequency_hz", "blast_frequency_hz", "buffer_size", "channel_count"],
+        "properties": {
+          "device_id": {"type": "string", "maxLength": 32},
+          "connected": {"type": "boolean"},
+          "max_frequency_hz": {"type": "integer"},
+          "blast_frequency_hz": {"type": "integer"},
+          "buffer_size": {"type": "integer"},
+          "channel_count": {"type": "integer"}
+        }
+      },
+      "LiveCaptureRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["sample_rate_hz", "pre_trigger_samples", "post_trigger_samples", "trigger_channel", "trigger_edge", "channel_ids", "timeout_seconds"],
+        "properties": {
+          "sample_rate_hz": {"type": "integer"},
+          "pre_trigger_samples": {"type": "integer"},
+          "post_trigger_samples": {"type": "integer"},
+          "trigger_channel": {"type": "integer"},
+          "trigger_edge": {"enum": ["rising", "falling"]},
+          "channel_ids": {"type": "array", "items": {"type": "integer"}},
+          "timeout_seconds": {"type": "number"}
+        }
+      },
+      "Channel": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "channel_id",
+          "label",
+          "packed_position"
+        ],
+        "properties": {
+          "channel_id": {
+            "type": "integer"
+          },
+          "label": {
+            "type": "string"
+          },
+          "packed_position": {
+            "type": "integer"
+          }
+        }
+      },
+      "Channels": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "channels"
+        ],
+        "properties": {
+          "channels": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Channel"
+            }
+          }
+        }
+      },
+      "WaveformWindow": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "start",
+          "end",
+          "channels"
+        ],
+        "properties": {
+          "start": {
+            "type": "integer"
+          },
+          "end": {
+            "type": "integer"
+          },
+          "channels": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "channel_id",
+                "transitions"
+              ],
+              "properties": {
+                "channel_id": {
+                  "type": "integer"
+                },
+                "transitions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "sample_index",
+                      "value"
+                    ],
+                    "properties": {
+                      "sample_index": {
+                        "type": "integer"
+                      },
+                      "value": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "BusRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mode",
+          "channel_ids",
+          "strobe_channel",
+          "edge",
+          "offset",
+          "limit"
+        ],
+        "properties": {
+          "mode": {
+            "enum": [
+              "transition",
+              "sampled"
+            ]
+          },
+          "channel_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "strobe_channel": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "edge": {
+            "enum": [
+              "rising",
+              "falling",
+              null
+            ]
+          },
+          "offset": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 10000
+          }
+        }
+      },
+      "BusPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "rows",
+          "offset",
+          "total",
+          "next_offset"
+        ],
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "sample_index",
+                "time_seconds",
+                "binary",
+                "hexadecimal",
+                "decimal",
+                "end_sample_index",
+                "end_time_seconds",
+                "duration_seconds"
+              ],
+              "properties": {
+                "sample_index": {
+                  "type": "integer"
+                },
+                "time_seconds": {
+                  "type": "string"
+                },
+                "binary": {
+                  "type": "string"
+                },
+                "hexadecimal": {
+                  "type": "string"
+                },
+                "decimal": {
+                  "type": "integer"
+                },
+                "end_sample_index": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                },
+                "end_time_seconds": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "duration_seconds": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          },
+          "offset": {
+            "type": "integer"
+          },
+          "total": {
+            "type": "integer"
+          },
+          "next_offset": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          }
+        }
+      },
+      "ExportRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "format",
+          "channel_ids",
+          "strobe_channel",
+          "edge"
+        ],
+        "properties": {
+          "format": {
+            "enum": [
+              "bus-transition-csv",
+              "bus-sampled-csv"
+            ]
+          },
+          "channel_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "strobe_channel": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "edge": {
+            "enum": [
+              "rising",
+              "falling",
+              null
+            ]
+          }
+        }
+      },
+      "Operation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "operation_id",
+          "state",
+          "capture_id"
+        ],
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "maxLength": 32
+          },
+          "state": {
+            "enum": [
+              "pending",
+              "running",
+              "cancelling",
+              "succeeded",
+              "failed",
+              "cancelled"
+            ]
+          },
+          "capture_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

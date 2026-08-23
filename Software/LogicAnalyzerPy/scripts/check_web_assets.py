@@ -9,7 +9,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).parents[1]
 ASSETS = ROOT / "src" / "pico_logic_analyzer" / "web" / "assets"
-MANIFEST = ROOT / "web" / "production-assets.json"
+MANIFEST = ROOT / "web" / (
+    "production-assets-b6.json" if (ROOT / "web" / "production-assets-b6.json").exists()
+    else "production-assets.json"
+)
 
 
 def main() -> int:

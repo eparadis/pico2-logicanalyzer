@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "checkpoint": "C2-B6-implementation",
+  "source_revision": "844cf3fbcf8a01530ea05a63b02260f3d22ffedc",
+  "hardware_boundary": {
+    "public_device_id": "device-1",
+    "port": "<PORT_SUPPLIED>",
+    "capabilities": {
+      "channel_count": 24,
+      "buffer_size": 393216
+    },
+    "captures": [
+      {
+        "width": 8,
+        "observed_signal_channels": [0],
+        "sample_count": 4096,
+        "trigger_index": 1024
+      },
+      {
+        "width": 16,
+        "observed_signal_channels": [0, 8],
+        "sample_count": 4096,
+        "trigger_index": 1024
+      },
+      {
+        "width": 24,
+        "observed_signal_channels": [0, 8, 16, 23],
+        "sample_count": 4096,
+        "trigger_index": 1024
+      }
+    ],
+    "reidentified_after_reopen": true,
+    "second_capture_sample_count": 4096,
+    "serial_closed_between_operations": true,
+    "persistent_device_change": false
+  },
+  "production_browser": {
+    "tests_passed": 1,
+    "exit_status": 0
+  },
+  "fixed_low_recovery": {
+    "idle_channel": 1,
+    "idle_level": 0,
+    "cancel_byte_hex": "ff",
+    "reidentified": true,
+    "sample_count": 6144,
+    "transition_count": 41,
+    "signal_frequency_hz": 1000,
+    "persistent_device_change": false
+  },
+  "sanitization": {
+    "raw_port_recorded": false,
+    "serial_number_recorded": false,
+    "location_recorded": false,
+    "firmware_identity_recorded": false
+  }
+}

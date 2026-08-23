@@ -1,4 +1,4 @@
-"""Bounded loopback-only REST API for offline captures (no serial service)."""
+"""Bounded loopback-only REST API for offline and explicit-port live captures."""
 
 from __future__ import annotations
 
@@ -10,16 +10,23 @@ import threading
 import time
 from collections.abc import Awaitable, Callable
 from pathlib import Path
-from typing import Final, Literal, cast
+from typing import Final, Literal, Protocol, cast
 
 import numpy as np
 from aiohttp import BodyPartReader, web
 from numpy.typing import NDArray
 
 from pico_logic_analyzer.analysis import bus_csv_bytes, sampled_rows, transition_rows
+from pico_logic_analyzer.driver import CaptureCancelled, V2DeviceService
 from pico_logic_analyzer.formats.capture import import_csv_bytes
 from pico_logic_analyzer.formats.replay import import_replay_bytes
-from pico_logic_analyzer.model import CaptureResult, ProtocolError, ValidationError
+from pico_logic_analyzer.model import (
+    CaptureConfig,
+    CaptureResult,
+    DeviceInfo,
+    ProtocolError,
+    ValidationError,
+)
 
 ASSET_ROOT = Path(__file__).with_name("assets")
 COOKIE = "pico_la_capability"
@@ -38,6 +45,14 @@ REQUEST_WINDOW_SECONDS = 1.0
 ORIGIN_SCHEME: Final = "http"
 _OWNERSHIP_LOCK = threading.Lock()
 _OWNED_SERVERS: set[tuple[str, int]] = set()
+
+
+class DeviceService(Protocol):
+    def identify(self, port: str, timeout: float = ...) -> DeviceInfo: ...
+
+    def capture_cancellable(
+        self, port: str, config: CaptureConfig, cancelled: threading.Event, timeout: float = ...
+    ) -> CaptureResult: ...
 
 
 def _loopback(host: str) -> str:
@@ -119,6 +134,18 @@ def _channels_json(result: CaptureResult) -> dict[str, object]:
                 zip(result.config.channel_ids, result.channel_labels, strict=True)
             )
         ]
+    }
+
+
+def _device_json(device: DeviceInfo) -> dict[str, object]:
+    """Expose capabilities without serial path, USB identity, or firmware string."""
+    return {
+        "device_id": "device-1",
+        "connected": True,
+        "max_frequency_hz": device.max_frequency_hz,
+        "blast_frequency_hz": device.blast_frequency_hz,
+        "buffer_size": device.buffer_size,
+        "channel_count": device.channel_count,
     }
 
 
@@ -223,7 +250,13 @@ def _decode_import(
     )
 
 
-def create_app(host: str, port: int) -> web.Application:
+def create_app(
+    host: str,
+    port: int,
+    *,
+    device_port: str | None = None,
+    device_service: DeviceService | None = None,
+) -> web.Application:
     host = _loopback(host)
     if not 0 <= port <= 65535:
         raise ValueError("--port must be between 0 and 65535")
@@ -243,6 +276,10 @@ def create_app(host: str, port: int) -> web.Application:
         next_operation=1,
         active_connections=0,
         request_times=[],
+        device_port=device_port,
+        device_service=device_service if device_service is not None else V2DeviceService(),
+        device_info=None,
+        device_busy=False,
     )
 
     @web.middleware
@@ -323,7 +360,9 @@ def create_app(host: str, port: int) -> web.Application:
         if (denied := mutation(request)) is not None:
             return denied
         current = app["operation"]
-        if current is not None and current["state"] in {"pending", "running", "cancelling"}:
+        if app["device_busy"] or (
+            current is not None and current["state"] in {"pending", "running", "cancelling"}
+        ):
             # This deliberately precedes multipart consumption: a conflicting
             # upload is rejected without allocating or reading its body.
             return _error(409, "operation_conflict")
@@ -381,6 +420,130 @@ def create_app(host: str, port: int) -> web.Application:
                     app["operation_cancel"] = None
 
         app["operation_task"] = asyncio.create_task(run_import())
+        return web.json_response(operation, status=202)
+
+    def device_available() -> bool:
+        return isinstance(app["device_port"], str) and bool(app["device_port"])
+
+    async def identify_device(request: web.Request) -> web.Response:
+        if (denied := mutation(request)) is not None:
+            return denied
+        if getattr(request, "content_length", 0) not in (None, 0):
+            return _error(400, "invalid_device_request")
+        if not device_available():
+            return _error(409, "device_not_configured")
+        current = app["operation"]
+        if app["device_busy"] or (
+            current is not None and current["state"] in {"pending", "running", "cancelling"}
+        ):
+            return _error(409, "operation_conflict")
+        app["device_busy"] = True
+        try:
+            service = cast(DeviceService, app["device_service"])
+            info = await asyncio.to_thread(service.identify, cast(str, app["device_port"]), 10.0)
+            app["device_info"] = info
+            return web.json_response(_device_json(info))
+        except (ConnectionError, TimeoutError, ProtocolError, ValidationError, ValueError):
+            app["device_info"] = None
+            return _error(503, "device_unavailable")
+        finally:
+            app["device_busy"] = False
+
+    async def live_captures(request: web.Request) -> web.Response:
+        if (denied := mutation(request)) is not None:
+            return denied
+        if not device_available():
+            return _error(409, "device_not_configured")
+        current = app["operation"]
+        if app["device_busy"] or (
+            current is not None and current["state"] in {"pending", "running", "cancelling"}
+        ):
+            return _error(409, "operation_conflict")
+        # Reserve the sole device owner before the first body-reading await.
+        app["device_busy"] = True
+        try:
+            value = _exact_object(
+                await request.json(),
+                {
+                    "sample_rate_hz",
+                    "pre_trigger_samples",
+                    "post_trigger_samples",
+                    "trigger_channel",
+                    "trigger_edge",
+                    "channel_ids",
+                    "timeout_seconds",
+                },
+            )
+            if value is None:
+                raise ValueError
+            timeout_value = value["timeout_seconds"]
+            if type(timeout_value) not in (int, float):
+                raise ValueError
+            timeout = float(cast(int | float, timeout_value))
+            if not 0.1 <= timeout <= 30.0:
+                raise ValueError
+            config = CaptureConfig(
+                sample_rate_hz=_integer(value["sample_rate_hz"]),
+                pre_trigger_samples=_integer(value["pre_trigger_samples"]),
+                post_trigger_samples=_integer(value["post_trigger_samples"]),
+                trigger_channel=_integer(value["trigger_channel"]),
+                trigger_edge=_edge(value["trigger_edge"]),
+                channel_ids=_channel_ids(value["channel_ids"]),
+            )
+        except (TypeError, ValueError, ValidationError, web.HTTPException):
+            app["device_busy"] = False
+            return _error(400, "invalid_capture_request")
+        operation = {
+            "operation_id": f"op-{app['next_operation']}",
+            "state": "pending",
+            "capture_id": None,
+        }
+        app["next_operation"] += 1
+        app["operation"] = operation
+        cancelled = threading.Event()
+        app["operation_cancel"] = cancelled
+
+        async def run_capture() -> None:
+            app["device_busy"] = True
+            try:
+                await asyncio.sleep(0)
+                if cancelled.is_set():
+                    operation["state"] = "cancelled"
+                    return
+                operation["state"] = "running"
+                service = cast(DeviceService, app["device_service"])
+                result = await asyncio.to_thread(
+                    service.capture_cancellable,
+                    cast(str, app["device_port"]),
+                    config,
+                    cancelled,
+                    timeout,
+                )
+                if cancelled.is_set():
+                    operation["state"] = "cancelled"
+                    return
+                if len(app["captures"]) >= MAX_CAPTURES:
+                    operation["state"] = "failed"
+                    return
+                capture_id = f"c{len(app['captures']) + 1:08x}"
+                app["captures"][capture_id] = result
+                operation["capture_id"] = capture_id
+                operation["state"] = "succeeded"
+            except CaptureCancelled:
+                operation["state"] = "cancelled"
+            except (ConnectionError, TimeoutError, ProtocolError, ValidationError, ValueError):
+                operation["state"] = "cancelled" if cancelled.is_set() else "failed"
+            except asyncio.CancelledError:
+                cancelled.set()
+                operation["state"] = "cancelled"
+                raise
+            finally:
+                app["device_busy"] = False
+                if app["operation"] is operation:
+                    app["operation_task"] = None
+                    app["operation_cancel"] = None
+
+        app["operation_task"] = asyncio.create_task(run_capture())
         return web.json_response(operation, status=202)
 
     def capture(request: web.Request) -> CaptureResult | None:
@@ -537,6 +700,9 @@ def create_app(host: str, port: int) -> web.Application:
             return denied
         app["capability_active"] = False
         app["shutdown_requested"] = True
+        active_cancel = app["operation_cancel"]
+        if active_cancel is not None:
+            active_cancel.set()
         response = web.Response(status=204)
         response.del_cookie(COOKIE, path="/")
         asyncio.get_running_loop().call_later(0.01, app["shutdown_event"].set)
@@ -548,6 +714,9 @@ def create_app(host: str, port: int) -> web.Application:
     app.router.add_get("/api/v1/health", health)
     app.router.add_get("/api/v1/readiness", health)
     app.router.add_post("/api/v1/imports", imports)
+    app.router.add_post("/api/v1/device/identify", identify_device)
+    app.router.add_post("/api/v1/device/reconnect", identify_device)
+    app.router.add_post("/api/v1/device/captures", live_captures)
     app.router.add_get("/api/v1/captures/{capture_id}", capture_metadata)
     app.router.add_get("/api/v1/captures/{capture_id}/channels", channels)
     app.router.add_get("/api/v1/captures/{capture_id}/waveform", waveform)
@@ -561,15 +730,25 @@ def create_app(host: str, port: int) -> web.Application:
     app.router.add_route("OPTIONS", "/{path:.*}", options)
 
     async def cleanup(_: web.Application) -> None:
+        cancellation = app["operation_cancel"]
+        if cancellation is not None:
+            cancellation.set()
         task = cast(asyncio.Task[None] | None, app["operation_task"])
         if task is not None and not task.done():
-            task.cancel()
             try:
-                await task
-            except asyncio.CancelledError:
-                pass
+                await asyncio.wait_for(asyncio.shield(task), timeout=35.0)
+            except TimeoutError:
+                task.cancel()
+                try:
+                    await task
+                except asyncio.CancelledError:
+                    pass
         app["operation_task"] = None
         app["operation_cancel"] = None
+        app["operation"] = None
+        app["device_info"] = None
+        app["device_port"] = None
+        cast(dict[str, CaptureResult], app["captures"]).clear()
         app["active_connections"] = 0
         cast(list[float], app["request_times"]).clear()
 
@@ -577,15 +756,15 @@ def create_app(host: str, port: int) -> web.Application:
     return app
 
 
-def run(host: str, port: int) -> int:
+def run(host: str, port: int, *, device_port: str | None = None) -> int:
     try:
-        return asyncio.run(_serve(host, port))
+        return asyncio.run(_serve(host, port, device_port=device_port))
     except OSError:
         return 1
 
 
-async def _serve(host: str, port: int) -> int:
-    app = create_app(host, port)
+async def _serve(host: str, port: int, *, device_port: str | None = None) -> int:
+    app = create_app(host, port, device_port=device_port)
     owner = _reserve_server(host, port)
     runner = web.AppRunner(app)
     try:

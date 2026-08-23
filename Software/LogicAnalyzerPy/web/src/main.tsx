@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { createRoot } from "react-dom/client";
 import { ApiError, api } from "./api";
 import type { BusPage, BusRequest, CaptureMetadata, Channel, Operation, WaveformWindow } from "./api.generated";
+import type { DeviceInfo } from "./api.b6.generated";
 import { clampViewport, pan, sampleAtPixel, zoomAt, type Viewport } from "./geometry";
 import { drawWaveform, planWaveform, triggerMarker, valueAt } from "./waveform";
 import "./style.css";
@@ -33,9 +34,13 @@ export function App(): React.JSX.Element {
   const [visible, setVisible] = useState<number[]>([]); const [view, setView] = useState<Viewport>({ start: 0, end: 1, pixels: CANVAS_PIXELS });
   const [cursorWave, setCursorWave] = useState<WaveformWindow | null>(null); const [cursor, setCursor] = useState(0);
   const [operation, setOperation] = useState<Operation | null>(null); const [busMode, setBusMode] = useState<BusMode>("transition");
+  const [operationKind, setOperationKind] = useState<"import" | "live">("import");
   const [busChannels, setBusChannels] = useState<number[]>([]); const [strobe, setStrobe] = useState<number | null>(null);
   const [busEdge, setBusEdge] = useState<"rising" | "falling">("rising"); const [busOffset, setBusOffset] = useState(0);
   const [busPage, setBusPage] = useState<BusPage | null>(null); const canvas = useRef<HTMLCanvasElement>(null);
+  const [device, setDevice] = useState<DeviceInfo | null>(null); const [liveChannels, setLiveChannels] = useState("0,1,2,3,4,5,6,7");
+  const [liveRate, setLiveRate] = useState("100000"); const [livePre, setLivePre] = useState("1024"); const [livePost, setLivePost] = useState("3072");
+  const [liveTrigger, setLiveTrigger] = useState("0"); const [liveEdge, setLiveEdge] = useState<"rising" | "falling">("rising"); const [liveTimeout, setLiveTimeout] = useState("10");
   const pollAbort = useRef<AbortController | null>(null); const waveAbort = useRef<AbortController | null>(null);
   const drag = useRef<{ x: number; view: Viewport } | null>(null);
   const csv = file ? file.type === "text/csv" || file.name.toLowerCase().endsWith(".csv") : false;
@@ -54,7 +59,7 @@ export function App(): React.JSX.Element {
 
   const open = async (): Promise<void> => {
     if (!file || !metadataValid) { setError("Select a supported file and enter valid CSV metadata."); setState("error"); return; }
-    pollAbort.current?.abort(); const controller = new AbortController(); pollAbort.current = controller;
+    pollAbort.current?.abort(); const controller = new AbortController(); pollAbort.current = controller; setOperationKind("import");
     setState("loading"); setError(""); setBusPage(null);
     if (canvas.current) { delete canvas.current.dataset.renderedWindow; delete canvas.current.dataset.transitionCount; delete canvas.current.dataset.commands; }
     const metadata = csv ? { channel_ids: parsedIds!, sample_rate_hz: parsedRate, trigger_channel: triggerId, trigger_edge: triggerEdge } : undefined;
@@ -71,6 +76,25 @@ export function App(): React.JSX.Element {
       if ((caught as Error).name === "AbortError") return;
       setError(messageFor(caught)); setState(caught instanceof TypeError ? "disconnected" : "error");
     } finally { if (pollAbort.current === controller) pollAbort.current = null; }
+  };
+
+  const connectDevice = async (reopen = false): Promise<void> => {
+    setState("loading"); setError("");
+    try { setDevice(reopen ? await api.reconnectDevice() : await api.identify()); setState(capture ? "ready" : "empty"); }
+    catch (caught) { setDevice(null); setError(messageFor(caught)); setState(caught instanceof TypeError ? "disconnected" : "error"); }
+  };
+
+  const captureLive = async (): Promise<void> => {
+    const ids = parseChannelIds(liveChannels); const rate = Number(liveRate); const pre = Number(livePre); const post = Number(livePost); const trigger = Number(liveTrigger); const timeout = Number(liveTimeout);
+    if (!device || ids === null || !ids.includes(trigger) || ![rate, pre, post, trigger, timeout].every(Number.isFinite)) { setError("Enter a valid ordered live capture configuration."); setState("error"); return; }
+    setState("loading"); setError(""); setBusPage(null); setOperationKind("live");
+    try {
+      let current = await api.liveCapture({ sample_rate_hz: rate, pre_trigger_samples: pre, post_trigger_samples: post, trigger_channel: trigger, trigger_edge: liveEdge, channel_ids: ids, timeout_seconds: timeout }); setOperation(current);
+      for (let attempt = 0; attempt < 320 && ["pending", "running", "cancelling"].includes(current.state); attempt += 1) { await new Promise((resolve) => globalThis.setTimeout(resolve, 100)); current = await api.operation(current.operation_id); setOperation(current); }
+      if (current.state === "cancelled") { setState(capture ? "ready" : "empty"); return; }
+      if (current.state !== "succeeded" || !current.capture_id) throw new Error("live capture failed");
+      await loadCapture(current.capture_id);
+    } catch (caught) { setError(messageFor(caught)); setState(caught instanceof TypeError ? "disconnected" : "error"); }
   };
 
   const cancel = async (): Promise<void> => {
@@ -150,6 +174,22 @@ export function App(): React.JSX.Element {
   return <main>
     <header><h1>Pico Logic Analyzer</h1><p className={`state state-${state}`} role="status">{state}</p></header>
     {error && <p role="alert">{error}</p>}
+    <section aria-labelledby="live-heading"><h2 id="live-heading">Live device</h2>
+      <p>{device ? `Connected: ${device.channel_count} channels, ${device.buffer_size} byte buffer` : "No live device connected."}</p>
+      <button disabled={state === "loading" || state === "cancelling"} onClick={() => void connectDevice(false)}>Identify device</button>
+      <button disabled={!device || state === "loading" || state === "cancelling"} onClick={() => void connectDevice(true)}>Reopen device</button>
+      {device && <fieldset><legend>Live capture</legend>
+        <label>Ordered physical channels <input aria-label="Live channel IDs" value={liveChannels} onChange={(event) => setLiveChannels(event.target.value)} /></label>
+        <button type="button" onClick={() => setLiveChannels(Array.from({ length: 8 }, (_, index) => index).join(","))}>8 channels</button><button type="button" onClick={() => setLiveChannels(Array.from({ length: 16 }, (_, index) => index).join(","))}>16 channels</button><button type="button" onClick={() => setLiveChannels(Array.from({ length: 24 }, (_, index) => index).join(","))}>24 channels</button>
+        <label>Sample rate (Hz) <input aria-label="Live sample rate" value={liveRate} onChange={(event) => setLiveRate(event.target.value)} /></label>
+        <label>Pre-trigger samples <input aria-label="Live pre-trigger samples" value={livePre} onChange={(event) => setLivePre(event.target.value)} /></label>
+        <label>Post-trigger samples <input aria-label="Live post-trigger samples" value={livePost} onChange={(event) => setLivePost(event.target.value)} /></label>
+        <label>Trigger channel <input aria-label="Live trigger channel" value={liveTrigger} onChange={(event) => setLiveTrigger(event.target.value)} /></label>
+        <label>Trigger edge <select aria-label="Live trigger edge" value={liveEdge} onChange={(event) => setLiveEdge(event.target.value as "rising" | "falling")}><option value="rising">rising</option><option value="falling">falling</option></select></label>
+        <label>Timeout (seconds) <input aria-label="Live timeout" value={liveTimeout} onChange={(event) => setLiveTimeout(event.target.value)} /></label>
+        <button disabled={state === "loading" || state === "cancelling"} onClick={() => void captureLive()}>Capture live</button>
+      </fieldset>}
+    </section>
     <section aria-labelledby="import-heading"><h2 id="import-heading">Open capture</h2>
       <label>Replay or CSV <input aria-label="Import capture" type="file" accept=".npz,.csv,application/x-pico-la-replay,text/csv" onChange={(event) => { setFile(event.target.files?.[0] ?? null); setError(""); }} /></label>
       {csv && <fieldset><legend>CSV import metadata</legend>
@@ -160,7 +200,7 @@ export function App(): React.JSX.Element {
         <output aria-label="Packed mapping">{parsedIds ? parsedIds.map((id, index) => `D${id}→bit${index}`).join(", ") : "Invalid mapping"}</output>
       </fieldset>}
       <button disabled={!file || !metadataValid || state === "loading" || state === "cancelling"} onClick={() => void open()}>Open</button>
-      {operation && ["pending", "running"].includes(operation.state) && <button onClick={() => void cancel()}>Cancel import</button>}
+      {operation && ["pending", "running"].includes(operation.state) && <button onClick={() => void cancel()}>{operationKind === "live" ? "Cancel live capture" : "Cancel import"}</button>}
     </section>
     {capture && state === "ready" && <>
       <section aria-labelledby="channels-heading"><h2 id="channels-heading">Channels</h2><p>{capture.sample_count} samples at {capture.sample_rate_hz} Hz; trigger sample {capture.trigger_index}</p>

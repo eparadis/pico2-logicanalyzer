@@ -6,7 +6,8 @@ from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from importlib import import_module
 from math import isfinite
-from time import sleep
+from threading import Event
+from time import monotonic, sleep
 from typing import Any
 
 from pico_logic_analyzer.model import CaptureConfig, CaptureResult, DeviceInfo, ProtocolError
@@ -20,6 +21,10 @@ from pico_logic_analyzer.protocol import (
 from pico_logic_analyzer.transport.serial import DEFAULT_TIMEOUT_SECONDS, SerialTransport
 
 from .recovery import CaptureRecovery
+
+
+class CaptureCancelled(RuntimeError):
+    """A requested live capture was cancelled after bounded recovery."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -122,6 +127,78 @@ class V2DeviceService:
             raise ConnectionError(f"capture failed on {port}: {exc}") from exc
         finally:
             transport.close()
+
+    def capture_cancellable(
+        self,
+        port: str,
+        config: CaptureConfig,
+        cancelled: Event,
+        timeout: float = DEFAULT_TIMEOUT_SECONDS,
+    ) -> CaptureResult:
+        """Capture with same-thread timeout/cancel recovery ownership."""
+        if not isinstance(cancelled, Event):
+            raise TypeError("cancelled must be a threading.Event")
+        transport = self._transport_factory(port, timeout)
+        in_flight = False
+        recovered = False
+        deadline = monotonic() + timeout
+        try:
+            transport.open()
+            transport.write(encode_identity_request(), timeout)
+            identity = b"".join(
+                (transport.read_line(max(0.001, deadline - monotonic())) + "\n").encode("ascii")
+                for _ in range(5)
+            )
+            device = parse_identity(ByteParser(identity))
+            config.validate_for(device)
+            transport.write(encode_capture_request(config, device), timeout)
+            in_flight = True
+            while True:
+                if cancelled.is_set():
+                    CaptureRecovery(
+                        transport, lambda: self.identify(port, min(timeout, 2.0))
+                    ).timeout_or_cancel(timeout, drain_limit=4096)
+                    recovered = True
+                    raise CaptureCancelled("capture cancelled")
+                remaining = deadline - monotonic()
+                if remaining <= 0:
+                    CaptureRecovery(
+                        transport, lambda: self.identify(port, min(timeout, 2.0))
+                    ).timeout_or_cancel(timeout, drain_limit=4096)
+                    recovered = True
+                    raise TimeoutError("capture timed out")
+                try:
+                    status = transport.read_line(min(0.1, remaining))
+                    break
+                except TimeoutError:
+                    continue
+            count_bytes = transport.read_exact(4, max(0.001, deadline - monotonic()))
+            count = int.from_bytes(count_bytes, "little")
+            payload_size = count * config.bytes_per_word
+            if count != config.requested_count or payload_size > device.buffer_size:
+                raise ProtocolError("invalid capture count")
+            count_and_payload = count_bytes + transport.read_exact(
+                payload_size + 1, max(0.001, deadline - monotonic())
+            )
+            samples, _ = parse_capture_response(
+                ByteParser((status + "\n").encode("ascii") + count_and_payload), config, device
+            )
+            return CaptureResult(
+                config=config,
+                samples=samples,
+                device=device,
+                channel_mapping=tuple(f"GPIO{channel + 2}" for channel in config.channel_ids),
+            )
+        except TimeoutError:
+            if in_flight and not recovered:
+                CaptureRecovery(
+                    transport, lambda: self.identify(port, min(timeout, 2.0))
+                ).timeout_or_cancel(timeout, drain_limit=4096)
+                recovered = True
+            raise
+        finally:
+            if not recovered or not in_flight:
+                transport.close()
 
     def recovery_capture(
         self,

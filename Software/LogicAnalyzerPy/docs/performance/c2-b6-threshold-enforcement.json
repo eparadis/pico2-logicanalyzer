@@ -1,0 +1,460 @@
+{
+  "schema_version": 2,
+  "method": "c2-b5-playwright-production-v2",
+  "threshold": null,
+  "viewport": {
+    "width": 1280,
+    "height": 900,
+    "device_pixel_ratio": 1
+  },
+  "warmup_iterations": 3,
+  "load_iterations_per_case": 2,
+  "load_iterations": 16,
+  "interaction_iterations": 30,
+  "bus_iterations_per_mode_and_role": 2,
+  "statistics": {
+    "method": "nearest-rank",
+    "index_formula": "max(0, ceil(p * n) - 1) on ascending raw samples",
+    "median_p": 0.5,
+    "high_percentile": "p95",
+    "high_percentile_p": 0.95,
+    "rounding": "none; JSON retains the raw IEEE-754 millisecond values returned by the timing clocks"
+  },
+  "timing": "performance.now around UI action through API completion, rendered Canvas/table DOM, and next animation frame; Node performance.now brackets empty navigation/load/paint",
+  "browser": "133.0.6943.16",
+  "automation": "Playwright 1.50.1",
+  "node": "v22.14.0",
+  "host": {
+    "platform": "darwin",
+    "release": "24.6.0",
+    "architecture": "x64"
+  },
+  "fixture_manifest_sha256": "dd3ccbb4b5da4952422f2c3fc4f60dfbd4f7d2d81e789a697a19750668a1c350",
+  "fixture_generator_sha256": "3e0be8f90e6dc846803a28bb278b21f797ddc0576f5371149beb9ad185fb29c4",
+  "benchmark_script_sha256": "a27469a29753612128fa71e6093bfd36bda4d6afb93cee20d165452e629d7758",
+  "production_asset_manifest_sha256": "c27b08c3fbbce7ead5e7afa4b92bffdaf9623f46f4319d92c78942ab2e59059d",
+  "fixtures": [
+    {
+      "artifact": null,
+      "name": "empty",
+      "roles": [
+        "empty"
+      ],
+      "sample_count": 0,
+      "sha256": null
+    },
+    {
+      "artifact": "fixtures/schema1-8.npz",
+      "name": "schema1-8",
+      "pattern": "dense",
+      "payload_bytes": 2083,
+      "roles": [
+        "schema-1"
+      ],
+      "sample_count": 1024,
+      "sha256": "c2f4d446b754c09e57412f02bde8d751f18a997d14d1df72bdc49654ab0a7457",
+      "width": 8
+    },
+    {
+      "artifact": "fixtures/constant-8.npz",
+      "name": "constant-8",
+      "pattern": "constant",
+      "payload_bytes": 66625,
+      "roles": [
+        "constant"
+      ],
+      "sample_count": 65536,
+      "sha256": "51b98c66622aa724118713ad1dcb409d6415ce3491f431e12ee9f770640c26e1",
+      "width": 8
+    },
+    {
+      "artifact": "fixtures/sparse-16.npz",
+      "name": "sparse-16",
+      "pattern": "sparse",
+      "payload_bytes": 394422,
+      "roles": [
+        "sparse"
+      ],
+      "sample_count": 196608,
+      "sha256": "39e53e363b6aab3cdd6f1fdae2083e5f7ffe78196ccf033fb4496e6ca0a36f6a",
+      "width": 16
+    },
+    {
+      "artifact": "fixtures/dense-24.npz",
+      "name": "dense-24",
+      "pattern": "dense",
+      "payload_bytes": 132396,
+      "roles": [
+        "dense",
+        "bus-worst"
+      ],
+      "sample_count": 32768,
+      "sha256": "f48f87ecaf743a224b0344c0a4025dee72e0ecb6c64f1e546f7c85f514e3f5e3",
+      "width": 24
+    },
+    {
+      "artifact": "fixtures/maximum-8.npz",
+      "name": "maximum-8",
+      "pattern": "dense",
+      "payload_bytes": 394310,
+      "roles": [
+        "maximum-8"
+      ],
+      "sample_count": 393216,
+      "sha256": "13a1de3c93c24f3a2ffcf51f7e635a1180fed5bc376ada689933c9e5505e5ccc",
+      "width": 8
+    },
+    {
+      "artifact": "fixtures/maximum-16.npz",
+      "name": "maximum-16",
+      "pattern": "dense",
+      "payload_bytes": 394422,
+      "roles": [
+        "maximum-16"
+      ],
+      "sample_count": 196608,
+      "sha256": "a05394ce8b4ffd1efb54e023afe54fd311698f7a671f2a089c0773c3cfbddd14",
+      "width": 16
+    },
+    {
+      "artifact": "fixtures/maximum-24.npz",
+      "name": "maximum-24",
+      "pattern": "dense",
+      "payload_bytes": 394540,
+      "roles": [
+        "maximum-24"
+      ],
+      "sample_count": 98304,
+      "sha256": "c582841605c6d4c212057864eb01fe200aaa3c085aaf532643dea575669ce702",
+      "width": 24
+    },
+    {
+      "artifact": "fixtures/bus-representative-8.npz",
+      "name": "bus-representative-8",
+      "pattern": "bus",
+      "payload_bytes": 5180,
+      "roles": [
+        "bus-representative"
+      ],
+      "sample_count": 4096,
+      "sha256": "6cbd86b4346e7922d1685c08e8c49ed49bb7e820a5714bea1ba5e10c266328c3",
+      "width": 8
+    }
+  ],
+  "loads": [
+    {
+      "name": "empty",
+      "milliseconds": 69.29961300000002,
+      "commands": 0,
+      "transitions": 0,
+      "dom_nodes": 26
+    },
+    {
+      "name": "empty",
+      "milliseconds": 29.289875000000052,
+      "commands": 0,
+      "transitions": 0,
+      "dom_nodes": 26
+    },
+    {
+      "name": "constant-8",
+      "milliseconds": 446.79999999701977,
+      "commands": 17,
+      "transitions": 16,
+      "dom_nodes": 95
+    },
+    {
+      "name": "sparse-16",
+      "milliseconds": 410,
+      "commands": 246,
+      "transitions": 245,
+      "dom_nodes": 143
+    },
+    {
+      "name": "dense-24",
+      "milliseconds": 405.5999999977648,
+      "commands": 9775,
+      "transitions": 9774,
+      "dom_nodes": 191
+    },
+    {
+      "name": "maximum-16",
+      "milliseconds": 411.4000000022352,
+      "commands": 12755,
+      "transitions": 12754,
+      "dom_nodes": 165
+    },
+    {
+      "name": "bus-representative-8",
+      "milliseconds": 409.20000000298023,
+      "commands": 775,
+      "transitions": 774,
+      "dom_nodes": 109
+    },
+    {
+      "name": "maximum-24",
+      "milliseconds": 415.19999999925494,
+      "commands": 12719,
+      "transitions": 12718,
+      "dom_nodes": 221
+    },
+    {
+      "name": "maximum-8",
+      "milliseconds": 406,
+      "commands": 12349,
+      "transitions": 12349,
+      "dom_nodes": 109
+    },
+    {
+      "name": "constant-8",
+      "milliseconds": 407.4000000022352,
+      "commands": 17,
+      "transitions": 16,
+      "dom_nodes": 109
+    },
+    {
+      "name": "sparse-16",
+      "milliseconds": 413.6000000014901,
+      "commands": 246,
+      "transitions": 245,
+      "dom_nodes": 165
+    },
+    {
+      "name": "dense-24",
+      "milliseconds": 406.19999999925494,
+      "commands": 9775,
+      "transitions": 9774,
+      "dom_nodes": 221
+    },
+    {
+      "name": "maximum-16",
+      "milliseconds": 407.1000000014901,
+      "commands": 12755,
+      "transitions": 12754,
+      "dom_nodes": 165
+    },
+    {
+      "name": "bus-representative-8",
+      "milliseconds": 403.19999999925494,
+      "commands": 775,
+      "transitions": 774,
+      "dom_nodes": 109
+    },
+    {
+      "name": "maximum-24",
+      "milliseconds": 426.19999999925494,
+      "commands": 12719,
+      "transitions": 12718,
+      "dom_nodes": 221
+    },
+    {
+      "name": "maximum-8",
+      "milliseconds": 402.19999999925494,
+      "commands": 12349,
+      "transitions": 12349,
+      "dom_nodes": 109
+    }
+  ],
+  "load_statistics": [
+    {
+      "name": "constant-8",
+      "iterations": 2,
+      "initial_ready_paint_ms": [
+        446.79999999701977,
+        407.4000000022352
+      ],
+      "median_ms": 407.4000000022352,
+      "p95_ms": 446.79999999701977
+    },
+    {
+      "name": "sparse-16",
+      "iterations": 2,
+      "initial_ready_paint_ms": [
+        410,
+        413.6000000014901
+      ],
+      "median_ms": 410,
+      "p95_ms": 413.6000000014901
+    },
+    {
+      "name": "dense-24",
+      "iterations": 2,
+      "initial_ready_paint_ms": [
+        405.5999999977648,
+        406.19999999925494
+      ],
+      "median_ms": 405.5999999977648,
+      "p95_ms": 406.19999999925494
+    },
+    {
+      "name": "maximum-16",
+      "iterations": 2,
+      "initial_ready_paint_ms": [
+        411.4000000022352,
+        407.1000000014901
+      ],
+      "median_ms": 407.1000000014901,
+      "p95_ms": 411.4000000022352
+    },
+    {
+      "name": "bus-representative-8",
+      "iterations": 2,
+      "initial_ready_paint_ms": [
+        409.20000000298023,
+        403.19999999925494
+      ],
+      "median_ms": 403.19999999925494,
+      "p95_ms": 409.20000000298023
+    },
+    {
+      "name": "maximum-24",
+      "iterations": 2,
+      "initial_ready_paint_ms": [
+        415.19999999925494,
+        426.19999999925494
+      ],
+      "median_ms": 415.19999999925494,
+      "p95_ms": 426.19999999925494
+    },
+    {
+      "name": "maximum-8",
+      "iterations": 2,
+      "initial_ready_paint_ms": [
+        406,
+        402.19999999925494
+      ],
+      "median_ms": 402.19999999925494,
+      "p95_ms": 406
+    },
+    {
+      "name": "empty",
+      "iterations": 2,
+      "initial_ready_paint_ms": [
+        69.29961300000002,
+        29.289875000000052
+      ],
+      "median_ms": 29.289875000000052,
+      "p95_ms": 69.29961300000002
+    }
+  ],
+  "load_median_ms": 407.1000000014901,
+  "load_p95_ms": 446.79999999701977,
+  "interactions_ms": [
+    361.5,
+    330.5,
+    353.80000000074506,
+    358.4000000022352,
+    313.5,
+    359,
+    369,
+    312.80000000074506,
+    309.80000000074506,
+    312.5,
+    326.19999999925494,
+    313.30000000074506,
+    310.5999999977648,
+    313.69999999925494,
+    325.80000000074506,
+    329.0999999977648,
+    325.20000000298023,
+    346.9000000022352,
+    336.30000000074506,
+    326.69999999925494,
+    315,
+    314.9000000022352,
+    332.30000000074506,
+    323.19999999925494,
+    327.80000000074506,
+    315.1000000014901,
+    309.5999999977648,
+    296.5,
+    330.19999999925494,
+    314.69999999925494
+  ],
+  "interaction_median_ms": 325.20000000298023,
+  "interaction_p95_ms": 361.5,
+  "bus_observations": [
+    {
+      "fixture": "bus-representative-8",
+      "roles": [
+        "bus-representative"
+      ],
+      "mode": "transition",
+      "iterations": 2,
+      "timings_ms": [
+        150.90000000223517,
+        155.19999999925494
+      ],
+      "median_ms": 150.90000000223517,
+      "p95_ms": 155.19999999925494,
+      "rows": 100,
+      "row_counts": [
+        100,
+        100
+      ],
+      "payload_bytes": 5180
+    },
+    {
+      "fixture": "bus-representative-8",
+      "roles": [
+        "bus-representative"
+      ],
+      "mode": "distinct-strobe",
+      "iterations": 2,
+      "timings_ms": [
+        52.20000000298023,
+        63.20000000298023
+      ],
+      "median_ms": 52.20000000298023,
+      "p95_ms": 63.20000000298023,
+      "rows": 100,
+      "row_counts": [
+        100,
+        100
+      ],
+      "payload_bytes": 5180
+    },
+    {
+      "fixture": "dense-24",
+      "roles": [
+        "bus-worst"
+      ],
+      "mode": "transition",
+      "iterations": 2,
+      "timings_ms": [
+        406.70000000298023,
+        405.4000000022352
+      ],
+      "median_ms": 405.4000000022352,
+      "p95_ms": 406.70000000298023,
+      "rows": 100,
+      "row_counts": [
+        100,
+        100
+      ],
+      "payload_bytes": 132396
+    },
+    {
+      "fixture": "dense-24",
+      "roles": [
+        "bus-worst"
+      ],
+      "mode": "distinct-strobe",
+      "iterations": 2,
+      "timings_ms": [
+        140.5,
+        149.59999999776483
+      ],
+      "median_ms": 140.5,
+      "p95_ms": 149.59999999776483,
+      "rows": 100,
+      "row_counts": [
+        100,
+        100
+      ],
+      "payload_bytes": 132396
+    }
+  ],
+  "used_js_heap_bytes": null,
+  "memory_reliable": false
+}

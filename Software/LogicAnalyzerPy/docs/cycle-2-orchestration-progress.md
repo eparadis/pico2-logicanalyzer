@@ -91,3 +91,42 @@ accepted evidence remain unchanged.
 - Future Linux support, if requested, requires a separately approved contract
   revision and new verification; historical records may be used as provenance
   but do not establish current support.
+
+## C2-B1 checkpoint
+
+- State: Complete
+- Recorded: 2026-08-23T07:07:42Z
+- Exact accepted candidate:
+  `e266d88815b0dabdd1397cbfcf3e1187bf8dfc24`
+- Exact accepted tree: `9ec8c3ef73e47c940fd686656708cfaa212d9058`
+- Current support scope: macOS only
+- Verification: pass, no open findings,
+  `docs/reviews/c2-b1-verification-round-18.md`,
+  SHA-256
+  `28b3c6e8349982e3faec8517572cedc42e7086da12a3c3c5f6858d8149f08feb`
+- Acceptance: pass, no open findings,
+  `docs/reviews/c2-b1-acceptance-round-3.md`,
+  SHA-256
+  `c79618342a5c18b246c01e530fa35e67fc77afc11fabb9296349d06490dee957`
+- Platform revision acceptance:
+  `docs/reviews/cycle2-platform-revision-acceptance.md`,
+  SHA-256
+  `ae07e21b9038b0ad58a59b68801878a083710b6df1929ce672f8ab20833e5925`
+- Accumulated validation: clean hash-locked core and web installs; Ruff; mypy;
+  232 non-hardware tests; CLI; evidence security probes; Node 22.14.0
+  lint/typecheck/unit/build; deterministic assets; Playwright 1.50.1 browser
+  smoke; workflow, scope, rollback, and prohibited-action audits all passed.
+- Hosted validation: run `32624529709` at the exact candidate; sole macOS job
+  `97157701532` passed.
+- Evidence manifest: `testdata/evidence/c2-b1.json`, committed separately,
+  SHA-256
+  `7c45f8b7f90965fbf9c67845f3b8a0113fe84261e8085665068e6f1980bf4de0`
+- Earliest proof recorded for stopping conditions 1, 2, 3, and 14; their final
+  accumulated proof remains owned by C2-B6.
+- Historical records from the superseded platform scope remain immutable and
+  are not current support claims.
+- Prohibited actions: none performed; firmware, C# applications, .NET, `.lac`,
+  public serving, packaging/publication, persistent device state, and Cycle 3
+  remain untouched.
+- Next boundary: C2-B2 is not started. Execution is paused here by operator
+  request.

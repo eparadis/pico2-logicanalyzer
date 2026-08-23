@@ -311,7 +311,7 @@ accepted evidence remain unchanged.
 
 ## C2-B3: Physical byte-boundary capture gate
 
-- State: Pending
+- State: Ready
 - Selected: 2026-08-23 (America/Los_Angeles)
 - Selection HEAD: `4919c52432e76070c2b65c579466a53dcb769fc9`
 - Selection tree: `4dd57406c729032b692b52f16411d231802ffe15`
@@ -321,9 +321,7 @@ accepted evidence remain unchanged.
 - Prerequisite present: C2-B2 checkpoint complete; manifest
   `testdata/evidence/c2-b2.json` strictly validates with SHA-256
   `6e3a42fa4955e17c39a3c13fe09613327d21b572696fd3ecd69d485a3bd21b2a`.
-- Missing operator prerequisite: explicit confirmation that the attached board
-  is a Raspberry Pi Pico 2 running the fixed checked-in V2 firmware built with
-  `BOARD_TYPE=BOARD_PICO_2`.
+- Missing operator prerequisite: none.
 - Implementation agent: `cycle2-implementor-replacement-4`
 - Verification agent: `cycle2-verifier-replacement-2`
 - Acceptance agent: `cycle2-acceptance-replacement-1`
@@ -428,3 +426,16 @@ accepted evidence remain unchanged.
   discovery. The port prerequisite is satisfied for runtime execution.
 - The prior blocked state is reopened as Pending. Current Pico 2/fixed V2
   firmware confirmation remains required before opening the discovered port.
+
+### C2-B3 board and firmware confirmation
+
+- The operator explicitly confirmed that the attached board is a Raspberry Pi
+  Pico 2 running the checked-in V2 firmware.
+- Together with the recorded checked-in build authority selecting
+  `BOARD_TYPE=BOARD_PICO_2`, the discovered single `LogicAnalyzer` candidate,
+  and the accepted wiring/electrical confirmation, every B3 operator
+  prerequisite is satisfied.
+- State advances to Ready. Bounded identity and physical capture operations are
+  authorized on the discovered runtime port; committed evidence must sanitize
+  it as `<PORT_SUPPLIED>` and must not contain serial numbers or machine-local
+  location values.

@@ -51,6 +51,41 @@ def _closed(schema: object) -> None:
         _closed(schema["items"])
 
 
+def _typescript_primitive(schema: dict[str, object]) -> str | None:
+    enum = schema.get("enum")
+    if isinstance(enum, list):
+        return " | ".join("null" if value is None else f'"{value}"' for value in enum)
+    value_type = schema.get("type")
+    if value_type == "string":
+        return "string"
+    if value_type == "integer":
+        return "number"
+    if value_type == "boolean":
+        return "boolean"
+    if isinstance(value_type, list) and set(value_type) == {"integer", "null"}:
+        return "number | null"
+    if isinstance(value_type, list) and set(value_type) == {"string", "null"}:
+        return "string | null"
+    return None
+
+
+def _typescript_fields(schema: dict[str, object], types: str) -> None:
+    for name, value in schema.get("properties", {}).items():
+        assert isinstance(value, dict)
+        primitive = _typescript_primitive(value)
+        if primitive is not None:
+            expected = f"{name}: {primitive}"
+            if name == "state" and "state: OperationState" in types:
+                assert primitive in types
+            else:
+                assert expected in types, f"missing TypeScript field {expected}"
+        _typescript_fields(value, types)
+        if value.get("type") == "array":
+            items = value.get("items")
+            if isinstance(items, dict):
+                _typescript_fields(items, types)
+
+
 def validate(document: dict[str, object], types: str) -> None:
     assert document.get("openapi") == "3.1.0"
     paths = document["paths"]
@@ -88,6 +123,13 @@ def validate(document: dict[str, object], types: str) -> None:
     assert isinstance(schemas, dict)
     for schema in schemas.values():
         _closed(schema)
+        _typescript_fields(schema, types)
+    bus_decimal = schemas["BusPage"]["properties"]["rows"]["items"]["properties"]["decimal"]
+    assert bus_decimal == {"type": "integer"}
+    assert "decimal: number" in types
+    edge = schemas["CaptureMetadata"]["properties"]["trigger_edge"]
+    assert edge == {"enum": ["rising", "falling"]}
+    assert 'trigger_edge: "rising" | "falling"' in types
     for required in TS_TYPES:
         assert f"{required}" in types
     assert "capture_id: string" in types and "sample_count: number" in types

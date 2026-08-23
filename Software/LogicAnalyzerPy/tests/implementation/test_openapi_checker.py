@@ -53,6 +53,19 @@ def test_checker_rejects_nested_closure_and_upload_drift() -> None:
             "items"
         ]["properties"].pop("decimal")
     )
+
+
+def test_checker_rejects_primitive_and_enum_wire_drift() -> None:
+    _fails(
+        lambda document: document["components"]["schemas"]["BusPage"]["properties"][
+            "rows"
+        ]["items"]["properties"]["decimal"].update({"type": "string"})
+    )
+    _fails(
+        lambda document: document["components"]["schemas"]["CaptureMetadata"][
+            "properties"
+        ]["trigger_edge"].update({"enum": ["rising"]})
+    )
     _fails(
         lambda document: document["components"]["schemas"]["WaveformWindow"]["properties"][
             "channels"
@@ -69,3 +82,5 @@ def test_checker_rejects_generated_type_structure_drift() -> None:
     document, types = _contract()
     with pytest.raises(AssertionError):
         checker.validate(document, types.replace("capture_id: string", "capture_id: number"))
+    with pytest.raises(AssertionError):
+        checker.validate(document, types.replace("decimal: number", "decimal: string"))

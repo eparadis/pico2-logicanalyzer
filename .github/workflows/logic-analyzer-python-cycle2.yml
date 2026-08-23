@@ -21,7 +21,7 @@ jobs:
         with: {node-version: "22.14.0", cache: "npm", cache-dependency-path: "Software/LogicAnalyzerPy/web/package-lock.json"}
       - working-directory: Software/LogicAnalyzerPy
         run: |
-          python3.12 -m venv .venv
+          python -m venv .venv
           .venv/bin/python -m pip install --require-hashes -r requirements-dev.lock
           .venv/bin/python -m pip install --no-build-isolation --no-deps -e .
           .venv/bin/python -m pip check
@@ -30,13 +30,13 @@ jobs:
           .venv/bin/python -m pytest -m "not hardware"
           .venv/bin/python -m pico_logic_analyzer --help
           .venv/bin/python scripts/check_web_assets.py
-          python3.12 -m venv .venv-web
+          python -m venv .venv-web
           .venv-web/bin/python -m pip install --require-hashes -r requirements-web.lock
           .venv-web/bin/python -m pip install --no-build-isolation --no-deps -e '.[web]'
           .venv-web/bin/python -m pip check
       - working-directory: Software/LogicAnalyzerPy/web
         run: |
-          npm ci
+          npm ci --no-audit --no-fund
           npm run lint
           npm run typecheck
           npm test -- --run

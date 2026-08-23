@@ -19,26 +19,60 @@ jobs:
         with: {python-version: "3.12"}
       - uses: actions/setup-node@v4
         with: {node-version: "22.14.0", cache: "npm", cache-dependency-path: "Software/LogicAnalyzerPy/web/package-lock.json"}
-      - working-directory: Software/LogicAnalyzerPy
-        run: |
-          python -m venv .venv
-          .venv/bin/python -m pip install --require-hashes -r requirements-dev.lock
-          .venv/bin/python -m pip install --no-build-isolation --no-deps -e .
-          .venv/bin/python -m pip check
-          .venv/bin/python -m ruff check .
-          .venv/bin/python -m mypy src
-          .venv/bin/python -m pytest -m "not hardware"
-          .venv/bin/python -m pico_logic_analyzer --help
-          .venv/bin/python scripts/check_web_assets.py
-          python -m venv .venv-web
-          .venv-web/bin/python -m pip install --require-hashes -r requirements-web.lock
-          .venv-web/bin/python -m pip install --no-build-isolation --no-deps -e '.[web]'
-          .venv-web/bin/python -m pip check
-      - working-directory: Software/LogicAnalyzerPy/web
-        run: |
-          npm ci --no-audit --no-fund
-          npm run lint
-          npm run typecheck
-          npm test -- --run
-          npm run build
-          npm run test:browser
+      - name: Create clean core Python 3.12 environment
+        working-directory: Software/LogicAnalyzerPy
+        run: python -m venv .venv
+      - name: Install hash-locked core dependencies
+        working-directory: Software/LogicAnalyzerPy
+        run: .venv/bin/python -m pip install --require-hashes -r requirements-dev.lock
+      - name: Install core source without dependency resolution
+        working-directory: Software/LogicAnalyzerPy
+        run: .venv/bin/python -m pip install --no-build-isolation --no-deps -e .
+      - name: Check core Python dependencies
+        working-directory: Software/LogicAnalyzerPy
+        run: .venv/bin/python -m pip check
+      - name: Run Ruff
+        working-directory: Software/LogicAnalyzerPy
+        run: .venv/bin/python -m ruff check .
+      - name: Run mypy
+        working-directory: Software/LogicAnalyzerPy
+        run: .venv/bin/python -m mypy src
+      - name: Run non-hardware Python tests
+        working-directory: Software/LogicAnalyzerPy
+        run: .venv/bin/python -m pytest -m "not hardware"
+      - name: Check CLI help
+        working-directory: Software/LogicAnalyzerPy
+        run: .venv/bin/python -m pico_logic_analyzer --help
+      - name: Create clean web-runtime Python 3.12 environment
+        working-directory: Software/LogicAnalyzerPy
+        run: python -m venv .venv-web
+      - name: Install hash-locked web-runtime dependencies
+        working-directory: Software/LogicAnalyzerPy
+        run: .venv-web/bin/python -m pip install --require-hashes -r requirements-web.lock
+      - name: Install web source without dependency resolution
+        working-directory: Software/LogicAnalyzerPy
+        run: .venv-web/bin/python -m pip install --no-build-isolation --no-deps -e '.[web]'
+      - name: Check web-runtime Python dependencies
+        working-directory: Software/LogicAnalyzerPy
+        run: .venv-web/bin/python -m pip check
+      - name: Install locked Node dependencies
+        working-directory: Software/LogicAnalyzerPy/web
+        run: npm ci --no-audit --no-fund
+      - name: Run frontend lint
+        working-directory: Software/LogicAnalyzerPy/web
+        run: npm run lint
+      - name: Run frontend typecheck
+        working-directory: Software/LogicAnalyzerPy/web
+        run: npm run typecheck
+      - name: Run frontend unit tests
+        working-directory: Software/LogicAnalyzerPy/web
+        run: npm test -- --run
+      - name: Build production frontend assets
+        working-directory: Software/LogicAnalyzerPy/web
+        run: npm run build
+      - name: Check production asset drift
+        working-directory: Software/LogicAnalyzerPy
+        run: .venv/bin/python scripts/check_web_assets.py
+      - name: Run production browser smoke
+        working-directory: Software/LogicAnalyzerPy/web
+        run: npm run test:browser

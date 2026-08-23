@@ -311,7 +311,7 @@ accepted evidence remain unchanged.
 
 ## C2-B3: Physical byte-boundary capture gate
 
-- State: Pending
+- State: Blocked
 - Selected: 2026-08-23 (America/Los_Angeles)
 - Selection HEAD: `4919c52432e76070c2b65c579466a53dcb769fc9`
 - Selection tree: `4dd57406c729032b692b52f16411d231802ffe15`
@@ -379,3 +379,15 @@ accepted evidence remain unchanged.
 - No device enumeration, serial open, device request, capture, wiring change,
   firmware build/flash, bootloader entry, or persistent operation occurred.
   Operator confirmation remains the only missing B3 prerequisite.
+
+### C2-B3 blocked audit
+
+- The same complete operator-confirmation prerequisite remained absent for
+  three consecutive durable-goal turns.
+- All safe read-only preflight work is complete. C2-B3 cannot perform physical
+  I/O without the confirmation, and C2-B4 cannot begin without accepted B3
+  physical artifacts. Simulated, historical, or partial confirmation cannot
+  replace fresh operator authority.
+- Resume condition: the operator explicitly supplies every item listed under
+  `Missing operator prerequisite` above. On resume, recheck the exact repository
+  state and treat any later repeated blocker under a fresh blocked audit.

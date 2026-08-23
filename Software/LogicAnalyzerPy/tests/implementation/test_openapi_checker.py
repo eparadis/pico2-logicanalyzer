@@ -57,14 +57,14 @@ def test_checker_rejects_nested_closure_and_upload_drift() -> None:
 
 def test_checker_rejects_primitive_and_enum_wire_drift() -> None:
     _fails(
-        lambda document: document["components"]["schemas"]["BusPage"]["properties"][
-            "rows"
-        ]["items"]["properties"]["decimal"].update({"type": "string"})
+        lambda document: document["components"]["schemas"]["BusPage"]["properties"]["rows"][
+            "items"
+        ]["properties"]["decimal"].update({"type": "string"})
     )
     _fails(
-        lambda document: document["components"]["schemas"]["CaptureMetadata"][
-            "properties"
-        ]["trigger_edge"].update({"enum": ["rising"]})
+        lambda document: document["components"]["schemas"]["CaptureMetadata"]["properties"][
+            "trigger_edge"
+        ].update({"enum": ["rising"]})
     )
     _fails(
         lambda document: document["components"]["schemas"]["WaveformWindow"]["properties"][
@@ -84,3 +84,17 @@ def test_checker_rejects_generated_type_structure_drift() -> None:
         checker.validate(document, types.replace("capture_id: string", "capture_id: number"))
     with pytest.raises(AssertionError):
         checker.validate(document, types.replace("decimal: number", "decimal: string"))
+
+
+def test_checker_fingerprint_normalizes_json_and_rejects_deep_or_byte_drift() -> None:
+    document, types = _contract()
+    reformatted = json.loads(json.dumps(document, indent=2, sort_keys=False))
+    checker.validate(reformatted, types)
+    deep = copy.deepcopy(document)
+    deep["components"]["schemas"]["BusPage"]["properties"]["rows"]["items"]["properties"]["binary"][
+        "maxLength"
+    ] = 9
+    with pytest.raises(AssertionError):
+        checker.validate(deep, types)
+    with pytest.raises(AssertionError):
+        checker.validate(document, types + "\n")

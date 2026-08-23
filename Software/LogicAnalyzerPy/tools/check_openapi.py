@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from pathlib import Path
@@ -36,6 +37,8 @@ TS_TYPES = {
     "ExportRequest",
     "BusRow",
 }
+OPENAPI_FINGERPRINT = "2783c00db3f707fc5591c04e9ff547b93b453d4234e892bd0392aec5b30a99b8"
+TYPES_FINGERPRINT = "56032d85b25ffbf2ff33c5377efe125317966bbec953e8192cb1a02b4fc6fbcf"
 
 
 def _closed(schema: object) -> None:
@@ -92,6 +95,10 @@ def _typescript_fields(schema: dict[str, object], fields: str) -> None:
 
 
 def validate(document: dict[str, object], types: str) -> None:
+    # Updating either fingerprint requires a reviewed B4 contract regeneration/change.
+    canonical = json.dumps(document, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    assert hashlib.sha256(canonical.encode("utf-8")).hexdigest() == OPENAPI_FINGERPRINT
+    assert hashlib.sha256(types.encode("utf-8")).hexdigest() == TYPES_FINGERPRINT
     assert document.get("openapi") == "3.1.0"
     paths = document["paths"]
     assert isinstance(paths, dict)

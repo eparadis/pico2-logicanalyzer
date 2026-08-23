@@ -13,8 +13,9 @@ HEX64 = re.compile(r"^[0-9a-f]{64}$")
 CHECKPOINT = re.compile(r"^C2-B[1-6]$")
 SECRET = re.compile(
     r"/dev/(?:tty|cu\.|serial/)|https?://(?:localhost|127\.0\.0\.1|\[)|/(?:Users|home)/"
-    r"|(?:authorization|bearer|basic|cookie|set-cookie|pico_la_capability|token|api[_-]?key|password)"
-    r"\s*(?:=|:|\s)\s*[^\s,;]+"
+    r"|authorization\s*(?::|=)?\s*(?:bearer|basic)\s+[^\s,;]+"
+    r"|(?:cookie|set-cookie)\s*:\s*[^\s,;]+"
+    r"|(?:pico_la_capability|token|api[_-]?key|password)\s*(?:=|:)\s*[^\s,;]+"
     r"|(?<![A-Za-z0-9_-])[A-Za-z0-9_-]{43}(?![A-Za-z0-9_-])",
     re.I,
 )

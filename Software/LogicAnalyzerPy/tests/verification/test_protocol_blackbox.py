@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from time import sleep
-
 import numpy as np
 import pytest
 
@@ -297,20 +295,25 @@ def test_recovery_continuous_input_stops_at_fixed_drain_limit_before_close() -> 
 
 
 class _SlowDrainTransport(FakeTransport):
-    def __init__(self) -> None:
+    def __init__(self, clock: list[float]) -> None:
         super().__init__()
+        self.clock = clock
         self.timeouts: list[float] = []
 
     def read_exact(self, size: int, timeout: float) -> bytes:
         self.timeouts.append(timeout)
         if len(self.timeouts) == 1:
-            sleep(0.005)
+            self.clock[0] += 0.005
             return b"x"
         raise TransportTimeout("scripted slow drain elapsed the budget")
 
 
-def test_recovery_drain_uses_one_overall_timeout_budget_not_one_per_byte() -> None:
-    transport = _SlowDrainTransport()
+def test_recovery_drain_uses_one_overall_timeout_budget_not_one_per_byte(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    clock = [100.0]
+    monkeypatch.setattr("pico_logic_analyzer.driver.recovery.monotonic", lambda: clock[0])
+    transport = _SlowDrainTransport(clock)
     CaptureRecovery(transport, lambda: None).timeout_or_cancel(0.02)
     assert len(transport.timeouts) == 2
     assert 0 < transport.timeouts[1] < transport.timeouts[0]

@@ -56,8 +56,15 @@ jobs:
           probe="$(sanitize_report "$probe_file")"
           rm -f "$probe_file"
           case "$probe" in
-            *"$hostile_token"*|*'/dev/serial/'*|*'<TOKEN_REDACTED>'*'<PORT_REDACTED>'*)
+            *"$hostile_token"*|*'/dev/serial/'*)
               printf '%s\n' 'workflow sanitizer self-test failed' >&2
+              exit 2
+              ;;
+          esac
+          case "$probe" in
+            *'<TOKEN_REDACTED>'*'<PORT_REDACTED>') ;;
+            *)
+              printf '%s\n' 'workflow sanitizer self-test missing redaction marker' >&2
               exit 2
               ;;
           esac

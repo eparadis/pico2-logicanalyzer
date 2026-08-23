@@ -810,3 +810,21 @@ accepted evidence remain unchanged.
 - Loopback/browser skips are not credited and remain for independent/root
   brokered execution. No device, firmware, persistent-state, public-server,
   .NET, packaging/publication, B5/B6 feature, or Cycle 3 action occurred.
+
+### C2-B4 verification round 1
+
+- Candidate: `296feec8d9a6441b0194fa95c06128be173d234e`; tree
+  `660a1f3d7689002c588c583591d8bf30b589d09f`.
+- Verification identity: `cycle2-verifier-replacement-3`.
+- Verdict: `changes_required`; open findings `C2B4-V001` through `C2B4-V008`.
+- Independent regression: 1 passed and 3 failed. Existing non-hardware suite:
+  283 passed and 2 covered loopback skips. Brokered real-loopback API: 1 failed.
+  Mypy reported 4 errors in 2 files.
+- Pip check, Ruff, CLI, OpenAPI checker, Node 22 lint/type/unit/build/assets, and
+  brokered Playwright 1-test smoke passed.
+- Immutable record: `docs/reviews/c2-b4-verification-round-1.md`, SHA-256
+  `4384d1382d181b8e7d1a788d12bbff5f8928d7c52a0a31750292b79247bf093d`;
+  verification tests and record were committed at `5efadbc` and `dd36a79`.
+- No pass transfers. The same implementation lane must read the durable record,
+  correct all findings, run focused/full gates including real loopback, and
+  produce a new immutable candidate for a fresh verification round.

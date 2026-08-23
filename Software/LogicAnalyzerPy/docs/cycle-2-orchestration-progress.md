@@ -1020,3 +1020,16 @@ accepted evidence remain unchanged.
   baseline fixtures must include dense and maximum-width cases, CI timing is
   informational absent a repeatable relative method, and exact approved
   thresholds cannot be inferred before measurement.
+
+### C2-B5 implementation identity change
+
+- Prior identity: `cycle2-implementor-replacement-6`.
+- New identity: `cycle2-b5-implementor-replacement-1`.
+- Reason: the prior lane established useful geometry, API, Canvas, and shell
+  foundations but repeatedly ended bounded continuation turns while explicitly
+  assigned pointer interaction, marker integration, width coverage, bus,
+  cancellation, negative, and benchmark work remained incomplete.
+- The shared uncommitted frontend, tests, and rebuilt assets remain partial
+  implementation work for the replacement to inspect, correct, validate, and
+  complete. No candidate or acceptance transfers by inheritance.
+- Verification and acceptance identities remain distinct and unchanged.

@@ -528,6 +528,34 @@ accepted evidence remain unchanged.
   verification, complete accumulated gate, scope, and the prior B2 checkpoint
   reopening. No earlier acceptance transfers.
 
+### C2-B2 corrected-candidate recheckpoint
+
+- State: Complete
+- Corrected accepted candidate:
+  `90adb3adb38a938ce470fa854e6fc7b98e1501c9`
+- Corrected accepted tree: `5a09d57e4caa266a43f164edaffc94fc9a3236d7`
+- Physical finding `C2B3-I001`: accepted closed; the exact D0-D23 default
+  label/mapping path now passes while malformed metadata remains rejected.
+- Verification: pass, no open findings,
+  `docs/reviews/c2-b2-verification-round-4.md`, SHA-256
+  `56f5a99c0d34464ae09081145ef2b9d1378e6b6c792276152515cb3dc47e443a`.
+- Acceptance: pass, no open findings,
+  `docs/reviews/c2-b2-acceptance-round-2.md`, SHA-256
+  `9930b43a96adcbebfa4670f3c01507c5c5bc89e2bf7640a953fdb9a0f1fa2d3e`.
+- Complete accumulated Python/frontend/browser validation passed as recorded
+  above; no earlier verification, acceptance, or partial hardware result was
+  transferred.
+- Updated active evidence manifest: `testdata/evidence/c2-b2.json`, committed
+  separately at `5f5eebb`, SHA-256
+  `d930bce4ae20576ea030e35cf0e993a3caf89e95f5eb5195638471c1790c2be4`;
+  strict validation and the 9-test evidence-schema suite passed.
+- Git history preserves the superseded accepted B2 manifest/checkpoint as
+  immutable historical evidence; it no longer identifies the active product
+  candidate after the physical finding.
+- C2-B3 is authorized to restart its entire physical sequence against the
+  corrected candidate. No prior recovery, 8-channel, or 16-channel runtime pass
+  transfers.
+
 ### C2-B3 implementation identity change
 
 - Prior identity: `cycle2-implementor-replacement-4`

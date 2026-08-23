@@ -852,3 +852,21 @@ accepted evidence remain unchanged.
   `d4e6b1c67c3093c68ddb75010776cb4187bf4e94ee5b95c97ca527f2479a53f1`.
 - Fresh independent verification and complete accumulated validation are
   required; no round-1 or implementation pass transfers.
+
+### C2-B4 verification round 2
+
+- Candidate: `dd49ee6aab0092c3963ed30f279fcde026ab70d7`; tree
+  `4d29e8309f8d0365b0b9804227a2587e929c2d01`.
+- Verification identity: `cycle2-verifier-replacement-3`.
+- Verdict: `changes_required`; open findings `C2B4-V001`, `C2B4-V004`,
+  `C2B4-V006`, `C2B4-V009`, and `C2B4-V010`.
+- Independent regression: 4 passed and 3 failed. Existing non-hardware: 287
+  passed and 2 covered sandbox skips. Brokered loopback API and Playwright each
+  passed 1 test.
+- Pip check, Ruff, mypy, CLI, Node 22 lint/type/unit/build/assets all passed.
+- Immutable record: `docs/reviews/c2-b4-verification-round-2.md`, SHA-256
+  `65befa7e91af39a2523e9735bd012c337b4cd5d521b1f5bfac3f9d3f8debc587`;
+  test and record commits `9ae9eac` and `89afea9`.
+- No pass transfers. The same implementation lane must read the durable record,
+  correct every open finding without weakening the approved interface/security,
+  and produce a new immutable candidate for a complete fresh round.

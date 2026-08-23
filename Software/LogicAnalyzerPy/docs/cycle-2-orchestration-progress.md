@@ -275,3 +275,36 @@ accepted evidence remain unchanged.
 - B2 requires the complete local non-hardware Python/frontend shell gate; a
   separate exact-candidate hosted-CI run is not an owning B2 acceptance item.
   Hosted macOS CI remains mandatory for the final candidate at C2-B6.
+
+## C2-B2 checkpoint
+
+- State: Complete
+- Recorded: 2026-08-23T15:38:59Z
+- Exact accepted candidate:
+  `c3f43a9ef0311c34ece3f95c94871fcfcd2c12a3`
+- Exact accepted tree: `782f101981348ebdde23a338c8db5a92eb81f73b`
+- Verification: pass, no open findings,
+  `docs/reviews/c2-b2-verification-round-3.md`, SHA-256
+  `765e00cfe542ce29f712bf433b05e99c7175500b9bacb4cc5868348c98caa85a`.
+- Acceptance: pass, no open findings,
+  `docs/reviews/c2-b2-acceptance-round-1.md`, SHA-256
+  `b5eca46652d8449438be5d228a055aad91f8e9dcb8ac5221295df6785ab3fdc8`.
+- Accumulated validation: clean locked Python 3.12.13 install; pip check;
+  Ruff; mypy; 265 passed and 1 covered sandbox skip in the orchestrator
+  non-hardware run; CLI; clean Node 22.14.0 install; lint; typecheck; unit;
+  production build; deterministic assets; and Playwright production smoke all
+  passed. Independent verification separately ran 266 non-hardware tests with
+  no skip.
+- Evidence manifest: `testdata/evidence/c2-b2.json`, committed separately at
+  `ff8c978`, SHA-256
+  `6e3a42fa4955e17c39a3c13fe09613327d21b572696fd3ecd69d485a3bd21b2a`;
+  strict validation and the 9-test evidence-schema suite passed.
+- Checkpoint proof records stopping conditions 4 and 6 and the B2-owned portion
+  of condition 5. Their final accumulated audit remains owned by C2-B6.
+- Prohibited actions: none performed; no hardware or serial access, firmware,
+  C# or .NET change/execution, public serving, persistent device state,
+  packaging/publication, or Cycle 3 work occurred.
+- Next boundary: C2-B3 remains pending until the operator supplies every fresh
+  hardware, electrical, mapping, firmware-identity, idle-input, and explicit
+  serial-port confirmation required by the governing contracts. No physical
+  I/O is authorized before that confirmation.

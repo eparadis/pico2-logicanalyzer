@@ -80,7 +80,7 @@ def test_replay_has_only_safe_members_canonical_metadata_and_exact_uint8_samples
         metadata, sort_keys=True, separators=(",", ":"), ensure_ascii=False
     ).encode()
     assert canonical == metadata_wire
-    assert metadata["schema_version"] == 1 and metadata["provisional"] is True
+    assert metadata["schema_version"] == 2 and "provisional" not in metadata
     assert metadata["trigger_index"] == 2 and metadata["requested_count"] == 5
     assert metadata["channel_ids"] == list(range(8))
 

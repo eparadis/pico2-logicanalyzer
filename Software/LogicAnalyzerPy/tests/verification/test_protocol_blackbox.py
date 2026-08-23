@@ -240,7 +240,6 @@ def test_capture_model_d0_and_trigger_time_boundaries() -> None:
         {"post_trigger_samples": 0},
         {"trigger_channel": 8},
         {"trigger_edge": "other"},
-        {"channel_ids": (0, 1, 2, 3, 4, 5, 6)},
     ],
 )
 def test_capture_config_rejects_outside_cycle1_boundary(kwargs: dict[str, object]) -> None:
@@ -254,6 +253,12 @@ def test_capture_config_rejects_outside_cycle1_boundary(kwargs: dict[str, object
     baseline.update(kwargs)
     with pytest.raises(ValidationError):
         CaptureConfig(**baseline)  # type: ignore[arg-type]
+
+
+def test_capture_config_accepts_valid_ordered_seven_channel_subset() -> None:
+    config = CaptureConfig(100, 2, 1, 6, "rising", (0, 1, 2, 3, 4, 5, 6))
+    assert config.channel_ids == (0, 1, 2, 3, 4, 5, 6)
+    assert config.firmware_mode == 0
 
 
 def test_capture_result_rejects_noncontiguous_samples() -> None:

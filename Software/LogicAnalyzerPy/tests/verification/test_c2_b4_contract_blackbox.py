@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import io
 import json
 from pathlib import Path
 from types import SimpleNamespace
@@ -12,9 +13,10 @@ import pytest
 from multidict import CIMultiDict
 
 from pico_logic_analyzer.analysis import bus_csv_bytes, sampled_rows, transition_rows
+from pico_logic_analyzer.formats.replay import load_replay_bytes
 from pico_logic_analyzer.model import CaptureConfig, CaptureResult, DeviceInfo
 from pico_logic_analyzer.web import server as web_server
-from pico_logic_analyzer.web.server import create_app
+from pico_logic_analyzer.web.server import MAX_REQUEST_BYTES, MAX_UPLOAD_BYTES, create_app
 
 ROOT = Path(__file__).parents[2]
 
@@ -171,3 +173,71 @@ def test_replay_import_does_not_require_csv_metadata(
     )
     response = asyncio.run(handler(request))
     assert response.status != 400
+
+
+def test_openapi_closed_schemas_match_complete_runtime_objects() -> None:
+    document = json.loads((ROOT / "web/openapi.json").read_text(encoding="utf-8"))
+    schemas = document["components"]["schemas"]
+    expected_capture = {
+        "capture_id",
+        "sample_count",
+        "sample_rate_hz",
+        "trigger_index",
+        "trigger_channel",
+        "trigger_edge",
+        "channel_ids",
+    }
+    capture = schemas["CaptureMetadata"]
+    assert set(capture["properties"]) == expected_capture
+    assert set(capture["required"]) == expected_capture
+    for name, schema in schemas.items():
+        if schema.get("type") == "object":
+            assert schema.get("additionalProperties") is False, name
+            assert set(schema.get("required", [])) == set(schema.get("properties", [])), name
+        for property_schema in schema.get("properties", {}).values():
+            if property_schema.get("type") == "array":
+                assert "items" in property_schema, name
+
+
+def test_upload_limit_is_reachable_through_outer_request_boundary() -> None:
+    # Multipart framing adds bytes, so equality would still be insufficient.
+    assert MAX_REQUEST_BYTES > MAX_UPLOAD_BYTES
+
+
+def test_schema1_loader_retains_accepted_archive_bound_above_two_mib() -> None:
+    count = 2_100_000
+    metadata = {
+        "actual_count": count,
+        "channel_ids": list(range(8)),
+        "channel_labels": [f"D{i}" for i in range(8)],
+        "channel_mapping": [f"D{i}" for i in range(8)],
+        "device": {
+            "capabilities": {
+                "blast_frequency_hz": 1_000_000,
+                "buffer_size": count,
+                "channel_count": 8,
+                "max_frequency_hz": 1_000_000,
+            },
+            "identity": "LOGIC_ANALYZER_TEST_V6_0",
+        },
+        "post_trigger_samples": count - 1,
+        "pre_trigger_samples": 1,
+        "provisional": True,
+        "requested_count": count,
+        "sample_rate_hz": 100,
+        "schema_version": 1,
+        "trigger_channel": 0,
+        "trigger_edge": "rising",
+        "trigger_index": 1,
+    }
+    output = io.BytesIO()
+    metadata_bytes = json.dumps(
+        metadata, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    ).encode()
+    np.savez(
+        output,
+        samples=np.zeros(count, dtype=np.uint8),
+        metadata=np.frombuffer(metadata_bytes, dtype=np.uint8),
+    )
+    samples, loaded = load_replay_bytes(output.getvalue())
+    assert len(samples) == count and loaded == metadata

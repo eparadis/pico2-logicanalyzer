@@ -14,6 +14,13 @@ const nextPaint = (page: Page): Promise<unknown> => page.evaluate(() => new Prom
 test("frozen production rendering baseline", async ({ page, browser }) => {
   test.setTimeout(300_000);
   const loads: Load[] = []; const busSamples: BusSample[] = [];
+  let maxWaveformRequestSpanSamples = 0;
+  page.on("request", (request) => {
+    const url = new URL(request.url());
+    if (!url.pathname.endsWith("/waveform")) return;
+    const start = Number(url.searchParams.get("start")); const end = Number(url.searchParams.get("end"));
+    maxWaveformRequestSpanSamples = Math.max(maxWaveformRequestSpanSamples, end - start);
+  });
   for (let iteration = 0; iteration < 2; iteration += 1) {
     const started = nodePerformance.now(); await page.goto("/");
     await expect(page.locator("p[role=status]")).toHaveText("empty"); await nextPaint(page);
@@ -97,12 +104,13 @@ test("frozen production rendering baseline", async ({ page, browser }) => {
     load_median_ms: nearestRank(loads.map((item) => item.milliseconds), 0.5), load_p95_ms: nearestRank(loads.map((item) => item.milliseconds), 0.95),
     interactions_ms: interactions, interaction_median_ms: nearestRank(interactions, 0.5), interaction_p95_ms: nearestRank(interactions, 0.95),
     bus_observations: busObservations, used_js_heap_bytes: heap, memory_reliable: heap !== null,
-    bounds: { waveform_request_max_span_samples: 393216, waveform_pixel_width: 960, canvas_command_formula: "channel_count * (pixel_width * 2 + 2) + 1", canvas_command_ceiling: 46129, dom_node_ceiling_exclusive: 1000 },
+    bounds: { waveform_request_max_span_samples: 100000, waveform_request_max_observed_span_samples: maxWaveformRequestSpanSamples, waveform_pixel_width: 960, canvas_command_formula: "channel_count * (pixel_width * 2 + 2) + 1", canvas_command_ceiling: 46129, dom_node_ceiling_exclusive: 1000 },
     nondisclosure: { raw_port: false, serial_number: false, location: false, token: false },
   };
   writeFileSync("test-results/c2-b6-performance.json", JSON.stringify(report, null, 2) + "\n");
   expect(loads).toHaveLength(16); expect(loadStatistics.every((item) => item.iterations === 2)).toBe(true);
   expect(interactions).toHaveLength(30); expect(busObservations.every((item) => item.iterations === 2)).toBe(true);
+  expect(maxWaveformRequestSpanSamples).toBeGreaterThan(0); expect(maxWaveformRequestSpanSamples).toBeLessThanOrEqual(100000);
   expect(Math.max(...loads.map((item) => item.commands))).toBeLessThanOrEqual(24 * (960 * 2 + 2) + 1);
   expect(Math.max(...loads.map((item) => item.dom_nodes))).toBeLessThan(1000);
 });

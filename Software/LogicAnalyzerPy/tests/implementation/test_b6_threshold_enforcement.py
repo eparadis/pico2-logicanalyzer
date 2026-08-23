@@ -61,6 +61,14 @@ def test_verifier_observed_evidence_mutations_are_rejected(
         validate(report)
 
 
+def test_waveform_request_ceiling_rejects_capture_capacity_as_span() -> None:
+    report = json.loads(B6_RUN.read_text(encoding="utf-8"))
+    report["bounds"]["waveform_request_max_span_samples"] = 393216
+    report["bounds"]["waveform_request_max_observed_span_samples"] = 393216
+    with pytest.raises(AssertionError, match="request/Canvas/DOM bounds"):
+        validate(report)
+
+
 @pytest.mark.parametrize("metric", sorted(TIMING_CEILINGS))
 def test_each_approved_ceiling_is_independently_enforced(metric: str) -> None:
     report = json.loads(BASELINE.read_text(encoding="utf-8"))

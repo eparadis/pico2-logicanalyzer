@@ -44,7 +44,7 @@ PRODUCT_IDENTITIES = {
         "00d553697834509104a5751affc2abad48ec619bbd7f167ac2f8a1de0953d9d9",
     ),
     (
-        "68dd480c3e8df3cc0409053c81834cb082e64243d22e08d2217a675d63e18265",
+        "34242c14be1d796c8f3db97be31b3296ee642a530a2b88f9cb6994b8232d536a",
         "c27b08c3fbbce7ead5e7afa4b92bffdaf9623f46f4319d92c78942ab2e59059d",
     ),
 }
@@ -190,7 +190,8 @@ def validate(report: dict[str, object]) -> None:
         == "c27b08c3fbbce7ead5e7afa4b92bffdaf9623f46f4319d92c78942ab2e59059d"
     ):
         if report.get("bounds") != {
-            "waveform_request_max_span_samples": 393216,
+            "waveform_request_max_span_samples": 100000,
+            "waveform_request_max_observed_span_samples": 100000,
             "waveform_pixel_width": 960,
             "canvas_command_formula": "channel_count * (pixel_width * 2 + 2) + 1",
             "canvas_command_ceiling": 46129,

@@ -595,3 +595,28 @@ accepted evidence remain unchanged.
 - Runtime raw artifacts remain outside the repository for independent verifier
   inspection. Durable artifacts contain no port, serial, location, or
   capability values. State advances to Verifying; no result is accepted yet.
+
+### C2-B3 independent verification and accumulated validation
+
+- Independent verification identity: `cycle2-verifier-replacement-3`.
+- Verdict: pass with no open findings; record
+  `docs/reviews/c2-b3-verification-round-1.md`, SHA-256
+  `ebeee036728cada9a9046fdcdee4e4a356955a5e3a1a3f10d075ba66ff4fad78`.
+- The verifier independently read all seven runtime recovery/CSV/NPZ artifacts,
+  matched their digests, derived exact dtypes/counts/masks/transitions,
+  reconstructed every CSV byte-for-byte without the implementation helper,
+  proved the 24-bit upper byte zero, and audited bounded recovery,
+  reopen/re-identification, and the second capture.
+- Independent focused artifact/recovery suite: 14 passed. Full non-hardware:
+  280 passed and 1 covered sandbox-loopback skip. Ruff, mypy over 19 files, and
+  CLI help passed.
+- Root accumulated gate: pip check; Ruff; mypy; 280 non-hardware passed with 1
+  covered sandbox-loopback skip and 94 warnings; CLI help; deterministic assets;
+  Node 22.14.0 lint/typecheck/one unit/production build; Playwright production
+  smoke 1 passed; and `git diff --check` passed.
+- Verification test
+  `tests/verification/test_c2_b3_physical_artifacts_blackbox.py` SHA-256
+  `cbf2bf036e6edfe264964f6ab286cf993e5577573abb951a9027cc9243e2d8d1`.
+- No additional USB operation, firmware/persistent action, power cycle, or
+  sensitive durable value occurred during verification/accumulated validation.
+  C2-B3 is ready for fresh independent acceptance of this complete gate.

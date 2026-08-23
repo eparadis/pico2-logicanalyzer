@@ -1,0 +1,163 @@
+{
+  "schema_version": 2,
+  "checkpoint": "C2-B4",
+  "tested_commit": "c8029a1c431092f5cf08de23ecc394ecc8e721d4",
+  "tested_tree": "d8a5e64f9a64f96a6c52c3cdd6da574a6f6a0c33",
+  "timestamp_utc": "2026-08-23T19:25:14Z",
+  "worktree_state": "The exact product candidate was immutable before separate implementation, independent verification, and independent acceptance records were committed; the manifest was assembled afterward from a clean descendant.",
+  "environment": {
+    "os": "macOS 15.7.7",
+    "architecture": "x86_64",
+    "python": "3.12.13",
+    "node": "22.14.0",
+    "browser": "Playwright Chromium build 1155",
+    "automation": "Playwright 1.50.1"
+  },
+  "locks": {
+    "requirements_dev": "6f78ec8f0219b919c44ed9b9f1d30c2337fcce7c911b8d3dc4c13edb707a6575",
+    "requirements_web": "6f78ec8f0219b919c44ed9b9f1d30c2337fcce7c911b8d3dc4c13edb707a6575",
+    "package_lock": "d388a2668b3f65edeb62ee99da3ad37ffc56ab1ca3439b6d418a6bbe92e838d9",
+    "assets": "1d1b44794eed6f288f1140e67c1520d847fb3263718672cf743ff70b9da0ece9"
+  },
+  "roles": {
+    "implementation": "cycle2-implementor-replacement-6: B4 implementation round 7 pass",
+    "verification": "cycle2-verifier-replacement-3: B4 verification round 7 pass",
+    "acceptance": "cycle2-acceptance-replacement-3: B4 acceptance round 1 pass"
+  },
+  "commands": [
+    {
+      "command": "python -m pytest -m 'not hardware'; python -m pip check; python -m ruff check .; python -m mypy src; python -m pico_logic_analyzer --help",
+      "exit_status": 0,
+      "verifier": "cycle2-acceptance-replacement-3"
+    },
+    {
+      "command": "python -m pytest tests/implementation/test_openapi_checker.py tests/verification/test_c2_b4_round4_blackbox.py tests/verification/test_c2_b4_round5_checker.py tests/verification/test_c2_b4_round6_checker.py tests/verification/test_c2_b4_round7_fingerprints.py",
+      "exit_status": 0,
+      "verifier": "cycle2-verifier-replacement-3"
+    },
+    {
+      "command": "python tools/check_openapi.py; python scripts/check_web_assets.py; git diff --check",
+      "exit_status": 0,
+      "verifier": "cycle2-acceptance-replacement-3"
+    },
+    {
+      "command": "npm run lint; npm run typecheck; npm test -- --run; npm run build",
+      "exit_status": 0,
+      "verifier": "cycle2-acceptance-replacement-3"
+    },
+    {
+      "command": "python -m pytest tests/implementation/test_web_api.py -q",
+      "exit_status": 0,
+      "verifier": "cycle2-orchestrator"
+    },
+    {
+      "command": "npm run test:browser",
+      "exit_status": 0,
+      "verifier": "cycle2-orchestrator"
+    },
+    {
+      "command": "python scripts/validate_cycle2_evidence.py docs/evidence-manifest/cycle2-schema.json testdata/evidence/c2-b4.json",
+      "exit_status": 0,
+      "verifier": "cycle2-orchestrator"
+    }
+  ],
+  "sources": [
+    {
+      "category": "cycle1-accepted",
+      "revision": "c8029a1c431092f5cf08de23ecc394ecc8e721d4",
+      "artifact": "Software/LogicAnalyzerPy/testdata/evidence/c2-b3.json",
+      "sha256": "9db03e119c6cacb40e87ef61d8f7ef1e24692ea45527f5e331e2103ecc59ff1b"
+    },
+    {
+      "category": "synthetic",
+      "revision": "c8029a1c431092f5cf08de23ecc394ecc8e721d4",
+      "artifact": "Software/LogicAnalyzerPy/docs/reviews/c2-b4-implementation-round-7.md",
+      "sha256": "ff283b698a10c8bcda747b8fa8567b69e2af22d5d3f807ae2f6f1b05057cad2e"
+    },
+    {
+      "category": "synthetic",
+      "revision": "c8029a1c431092f5cf08de23ecc394ecc8e721d4",
+      "artifact": "Software/LogicAnalyzerPy/docs/reviews/c2-b4-verification-round-7.md",
+      "sha256": "59fb4849d5a0f415dd183892911a484c91dfde49483f956a29944f2e74f0653e"
+    },
+    {
+      "category": "synthetic",
+      "revision": "c8029a1c431092f5cf08de23ecc394ecc8e721d4",
+      "artifact": "Software/LogicAnalyzerPy/tests/verification/test_c2_b4_round7_fingerprints.py",
+      "sha256": "ca4a0c590c42d009caeac37ee327dcec645d2e07d35224c7feb488ff16bbcbc6"
+    },
+    {
+      "category": "browser-observation",
+      "revision": "c8029a1c431092f5cf08de23ecc394ecc8e721d4",
+      "artifact": "Software/LogicAnalyzerPy/docs/reviews/c2-b4-acceptance-round-1.md",
+      "sha256": "ef31d583d6df874ceb8a92fe8e54246e903d1265a93ef28a00a45cbbc4f0a906"
+    },
+    {
+      "category": "generated-fixture",
+      "revision": "c8029a1c431092f5cf08de23ecc394ecc8e721d4",
+      "artifact": "Software/LogicAnalyzerPy/web/openapi.json",
+      "sha256": "bd97bffe12e9101edbb275ce6319061f947251ade18f423c61586b08c6303315"
+    },
+    {
+      "category": "generated-fixture",
+      "revision": "c8029a1c431092f5cf08de23ecc394ecc8e721d4",
+      "artifact": "Software/LogicAnalyzerPy/web/src/api.generated.ts",
+      "sha256": "56032d85b25ffbf2ff33c5377efe125317966bbec953e8192cb1a02b4fc6fbcf"
+    }
+  ],
+  "stopping_conditions": [
+    {
+      "id": 5,
+      "artifacts": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c2-b4-verification-round-7.md",
+          "sha256": "59fb4849d5a0f415dd183892911a484c91dfde49483f956a29944f2e74f0653e"
+        },
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c2-b4-acceptance-round-1.md",
+          "sha256": "ef31d583d6df874ceb8a92fe8e54246e903d1265a93ef28a00a45cbbc4f0a906"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "artifacts": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c2-b4-implementation-round-7.md",
+          "sha256": "ff283b698a10c8bcda747b8fa8567b69e2af22d5d3f807ae2f6f1b05057cad2e"
+        },
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c2-b4-verification-round-7.md",
+          "sha256": "59fb4849d5a0f415dd183892911a484c91dfde49483f956a29944f2e74f0653e"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "artifacts": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c2-b4-acceptance-round-1.md",
+          "sha256": "ef31d583d6df874ceb8a92fe8e54246e903d1265a93ef28a00a45cbbc4f0a906"
+        }
+      ]
+    }
+  ],
+  "findings": [
+    "C2B4-V001, C2B4-V004, C2B4-V006, and C2B4-V011 are closed in verification round 7.",
+    "No open or deferred C2-B4 findings."
+  ],
+  "decisions": [
+    "The operator-approved browser interface is REST plus polling with no WebSockets and a Python-owned OpenAPI 3.1 contract with closed schemas and generated TypeScript types.",
+    "Imports are bounded asynchronous in-memory operations with deterministic ownership, polling, cancellation, cleanup, and no serial or persistent-file surface.",
+    "The complete canonical OpenAPI and generated TypeScript artifacts are fingerprinted as the exhaustive drift barrier while semantic and runtime tests provide behavior diagnostics."
+  ],
+  "limitations": [
+    "Operating systems other than macOS are outside Cycle 2 support and acceptance scope.",
+    "The B4 API operates on bounded imported captures only and deliberately exposes no real serial-device surface.",
+    "Intentional OpenAPI or generated-TypeScript regeneration requires a reviewed fingerprint update."
+  ],
+  "deferred_work": [
+    "Complete waveform-viewer interaction and approved performance thresholds remain owned by C2-B5.",
+    "Native browser plus real-device capture acceptance, hosted exact-candidate CI, and final completion proof remain owned by C2-B6."
+  ]
+}

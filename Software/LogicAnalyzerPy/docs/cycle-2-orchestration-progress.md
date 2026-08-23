@@ -311,7 +311,7 @@ accepted evidence remain unchanged.
 
 ## C2-B3: Physical byte-boundary capture gate
 
-- State: Pending
+- State: Blocked
 - Selected: 2026-08-23 (America/Los_Angeles)
 - Selection HEAD: `4919c52432e76070c2b65c579466a53dcb769fc9`
 - Selection tree: `4dd57406c729032b692b52f16411d231802ffe15`
@@ -402,3 +402,16 @@ accepted evidence remain unchanged.
   board/firmware identity remain explicitly required before any physical I/O.
 - The prior blocked state is reopened as Pending. This resume starts a fresh
   repeated-blocker audit if the remaining prerequisite is not supplied.
+
+### C2-B3 resumed blocked audit
+
+- The explicit serial port and current Pico 2/fixed checked-in V2 firmware
+  identity confirmation remained absent for three consecutive resumed goal
+  turns.
+- Wiring and electrical confirmation remains accepted, but it does not grant
+  authority to infer a machine-local port or current firmware identity.
+- No safe independent work remains: physical I/O requires both confirmations,
+  and C2-B4 requires accepted B3 physical artifacts.
+- Resume condition: the operator supplies the explicit serial port and confirms
+  the attached Raspberry Pi Pico 2 is running the fixed checked-in V2 firmware
+  built with `BOARD_TYPE=BOARD_PICO_2`.

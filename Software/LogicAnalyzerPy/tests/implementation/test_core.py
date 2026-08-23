@@ -33,9 +33,9 @@ def test_capture_model_trigger_boundary() -> None:
     assert result.time_seconds(2) == 0
 
 
-def test_capture_model_rejects_non_cycle_one_channels() -> None:
-    with pytest.raises(ValidationError):
-        CaptureConfig(1, 0, 1, 0, "rising", (0,))
+def test_capture_model_accepts_ordered_subset_channels() -> None:
+    config = CaptureConfig(1, 0, 1, 0, "rising", (0,))
+    assert config.firmware_mode == 0 and config.bytes_per_word == 1
 
 
 def test_device_version_requires_v6_0_or_newer() -> None:

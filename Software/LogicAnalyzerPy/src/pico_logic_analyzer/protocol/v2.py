@@ -46,8 +46,11 @@ def encode_capture_request(config: CaptureConfig, device: DeviceInfo | None = No
     payload = bytearray(48)
     payload[1] = config.trigger_channel
     payload[2] = 1 if config.trigger_edge == "falling" else 0
-    payload[6:30] = bytes(range(8)) + bytes(16)
-    payload[30] = 8
+    payload[6:30] = bytes(config.channel_ids) + bytes(24 - len(config.channel_ids))
+    payload[30] = len(config.channel_ids)
+    # Offset 31 is the explicit pad after channelCount.  The V2 C structure
+    # carries captureMode after loopCount and measure at offset 46.
+    payload[46] = config.firmware_mode
     struct.pack_into(
         "<III",
         payload,
@@ -62,11 +65,16 @@ def encode_capture_request(config: CaptureConfig, device: DeviceInfo | None = No
 class ByteParser:
     def __init__(self, data: bytes = b"") -> None:
         self._data = bytearray(data)
+        self._invalidated = False
 
     def feed(self, data: bytes) -> None:
+        if self._invalidated:
+            raise ProtocolError("receive owner is invalidated")
         self._data.extend(data)
 
     def read_exact(self, size: int) -> bytes:
+        if self._invalidated:
+            raise ProtocolError("receive owner is invalidated")
         if size < 0 or len(self._data) < size:
             raise ProtocolError("truncated response")
         result = bytes(self._data[:size])
@@ -74,6 +82,8 @@ class ByteParser:
         return result
 
     def read_line(self, limit: int = 128) -> str:
+        if self._invalidated:
+            raise ProtocolError("receive owner is invalidated")
         try:
             end = self._data.index(10) + 1
         except ValueError as exc:
@@ -107,7 +117,7 @@ def parse_identity(parser: ByteParser) -> DeviceInfo:
 
 def parse_capture_response(
     parser: ByteParser, config: CaptureConfig, device: DeviceInfo
-) -> tuple[NDArray[np.uint8], DeviceInfo]:
+) -> tuple[NDArray[np.generic], DeviceInfo]:
     try:
         config.validate_for(device)
     except ValidationError as exc:
@@ -118,10 +128,14 @@ def parse_capture_response(
         count = struct.unpack("<I", parser.read_exact(4))[0]
     except struct.error as exc:
         raise ProtocolError("truncated capture count") from exc
-    if count != config.requested_count or count > device.buffer_size:
+    if count != config.requested_count or count * config.bytes_per_word > device.buffer_size:
         raise ProtocolError("invalid capture count")
-    samples = np.frombuffer(parser.read_exact(count), dtype=np.uint8).copy()
+    payload_size = count * config.bytes_per_word
+    samples = np.frombuffer(parser.read_exact(payload_size), dtype=config.sample_dtype).copy()
+    if config.firmware_mode == 2 and np.any(samples & np.uint32(0xFF000000)):
+        raise ProtocolError("24-channel response has nonzero upper byte")
     if parser.read_exact(1) != b"\0":
+        parser._invalidated = True
         raise ProtocolError("unexpected timestamp data")
     if parser._data:
         raise ProtocolError("extra capture response data")

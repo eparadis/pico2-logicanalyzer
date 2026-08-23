@@ -88,7 +88,7 @@ class V2DeviceService:
     def capture(
         self, port: str, config: CaptureConfig, timeout: float = DEFAULT_TIMEOUT_SECONDS
     ) -> CaptureResult:
-        """Perform one bounded normal D0--D7 capture on the explicit port."""
+        """Perform one bounded normal capture on the explicit port."""
         transport = self._transport_factory(port, timeout)
         try:
             transport.open()
@@ -102,10 +102,11 @@ class V2DeviceService:
             status = transport.read_line(timeout)
             count_bytes = transport.read_exact(4, timeout)
             count = int.from_bytes(count_bytes, "little")
-            if count != config.requested_count or count > device.buffer_size:
+            payload_size = count * config.bytes_per_word
+            if count != config.requested_count or payload_size > device.buffer_size:
                 raise ProtocolError("invalid capture count")
             # Count was checked before this allocation-free, negotiated-bounded read.
-            count_and_payload = count_bytes + transport.read_exact(count + 1, timeout)
+            count_and_payload = count_bytes + transport.read_exact(payload_size + 1, timeout)
             samples, _ = parse_capture_response(
                 ByteParser((status + "\n").encode("ascii") + count_and_payload), config, device
             )
@@ -113,7 +114,7 @@ class V2DeviceService:
                 config=config,
                 samples=samples,
                 device=device,
-                channel_mapping=tuple(f"GPIO{index}" for index in range(2, 10)),
+                channel_mapping=tuple(f"GPIO{channel + 2}" for channel in config.channel_ids),
             )
         except (ConnectionError, TimeoutError, ProtocolError, ValueError):
             raise

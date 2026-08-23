@@ -38,13 +38,18 @@ def _parser() -> argparse.ArgumentParser:
     info.add_argument("--json", action="store_true")
     info.add_argument("--timeout", type=float, metavar="SECONDS")
 
-    capture = subcommands.add_parser("capture", help="perform an 8-channel capture")
+    capture = subcommands.add_parser("capture", help="perform an ordered normal capture")
     capture.add_argument("--port", required=True, metavar="PORT")
     capture.add_argument("--sample-rate", required=True, type=int, metavar="HZ")
     capture.add_argument("--trigger-channel", required=True, type=int, metavar="CHANNEL")
     capture.add_argument("--edge", required=True, choices=("rising", "falling"))
     capture.add_argument("--pre-samples", required=True, type=int, metavar="N")
     capture.add_argument("--post-samples", required=True, type=int, metavar="N")
+    capture.add_argument(
+        "--channels",
+        metavar="D0,D1,...",
+        help="ordered physical channels (default: D0,D1,D2,D3,D4,D5,D6,D7)",
+    )
     capture.add_argument("--csv", required=True, metavar="PATH")
     capture.add_argument("--replay", required=True, metavar="PATH")
     capture.add_argument("--timeout", type=float, metavar="SECONDS")
@@ -139,12 +144,19 @@ def _info(arguments: argparse.Namespace) -> int:
 
 
 def _capture_config(arguments: argparse.Namespace) -> CaptureConfig:
+    channel_ids = tuple(range(8))
+    if getattr(arguments, "channels", None) is not None:
+        try:
+            channel_ids = tuple(int(value) for value in arguments.channels.split(","))
+        except ValueError as exc:
+            raise ValueError("--channels must be comma-separated integer IDs") from exc
     return CaptureConfig(
         arguments.sample_rate,
         arguments.pre_samples,
         arguments.post_samples,
         arguments.trigger_channel,
         arguments.edge,
+        channel_ids,
     )
 
 
@@ -175,7 +187,7 @@ def _atomic_json(path: Path, value: dict[str, object]) -> None:
 
 
 def _frequency_measurement(
-    samples: NDArray[np.uint8], channel: int, edge: str, sample_rate: int
+    samples: NDArray[np.generic], channel: int, edge: str, sample_rate: int
 ) -> tuple[float, int, int, float]:
     values = [((int(word) >> channel) & 1) for word in samples]  # bounded by negotiated buffer
     transitions = [

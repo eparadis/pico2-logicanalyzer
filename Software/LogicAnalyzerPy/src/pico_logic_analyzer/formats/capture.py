@@ -6,17 +6,120 @@ import csv
 import io
 import json
 import os
+import re
 import tempfile
 from pathlib import Path
 
 import numpy as np
 
 from pico_logic_analyzer.formats.replay import load_replay
-from pico_logic_analyzer.model import CaptureResult, ProtocolError
+from pico_logic_analyzer.model import (
+    CaptureConfig,
+    CaptureResult,
+    DeviceInfo,
+    ProtocolError,
+    ValidationError,
+)
+from pico_logic_analyzer.model.capture import Edge
 
 
 class OutputError(OSError):
     """A capture artifact could not be safely installed."""
+
+
+_TIME = re.compile(r"-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?$")
+_CSV_PREFIX = ("sample_index", "time_seconds", "trigger")
+
+
+def import_csv_bytes(
+    data: bytes,
+    *,
+    channel_ids: tuple[int, ...] | None,
+    sample_rate_hz: int | None,
+    trigger_channel: int,
+    trigger_edge: Edge,
+) -> CaptureResult:
+    """Import the bounded self-timed CSV contract without inferring physical IDs.
+
+    Only the exact Cycle 1 header may supply its D0--D7 identity.  All other
+    imports require explicit ordered IDs and a rate, keeping display text apart
+    from wire identity.
+    """
+    if len(data) > 16 * 1024 * 1024:
+        raise ProtocolError("CSV input is too large")
+    try:
+        text = data.decode("utf-8")
+        rows = list(csv.reader(io.StringIO(text, newline="")))
+    except (UnicodeDecodeError, csv.Error) as exc:
+        raise ProtocolError("invalid CSV input") from exc
+    if len(rows) < 2 or tuple(rows[0][:3]) != _CSV_PREFIX:
+        raise ProtocolError("invalid CSV header")
+    labels = tuple(rows[0][3:])
+    legacy = rows[0] == [*_CSV_PREFIX, *(f"D{i}" for i in range(8))]
+    if channel_ids is None:
+        if not legacy:
+            raise ProtocolError("CSV channel ids must be supplied explicitly")
+        channel_ids = tuple(range(8))
+    if sample_rate_hz is None:
+        raise ProtocolError("CSV sample rate must be supplied explicitly")
+    try:
+        CaptureConfig(
+            sample_rate_hz, 0, 1, trigger_channel, trigger_edge, channel_ids
+        )
+    except ValidationError as exc:
+        raise ProtocolError("invalid CSV import metadata") from exc
+    if len(labels) != len(channel_ids) or len(set(labels)) != len(labels):
+        raise ProtocolError("invalid CSV channel labels")
+    if any(type(label) is not str or not label or len(label) > 128 for label in labels):
+        raise ProtocolError("invalid CSV channel labels")
+    trigger_index: int | None = None
+    words: list[int] = []
+    for index, row in enumerate(rows[1:]):
+        if len(row) != len(rows[0]) or row[0] != str(index) or row[2] not in {"0", "1"}:
+            raise ProtocolError("invalid CSV row")
+        if _TIME.fullmatch(row[1]) is None:
+            raise ProtocolError("invalid CSV time")
+        try:
+            time_value = float(row[1])
+        except ValueError as exc:  # regex has already excluded NaN/inf
+            raise ProtocolError("invalid CSV time") from exc
+        if not np.isfinite(time_value):
+            raise ProtocolError("invalid CSV time")
+        if row[2] == "1":
+            if trigger_index is not None:
+                raise ProtocolError("CSV must contain one trigger row")
+            trigger_index = index
+        value = 0
+        for bit, cell in enumerate(row[3:]):
+            if cell not in {"0", "1"}:
+                raise ProtocolError("invalid CSV sample value")
+            value |= int(cell) << bit
+        words.append(value)
+    if trigger_index is None or rows[trigger_index + 1][1] != "0":
+        raise ProtocolError("CSV trigger time must be zero")
+    for index, row in enumerate(rows[1:]):
+        if row[1] != format((index - trigger_index) / sample_rate_hz, ".12g"):
+            raise ProtocolError("CSV time does not match sample rate")
+    try:
+        config = CaptureConfig(
+            sample_rate_hz,
+            trigger_index,
+            len(words) - trigger_index,
+            trigger_channel,
+            trigger_edge,
+            channel_ids,
+        )
+        samples = np.asarray(words, dtype=config.sample_dtype)
+        device = DeviceInfo(
+            "LOGIC_ANALYZER_REPLAY_V6_0",
+            sample_rate_hz,
+            sample_rate_hz,
+            len(samples) * config.bytes_per_word,
+            24,
+        )
+        return CaptureResult(config, samples, device, labels, labels)
+    except (OverflowError, ValidationError) as exc:
+        raise ProtocolError("invalid CSV capture") from exc
 
 
 def _metadata(result: CaptureResult) -> dict[str, object]:
@@ -38,10 +141,11 @@ def _metadata(result: CaptureResult) -> dict[str, object]:
         },
         "post_trigger_samples": config.post_trigger_samples,
         "pre_trigger_samples": config.pre_trigger_samples,
-        "provisional": True,
+        "firmware_mode": config.firmware_mode,
         "requested_count": config.requested_count,
         "sample_rate_hz": config.sample_rate_hz,
-        "schema_version": 1,
+        "sample_dtype": str(config.sample_dtype),
+        "schema_version": 2,
         "trigger_channel": config.trigger_channel,
         "trigger_edge": config.trigger_edge,
         "trigger_index": result.trigger_index,
@@ -67,7 +171,7 @@ def _csv_rows(result: CaptureResult) -> list[list[str | int]]:
                 index,
                 format((index - result.trigger_index) / rate, ".12g"),
                 int(index == result.trigger_index),
-                *(int((int(word) >> bit) & 1) for bit in range(8)),
+                *(int((int(word) >> bit) & 1) for bit in range(len(result.config.channel_ids))),
             ]
         )
     return rows

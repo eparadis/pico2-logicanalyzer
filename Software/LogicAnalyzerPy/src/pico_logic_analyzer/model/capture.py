@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal
+from typing import Literal, cast
 
 import numpy as np
 from numpy.typing import NDArray
@@ -53,7 +53,7 @@ class DeviceInfo:
             <= 0
         ):
             raise ValidationError("capabilities must be positive")
-        if self.channel_count < 8 or any(
+        if not 8 <= self.channel_count <= 24 or any(
             value > 0xFFFFFFFF
             for value in (
                 self.max_frequency_hz,
@@ -87,10 +87,11 @@ class CaptureConfig:
             raise ValidationError("capture field exceeds uint32")
         if (
             type(self.channel_ids) is not tuple
-            or any(type(value) is not int for value in self.channel_ids)
-            or self.channel_ids != tuple(range(8))
+            or not 1 <= len(self.channel_ids) <= 24
+            or any(type(value) is not int or not 0 <= value <= 23 for value in self.channel_ids)
+            or len(set(self.channel_ids)) != len(self.channel_ids)
         ):
-            raise ValidationError("Cycle 1 requires exactly D0-D7 in ascending order")
+            raise ValidationError("invalid ordered channel ids")
         if (
             self.sample_rate_hz <= 0
             or self.pre_trigger_samples < 0
@@ -111,7 +112,9 @@ class CaptureConfig:
     def validate_for(self, device: DeviceInfo) -> None:
         if self.sample_rate_hz > device.max_frequency_hz:
             raise ValidationError("sample rate exceeds device capability")
-        if self.requested_count > device.buffer_size:
+        if any(channel >= device.channel_count for channel in self.channel_ids):
+            raise ValidationError("channel exceeds device capability")
+        if self.requested_count * self.bytes_per_word > device.buffer_size:
             raise ValidationError("sample count exceeds device buffer")
         if any(
             value > 0xFFFFFFFF
@@ -119,11 +122,23 @@ class CaptureConfig:
         ):
             raise ValidationError("capture field exceeds uint32")
 
+    @property
+    def firmware_mode(self) -> int:
+        return max(self.channel_ids) // 8
+
+    @property
+    def bytes_per_word(self) -> int:
+        return 1 << self.firmware_mode
+
+    @property
+    def sample_dtype(self) -> np.dtype[np.generic]:
+        return (np.dtype("uint8"), np.dtype("uint16"), np.dtype("uint32"))[self.firmware_mode]
+
 
 @dataclass(frozen=True, slots=True)
 class CaptureResult:
     config: CaptureConfig
-    samples: NDArray[np.uint8]
+    samples: NDArray[np.generic]
     device: DeviceInfo
     channel_labels: tuple[str, ...] = tuple(f"D{i}" for i in range(8))
     channel_mapping: tuple[str, ...] = tuple(f"D{i}" for i in range(8))
@@ -131,21 +146,27 @@ class CaptureResult:
     def __post_init__(self) -> None:
         if (
             not isinstance(self.samples, np.ndarray)
-            or self.samples.dtype != np.dtype("uint8")
+            or self.samples.dtype != self.config.sample_dtype
             or self.samples.ndim != 1
         ):
-            raise ValidationError("samples must be a rank-one uint8 array")
+            raise ValidationError("samples must be a rank-one mode-appropriate array")
         if not self.samples.flags.c_contiguous or len(self.samples) != self.config.requested_count:
             raise ValidationError("sample count or memory layout is invalid")
         self.config.validate_for(self.device)
+        if self.config.firmware_mode == 2 and np.any(
+            cast(NDArray[np.uint32], self.samples) & np.uint32(0xFF000000)
+        ):
+            raise ValidationError("24-channel samples must have a zero upper byte")
         metadata = (self.channel_labels, self.channel_mapping)
         if any(
             type(values) is not tuple
-            or len(values) != 8
-            or any(type(value) is not str or len(value) > 128 for value in values)
+            or len(values) != len(self.config.channel_ids)
+            or any(type(value) is not str or not value or len(value) > 128 for value in values)
             for values in metadata
         ):
-            raise ValidationError("Cycle 1 requires eight labels and mappings")
+            raise ValidationError("invalid channel labels or mappings")
+        if len(set(self.channel_labels)) != len(self.channel_labels):
+            raise ValidationError("channel labels must be unique")
 
     @property
     def trigger_index(self) -> int:

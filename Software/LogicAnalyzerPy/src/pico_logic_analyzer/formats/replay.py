@@ -3,13 +3,21 @@ from __future__ import annotations
 import json
 import zipfile
 from pathlib import Path
+from typing import Any, cast
 
 import numpy as np
 from numpy.typing import NDArray
 
-from pico_logic_analyzer.model.capture import DeviceInfo, ProtocolError, ValidationError
+from pico_logic_analyzer.model.capture import (
+    CaptureConfig,
+    DeviceInfo,
+    ProtocolError,
+    ValidationError,
+)
 
 _NAMES = {"samples.npy", "metadata.npy"}
+_V2_BUFFER_BYTES = 384 * 1024
+_SCHEMA1_SAMPLE_LIMIT = 16_777_216
 
 
 def _validate_npy_header(archive: zipfile.ZipFile, name: str) -> None:
@@ -26,19 +34,26 @@ def _validate_npy_header(archive: zipfile.ZipFile, name: str) -> None:
             shape, _, dtype = reader(member)  # type: ignore[no-untyped-call]
     except (OSError, ValueError, EOFError) as exc:
         raise ProtocolError("invalid replay NPY header") from exc
-    if len(shape) != 1 or dtype != np.dtype("uint8"):
+    allowed = (np.dtype("uint8"), np.dtype("uint16"), np.dtype("uint32"))
+    if (
+        len(shape) != 1
+        or (name == "samples.npy" and dtype not in allowed)
+        or (name == "metadata.npy" and dtype != np.dtype("uint8"))
+    ):
         raise ProtocolError("invalid replay NPY dtype or rank")
     count = shape[0]
-    if not isinstance(count, int) or count < 0 or (name == "samples.npy" and count > 16_777_216):
+    if not isinstance(count, int) or count < 0 or (
+        name == "samples.npy" and count > _SCHEMA1_SAMPLE_LIMIT
+    ):
         raise ProtocolError("invalid replay NPY count")
 
 
-def load_replay(path: Path) -> tuple[NDArray[np.uint8], dict[str, object]]:
+def load_replay(path: Path) -> tuple[NDArray[Any], dict[str, object]]:
     try:
         archive_size = path.stat().st_size
     except OSError as exc:
         raise ProtocolError("cannot read replay archive") from exc
-    if archive_size > 32 * 1024 * 1024:
+    if archive_size > 2 * 1024 * 1024:
         raise ProtocolError("replay archive too large")
     try:
         archive = zipfile.ZipFile(path)
@@ -52,7 +67,7 @@ def load_replay(path: Path) -> tuple[NDArray[np.uint8], dict[str, object]]:
             or any("/" in item.filename or item.flag_bits & 1 for item in infos)
         ):
             raise ProtocolError("invalid replay members")
-        limits = {"samples.npy": 17 * 1024 * 1024, "metadata.npy": 64 * 1024}
+        limits = {"samples.npy": _V2_BUFFER_BYTES + 1024, "metadata.npy": 64 * 1024}
         if any(
             item.compress_type not in (zipfile.ZIP_STORED, zipfile.ZIP_DEFLATED)
             or item.file_size > limits[item.filename]
@@ -67,7 +82,11 @@ def load_replay(path: Path) -> tuple[NDArray[np.uint8], dict[str, object]]:
                 metadata_bytes = payload["metadata"]
         except (ValueError, TypeError, KeyError, OSError) as exc:
             raise ProtocolError("invalid replay NumPy members") from exc
-    if samples.dtype != np.dtype("uint8") or samples.ndim != 1 or len(samples) > 16_777_216:
+    if (
+        samples.dtype not in (np.dtype("uint8"), np.dtype("uint16"), np.dtype("uint32"))
+        or samples.ndim != 1
+        or samples.nbytes > _SCHEMA1_SAMPLE_LIMIT
+    ):
         raise ProtocolError("invalid replay samples")
     if metadata_bytes.dtype != np.dtype("uint8") or metadata_bytes.ndim != 1:
         raise ProtocolError("invalid replay metadata")
@@ -82,6 +101,8 @@ def load_replay(path: Path) -> tuple[NDArray[np.uint8], dict[str, object]]:
         != metadata_bytes.tobytes()
     ):
         raise ProtocolError("replay metadata is not canonical JSON")
+    if metadata.get("schema_version") == 2:
+        return _load_schema2(samples, metadata)
     required = {
         "schema_version",
         "provisional",
@@ -178,4 +199,76 @@ def load_replay(path: Path) -> tuple[NDArray[np.uint8], dict[str, object]]:
         != metadata["pre_trigger_samples"] + metadata["post_trigger_samples"]
     ):
         raise ProtocolError("inconsistent replay counts")
+    return samples, metadata
+
+
+def _load_schema2(
+    samples: NDArray[Any], metadata: dict[str, object]
+) -> tuple[NDArray[Any], dict[str, object]]:
+    required = {
+        "schema_version",
+        "sample_dtype",
+        "firmware_mode",
+        "sample_rate_hz",
+        "requested_count",
+        "actual_count",
+        "pre_trigger_samples",
+        "post_trigger_samples",
+        "trigger_index",
+        "trigger_channel",
+        "trigger_edge",
+        "channel_ids",
+        "channel_labels",
+        "channel_mapping",
+        "device",
+    }
+    if set(metadata) != required:
+        raise ProtocolError("invalid schema 2 metadata fields")
+    try:
+        values = cast(dict[str, Any], metadata)
+        channel_ids = tuple(values["channel_ids"])
+        config = CaptureConfig(
+            values["sample_rate_hz"],
+            values["pre_trigger_samples"],
+            values["post_trigger_samples"],
+            values["trigger_channel"],
+            values["trigger_edge"],
+            channel_ids,
+        )
+        device_data = values["device"]
+        capabilities = device_data["capabilities"]
+        device = DeviceInfo(
+            device_data["identity"],
+            capabilities["max_frequency_hz"],
+            capabilities["blast_frequency_hz"],
+            capabilities["buffer_size"],
+            capabilities["channel_count"],
+        )
+    except (KeyError, TypeError, ValidationError) as exc:
+        raise ProtocolError("invalid schema 2 metadata") from exc
+    if metadata["firmware_mode"] != config.firmware_mode or metadata["sample_dtype"] != str(
+        config.sample_dtype
+    ):
+        raise ProtocolError("inconsistent schema 2 word mode")
+    if samples.nbytes > _V2_BUFFER_BYTES:
+        raise ProtocolError("schema 2 samples exceed V2 byte buffer")
+    if (
+        samples.dtype != config.sample_dtype
+        or metadata["requested_count"] != config.requested_count
+        or metadata["actual_count"] != len(samples)
+        or metadata["trigger_index"] != config.pre_trigger_samples
+    ):
+        raise ProtocolError("inconsistent schema 2 counts")
+    try:
+        from pico_logic_analyzer.model.capture import CaptureResult
+
+        CaptureResult(
+            config,
+            samples,
+            device,
+            tuple(values["channel_labels"]),
+            tuple(values["channel_mapping"]),
+        )
+    except (TypeError, ValidationError) as exc:
+        raise ProtocolError("invalid schema 2 capture") from exc
     return samples, metadata

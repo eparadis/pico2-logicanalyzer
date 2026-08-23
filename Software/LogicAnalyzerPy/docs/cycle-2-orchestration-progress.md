@@ -130,3 +130,43 @@ accepted evidence remain unchanged.
   remain untouched.
 - Next boundary: C2-B2 is not started. Execution is paused here by operator
   request.
+
+## C2-B2: Wider capture domain, codec, replay, and CSV core
+
+- State: Active
+- Activated: 2026-08-23 (America/Los_Angeles)
+- Activation HEAD: `873c4f631069d498812358c4ca13d86260028407`
+- Activation tree: `cdd674e65cc8208a54dae401163f1de295e53238`
+- Prerequisite: C2-B1 checkpoint complete; manifest
+  `testdata/evidence/c2-b1.json` validates with SHA-256
+  `7c45f8b7f90965fbf9c67845f3b8a0113fe84261e8085665068e6f1980bf4de0`.
+- Objective: safely represent, encode, parse, persist, import, export, and
+  reload ordered one-to-24-channel normal captures across 8-, 16-, and 24-bit
+  word modes.
+- Implementation agent: `cycle2-implementor-replacement-1`
+  (`/root/implementor_replacement_1`)
+- Verification agent: `cycle2-verifier` (`/root/verifier`)
+- Acceptance agent: `cycle2-acceptance` (`/root/acceptance`)
+- In scope: generalized capture model and validation; 48-byte normal request
+  and response codecs; literal golden/adverse fixtures; schema-2 replay with
+  retained schema-1 reads and pre-materialization security bounds;
+  deterministic self-timed CSV import/export; bounded CLI exposure and tests.
+- Out of scope: physical I/O beyond fake transports, bus analysis, browser
+  capture API or viewer, performance optimization, other firmware modes,
+  decoders, firmware/C# changes, packaging/public serving, and Cycle 3.
+- Ownership: the implementor owns B2 Python product code, focused
+  implementation tests, literal/generated fixtures, and directly required
+  focused documentation. The verifier owns independent B2 black-box/adverse
+  tests and immutable review records. Acceptance owns immutable acceptance
+  records. The orchestrator owns this progress log and the post-acceptance B2
+  manifest/checkpoint.
+- Authority inputs: current macOS-only governing contracts, the accepted B1
+  manifest/checkpoint, settled Cycle 2 protocol/replay/CSV contracts, accepted
+  Cycle 1 schema-1 and D0-D7 artifacts/tests, and checked-in firmware source as
+  read-only protocol authority.
+- Required accumulated gate: full non-hardware Python suite plus the locked
+  frontend shell gates; no hardware, serial, or native interactive action is
+  authorized in B2.
+- Evidence lifecycle: no `c2-b2.json` exists or may be created until one exact
+  candidate passes implementation checks, independent verification, complete
+  accumulated macOS validation, and independent acceptance.

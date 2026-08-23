@@ -472,6 +472,34 @@ accepted evidence remain unchanged.
 - No firmware, bootloader, Wi-Fi, power-cycle, persistent-state, .NET,
   public-server, packaging/publication, or Cycle 3 action occurred.
 
+### C2B3-I001 correction candidate
+
+- Implementation identity: `cycle2-implementor-replacement-5`.
+- Candidate: `90adb3adb38a938ce470fa854e6fc7b98e1501c9`; tree
+  `5a09d57e4caa266a43f164edaffc94fc9a3236d7`.
+- Bounded correction: generalized default capture-result labels/mappings no
+  longer stop at eight entries; exact D0-D23 CLI/config construction is covered
+  while wrong-length and duplicate labels remain rejected.
+- Implementation gates: 35 focused tests; Ruff; mypy over 19 files; 266 passed
+  and 1 sandbox-loopback skip in non-hardware Python; CLI help; frontend lint,
+  typecheck, unit, and production build; and `git diff --check` passed.
+- The browser smoke could not start its local server inside the implementation
+  sandbox and is not credited. Root accumulated validation must run it under
+  the existing centralized loopback/browser approval.
+- The untracked B3 physical-validation helper remains outside this product
+  candidate. No physical result transfers to the corrected candidate.
+
+### C2-B2 reopened verifier identity change
+
+- Prior identity: `cycle2-verifier-replacement-2`.
+- New replacement identity: `cycle2-verifier-replacement-3`.
+- Reason: the prior verifier is no longer available when physical finding
+  `C2B3-I001` reopens the B2 interface and creates a new immutable candidate.
+- Lane/model/reasoning preserved: Verifier, `gpt-5.6-sol`, low.
+- The replacement must independently verify the entire exact corrected
+  candidate and prior B2 finding dispositions; no prior verification or partial
+  physical pass transfers.
+
 ### C2-B3 implementation identity change
 
 - Prior identity: `cycle2-implementor-replacement-4`

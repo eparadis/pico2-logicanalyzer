@@ -1118,3 +1118,52 @@ accepted evidence remain unchanged.
 - Next boundary: C2-B6 may now be selected only after rechecking the fresh
   operator-confirmed physical setup and explicit runtime port required by the
   governing contract.
+
+## C2-B6: Live browser capture integration and final proof
+
+- State: In progress
+- Activated: 2026-08-23 (America/Los_Angeles)
+- Activation HEAD: `abc85a0`
+- Prerequisites: C2-B5 complete with operator-approved thresholds; prior fresh
+  operator confirmations remain in force for the Pico 2 running checked-in V2
+  firmware, integrated protection/VRef/common ground, analyzer-input direction,
+  fixed-low D1 recovery input, safe shared approximately 1 kHz source, and
+  board-label mapping 1/9/17/24 to D0/D8/D16/D23. Read-only `pico-la devices`
+  enumeration found exactly one LogicAnalyzer runtime candidate. Its machine-
+  local port, serial, and location are runtime-only and will be recorded only
+  as `<PORT_SUPPLIED>` or sanitized identity.
+- Objective: connect the secured loopback API to the explicit-port device
+  service through bounded nonblocking ownership and prove the complete native
+  macOS capture/view/analyze/export/reconnect/second-capture/shutdown workflow
+  while closing all fourteen Cycle 2 stopping conditions on one final candidate.
+- Implementation agent: `cycle2-b5-implementor-replacement-1`, continuing in
+  the implementation role for the next batch.
+- Verification agent: `cycle2-verifier-replacement-3`.
+- Acceptance agent: `cycle2-acceptance-replacement-3`.
+- In scope: explicit-port identify/capture/cancel/recovery/close/reopen/reidentify
+  API and browser workflow; approved D0-D7/D0-D15/D0-D23 physical pattern;
+  native installed-browser waveform/bus/trigger/cursor/export interactions;
+  approved B5 threshold enforcement; final clean local and exact-candidate
+  macOS CI; independent security/concurrency/disconnect/cleanup proof; final
+  manifest, rollback/support audit, and fourteen-condition completion record.
+- Out of scope: automatic device selection, Wi-Fi/TCP transport, firmware or
+  persistent-device changes, non-macOS support, remote serving, packaging,
+  unrelated polish, threshold rebasing, and Cycle 3.
+- Ownership: implementation owns B6 device-service/API/browser integration,
+  implementation tests, sanitized implementation evidence, and final candidate;
+  verification owns independent hardware/browser/security/performance tests and
+  immutable review evidence; acceptance owns the final candidate and complete
+  proof audit; orchestrator owns shared integration, approval brokerage,
+  exact-candidate hosted CI, manifest, checkpoint, and completion audit.
+- Required evidence: clean Python/Node bootstraps; every accumulated gate;
+  exact-candidate sole macOS hosted CI; native production browser and real Pico
+  identity/capture/waveform/bus/export/reopen/second-capture/shutdown; device/API
+  concurrency, disconnect, cancel/timeout/recovery and serial cleanup; final
+  security regression; approved threshold enforcement; immutable mapping for
+  all fourteen stopping conditions; macOS-only completion/support claim.
+- Unrelated worktree state: `.ORCHESTRATION.md.swp` remains untracked with
+  unknown ownership and must be preserved and excluded from every B6 commit.
+- Prohibited-action preflight: enumeration only occurred; no port was opened,
+  no capture or recovery byte was sent, and no firmware, bootloader, Wi-Fi,
+  persistent-state, .NET, public-server, packaging/publication, or Cycle 3
+  operation occurred.

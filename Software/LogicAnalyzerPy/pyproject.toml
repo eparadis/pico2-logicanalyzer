@@ -25,7 +25,7 @@ package-dir = {"" = "src"}
 where = ["src"]
 
 [tool.setuptools.package-data]
-pico_logic_analyzer = ["web/assets/*"]
+pico_logic_analyzer = ["web/assets/*", "web/assets/assets/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

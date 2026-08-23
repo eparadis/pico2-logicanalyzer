@@ -5,12 +5,15 @@ from __future__ import annotations
 import json
 import re
 import sys
+from datetime import datetime
 from pathlib import Path
 
 HEX40 = re.compile(r"^[0-9a-f]{40}$")
 HEX64 = re.compile(r"^[0-9a-f]{64}$")
 CHECKPOINT = re.compile(r"^C2-B[1-6]$")
-SECRET = re.compile(r"/dev/(?:tty|cu\.)|https?://(?:localhost|127\.0\.0\.1)|/(?:Users|home)/", re.I)
+SECRET = re.compile(
+    r"/dev/(?:tty|cu\.)|https?://(?:localhost|127\.0\.0\.1|\[)|/(?:Users|home)/", re.I
+)
 REQUIRED = {
     "schema_version", "checkpoint", "tested_commit", "tested_tree", "timestamp_utc",
     "worktree_state", "environment", "locks", "roles", "commands", "sources",
@@ -36,6 +39,20 @@ def _digest(value: object, label: str) -> None:
         raise ValueError(f"invalid {label} digest")
 
 
+def _strings(value: object, label: str) -> None:
+    """Reject prohibited values in every free-text leaf, not just typed fields."""
+    if isinstance(value, str):
+        _string(value, label)
+    elif isinstance(value, list):
+        for index, item in enumerate(value):
+            _strings(item, f"{label}[{index}]")
+    elif isinstance(value, dict):
+        for key, item in value.items():
+            if not isinstance(key, str):
+                raise ValueError(f"invalid key in {label}")
+            _strings(item, f"{label}.{key}")
+
+
 def validate(value: object) -> None:
     data = _object(value, REQUIRED, REQUIRED | OPTIONAL, "manifest")
     checkpoint = _string(data["checkpoint"], "checkpoint")
@@ -44,8 +61,16 @@ def validate(value: object) -> None:
     for key in ("tested_commit", "tested_tree"):
         if not HEX40.fullmatch(_string(data[key], key)):
             raise ValueError(f"invalid {key}")
-    _string(data["timestamp_utc"], "timestamp_utc")
-    _string(data["worktree_state"], "worktree_state")
+    timestamp = _string(data["timestamp_utc"], "timestamp_utc")
+    try:
+        if not timestamp.endswith("Z"):
+            raise ValueError
+        datetime.fromisoformat(timestamp.removesuffix("Z") + "+00:00")
+    except ValueError as exc:
+        raise ValueError("invalid timestamp_utc") from exc
+    worktree_state = _string(data["worktree_state"], "worktree_state")
+    if len(worktree_state) > 2048:
+        raise ValueError("worktree_state is too long")
     environment = _object(
         data["environment"],
         {"os", "architecture", "python", "node"},
@@ -90,6 +115,18 @@ def validate(value: object) -> None:
         _string(item["revision"], "revision")
         _string(item["artifact"], "artifact")
         _digest(item["sha256"], "source")
+    for condition in data["stopping_conditions"]:
+        item = _object(condition, {"id", "artifacts"}, {"id", "artifacts"}, "condition")
+        if type(item["id"]) is not int or not 1 <= item["id"] <= 14:
+            raise ValueError("invalid stopping condition id")
+        if not isinstance(item["artifacts"], list):
+            raise ValueError("condition artifacts must be an array")
+        for artifact in item["artifacts"]:
+            proof = _object(artifact, {"path", "sha256"}, {"path", "sha256"}, "artifact")
+            _string(proof["path"], "artifact path")
+            _digest(proof["sha256"], "artifact")
+    for key in ("findings", "decisions", "limitations", "deferred_work"):
+        _strings(data[key], key)
     if "performance_threshold_sha256" in data:
         _digest(data["performance_threshold_sha256"], "performance threshold")
 

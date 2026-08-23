@@ -1,6 +1,7 @@
 """Loopback-only inert Cycle 2 web shell."""
 from __future__ import annotations
 
+import asyncio
 import hmac
 import ipaddress
 import secrets
@@ -34,7 +35,7 @@ def canonical_authority(host: str, port: int) -> str:
     _loopback(host)
     if not 1 <= port <= 65535:
         raise ValueError("canonical port must be between 1 and 65535")
-    return f"{host}:{port}"
+    return f"[{host}]:{port}" if ":" in host else f"{host}:{port}"
 
 
 def valid_mutation_origin(origin: str | None, canonical_origin: str) -> bool:
@@ -77,15 +78,18 @@ def _release_server(owner: tuple[str, int]) -> None:
 def create_app(host: str, port: int) -> web.Application:
     """Create an inert server. It deliberately imports neither driver nor transport."""
     host = _loopback(host)
-    if not 1 <= port <= 65535:
-        raise ValueError("--port must be between 1 and 65535")
+    if not 0 <= port <= 65535:
+        raise ValueError("--port must be between 0 and 65535")
     app = web.Application(client_max_size=MAX_REQUEST_BYTES)
     app["canonical_host"] = host
     app["canonical_port"] = port
     app["capability"] = secrets.token_urlsafe(32)
     app["capability_active"] = True
-    app["canonical_origin"] = f"{ORIGIN_SCHEME}://{canonical_authority(host, port)}"
+    app["canonical_origin"] = (
+        f"{ORIGIN_SCHEME}://{canonical_authority(host, port)}" if port else None
+    )
     app["shutdown_requested"] = False
+    app["shutdown_event"] = asyncio.Event()
 
     @web.middleware
     async def canonical_host(
@@ -117,7 +121,8 @@ def create_app(host: str, port: int) -> web.Application:
         handler: Callable[[web.Request], Awaitable[web.StreamResponse]],
     ) -> web.StreamResponse:
         if request.headers.get("Upgrade", "").lower() == "websocket" and (
-            not _single_origin(request, app["canonical_origin"])
+            app["canonical_origin"] is None
+            or not _single_origin(request, app["canonical_origin"])
             or not _single_capability(request, app["capability"])
         ):
             return web.Response(status=403, text="forbidden\n")
@@ -140,6 +145,7 @@ def create_app(host: str, port: int) -> web.Application:
         # The shell has no device work.  Keep all checks before its only state change.
         if (
             not app["capability_active"]
+            or app["canonical_origin"] is None
             or not _single_origin(request, app["canonical_origin"])
             or not _single_capability(request, app["capability"])
         ):
@@ -148,6 +154,7 @@ def create_app(host: str, port: int) -> web.Application:
         app["shutdown_requested"] = True
         response = web.Response(status=204)
         response.del_cookie(COOKIE, path="/")
+        asyncio.get_running_loop().call_later(0.01, app["shutdown_event"].set)
         return response
 
     app.router.add_get("/api/v1/health", health)
@@ -160,16 +167,33 @@ def create_app(host: str, port: int) -> web.Application:
 
 
 def run(host: str, port: int) -> int:
-    app = create_app(host, port)
-    owner = _reserve_server(host, port)
     try:
-        # The production path invokes neither Node nor a Vite server and imports no serial code.
-        web.run_app(app, host=host, port=port, print=lambda _: print("pico-la web: ready"))
+        return asyncio.run(_serve(host, port))
     except OSError:
         return 1
+
+
+async def _serve(host: str, port: int) -> int:
+    app = create_app(host, port)
+    owner = _reserve_server(host, port)
+    runner = web.AppRunner(app)
+    try:
+        await runner.setup()
+        site = web.TCPSite(runner, host=host, port=port)
+        await site.start()
+        sockets = getattr(site._server, "sockets", [])
+        if len(sockets) != 1:
+            raise OSError("loopback server did not create exactly one listener")
+        actual_port = int(sockets[0].getsockname()[1])
+        authority = canonical_authority(host, actual_port)
+        app["canonical_port"] = actual_port
+        app["canonical_origin"] = f"{ORIGIN_SCHEME}://{authority}"
+        print(f"pico-la web: ready {app['canonical_origin']}/", flush=True)
+        await app["shutdown_event"].wait()
+        return 0
     finally:
+        await runner.cleanup()
         _release_server(owner)
-    return 0
 
 
 def capability_matches(received: str, expected: str) -> bool:

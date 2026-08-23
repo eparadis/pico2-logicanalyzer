@@ -19,12 +19,11 @@ def _shutdown_handler(app: object) -> object:
     return next(route.handler for route in app.router["shutdown"] if route.method == "POST")
 
 
-def test_loopback_canonical_authority_rejects_non_loopback_and_ephemeral() -> None:
+def test_loopback_canonical_authority_rejects_non_loopback() -> None:
     assert canonical_authority("127.0.0.1", 4173) == "127.0.0.1:4173"
     with pytest.raises(ValueError):
         canonical_authority("0.0.0.0", 4173)
-    with pytest.raises(ValueError):
-        canonical_authority("127.0.0.1", 0)
+    assert create_app("127.0.0.1", 0)["canonical_port"] == 0
 
 
 def test_mutation_origin_requires_exact_canonical_value() -> None:

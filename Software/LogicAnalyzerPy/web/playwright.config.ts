@@ -1,3 +1,12 @@
-import { defineConfig } from "@playwright/test";
+import { defineConfig, devices } from "@playwright/test";
 
-export default defineConfig({ testDir: "./tests", fullyParallel: false });
+export default defineConfig({
+  testDir: "./tests",
+  fullyParallel: false,
+  webServer: {
+    command: "../.venv/bin/python -m pico_logic_analyzer web --host 127.0.0.1 --port 4173",
+    url: "http://127.0.0.1:4173/api/v1/readiness",
+    reuseExistingServer: false,
+  },
+  use: { baseURL: "http://127.0.0.1:4173", ...devices["Desktop Chrome"] },
+});

@@ -29,6 +29,7 @@ jobs:
           .venv/bin/python -m mypy src
           .venv/bin/python -m pytest -m "not hardware"
           .venv/bin/python -m pico_logic_analyzer --help
+          .venv/bin/python scripts/check_web_assets.py
           python3.12 -m venv .venv-web
           .venv-web/bin/python -m pip install --require-hashes -r requirements-web.lock
           .venv-web/bin/python -m pip install --no-build-isolation --no-deps -e '.[web]'

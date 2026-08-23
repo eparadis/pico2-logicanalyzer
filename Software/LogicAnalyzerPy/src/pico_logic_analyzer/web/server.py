@@ -7,6 +7,7 @@ import hmac
 import ipaddress
 import secrets
 import threading
+import time
 from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import Final, Literal, cast
@@ -22,13 +23,16 @@ from pico_logic_analyzer.model import CaptureResult, ProtocolError, ValidationEr
 
 ASSET_ROOT = Path(__file__).with_name("assets")
 COOKIE = "pico_la_capability"
-MAX_REQUEST_BYTES = 1 << 20
+MAX_REQUEST_BYTES = 4 * 1024 * 1024
 # Schema-2 permits a 2 MiB archive; multipart framing and metadata have headroom.
 MAX_UPLOAD_BYTES = 3 * 1024 * 1024
 MAX_WINDOW_SAMPLES = 100_000
 MAX_PIXEL_WIDTH = 4096
 MAX_BUS_ROWS = 10_000
 MAX_CAPTURES = 16
+MAX_ACTIVE_CONNECTIONS = 8
+MAX_REQUESTS_PER_WINDOW = 32
+REQUEST_WINDOW_SECONDS = 1.0
 ORIGIN_SCHEME: Final = "http"
 _OWNERSHIP_LOCK = threading.Lock()
 _OWNED_SERVERS: set[tuple[str, int]] = set()
@@ -170,6 +174,7 @@ async def _multipart_import(
         reader = await request.multipart()
         parts: dict[str, bytes] = {}
         artifact_type: str | None = None
+        aggregate = 0
         while (part := await reader.next()) is not None:
             if not isinstance(part, BodyPartReader):
                 return None
@@ -180,7 +185,8 @@ async def _multipart_import(
             chunks: list[bytes] = []
             while chunk := await part.read_chunk(64 * 1024):
                 total += len(chunk)
-                if total > MAX_UPLOAD_BYTES:
+                aggregate += len(chunk)
+                if total > MAX_UPLOAD_BYTES or aggregate > MAX_UPLOAD_BYTES:
                     return None
                 chunks.append(chunk)
             parts[name] = b"".join(chunks)
@@ -199,6 +205,22 @@ async def _multipart_import(
         return None
 
 
+def _decode_import(
+    artifact: bytes, metadata: dict[str, object] | None, media_type: str
+) -> CaptureResult:
+    if media_type == "application/x-pico-la-replay":
+        return import_replay_bytes(artifact)
+    if metadata is None:
+        raise ValidationError("CSV import metadata is required")
+    return import_csv_bytes(
+        artifact,
+        channel_ids=_channel_ids(metadata["channel_ids"]),
+        sample_rate_hz=_integer(metadata["sample_rate_hz"]),
+        trigger_channel=_integer(metadata["trigger_channel"]),
+        trigger_edge=_edge(metadata["trigger_edge"]),
+    )
+
+
 def create_app(host: str, port: int) -> web.Application:
     host = _loopback(host)
     if not 0 <= port <= 65535:
@@ -214,7 +236,11 @@ def create_app(host: str, port: int) -> web.Application:
         shutdown_event=asyncio.Event(),
         captures={},
         operation=None,
+        operation_task=None,
+        operation_cancel=None,
         next_operation=1,
+        active_connections=0,
+        request_times=[],
     )
 
     @web.middleware
@@ -235,6 +261,33 @@ def create_app(host: str, port: int) -> web.Application:
         return await handler(request)
 
     @web.middleware
+    async def connection_limit(
+        request: web.Request, handler: Callable[[web.Request], Awaitable[web.StreamResponse]]
+    ) -> web.StreamResponse:
+        # Loopback is single-user, but a finite in-flight owner bound prevents
+        # slow clients from retaining unbounded request bodies or tasks.
+        if app["active_connections"] >= MAX_ACTIVE_CONNECTIONS:
+            return _error(429, "connection_limit")
+        app["active_connections"] += 1
+        try:
+            return await handler(request)
+        finally:
+            app["active_connections"] -= 1
+
+    @web.middleware
+    async def request_rate(
+        request: web.Request, handler: Callable[[web.Request], Awaitable[web.StreamResponse]]
+    ) -> web.StreamResponse:
+        now = time.monotonic()
+        timestamps = cast(list[float], app["request_times"])
+        cutoff = now - REQUEST_WINDOW_SECONDS
+        timestamps[:] = [stamp for stamp in timestamps if stamp > cutoff]
+        if len(timestamps) >= MAX_REQUESTS_PER_WINDOW:
+            return _error(429, "rate_limited")
+        timestamps.append(now)
+        return await handler(request)
+
+    @web.middleware
     async def websocket_boundary(
         request: web.Request, handler: Callable[[web.Request], Awaitable[web.StreamResponse]]
     ) -> web.StreamResponse:
@@ -242,7 +295,9 @@ def create_app(host: str, port: int) -> web.Application:
             return _error(403, "websocket_not_supported")
         return await handler(request)
 
-    app.middlewares.extend((canonical_host, request_limit, websocket_boundary))
+    app.middlewares.extend(
+        (canonical_host, request_limit, websocket_boundary, connection_limit, request_rate)
+    )
 
     def mutation(request: web.Request) -> web.Response | None:
         if (
@@ -265,6 +320,11 @@ def create_app(host: str, port: int) -> web.Application:
     async def imports(request: web.Request) -> web.Response:
         if (denied := mutation(request)) is not None:
             return denied
+        current = app["operation"]
+        if current is not None and current["state"] in {"pending", "running", "cancelling"}:
+            # This deliberately precedes multipart consumption: a conflicting
+            # upload is rejected without allocating or reading its body.
+            return _error(409, "operation_conflict")
         parsed = await _multipart_import(request)
         if parsed is None:
             return _error(400, "invalid_multipart")
@@ -273,36 +333,48 @@ def create_app(host: str, port: int) -> web.Application:
             media_type = "application/x-pico-la-replay" if metadata is None else "text/csv"
         else:
             artifact, metadata, media_type = parsed
-        current = app["operation"]
-        if current is not None and current["state"] in {"pending", "running", "cancelling"}:
-            return _error(409, "operation_conflict")
-        operation = {"operation_id": f"op-{app['next_operation']}", "state": "running"}
+        operation = {
+            "operation_id": f"op-{app['next_operation']}",
+            "state": "pending",
+            "capture_id": None,
+        }
         app["next_operation"] += 1
         app["operation"] = operation
-        try:
-            if media_type == "application/x-pico-la-replay":
-                result = import_replay_bytes(artifact)
-            else:
-                if metadata is None:
-                    return _error(400, "invalid_metadata")
-                result = import_csv_bytes(
-                    artifact,
-                    channel_ids=_channel_ids(metadata["channel_ids"]),
-                    sample_rate_hz=_integer(metadata["sample_rate_hz"]),
-                    trigger_channel=_integer(metadata["trigger_channel"]),
-                    trigger_edge=_edge(metadata["trigger_edge"]),
-                )
-        except (ProtocolError, ValidationError, TypeError):
-            operation["state"] = "failed"
-            return _error(
-                422 if media_type == "application/x-pico-la-replay" else 400, "invalid_import"
-            )
-        if len(app["captures"]) >= MAX_CAPTURES:
-            return _error(409, "capture_limit")
-        capture_id = f"c{len(app['captures']) + 1:08x}"
-        app["captures"][capture_id] = result
-        operation["state"] = "succeeded"
-        return web.json_response(_capture_json(result, capture_id), status=201)
+        cancelled = asyncio.Event()
+        app["operation_cancel"] = cancelled
+
+        async def run_import() -> None:
+            try:
+                # Guarantee a pollable pending state before offline CPU work.
+                await asyncio.sleep(0)
+                if cancelled.is_set():
+                    operation["state"] = "cancelled"
+                    return
+                operation["state"] = "running"
+                result = await asyncio.to_thread(_decode_import, artifact, metadata, media_type)
+                if cancelled.is_set():
+                    operation["state"] = "cancelled"
+                    return
+                if len(app["captures"]) >= MAX_CAPTURES:
+                    operation["state"] = "failed"
+                    return
+                capture_id = f"c{len(app['captures']) + 1:08x}"
+                app["captures"][capture_id] = result
+                operation["capture_id"] = capture_id
+                operation["state"] = "succeeded"
+            except (ProtocolError, ValidationError, TypeError, ValueError):
+                operation["state"] = "cancelled" if cancelled.is_set() else "failed"
+            except asyncio.CancelledError:
+                operation["state"] = "cancelled"
+                raise
+            finally:
+                # No import bytes survive completion, cancellation, or shutdown.
+                if app["operation"] is operation:
+                    app["operation_task"] = None
+                    app["operation_cancel"] = None
+
+        app["operation_task"] = asyncio.create_task(run_import())
+        return web.json_response(operation, status=202)
 
     def capture(request: web.Request) -> CaptureResult | None:
         return cast(dict[str, CaptureResult], app["captures"]).get(request.match_info["capture_id"])
@@ -447,7 +519,10 @@ def create_app(host: str, port: int) -> web.Application:
             return _error(404, "not_found")
         if current["state"] in {"succeeded", "failed", "cancelled"}:
             return _error(409, "operation_terminal")
-        current["state"] = "cancelled"
+        current["state"] = "cancelling"
+        cancelled = cast(asyncio.Event | None, app["operation_cancel"])
+        if cancelled is not None:
+            cancelled.set()
         return web.json_response(current)
 
     async def shutdown(request: web.Request) -> web.Response:
@@ -477,6 +552,21 @@ def create_app(host: str, port: int) -> web.Application:
     app.router.add_get("/", index)
     app.router.add_static("/assets/", ASSET_ROOT / "assets", show_index=False)
     app.router.add_route("OPTIONS", "/{path:.*}", options)
+
+    async def cleanup(_: web.Application) -> None:
+        task = cast(asyncio.Task[None] | None, app["operation_task"])
+        if task is not None and not task.done():
+            task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
+        app["operation_task"] = None
+        app["operation_cancel"] = None
+        app["active_connections"] = 0
+        cast(list[float], app["request_times"]).clear()
+
+    app.on_cleanup.append(cast(Callable[..., Awaitable[object]], cleanup))
     return app
 
 

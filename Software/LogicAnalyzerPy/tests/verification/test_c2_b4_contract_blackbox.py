@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import io
 import json
+import threading
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -14,7 +15,7 @@ from multidict import CIMultiDict
 
 from pico_logic_analyzer.analysis import bus_csv_bytes, sampled_rows, transition_rows
 from pico_logic_analyzer.formats.replay import load_replay_bytes
-from pico_logic_analyzer.model import CaptureConfig, CaptureResult, DeviceInfo
+from pico_logic_analyzer.model import CaptureConfig, CaptureResult, DeviceInfo, ProtocolError
 from pico_logic_analyzer.web import server as web_server
 from pico_logic_analyzer.web.server import MAX_REQUEST_BYTES, MAX_UPLOAD_BYTES, create_app
 
@@ -241,3 +242,70 @@ def test_schema1_loader_retains_accepted_archive_bound_above_two_mib() -> None:
     )
     samples, loaded = load_replay_bytes(output.getvalue())
     assert len(samples) == count and loaded == metadata
+
+
+def test_import_operation_is_pollable_cancellable_and_releases_its_owner(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    async def exercise() -> None:
+        app = create_app("127.0.0.1", 4173)
+        imports = next(
+            route.handler for route in app.router.routes()
+            if route.method == "POST" and route.resource.canonical == "/api/v1/imports"
+        )
+        cancel = next(
+            route.handler for route in app.router.routes()
+            if route.method == "POST"
+            and route.resource.canonical == "/api/v1/operations/{operation_id}/cancel"
+        )
+        async def parts(_: object) -> tuple[bytes, None, str]:
+            return b"inert", None, "application/x-pico-la-replay"
+        monkeypatch.setattr(web_server, "_multipart_import", parts)
+        started = threading.Event()
+        released = threading.Event()
+        def decode(_: bytes, __: object, ___: str) -> object:
+            started.set()
+            released.wait(1)
+            raise ProtocolError("cancelled fixture")
+        monkeypatch.setattr(web_server, "_decode_import", decode)
+        headers = CIMultiDict(
+            {"Origin": app["canonical_origin"], "Cookie": f"pico_la_capability={app['capability']}"}
+        )
+        response = await imports(SimpleNamespace(headers=headers))
+        assert response.status == 202
+        operation_id = json.loads(response.body)["operation_id"]
+        conflict = await imports(SimpleNamespace(headers=headers))
+        assert conflict.status == 409
+        await asyncio.sleep(0)
+        assert await asyncio.to_thread(started.wait, 1)
+        assert app["operation"]["state"] == "running"
+        cancelling = await cancel(
+            SimpleNamespace(headers=headers, match_info={"operation_id": operation_id})
+        )
+        assert json.loads(cancelling.body)["state"] == "cancelling"
+        released.set()
+        for _ in range(20):
+            if app["operation"]["state"] == "cancelled":
+                break
+            await asyncio.sleep(0.01)
+        assert app["operation"]["state"] == "cancelled" and app["operation_task"] is None
+        await app.cleanup()
+    asyncio.run(exercise())
+
+
+def test_connection_and_rate_ownership_reject_before_handler_and_cleanup() -> None:
+    async def exercise() -> None:
+        app = create_app("127.0.0.1", 4173)
+        connection = app.middlewares[3]
+        rate = app.middlewares[4]
+        app["active_connections"] = web_server.MAX_ACTIVE_CONNECTIONS
+        assert (await connection(SimpleNamespace(), lambda _: None)).status == 429
+        app["active_connections"] = 0
+        app["request_times"] = [0.0] * web_server.MAX_REQUESTS_PER_WINDOW
+        # Old timestamps are cleaned instead of accumulating indefinitely.
+        accepted = await rate(SimpleNamespace(), lambda _: _error_response())
+        assert accepted.status == 204 and len(app["request_times"]) == 1
+        await app.cleanup()
+    async def _error_response() -> web_server.web.Response:
+        return web_server.web.Response(status=204)
+    asyncio.run(exercise())

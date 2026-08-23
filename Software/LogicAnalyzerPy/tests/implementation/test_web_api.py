@@ -39,8 +39,19 @@ async def _exercise() -> None:
         form.add_field("artifact", CSV, content_type="text/csv", filename="ignored.csv")
         form.add_field("metadata", json.dumps(METADATA), content_type="application/json")
         imported = await client.post("/api/v1/imports", headers=headers, data=form)
-        assert imported.status == 201
-        capture_id = (await imported.json())["capture_id"]
+        assert imported.status == 202
+        operation_id = (await imported.json())["operation_id"]
+        capture_id = ""
+        for _ in range(100):
+            operation = await client.get(
+                f"/api/v1/operations/{operation_id}", headers={"Host": host}
+            )
+            payload = await operation.json()
+            if payload["state"] == "succeeded":
+                capture_id = payload["capture_id"]
+                break
+            await asyncio.sleep(0.01)
+        assert capture_id
         denied = await client.post(f"/api/v1/captures/{capture_id}/bus", json={})
         assert denied.status == 403
         bus = await client.post(

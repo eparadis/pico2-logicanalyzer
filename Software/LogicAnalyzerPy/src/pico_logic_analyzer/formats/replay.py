@@ -62,7 +62,7 @@ def load_replay(path: Path) -> tuple[NDArray[Any], dict[str, object]]:
 def load_replay_bytes(data: bytes) -> tuple[NDArray[Any], dict[str, object]]:
     """Load a bounded inert replay from request bytes without a temporary file."""
     archive_size = len(data)
-    if archive_size > 2 * 1024 * 1024:
+    if archive_size > 32 * 1024 * 1024:
         raise ProtocolError("replay archive too large")
     try:
         archive = zipfile.ZipFile(io.BytesIO(data))
@@ -76,7 +76,7 @@ def load_replay_bytes(data: bytes) -> tuple[NDArray[Any], dict[str, object]]:
             or any("/" in item.filename or item.flag_bits & 1 for item in infos)
         ):
             raise ProtocolError("invalid replay members")
-        limits = {"samples.npy": _V2_BUFFER_BYTES + 1024, "metadata.npy": 64 * 1024}
+        limits = {"samples.npy": 17 * 1024 * 1024, "metadata.npy": 64 * 1024}
         if any(
             item.compress_type not in (zipfile.ZIP_STORED, zipfile.ZIP_DEFLATED)
             or item.file_size > limits[item.filename]

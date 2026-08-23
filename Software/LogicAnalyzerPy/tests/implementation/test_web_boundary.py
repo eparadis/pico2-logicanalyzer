@@ -116,7 +116,7 @@ def test_invalid_websocket_upgrade_is_rejected_before_route_handling() -> None:
 def test_declared_oversized_request_is_rejected_before_handler() -> None:
     app = create_app("127.0.0.1", 4173)
     middleware = app.middlewares[1]
-    request = SimpleNamespace(content_length=(1 << 20) + 1)
+    request = SimpleNamespace(content_length=server.MAX_REQUEST_BYTES + 1)
 
     async def handler(_: object) -> object:
         return "accepted"

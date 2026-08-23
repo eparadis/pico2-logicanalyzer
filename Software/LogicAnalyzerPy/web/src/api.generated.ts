@@ -2,10 +2,17 @@
 export type OperationState =
   | "pending" | "running" | "cancelling" | "succeeded" | "failed" | "cancelled";
 export interface ErrorEnvelope { error: { code: string; message: string } }
-export interface Operation { operation_id: string; state: OperationState }
-export interface CaptureMetadata { capture_id: string; sample_count: number; sample_rate_hz: number }
+export interface Operation { operation_id: string; state: OperationState; capture_id: string | null }
+export interface CaptureMetadata {
+  capture_id: string; sample_count: number; sample_rate_hz: number;
+  trigger_index: number; trigger_channel: number;
+  trigger_edge: "rising" | "falling"; channel_ids: number[]
+}
 export interface Channel { channel_id: number; label: string; packed_position: number }
-export interface WaveformWindow { start: number; end: number; channels: unknown[] }
+export interface WaveformWindow {
+  start: number; end: number;
+  channels: { channel_id: number; transitions: { sample_index: number; value: number }[] }[]
+}
 export interface BusRequest { mode: "transition" | "sampled"; channel_ids: number[]; strobe_channel: number | null; edge: "rising" | "falling" | null; offset: number; limit: number }
 export interface BusPage { rows: BusRow[]; offset: number; total: number; next_offset: number | null }
 export interface ExportRequest { format: "bus-transition-csv" | "bus-sampled-csv"; channel_ids: number[]; strobe_channel: number | null; edge: "rising" | "falling" | null }

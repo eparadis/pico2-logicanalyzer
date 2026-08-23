@@ -1167,3 +1167,79 @@ accepted evidence remain unchanged.
   no capture or recovery byte was sent, and no firmware, bootloader, Wi-Fi,
   persistent-state, .NET, public-server, packaging/publication, or Cycle 3
   operation occurred.
+
+## C2-B6 checkpoint
+
+- State: Complete
+- Recorded: 2026-08-23T22:49:28Z
+- Exact accepted product candidate:
+  `2d5484a73d881496cdf5a35c799dfb01eedad229`
+- Exact accepted product tree:
+  `8c76bce79922263468cb6ceaa4f1990703a84bfc`
+- Product result: secured explicit-port live integration with opaque public
+  identity; bounded nonblocking single-device ownership; identify, ordered
+  1–24-channel normal capture, cancellation, timeout, disconnect recovery,
+  close/reopen/reidentify and second capture; production browser 8/16/24
+  waveform, trigger, cursor, ordered transition/distinct-strobe bus, exact CSV
+  export, reconnect and shutdown; no automatic device selection or machine-
+  local identity persistence.
+- Final implementation record:
+  `docs/reviews/c2-b6-implementation-round-4.md`, committed at `a349cc5`,
+  SHA-256
+  `655c56b770e35e2bb4b4dbb6a78116b5e7842b714cf29c2e5f61d7dca3a379af`.
+- Independent verification: pass with no findings,
+  `docs/reviews/c2-b6-verification-round-4.md`, committed at `436e187`,
+  SHA-256
+  `9907b1f50de115f37a7181b1bf0a43ce8108a4633e027222d192315bd7b01926`.
+- Independent acceptance: pass with no findings,
+  `docs/reviews/c2-b6-acceptance-round-2.md`, committed at `6054004`,
+  SHA-256
+  `7a6abbf69f48bd0e720f446b2713be581a893376f9724c4fbc9a7a68dd934216`.
+- Evidence manifest: `testdata/evidence/c2-b6.json`, committed separately at
+  `354c299`, SHA-256
+  `ed8036ef48654efd98a5c3a852fb1f1dba847a34e12bf1c5dec253a2b9a83ffb`;
+  strict schema validation, 28 referenced-hash checks, all stopping-condition
+  IDs 1–14, confidentiality checks, and the 9-test evidence-validator suite
+  passed.
+- Exact-candidate hosted macOS CI: run `32671356406`, job `97272584254`,
+  completed successfully at the accepted commit/tree. Clean environments,
+  hash-locked Python and Node installs, dependency checks, Ruff, strict mypy,
+  complete nonhardware pytest, CLI, frontend lint/type/unit/build/assets,
+  Chromium installation and production browser validation all passed.
+- Accumulated local validation: 383 Python tests passed with 2 covered
+  sandbox-loopback skips and 106 warnings; the exact hosted suite covered the
+  accumulated listener/browser path. Focused workflow, availability and
+  complete physical-artifact validation reported 8 passed; Ruff, strict mypy,
+  dependency, OpenAPI, generated-type, asset, CLI, Node and diff gates passed.
+- Physical and lifecycle evidence: 8/16/24 captures proved `uint8`/`uint16`/
+  `uint32`, masks `0x01`/`0x0101`/`0x810101`, 31 rising edges per driven
+  channel, exact counts, approximately 1 kHz activity, and zero bits 24–31.
+  Recovery proved accepted `ff` cancellation, fixed-low D1, reidentification,
+  closed ownership, reopen and second capture without a persistent device
+  change.
+- Native production browser: passed 1/1 with physical D0/D8/D16/D23 values at
+  all widths, trigger/cursor values, explicit LSB-first bus order, transition
+  and 31 distinct-strobe rows, validated export bytes, reopen, second capture,
+  nondisclosure and clean shutdown.
+- Performance: the final automatic B6 benchmark and chained checker passed the
+  operator-approved dual timing and deterministic resource ceilings without
+  rebasing. Maximum observed and approved waveform request span was 100,000
+  samples; Canvas, DOM, bus-page and timing limits passed; reliable heap
+  measurement remains explicitly unclaimed.
+- Security and delivery: the loopback Host/Origin/capability boundary,
+  nondisclosure, request/allocation bounds, concurrency/conflict behavior,
+  cancellation/disconnect/shutdown cleanup, offline production assets, sole
+  hosted macOS workflow, read-only repository permission, sanitized concise
+  diagnostics and absent/partial/corrupt physical-artifact classification all
+  passed. No raw port, serial, location, capability or other machine identity
+  is recorded.
+- Findings: `C2B6-V001`, `C2B6-V002`, `C2B6-V003`, `C2B6-A001`,
+  `C2B6-A001-AVAILABILITY`, and `C2B6-A001-DIAGNOSTICS` are closed. No open or
+  deferred B6 finding remains.
+- Prohibited actions: no firmware, bootloader, Wi-Fi, wiring, persistent-device,
+  public-server, packaging/publication, C#/.NET, `.lac`, threshold-rebase, or
+  Cycle 3 action occurred.
+- Stopping-condition boundary: B6 supplies the final accumulated evidence for
+  all fourteen Cycle 2 stopping conditions. This checkpoint completes B6 only;
+  overall Cycle 2 completion is not claimed until the separate completion audit
+  verifies the complete fourteen-condition proof and creates its own record.

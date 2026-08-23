@@ -828,3 +828,27 @@ accepted evidence remain unchanged.
 - No pass transfers. The same implementation lane must read the durable record,
   correct all findings, run focused/full gates including real loopback, and
   produce a new immutable candidate for a fresh verification round.
+
+### C2-B4 correction candidate
+
+- Implementation identity: `cycle2-implementor-replacement-6`.
+- Corrected candidate: `dd49ee6aab0092c3963ed30f279fcde026ab70d7`;
+  tree `4d29e8309f8d0365b0b9804227a2587e929c2d01`.
+- Implementation reports `C2B4-V001` through `C2B4-V008` corrected: complete
+  schema/type surface, bounded in-memory replay/CSV import, pulse-preserving
+  waveform reduction, operation lifecycle/conflicts/cancel, exact bus/export
+  discriminators, replay-sized multipart bound, clean typing, literal expected
+  rows, and real-loopback behavior.
+- Gates: round-1 verifier tests 4 passed; focused 21 passed with 1 covered
+  sandbox skip; full Python 287 passed with 2 covered sandbox skips; Ruff,
+  mypy, OpenAPI checker, CLI, Node lint/type/unit/build, and brokered loopback
+  test passed.
+- Corrected OpenAPI SHA-256
+  `118d982c02853ea97e491e0c532376c1ce99524bcfc4e19ca947c3088493a58c`;
+  generated TypeScript SHA-256
+  `49fdc88cc75ed65f83f0240eaedd7796fcc728cd6f5b61c9831f3b35c30d3896`.
+- Round-2 implementation record committed separately at `17ccab6`:
+  `docs/reviews/c2-b4-implementation-round-2.md`, SHA-256
+  `d4e6b1c67c3093c68ddb75010776cb4187bf4e94ee5b95c97ca527f2479a53f1`.
+- Fresh independent verification and complete accumulated validation are
+  required; no round-1 or implementation pass transfers.

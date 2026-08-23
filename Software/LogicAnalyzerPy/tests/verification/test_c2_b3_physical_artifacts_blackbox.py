@@ -12,9 +12,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-RUNTIME = Path(
-    os.environ.get("PICO_LA_C2_B3_RUNTIME", "/private/tmp/cycle2-b3-corrected-runtime")
-)
+RUNTIME = Path(os.environ.get("PICO_LA_C2_B3_RUNTIME", "/private/tmp/cycle2-b3-corrected-runtime"))
 EXPECTED_DIGESTS = {
     "recovery.json": "40745b7e3be4e53d8b9957f72efd310fcd5c1a309395213b36fbf392da482ad1",
     "capture-8.csv": "fc4c4759394b4fc5180440d09dfe6a0082ca6401b93f18a38782ce3012fa37a3",
@@ -24,6 +22,27 @@ EXPECTED_DIGESTS = {
     "capture-24.csv": "c6255f31621b1a366dc839af3f94240a2b897760ed2433a43e6f33495866efe5",
     "capture-24.npz": "af3b61f1081f7e272e0d429bae004ddccdc11363cff2061dd25228ddebae41bd",
 }
+
+
+def _artifacts_available(runtime: Path, *, explicitly_supplied: bool) -> bool:
+    present = {name for name in EXPECTED_DIGESTS if (runtime / name).is_file()}
+    if not present and not explicitly_supplied:
+        return False
+    missing = sorted(set(EXPECTED_DIGESTS) - present)
+    if missing:
+        source = "explicitly supplied" if explicitly_supplied else "default"
+        raise AssertionError(f"{source} C2-B3 artifact set is incomplete: {', '.join(missing)}")
+    return True
+
+
+@pytest.fixture(scope="module", autouse=True)
+def require_complete_physical_artifacts() -> None:
+    explicitly_supplied = "PICO_LA_C2_B3_RUNTIME" in os.environ
+    if not _artifacts_available(RUNTIME, explicitly_supplied=explicitly_supplied):
+        pytest.skip(
+            "C2-B3 machine-local physical artifacts were not supplied; checked-in sanitized "
+            "evidence remains covered by mandatory nonhardware validation"
+        )
 
 
 def _bytes(name: str) -> bytes:
@@ -47,9 +66,10 @@ def _read_replay(width: int) -> tuple[np.ndarray, dict[str, object]]:
     assert metadata_array.dtype == np.dtype("uint8") and metadata_array.ndim == 1
     metadata_bytes = metadata_array.tobytes()
     metadata = json.loads(metadata_bytes.decode("utf-8"))
-    assert metadata_bytes == json.dumps(
-        metadata, ensure_ascii=False, sort_keys=True, separators=(",", ":")
-    ).encode()
+    assert (
+        metadata_bytes
+        == json.dumps(metadata, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
+    )
     return samples, metadata
 
 

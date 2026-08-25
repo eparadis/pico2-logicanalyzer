@@ -381,7 +381,8 @@ semantics.
       and governance input baseline `c163a83`, tree `45556769`; post-completion
       launcher delta classified as included input without retroactive Cycle 2
       acceptance
-- [ ] Step 2 — technical roadmap reconciled
+- [x] Step 2 — technical roadmap reconciled in `cefb386`; accepted Cycle 2
+      facts separated from proposed Cycle 3 and later-parity work
 - [ ] Step 3 — bounded discovery completed
 - [ ] Step 4 — operator decisions recorded
 - [ ] Step 5 — narrow Cycle 3 contract surface settled

@@ -2,8 +2,9 @@
 
 ## Status, purpose, and authority boundary
 
-- Status: Step 1 baseline reconciliation complete; bounded technical discovery
-  and operator decisions remain pending under Steps 2 through 6 of
+- Status: Step 1 baseline reconciliation is committed; the Step 2 factual
+  roadmap reconciliation is prepared for commit; bounded technical discovery
+  and operator decisions remain pending under Steps 3 through 6 of
   `CYCLE3_PREPARATION.md`.
 - Inspection date: 2026-08-25 (America/Los_Angeles).
 - Authority: `CYCLE3_PREPARATION.md`, committed at
@@ -143,5 +144,51 @@ product change.
 Step 1's classification exit gate is met: one exact proposed baseline exists,
 all accepted-candidate descendants, both post-completion commits, and the sole
 Step 1 worktree change have explicit dispositions, and no unrelated or excluded
-change is hidden. Step 1 is not durably complete until this section is committed
-as required by `CYCLE3_PREPARATION.md`.
+change is hidden. The reconciliation was committed at `cb877ed` and its
+preparation checklist gate was recorded at `e466203`.
+
+## Step 2: technical-roadmap reconciliation
+
+The factual revision of
+[`Software/LogicAnalyzer/PYTHON_REWRITE_IMPLEMENTATION_PLAN.md`](../../LogicAnalyzer/PYTHON_REWRITE_IMPLEMENTATION_PLAN.md)
+reconciles its original Cycle 1 planning assumptions with the accepted Cycle 2
+contracts and completion proof. It preserves the older decision log and broad
+work packages as history and later-cycle context, but makes explicit that they
+are not current Cycle 3 authority.
+
+The revision records these accepted facts:
+
+- Cycle 2 delivered ordered one-to-24-channel normal capture with 8-, 16-, and
+  24-channel transfer modes and mode-appropriate `uint8`, `uint16`, and
+  `uint32` sample storage;
+- replay schema 1 remains readable, replay schema 2 is the canonical native
+  write format, and generalized deterministic self-timed CSV import/export is
+  accepted;
+- deterministic transition and distinct-strobe parallel-bus analysis is
+  delivered through the shared Python core, CLI/API contracts, browser table,
+  and export surfaces;
+- the accepted interactive application is the loopback-only
+  React/TypeScript/Vite browser application with bounded Canvas rendering,
+  offline replay/CSV workflows, live serial capture, lifecycle/security proof,
+  and governed performance thresholds;
+- PySide6/Qt, `.lac` interoperability, .NET dependence, packaging, public
+  serving, and protocol decoders were explicitly excluded from Cycle 2; and
+- the audited accepted support claim is macOS only. Historical Linux tests and
+  CI records do not establish current Linux support.
+
+The revision also removes already-complete Cycle 2 work from the Cycle 3
+sequence. The focused Cycle 3 direction remains only a proposal for the
+checked-in UART, SPI, and I2C decoder versions. It does not decide decoder trust
+or provenance, in-process versus isolated execution, resource limits,
+authoritative expected annotations, library/CLI/browser surfaces, platform
+support, or physical-proof requirements. Those are operator choices owned by
+Steps 3 and 4. Broader decoder compatibility and stacking, `.lac`, advanced
+capture and editing parity, additional platforms, connectivity/device work, and
+packaging remain Cycle 4-or-later candidates unless later approved contracts
+say otherwise.
+
+Step 2's content exit gate is met in the proposed revision: no known roadmap
+statement presents PySide6, `.lac`, Linux support, or an already delivered
+Cycle 2 capability as current Cycle 3 authority or unmet Cycle 2 work. Step 2
+becomes durably complete only when the roadmap and this linked record are
+committed together by the root orchestrator.

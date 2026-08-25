@@ -1,21 +1,28 @@
 # Python Logic Analyzer Rewrite: Implementation and Verification Plan
 
-> **Document role:** This is the technical roadmap. Cycle 1 objective, scope,
-> authority, validation, checkpoints, and stopping conditions are governed by
-> [`ORCHESTRATION.md`](../../ORCHESTRATION.md). Repeatable batch mechanics and
-> concrete Cycle 1 batches are governed by
-> [`BATCH_EXECUTION.md`](../../BATCH_EXECUTION.md). Where execution instructions
-> here overlap, the two top-level documents are authoritative. Commit-anchored
-> domain reviews are stored in
+> **Document role:** This is a historical and forward-looking technical
+> roadmap, not current execution authority. Cycle 1 remains governed by
+> [`ORCHESTRATION.md`](../../ORCHESTRATION.md) and
+> [`BATCH_EXECUTION.md`](../../BATCH_EXECUTION.md). Accepted Cycle 2 behavior is
+> established by [`CYCLE2_ORCHESTRATION.md`](../../CYCLE2_ORCHESTRATION.md),
+> [`CYCLE2_BATCH_EXECUTION.md`](../../CYCLE2_BATCH_EXECUTION.md), and the
+> [Cycle 2 completion proof](../LogicAnalyzerPy/docs/cycle-2-completion.md).
+> Cycle 3 is still in preparation under
+> [`CYCLE3_PREPARATION.md`](../../CYCLE3_PREPARATION.md); its discovery,
+> contracts, reviews, and durable goal must approve any implementation scope.
+> Commit-anchored domain reviews are stored in
 > [`docs/rewrite-reviews/`](../../docs/rewrite-reviews/README.md).
 
 ## Purpose
 
-This document is an execution plan for an orchestrating agent coordinating a
-team of implementation and verification agents. The objective is to replace
-the current .NET/Avalonia logic-analyzer applications with a Python package,
-CLI, and desktop GUI that run on Linux and macOS while preserving device,
-capture-file, decoder, and user-visible behavior.
+This document began as an execution plan for replacing the .NET/Avalonia
+logic-analyzer applications with a Python implementation. It now records both
+the original long-range parity ideas and the accepted incremental result. The
+accepted product through Cycle 2 is a Python package and CLI plus a loopback-
+only local browser application built with React, TypeScript, and Vite. Its
+audited support claim is macOS only. Linux support, `.lac` interoperability,
+desktop packaging, and complete legacy parity are possible later-cycle topics,
+not current requirements or support claims.
 
 The rewrite must be incremental. Do not remove or substantially change the
 existing C# implementation until the Python replacement passes the compatibility
@@ -38,11 +45,12 @@ a provisional internal replay artifact. It is intentionally a partial bus tool:
 it can inspect an 8-bit data bus or a selected group of control/address signals,
 but it does not yet claim simultaneous full address/data/control visibility.
 
-The first useful delivery is source-installed on Python 3.12. Non-hardware tests
-run on Linux and macOS, while the physical smoke test runs on whichever supported
-host has the board. Packaging, broad firmware compatibility, automated device
-selection, TCP, wider captures, advanced triggers, decoder compatibility, and a
-full GUI are later cycles.
+The first useful delivery was source-installed on Python 3.12. Its historical
+non-hardware tests ran on Linux and macOS, while physical smoke ran on the host
+with the board. Cycle 2 subsequently completed wider capture and the local
+browser application under a macOS-only support claim. Packaging, broad firmware
+compatibility, automated device selection, TCP, advanced triggers, decoder
+compatibility, and fuller application parity remain later-cycle topics.
 
 ### Delivery cycles and hard scope boundaries
 
@@ -75,33 +83,50 @@ under "Cycle 1 hardware gate" pass. Documentation and scaffolding should be just
 complete enough to support this slice; exhaustive inventory and characterization
 must not delay it.
 
-#### Cycle 2: wider capture and basic native viewing
+#### Cycle 2: accepted wider capture and local browser viewing
 
-Add 16- and 24-channel normal capture, `.lac` compatibility, and a read-only
-PySide6 viewer. The viewer initially opens replay/CSV captures, renders supported
-digital channels, and provides zoom, pan, cursor time/sample readout, channel
-labels, and export. After replay viewing is stable, connect it to the same proven
-serial capture service. Add a simple parallel-bus value table/export before
-claiming whole-bus SBC debugging support.
+Cycle 2 is complete. The accepted candidate adds ordered one-to-24-channel
+normal capture with 8-, 16-, and 24-channel transfer modes; schema-1 replay
+reads and canonical replay-schema-2 writes; generalized deterministic
+self-timed CSV import/export; deterministic transition and distinct-strobe
+parallel-bus analysis; and a loopback-only React/TypeScript/Vite browser
+application using bounded Canvas rendering. Offline replay/CSV viewing, live
+serial capture, labels and visibility, pan, cursor-centered zoom, cursor and
+trigger readout, bus tables, export, lifecycle recovery, security boundaries,
+and approved performance gates all passed. Cycle 2 deliberately excluded
+PySide6/Qt, `.lac`, .NET, packaging, public serving, protocol decoders, and any
+non-macOS support claim.
 
 #### Cycle 3: focused decoder support
 
-Implement only the sigrok host behavior exercised by checked-in UART, SPI, and
-I2C fixtures. Keep the public Python capture/analysis API usable without the GUI.
+The proposed focused direction is to implement only the sigrok host behavior
+exercised by the checked-in UART, SPI, and I2C decoder versions while keeping
+the public Python capture/analysis API usable without a frontend. This is not
+yet approved scope. Cycle 3 discovery and operator decisions must settle the
+decoder identities and provenance, trusted-code boundary, process isolation,
+resource limits, expected-annotation sources, accepted library/CLI/browser
+surfaces, platform claim, and whether replay/synthetic evidence is sufficient.
 Broader API-v3 compatibility, decoder stacking, user decoder directories, and
-the all-decoder import gate are later parity work.
+an all-decoder import gate remain Cycle 4-or-later parity candidates unless the
+approved Cycle 3 contracts say otherwise.
 
 #### Cycle 4 and later: parity and distribution
 
-Complete advanced triggers/capture modes, decoder breadth, editing, TCP,
-multi-device support, device-management workflows, optimized rendering, and
-self-contained distribution in evidence-driven increments. Apply the detailed
-work packages below only when their prerequisite cycle has passed.
+Consider advanced triggers/capture modes, decoder breadth, editing, TCP,
+multi-device support, device-management workflows, further interactive parity,
+non-macOS support, `.lac` compatibility, and self-contained distribution in
+separately approved evidence-driven increments. Apply the detailed work
+packages below only after their prerequisites and product/platform decisions
+have been reviewed; their presence here is not a promise or authorization.
 
 ## Reviewed decision log
 
-The following choices were reviewed one at a time by an independent evaluator.
-When options tied, the review policy was to retain the original recommendation.
+The following choices preserve the original Cycle 1 planning history. Later
+approved contracts supersede them where they conflict: in particular Cycle 2
+selected React/TypeScript/Vite instead of PySide6, replay schema 2 and the
+self-timed CSV contract instead of `.lac`, and an audited macOS-only support
+claim instead of Linux/macOS support. These historical entries are not current
+Cycle 3 authority.
 
 1. **First useful cycle.** Ambiguity: the original first iteration stopped
    before serial work although the plan favored a vertical slice.
@@ -207,23 +232,25 @@ When options tied, the review policy was to retain the original recommendation.
     **Evaluator choice and final resolution:** recommendation as refined by the
     device/protocol review.
 
-## Desired outcomes
+## Long-range outcomes and current qualifications
 
 1. A typed Python library is the single implementation of device access,
    capture validation, capture processing, file formats, measurements, and
    decoder execution.
-2. A scriptable CLI and a PySide6 desktop GUI consume that library without
-   duplicating business logic.
-3. Serial and TCP devices work on Linux and macOS. USB discovery uses VID/PID,
-   serial number, and physical location where available.
-4. Existing `.lac` files remain readable. New files have an explicit versioned
-   schema and round-trip without data loss.
-5. Bundled sigrok API-v3 Python decoders run without pythonnet or runtime C#
-   compilation, including stacked decoders.
-6. Unit, contract, integration, GUI, packaging, and opt-in hardware acceptance
-   tests exist and run in CI where appropriate.
-7. Linux and macOS users receive self-contained desktop artifacts and can also
-   install/use the Python package and CLI.
+2. The accepted scriptable CLI and local React/TypeScript/Vite browser
+   application consume that library without duplicating business logic.
+3. Serial operation is accepted on macOS. TCP, stable-device discovery, and
+   support on any other operating system require later reviewed work.
+4. Replay schema 2 and the generalized self-timed CSV contract are the accepted
+   native formats. `.lac` is excluded unless a later parity cycle approves it.
+5. Focused checked-in UART/SPI/I2C decoder support without pythonnet or runtime
+   C# compilation is the proposed Cycle 3 direction; stacking and broader
+   decoder compatibility are later candidates.
+6. Unit, contract, integration, browser, performance, and opt-in hardware tests
+   exist or are added with their owning approved subsystem.
+7. Self-contained artifacts and additional platform support remain Cycle 4-or-
+   later decisions. The current accepted delivery is source-installed and
+   macOS-only.
 
 ## Existing system map
 
@@ -291,13 +318,16 @@ Software/LogicAnalyzerPy/
 │   ├── formats/
 │   ├── analysis/
 │   ├── cli/
-│   └── gui/
+│   └── web/
+├── web/
+│   ├── src/
+│   └── tests/
 ├── tests/
 │   ├── unit/
 │   ├── protocol/
 │   ├── decoder/
 │   ├── compatibility/
-│   ├── gui/
+│   ├── implementation/
 │   ├── packaging/
 │   └── hardware/
 └── testdata/
@@ -307,27 +337,30 @@ Software/LogicAnalyzerPy/
     └── legacy/
 ```
 
-Recommended baseline stack:
+The accepted stack through Cycle 2 is:
 
-- Python 3.12 or newer, subject to PySide6 packaging support.
+- Python 3.12.
 - Standard-library dataclasses and enums for the domain model.
 - NumPy for raw sample storage, extraction, editing, and measurements.
 - pySerial for serial access and cross-platform USB-port discovery.
-- Standard-library sockets for TCP transport.
-- PySide6 Qt Widgets for the desktop application.
-- pytest, pytest-qt, Hypothesis, and coverage for tests.
-- Ruff plus mypy or Pyright for static checks.
-- `pyside6-deploy` for initial application packaging; reconsider only if
-  packaging spikes reveal a blocker.
+- A loopback-only Python web service plus React, TypeScript, Vite, Canvas, and
+  Playwright for the local browser application.
+- pytest, frontend unit/browser tests, Ruff, and strict mypy checks.
+- Hash-locked Python and JavaScript dependency sets and deterministic checked-
+  in production assets.
+
+TCP, desktop packaging, and additional supported operating systems are later
+decisions. PySide6/Qt and an embedded browser are not part of the accepted
+Cycle 2 architecture.
 
 Do not make `asyncio` a required foundation. Prefer synchronous core APIs with
 clear cancellation and timeout semantics. Run blocking capture and decoder work
-outside the Qt UI thread. An optional async wrapper may be added after the core
-API stabilizes.
+outside the local server request loop. An optional async wrapper may be added
+after the core API stabilizes.
 
 ## Architectural rules
 
-1. `gui` and `cli` may depend on the public library; the public library must not
+1. `web` and `cli` may depend on the public library; the public library must not
    depend on either front end.
 2. Transport code only moves bytes. Protocol code only frames/parses bytes.
    Driver/application services own state transitions and capture orchestration.
@@ -350,11 +383,12 @@ API stabilizes.
 
 ## Orchestration protocol
 
-Top-level orchestration policy is defined in `ORCHESTRATION.md`; per-batch
-assignment, integration, verification, checkpoint, and rollback procedures are
-defined in `BATCH_EXECUTION.md`. This roadmap supplies technical work packages
-for those documents to reference. It does not independently authorize an agent
-to start a later cycle or bypass a batch gate.
+Cycle-specific approved contracts define orchestration, batch assignment,
+integration, verification, checkpoints, and rollback. Cycle 1 uses
+`ORCHESTRATION.md` and `BATCH_EXECUTION.md`; Cycle 2 uses the corresponding
+`CYCLE2_` contracts. This roadmap supplies historical and technical context. It
+does not independently authorize an agent to start Cycle 3 or a later cycle,
+select unsettled scope, or bypass a batch gate.
 
 ## Phase 0: Inventory, decisions, and repository scaffold
 
@@ -364,7 +398,7 @@ Produce `docs/feature-parity.md` in the new project. Enumerate current behavior
 and classify each feature as:
 
 - required for CLI milestone;
-- required for GUI MVP;
+- required for an interactive-application milestone;
 - required before C# retirement;
 - intentionally changed or deferred.
 
@@ -378,7 +412,8 @@ known-device persistence.
 
 Record short architecture decision records for:
 
-- PySide6/Qt Widgets;
+- the accepted local React/TypeScript/Vite browser boundary and any separately
+  approved later frontend change;
 - raw sample-word representation;
 - synchronous core I/O and UI workers;
 - pure-Python sigrok compatibility host;
@@ -389,23 +424,21 @@ Record short architecture decision records for:
 
 Create `pyproject.toml`, source/test layouts, console entry point, lint/type/test
 configuration, basic logging, and a minimal CI workflow. Pin direct dependencies
-and document how locks are updated. Include a placeholder GUI entry point that
-can start and exit in an offscreen test.
-
-For Cycle 1, put GUI dependencies in an optional dependency group and omit the
-placeholder GUI/offscreen test. Activate them when Cycle 2 viewer work begins.
+and document how locks are updated. This scaffold and the optional locked web
+runtime are complete through Cycle 2; production uses checked-in Vite assets and
+does not require Node or runtime network access.
 
 ### Phase 0 gate
 
 - Package installs in a clean virtual environment.
 - `python -m pico_logic_analyzer --help` or the chosen console script works.
-- Lint, type checking, unit-test discovery, and a headless Qt smoke test pass on
-  Linux and macOS CI.
+- Lint, type checking, unit-test discovery, and the approved production-browser
+  smoke pass on the supported macOS surface.
 - Feature inventory and decisions have been reviewed.
 
-This complete Phase 0 gate applies before broad parity work. The Cycle 1 gate
-requires only package installation, CLI help, lint/type/unit checks on Linux and
-macOS, and the decisions necessary for the narrow V2 capture slice.
+This complete Phase 0 gate applies before broad parity work. Historical Cycle 1
+validation covered Linux and macOS, but the current accepted support claim is
+macOS only.
 
 ## Phase 1: Protocol characterization and golden test data
 
@@ -447,9 +480,11 @@ confirm them against the firmware struct. Store provenance beside each fixture.
 Fixture generation utilities must be separate from the tests so tests do not
 recompute expected values with the same implementation under test.
 
-### Work package P1-C: Legacy capture corpus
+### Later parity candidate P1-C: Legacy capture corpus
 
-Collect or construct sanitized `.lac` fixtures covering:
+This work was not accepted or delivered in Cycle 2. Only if a later approved
+cycle selects `.lac` interoperability, collect or construct sanitized fixtures
+covering:
 
 - current per-channel sample arrays;
 - the legacy packed `Samples` field;
@@ -489,37 +524,37 @@ fragmentation. Enforce maximum response sizes before allocating arrays.
 
 ### Work package P2-C: Capture formats
 
-Implement:
+Accepted through Cycle 2:
 
-- legacy `.lac` reader;
-- versioned new `.lac` writer/reader;
-- the settled self-timed CSV writer as the default export contract;
-- deterministic JSON output for tests and version control.
+- bounded inert NPZ replay with schema-1 read compatibility and canonical
+  schema-2 writes;
+- strict generalized self-timed CSV import/export; and
+- deterministic metadata and hostile-input validation without pickle or
+  executable content.
 
-Document the new schema. Preserve unknown legacy fields when feasible, or
-explicitly report what cannot round-trip. Consider compression only after
-baseline compatibility is proven. Record the intentional difference between
-the self-timed CSV and the C# channel-only CSV in `docs/compatibility.md`. If
-legacy CSV interoperability is later required, implement it only as an
-explicitly named import/export compatibility mode with dedicated fixtures; it
-must not change the default Cycle 1 header.
+`.lac` reading/writing and C# serializer interoperability were explicitly
+excluded. They are Cycle 4-or-later parity candidates only if separately
+approved; no current requirement may treat them as missing Cycle 2 work.
 
 ### Work package P2-D: Sample operations and measurements
 
 Implement vectorized channel extraction, insert, delete, cut/copy/paste, shift,
 region adjustment, pulse measurements, and capture slicing independently of the
-GUI. Port the signal-description parser only after its grammar and examples
+frontend. Port the signal-description parser only after its grammar and examples
 have characterization tests.
 
 ### Phase 2 gate
 
 - All golden frames and payloads pass.
-- All valid legacy captures load and round-trip through the domain model.
+- Accepted replay schema-1/schema-2 and self-timed CSV fixtures load and round-
+  trip through the domain model. Any future `.lac` gate belongs to its own
+  approved parity cycle.
 - Malformed data is rejected without uncontrolled allocation or arbitrary type
   construction.
 - Sample operations have unit/property coverage for boundary and trigger/region
   adjustment behavior.
-- Core modules do not import Qt, CLI, or serial implementations.
+- Core modules do not import the browser frontend, CLI, or serial
+  implementations.
 
 ## Phase 3: Transports, single-device driver, and consolidated CLI
 
@@ -600,12 +635,21 @@ block Cycle 1:
 
 - All driver behavior passes against fake serial and fake TCP transports.
 - Fragmentation, timeout, abort, and reconnect tests pass.
-- CLI can perform a complete emulated/replayed capture and write `.lac` and CSV.
+- CLI can perform a complete emulated/replayed capture and write the accepted
+  schema-2 replay and CSV formats. `.lac` applies only if a later approved
+  parity cycle adds it.
 - JSON output is schema-tested and contains no progress text on stdout.
-- On both Linux and macOS, discovery unit/contract tests correctly interpret
-  representative pySerial port records.
+- Discovery unit/contract tests cover each platform claimed by the owning
+  approved cycle; only macOS is currently supported.
 
 ## Phase 4: Sigrok decoder runtime
+
+The work packages below mix the proposed focused Cycle 3 slice with broader
+later parity. `CYCLE3_PREPARATION.md` and the Cycle 3 discovery review must
+settle the focused boundary before implementation. In particular, this roadmap
+does not decide trusted decoder sources, in-process versus isolated execution,
+resource limits, expected-output provenance, browser integration, physical
+proof, or the Cycle 3 platform claim.
 
 ### Work package P4-A: Decoder discovery and metadata
 
@@ -613,10 +657,11 @@ Load decoder modules directly from the bundled decoder tree. Implement metadata,
 categories/tags, required/optional channels, options, annotations, annotation
 rows, inputs, and outputs. Validate decoder IDs and isolate import failures.
 
-Support bundled decoders, a user data directory, and an explicit CLI path.
-Define deterministic precedence and duplicate-ID behavior. Record the upstream
-sigrok commit or release from which bundled decoders came; keep local changes as
-reviewable patches where practical.
+Broad later parity may support bundled decoders, a user data directory, and an
+explicit CLI path with deterministic precedence and duplicate-ID behavior.
+Focused Cycle 3 instead proposes checked-in UART/SPI/I2C versions only, subject
+to operator approval. Record the upstream sigrok commit or release and keep
+local changes as reviewable patches where practical.
 
 ### Work package P4-B: API-v3 compatibility host
 
@@ -660,16 +705,18 @@ libsigrokdecode when available.
 Before broad Phase 4 parity, the focused Cycle 3 decoder milestone has its own
 gate:
 
-### Focused Cycle 3 decoder gate
+### Proposed focused Cycle 3 decoder gate
 
-- Only the checked-in I2C, SPI, and UART decoder versions are in scope.
+- Subject to discovery and operator approval, only the checked-in I2C, SPI, and
+  UART decoder versions are in scope.
 - Pinned decoder provenance and logic fixtures enumerate the exact API-v3 calls
   exercised by those versions.
-- Headless library and CLI execution provide deterministic channel mapping,
-  options, samplerate metadata, and annotations.
+- The accepted surface may include headless library and CLI execution and may
+  include browser annotation behavior; Step 4 of `CYCLE3_PREPARATION.md` must
+  decide it.
 - Cancellation and decoder exception isolation are tested.
-- No stacking, user decoder discovery, capture-selected code, or all-decoder
-  import promise is included.
+- Stacking, user decoder discovery, capture-selected code, and an all-decoder
+  import promise remain excluded from the proposed focused slice.
 
 The existing bullets below are the later broad compatibility gate and cannot
 block focused Cycle 3:
@@ -709,19 +756,22 @@ device is missing.
 - Channel mapping and trigger-offset fixtures match the current driver where its
   behavior is valid.
 - Failure, timeout, and cancellation of each participating device are tested.
-- Hardware verification for at least a two-device chain passes before GUI
+- Hardware verification for at least a two-device chain passes before frontend
   multi-device support is declared complete.
 
-## Phase 6: PySide6 desktop GUI
+## Phase 6: Later interactive-application parity
 
-Keep GUI state thin. Introduce view models/controllers where they make workflows
-testable, but do not create a framework-heavy abstraction layer.
+Cycle 2 established the React/TypeScript/Vite local browser application as the
+accepted frontend baseline. Whether a later cycle extends that surface or adds
+another frontend requires a separately approved technology and platform
+decision. Keep frontend state thin and business logic in the tested Python core.
 
 ### Work package P6-A: Application shell and settings
 
 Implement menus, logging/error presentation, platform data/config paths,
-remembered windows, themes/colors, known devices, and a background-work service.
-No capture or decoder work may block the Qt event loop.
+remembered UI state, themes/colors, known devices, and a background-work
+service. No capture or decoder work may block the browser or server request
+loop.
 
 ### Work package P6-B: Capture workflow
 
@@ -741,8 +791,9 @@ Implement a custom-painted digital waveform with:
 - burst boundaries;
 - level-of-detail rendering based on visible transitions.
 
-Do not allocate a Qt item for every sample or edge. Add rendering benchmarks and
-tests for empty, constant, dense-transition, and maximum-size captures.
+Preserve the accepted bounded Canvas approach; do not allocate a DOM object for
+every sample or edge. Extend the approved rendering benchmarks and tests for
+empty, constant, dense-transition, and maximum-size captures.
 
 ### Work package P6-D: Decoder UI
 
@@ -765,12 +816,13 @@ mutating actions.
 
 ### Phase 6 gates
 
-GUI MVP gate:
+Interactive-application gate:
 
 - Discover/connect, configure capture, capture/abort, render/navigate, open/save,
   CSV export, decode, and show annotations.
-- pytest-qt workflow tests pass under the offscreen platform.
-- Manual smoke tests pass on macOS and Linux native desktops.
+- Automated production-browser workflow tests pass.
+- Manual/native smoke tests pass on every platform claimed by the owning
+  approved cycle; only macOS is currently supported.
 
 Full parity gate:
 
@@ -784,7 +836,7 @@ Full parity gate:
 
 ### Work package P7-A: Reproducible builds
 
-Build artifacts on their target OS. Bundle Python, Qt, application resources,
+Build artifacts on their target OS. Bundle Python, application resources,
 decoders, decoder data files, licenses, and version metadata. Ensure resource
 lookup never relies on the current working directory.
 
@@ -792,8 +844,8 @@ Target artifacts:
 
 - macOS `.app`, distributed in a DMG or ZIP; build/sign Apple Silicon and Intel
   variants according to the supported-platform decision;
-- Linux portable archive or AppImage, plus installation documentation and udev
-  rules for USB permissions;
+- Linux artifacts and USB-permission installation are considered only if a
+  later cycle approves Linux support;
 - Python wheel/sdist for scripting users if dependency/licensing checks permit.
 
 ### Work package P7-B: Clean-machine smoke tests
@@ -819,9 +871,9 @@ OS, architecture, transport, firmware version, capture settings, and logs.
 The orchestrator may propose retiring the C# implementation only when:
 
 - all required feature-parity items are complete;
-- protocol and legacy-file compatibility suites pass;
+- protocol and every separately approved file-compatibility suite pass;
 - decoder gates pass;
-- Linux and macOS packaged smoke tests pass;
+- packaged smoke tests pass on every platform claimed by the release;
 - the full hardware matrix below passes on supported firmware;
 - at least one side-by-side preview cycle has completed without an unresolved
   data-loss, protocol, or packaging blocker;
@@ -831,27 +883,29 @@ The orchestrator may propose retiring the C# implementation only when:
 
 ### Always-on pull request checks
 
-"Always-on" means once the corresponding subsystem lands. A missing later-cycle
-subsystem is not a Cycle 1 failure. Cycle 1 always runs Ruff, static type checks,
-unit/protocol golden tests, fake/replay serial contract tests, CSV/NPZ round-trip
-tests, and CLI tests on Linux and macOS. Add each remaining check to the required
-set in the same change that introduces its subsystem.
+"Always-on" means once the corresponding subsystem lands. Historical Cycle 1
+ran its approved Linux/macOS matrix. The accepted Cycle 2 product runs the
+governed macOS Python, CLI, API, frontend, production-browser, replay/CSV/bus,
+security, and performance checks. Add each future check to the required set in
+the same approved cycle that introduces its subsystem; historical Linux CI does
+not create a current Linux support claim.
 
 - Ruff formatting/linting.
 - Static type checking.
 - Unit and property tests.
 - Protocol golden tests.
 - Fake serial/TCP contract tests.
-- Legacy capture compatibility tests.
-- Representative decoder tests and all-decoder import smoke test.
-- pytest-qt offscreen workflow tests.
+- Replay-schema and self-timed CSV compatibility/security tests.
+- Representative decoder tests when the focused decoder subsystem is approved;
+  an all-decoder import smoke remains later parity.
+- Production-browser workflow tests.
 - Build/package configuration validation.
 
 ### Scheduled or release checks
 
 - Full decoder corpus/performance tests.
-- Linux native GUI smoke test under X11 and, where practical, Wayland.
-- macOS native GUI smoke test.
+- Native browser smoke on the supported macOS platform.
+- Other-platform browser/native smoke only after that platform is approved.
 - Clean-machine packaged application test.
 - Large-capture rendering and memory benchmark.
 - Dependency/license and bundled-file audit.
@@ -884,7 +938,7 @@ Run against each supported firmware/device variant:
 
 | Area | Cases |
 | --- | --- |
-| Discovery | Linux USB, macOS USB, explicit serial port |
+| Discovery | Explicit serial port on each supported host; macOS currently |
 | Identity | version, max/blast frequency, buffer, channels |
 | Transport | serial and TCP |
 | Width | 8-, 16-, and 24-channel capture modes |
@@ -902,9 +956,11 @@ tolerances recorded in the fixture.
 
 ## Compatibility and schema policy
 
-- The legacy `.lac` reader is permanent unless a future migration policy says
-  otherwise.
-- New capture files include a schema version and application version.
+- Replay schema 2 is the accepted canonical native format, with bounded schema-1
+  reads. `.lac` has no accepted reader or writer and requires a later explicit
+  interoperability decision.
+- New replay files include a schema version and sanitized application/device
+  metadata defined by the accepted contract.
 - Readers accept unknown fields and reject unsupported major schema versions
   with a useful error.
 - Writers use deterministic field names and do not serialize Python class names.
@@ -916,14 +972,17 @@ tolerances recorded in the fixture.
 
 ## Security and robustness requirements
 
-- Treat capture files and decoder packages as untrusted input.
+- Treat capture files as untrusted input. Decoder packages are executable code;
+  Cycle 3 preparation must decide which exact sources are trusted and what
+  isolation claim applies before any decoder execution is authorized.
 - Do not deserialize arbitrary classes or evaluate capture-file content.
 - Bound packet lengths and sample allocations by negotiated device limits and
   configured safety limits.
 - Redact Wi-Fi passwords from logs, exceptions, CLI JSON, and persisted history.
 - Never automatically execute decoders discovered inside a capture file.
-- User-installed decoders are executable Python code; state this clearly in the
-  UI/docs and require an explicit trusted decoder directory.
+- User-installed decoder discovery is outside the proposed focused Cycle 3
+  slice. If later approved, state clearly that such decoders are executable
+  Python code and require an explicit trusted-code policy.
 - Timeouts and cancellation must release ports/sockets and leave state reusable
   or explicitly failed.
 
@@ -933,11 +992,13 @@ Establish each baseline only when its owning subsystem first exists:
 
 - Cycle 1/Phase 2: raw payload parsing, D0–D7 extraction, CSV, and provisional
   NPZ read/write.
-- `.lac` phase: representative legacy/current `.lac` read/write.
+- Any separately approved `.lac` phase: representative legacy/current `.lac`
+  read/write.
 - Focused decoder cycle: representative I2C/SPI/UART decoding.
 - Multi-device phase: peak memory for maximum representative composed captures.
-- Viewer phase: first paint and pan/zoom for empty, constant,
-  dense-transition, and maximum representative captures.
+- Viewer phase: Cycle 2 established and enforced production-browser load,
+  interaction, bus, Canvas, DOM, request-span, and row-count thresholds. Later
+  cycles must preserve them or use their governed approval process.
 
 Do not choose arbitrary pass/fail values before collecting baselines. Once
 accepted, store benchmark scenarios and thresholds in the repository and treat
@@ -967,13 +1028,13 @@ Cycle 1: V2 trace/spec subset -> codec/fake -> serial -> CLI -> CSV/NPZ
                                              physical hardware gate
                                                         |
                                                         v
-Cycle 2: wider modes + .lac -> replay viewer -> live basic viewer
+Cycle 2: wider modes + replay schema 2/CSV/bus -> browser/API -> live viewer
                                                         |
                                                         v
-Cycle 3: focused UART/SPI/I2C host + parallel-bus table/export
+Cycle 3 proposal: focused UART/SPI/I2C host -> approved public surfaces/proof
                                                         |
                                                         v
-Cycle 4+: advanced P1-P6 parity work -> P7 packaging/preview
+Cycle 4+: separately approved parity/platform work -> packaging/preview
                                                         |
                                                         v
                                              C# retirement review
@@ -985,9 +1046,9 @@ agent builds the matching narrow surface. Do not begin a later-cycle feature
 merely because an agent is idle; use spare capacity for negative tests,
 documentation, and review of the current gate.
 
-This diagram is technical sequencing context. `ORCHESTRATION.md` is
-authoritative for the active durable objective, and `BATCH_EXECUTION.md` is
-authoritative for Cycle 1 checkpoint order.
+This diagram is technical sequencing context. Cycle-specific approved contracts
+are authoritative for their durable objective and checkpoint order. Cycle 3 has
+no approved execution contract or durable goal yet.
 
 ## First orchestration iteration
 
@@ -998,24 +1059,26 @@ the broader phases in this roadmap.
 
 ## Consciously deferred work
 
-The orchestrator must keep these items out of Cycle 1 unless a prerequisite for
-the proven V2 serial path is discovered and documented:
+The accepted Cycle 2 result completed wider normal capture, replay schema 2,
+generalized self-timed CSV, the local browser/API, offline and live viewing,
+parallel-bus analysis, and performance gates. They are regression baselines,
+not deferred Cycle 3 work.
 
-- **Cycle 2:** 16/24-channel normal capture; `.lac` legacy/current compatibility;
-  read-only replay and live waveform viewer; simple parallel-bus table/export.
-- **Cycle 3:** focused UART, SPI, and I2C sigrok-host behavior and decoder UI
-  integration only after its headless fixtures pass.
+- **Proposed Cycle 3:** focused checked-in UART, SPI, and I2C sigrok-host
+  behavior. Library/CLI/browser surfaces, trust and isolation, fixtures,
+  resource bounds, platform, and physical-proof choices remain pending under
+  `CYCLE3_PREPARATION.md`.
 - **Later parity cycles:** complex, fast, blast, external, and burst/timestamp
   modes; graceful protocol abort; broad firmware compatibility; all bundled
   decoders; decoder stacking; user decoder directories; editing, regions,
-  signal composer, measurements, annotations, settings/themes, overview, and
-  maximum-capture optimization.
+  signal composer, measurements, advanced annotations, settings/themes,
+  overview, `.lac` interoperability if approved, and further optimization.
 - **Later connectivity/device cycles:** TCP, Wi-Fi, voltage, blink, bootloader,
   remembered/hot-plug devices, stable physical ordering, and multi-device
   capture.
-- **Release cycle:** AppImage/portable Linux artifact, macOS app/DMG, signing,
-  notarization, universal/multiple architecture builds, clean-machine tests,
-  and polished USB-permission installation.
+- **Release/platform cycle:** macOS app/DMG, signing, notarization,
+  universal/multiple architecture builds, and clean-machine tests; Linux
+  support and artifacts only after a separately approved platform decision.
 
 Deferral is not deletion. Keep these features in the parity inventory and bring
 them forward only through a new reviewed cycle with explicit fixtures and gates.

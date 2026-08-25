@@ -383,7 +383,9 @@ semantics.
       acceptance
 - [x] Step 2 — technical roadmap reconciled in `cefb386`; accepted Cycle 2
       facts separated from proposed Cycle 3 and later-parity work
-- [ ] Step 3 — bounded discovery completed
+- [x] Step 3 — bounded discovery completed in `50a5e9f`; exact focused decoder
+      inventory, integration seams, evidence gaps, alternatives, and proposed
+      proof recorded without decoder execution
 - [ ] Step 4 — operator decisions recorded
 - [ ] Step 5 — narrow Cycle 3 contract surface settled
 - [ ] Step 6 — batches, proof ownership, and stopping conditions settled

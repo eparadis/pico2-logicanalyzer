@@ -377,7 +377,10 @@ semantics.
 
 ## Preparation progress checklist
 
-- [ ] Step 1 — starting baseline reconciled
+- [x] Step 1 — starting baseline reconciled in `cb877ed`; proposed technical
+      and governance input baseline `c163a83`, tree `45556769`; post-completion
+      launcher delta classified as included input without retroactive Cycle 2
+      acceptance
 - [ ] Step 2 — technical roadmap reconciled
 - [ ] Step 3 — bounded discovery completed
 - [ ] Step 4 — operator decisions recorded

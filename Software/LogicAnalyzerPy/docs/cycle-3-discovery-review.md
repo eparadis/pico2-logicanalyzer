@@ -2,20 +2,19 @@
 
 ## Status, purpose, and authority boundary
 
-- Status: Step 1 baseline reconciliation is committed; the Step 2 factual
-  roadmap reconciliation is prepared for commit; bounded technical discovery
-  and operator decisions remain pending under Steps 3 through 6 of
-  `CYCLE3_PREPARATION.md`.
+- Status: Steps 1 and 2 are committed. Step 3 bounded technical discovery is
+  complete in this revision and ready for operator consideration; every Cycle
+  3 product, trust, platform, and proof choice remains unapproved until Step 4.
 - Inspection date: 2026-08-25 (America/Los_Angeles).
 - Authority: `CYCLE3_PREPARATION.md`, committed at
   `c163a8353550e0b80dd7f001b21147659ad307ff`.
 
-This record begins the bounded Cycle 3 discovery required by
-`CYCLE3_PREPARATION.md`. At this stage it records only the exact inherited
-Cycle 2 evidence, the post-completion repository delta, focused validation of
-that delta, and the proposed Cycle 3 starting input. Later preparation steps
-must expand this same file with roadmap reconciliation, decoder discovery,
-operator decisions, the settled contract surface, and proposed proof ownership.
+This record contains the bounded Cycle 3 discovery required by
+`CYCLE3_PREPARATION.md`: the exact inherited Cycle 2 evidence, the
+post-completion repository delta, the reconciled roadmap, and static technical
+discovery for a possible focused decoder cycle. Later preparation steps must
+expand this same file with explicit operator decisions, the settled contract
+surface, and proposed proof ownership.
 
 This document does not authorize Cycle 3 implementation, dependency changes,
 decoder execution, hardware or firmware action, persistent device changes, or
@@ -192,3 +191,477 @@ statement presents PySide6, `.lac`, Linux support, or an already delivered
 Cycle 2 capability as current Cycle 3 authority or unmet Cycle 2 work. Step 2
 becomes durably complete only when the roadmap and this linked record are
 committed together by the root orchestrator.
+
+Step 2 was committed at
+`cefb386` after the linked discovery revision was committed at `cb877ed`.
+
+## Step 3: bounded technical discovery
+
+### Method and non-execution boundary
+
+Discovery used source and document inspection only. No decoder module was
+imported or executed; no Python, .NET, browser, server, serial, hardware, or
+firmware runtime was started; no dependency was installed or changed; and no
+network provenance lookup was performed. File digests and Git history were
+read as inert data. Consequently, the decoder behavior below is a static
+contract inventory, not runtime conformance evidence.
+
+The technical input remains the Step 1 baseline `c163a8353550e0b80dd7f001b21147659ad307ff`,
+tree `45556769aab973c7671f58d57bae1878a46af9f2`. The later Step 1/Step 2
+documentation commits do not change the inspected product or decoder sources.
+
+### Exact evidence inspected
+
+The minimum read-only evidence set was:
+
+- governance and accepted baselines: `CYCLE3_PREPARATION.md`,
+  `CYCLE2_ORCHESTRATION.md`, `CYCLE2_BATCH_EXECUTION.md`,
+  `Software/LogicAnalyzerPy/docs/cycle-1-completion.md`,
+  `Software/LogicAnalyzerPy/docs/cycle-2-discovery-review.md`,
+  `Software/LogicAnalyzerPy/docs/cycle-2-contracts.md`,
+  `Software/LogicAnalyzerPy/docs/cycle-2-completion.md`, the six active Cycle
+  2 evidence manifests, and the Cycle 2 performance method, threshold, and
+  completion records;
+- current Python contracts and seams:
+  `Software/LogicAnalyzerPy/pyproject.toml`, both Python lock files,
+  `src/pico_logic_analyzer/model/capture.py`,
+  `src/pico_logic_analyzer/formats/{capture,replay}.py`,
+  `src/pico_logic_analyzer/analysis/bus.py`,
+  `src/pico_logic_analyzer/cli/main.py`,
+  `src/pico_logic_analyzer/web/server.py`, `docs/cli-contract.md`,
+  `docs/replay-security-contract.md`, `web/openapi-b6.json`, the frontend API,
+  shell, waveform, and geometry sources, and their implementation,
+  verification, browser, native, security, cancellation, evidence, and
+  performance tests;
+- deterministic inputs: `testdata/protocol/`, `testdata/replay/README.md`,
+  `web/benchmarks/fixtures.json`, the eight checked-in benchmark NPZ files,
+  and `web/benchmarks/generate_fixtures.py`;
+- decoder snapshot: `Software/decoders/sigrokdecode.py`, the `__init__.py` and
+  `pd.py` files under `Software/decoders/{uart,spi,i2c}/`, and
+  `Software/decoders/common/srdhelper/{__init__,mod}.py`;
+- provenance and licensing: repository `LICENSE`, Git history for the decoder
+  paths, the pre-import `.gitmodules` entry and `Software/SigrokDecode` gitlink,
+  and decoder copyright/license headers; and
+- behavioral reference only:
+  `Software/LogicAnalyzer/LogicAnalyzer/SigrokDecoderBridge/` including
+  `SigrokDecoderBase.cs`, `SigrokProvider.cs`, `SigrokPythonEngine.cs`,
+  `SigrokDecodingTree.cs`, data/enums/templates, its embedded
+  `sigrokdecode.py`, the decoder manager/options controls, and
+  `LogicAnalyzer.csproj`.
+
+No other bundled decoder was treated as Cycle 3 scope. The wider decoder tree
+was inspected only to establish that broad directory discovery exists and that
+UART, SPI, and I2C are a small explicit subset.
+
+### Decoder identity, provenance, and licensing
+
+All seven focused files have been unchanged in repository history since import
+commit `407b5ef039aa0474c400c0721749baa126e53270` on 2024-10-12. Immediately
+before that restructuring, `.gitmodules` named
+`git://sigrok.org/libsigrokdecode` and `Software/SigrokDecode` was a gitlink to
+upstream commit `0235970293590f673a253950e6c61017cefa97df`. The import commit
+deleted that gitlink and added the flattened `Software/decoders/` snapshot.
+The upstream commit object is not present locally, and the repository contains
+no copy manifest or local-patch record. It is therefore reasonable but not
+proven from local evidence that the flattened files are verbatim versions from
+that exact upstream commit.
+
+The exact checked-in identities are:
+
+| Component | Declared identity | SHA-256 |
+| --- | --- | --- |
+| host shim `Software/decoders/sigrokdecode.py` | local API-v3 compatibility shim | `385124002ec16379a2542f2905c5ce41f3402032458d89f49617623ab7aaf01a` |
+| UART package initializer | libsigrokdecode UART | `351098a23f5caa205068688550af53bd44a63776e1d02921ba32487ce720b92f` |
+| UART `pd.py` | `id='uart'`, API 3, `gplv2+` | `67655f53162c531bc6eb77d9d29b384edec80a2dd5bd741897b4aa2afc52ffcc` |
+| SPI package initializer | libsigrokdecode SPI | `91b207f82c59fe1c12ad1458ef669c4293c7e4c8dd19bec14e78b455305af56c` |
+| SPI `pd.py` | `id='spi'`, API 3, `gplv2+` | `ef9cac5098404dc164094712e9175ba3715233248d8bbc23cb85ed3fc51d5d3d` |
+| I2C package initializer | libsigrokdecode I2C | `37931874732ea0b3ca13784b8df4cd90949a2c1b5822feae5d5df6da81ee886f` |
+| I2C `pd.py` | `id='i2c'`, API 3, `gplv2+` | `b6899137fb5b505433e696d319b7f3cc88519b43e2a2e7fea1a9f770ba10a305` |
+
+UART and I2C additionally import the checked-in `common.srdhelper` package.
+Its initializer and implementation digests are respectively
+`125b0616dfdd974c2f6e0e83e61cf9cdd21340f9ab11ac7b97b648792dad05d1`
+and `602b27901820a27af5fcf317b34af1a17d1449fa1ad21279507d1d5ab8acebd6`.
+UART otherwise uses only `math`; SPI only `collections.namedtuple`; I2C has no
+other import. No focused decoder imports the filesystem, network, subprocess,
+dynamic-import, native-extension, or third-party package APIs.
+
+Each libsigrokdecode file carries a GPL version 2-or-later notice and copyright
+attribution. The repository root contains GPLv3 text, while the Python package
+currently declares `license = {text = "MIT"}`. There is no decoder-local
+COPYING file, packaged attribution manifest, or documented conclusion about
+how bundling GPLv2+ decoder sources/helper code with the MIT-labelled Python
+distribution must be represented. Process isolation does not by itself settle
+distribution licensing. Cycle 3 therefore needs an explicit license and
+packaging policy; this discovery makes no legal conclusion.
+
+### Statically required API-v3 surface
+
+The three decoders exercise a much smaller surface than the complete bundled
+tree. A focused host would need exactly the following behavior if all currently
+declared outputs remain in scope:
+
+- constants `SRD_CONF_SAMPLERATE`, `OUTPUT_ANN`, `OUTPUT_PYTHON`,
+  `OUTPUT_BINARY`, and `OUTPUT_META`; `OUTPUT_LOGIC` exists in the shim but is
+  not used by these decoders;
+- class metadata for `id`, names/descriptions, license, inputs/outputs/tags,
+  required and optional channels, options, annotations, annotation rows, and
+  binary declarations;
+- host-populated `options`; lifecycle calls to construction/reset, `start()`,
+  samplerate `metadata()`, and zero-argument `decode()`;
+- `has_channel(index)` for optional/required mapping;
+- `register(output_type, proto_id=None, meta=None)`, including the decoders'
+  keyword `meta=(type, name, description)` registration;
+- `put(start_sample, end_sample, output_id, data)` for annotation, Python,
+  binary, and integer bitrate-metadata values;
+- monotonically advancing `samplenum`, ordered Boolean `matched`, and `wait()`
+  returning a tuple in declared channel order;
+- `wait({})` immediate initial-sample behavior used by SPI; single conjunction
+  dictionaries and alternative-condition lists; channel conditions `r`, `f`,
+  `e`, and `h`; combined level-and-edge conditions; and `{'skip': N}` including
+  zero skip. The focused decoders do not exercise `l` or `s`, despite the C#
+  bridge implementing them;
+- end-of-input termination that cannot be swallowed into an infinite host loop;
+  the current shim turns a null `Wait` result into generic `Exception("Terminated")`;
+  and
+- arbitrary nested Python output values limited here to scalars, strings,
+  lists, tuples, bytes, and SPI's `Data(ss, es, val)` namedtuple.
+
+Static inspection does not settle lifecycle ordering, inclusive/exclusive end
+sample semantics, simultaneous-match priority, zero-skip behavior at sample
+zero, output ordering across registered streams, or the externally accepted
+normal form for nested Python outputs. Those details require an explicit
+contract and focused conformance fixtures before implementation.
+
+### Focused decoder metadata and output shapes
+
+| Decoder | Channels | Options | Declared output behavior |
+| --- | --- | --- | --- |
+| UART | RX and TX are both optional, but at least one is required | baud rate; 5-9 data bits; parity; stop bits; bit order; display format; RX/TX inversion; sample point; packet delimiters and lengths | 18 annotation classes/10 rows; Python start/data/parity/stop/error/break/frame/idle/packet records; RX/TX binary bytes |
+| SPI | CLK required; MISO, MOSI, CS optional, but at least one data line is required | CS polarity, CPOL, CPHA, bit order, and word size whose valid host bounds must be defined | 7 annotation classes/7 rows; Python bit/data/CS-change/transfer records; MISO/MOSI binary data; integer bitrate metadata |
+| I2C | SCL and SDA required | shifted or unshifted displayed address | 11 annotation classes/3 rows; Python start/repeated-start/stop/address/data/ACK/NACK/bits; four binary classes; integer bitrate metadata |
+
+The checked-in metadata supplies defaults and enumerated choices but does not
+supply all semantic validation. For example, SPI `wordsize` is not bounded in
+its metadata, UART numeric delimiter/length values use sentinel `-1`, and UART
+sample point silently falls back to 50 for invalid values. A public host must
+decide whether to preserve every permissive decoder behavior or reject invalid
+or resource-hostile values before execution.
+
+### Current Python integration seams
+
+The accepted Python core has no decoder package, host, public annotation model,
+decoder command, annotation API, or browser annotation renderer today. The
+useful existing seams are nevertheless narrow and stable:
+
+- `CaptureResult` binds samplerate, trigger index, ordered physical channel IDs,
+  labels/mapping, a rank-one mode-appropriate NumPy array, and
+  `channel_samples(channel_id)`. Packed bit position follows request order, so
+  decoder channel mapping must name physical IDs explicitly and translate them
+  through `CaptureResult`, not index raw words by physical ID.
+- Replay schema 1/2 and CSV import both produce the same validated
+  `CaptureResult`; decoder execution can therefore be capture-source agnostic.
+  Existing formats are inert and explicitly prohibit decoder nomination or
+  executable metadata. A decode request must remain separate from the capture
+  artifact.
+- Bus analysis demonstrates deterministic sample/time formatting, bounded row
+  production, CLI/API/browser sharing, and CSV export, but bus rows are not a
+  suitable decoder-annotation model: annotations may overlap, occupy multiple
+  rows/classes, carry several text alternatives, and emit Python/binary/meta
+  records.
+- The CLI parser and exit-code contract can accept a new explicit decode
+  command, but no decoder-specific option/channel grammar or output schema is
+  reserved. Adding one would require updating CLI contract, tests, help,
+  machine-readable output, and error mapping without regressing accepted
+  commands.
+- The loopback API already provides bounded imports, capture identity,
+  channels, waveform/bus views, one-operation ownership, capability+Origin
+  mutation protection, cancellation state, rate/connection/request bounds,
+  shutdown cleanup, and a closed OpenAPI/type fingerprint. Browser decoder
+  support would therefore be a real cross-surface expansion: new API schema,
+  generated types, operation ownership, annotation geometry/rendering,
+  frontend interaction, security negatives, native proof, and performance
+  gates—not a free presentation layer.
+- Existing cancellation is appropriate to its owners: serial capture uses a
+  cancellation event and characterized device recovery; offline import checks
+  cancellation around a worker thread. Neither can forcibly stop arbitrary
+  Python decoder bytecode or reclaim memory held by it. Decoder cancellation
+  needs its own execution boundary.
+- Existing evidence schemas are Cycle-specific and strict. Cycle 3 must create
+  new manifests only after evidence exists and must bind decoder/helper hashes,
+  fixture provenance, candidate/tree, locks, commands, results, environment,
+  and independent reviews.
+
+### C# bridge as a behavioral reference
+
+The existing application confirms the intended broad concepts: decoder
+metadata discovery, required/optional channel selection, typed options,
+samplerate metadata, API-v3 wait conditions, registered annotation/Python/
+binary/meta outputs, annotation rows, and stacked decoder trees. It embeds the
+same shim digest as `Software/decoders/sigrokdecode.py` and publishes the full
+decoder directory. Its `Wait` implementation provides alternative and
+conjunctive conditions, skip, `samplenum`, and `matched` semantics useful for
+comparison.
+
+It must not be copied as the Cycle 3 security or correctness contract. It:
+
+- scans every decoder directory and dynamically imports each module;
+- embeds Python in-process through pythonnet 3.0.5 and dynamically compiles C#
+  wrapper types;
+- supports stacking and broad discovery beyond the proposed focused scope;
+- catches several decoder exceptions without structured reporting;
+- has no decoder wall-time, memory, recursion, or output-volume limit and no
+  forceful cancellation boundary;
+- locates a machine Python runtime and writes initialization logs; and
+- exposes UI-shaped annotation objects rather than a frozen Python public
+  contract.
+
+It is therefore a read-only compatibility oracle candidate only if the operator
+later authorizes a bounded experiment. Cycle 3 does not require .NET or
+pythonnet merely because the reference uses them.
+
+### Deterministic capture and annotation evidence
+
+Available inputs are strong for capture regression but insufficient as decoder
+acceptance oracles:
+
+- accepted literal V2 identity/capture fixtures prove framing and 8/16/24-bit
+  packing, not UART/SPI/I2C protocol conversations;
+- replay and CSV tests generate deterministic inert captures, while the B5
+  corpus supplies constant, sparse, dense, Gray-code-like, maximum, and
+  parallel-bus patterns with frozen digests;
+- physical Cycle 1/2 observations prove periodic square waves and byte-boundary
+  packing, not expected decoder annotations; and
+- no checked-in file identifies a UART frame, SPI transfer, or I2C transaction
+  together with independently reviewed expected annotation/Python/binary/meta
+  output and sample intervals.
+
+Some existing NPZ patterns could exercise termination and output-volume
+bounds, but using them as protocol truth would invent expectations after seeing
+decoder output. Focused protocol fixtures must instead be generated from an
+independent declarative description or hand-reviewed sample timeline, with
+expected outputs derived independently of the host under test. A reference
+libsigrokdecode or C# run could corroborate those fixtures, but should not be
+the sole oracle unless the operator explicitly chooses that policy.
+
+### Trust, isolation, resource, platform, dependency, and performance implications
+
+Decoder files are executable Python even though the three inspected versions
+have benign imports. Capture artifacts must never choose a module/path or add
+code to `sys.path`; only a host-owned allowlist bound to the frozen hashes can
+select code. Options and channel mappings are inert data but require exact-key,
+type, enumeration, range, and size validation before crossing the execution
+boundary.
+
+An in-process host is the smallest implementation and avoids serialization,
+but a stuck loop, excessive allocation, recursion failure, global mutation, or
+interpreter crash shares the CLI/server process. Threads cannot forcibly stop
+Python bytecode or reliably reclaim it. A dedicated subprocess per request (or
+single-use bounded worker) gives the parent a kill/reap boundary and keeps
+decoder imports out of the API/browser process. It requires a frozen IPC
+schema, deterministic environment/import path, stderr/stdout handling, cleanup,
+and tests for spawn failure, timeout, cancellation, partial/malformed output,
+signal termination, and orphan prevention. This discovery recommends the
+subprocess direction, but Step 4 must approve it and its precise security claim.
+
+Independent limits are needed for input sample count, channel count, option
+payload, wall deadline, cancellation latency, worker memory/address space,
+recursion, annotation count, aggregate output bytes, per-text length, nested
+container depth/items, and retained captures/results. Exact numeric ceilings
+cannot responsibly be selected from static source alone. macOS process/memory
+limit behavior and the chosen worker's cancellation/reaping behavior need a
+bounded pre-threshold experiment. Parent-side output accounting and wall-time
+termination remain necessary even if OS resource limits are available.
+
+The accepted baseline is Python >=3.12 with NumPy, pyserial, optional aiohttp,
+and a macOS-only support claim. The focused decoder imports require no new
+third-party runtime package if a native compatibility host is written. The
+decoder files are outside the Python package today, so packaging their exact
+allowlisted files and helper is an explicit product/license choice. Adding
+pythonnet, libsigrokdecode, sigrok-cli, or .NET as a production dependency is
+not technically required and is not recommended for the narrow host; any of
+them may be considered only as a separately bounded verification oracle.
+
+The accepted CI has only a macOS support claim. Subprocess semantics, resource
+measurement, and performance are platform-sensitive; historical Linux code or
+CI cannot establish Linux support. Cycle 3 should retain macOS-only support
+unless the operator deliberately funds and proves another platform.
+
+No decoder performance baseline exists. Decoder work can emit more records
+than input samples, and UART skip-heavy, SPI edge-heavy, and I2C mixed-condition
+paths stress different host behavior. The Cycle 2 governance pattern remains
+appropriate: first freeze fixtures, method, machine/environment identity, raw
+observations, and deterministic resource counts; then independently review a
+threshold proposal; only after explicit approval enforce regression and
+absolute ceilings. Browser inclusion would also require annotation render and
+interaction measurements integrated with the existing production benchmark.
+
+### Candidate public workflows and material alternatives
+
+The smallest coherent product surface is a headless library plus CLI:
+
+1. caller supplies a validated `CaptureResult`, one allowlisted decoder ID,
+   explicit decoder-channel-to-physical-channel mapping, and validated options;
+2. a bounded worker receives only packed logic samples, samplerate, mapping,
+   decoder ID, and inert options;
+3. the host returns a deterministic, typed result containing decoder identity,
+   annotation rows/segments, and whichever Python/binary/meta outputs the
+   operator approves, with sample indices authoritative and time derived from
+   capture samplerate/trigger; and
+4. the CLI reads replay or explicit-metadata CSV and writes a canonical JSON
+   representation (and only any separately approved annotation export), with
+   existing exit-code and overwrite discipline.
+
+Material alternatives are:
+
+- **Library only:** smallest public contract, but lacks an end-to-end user
+  workflow and independently exercisable installed entry point.
+- **Library plus CLI (recommended):** proves practical offline use without
+  expanding the local-web attack and rendering surfaces.
+- **Library, CLI, and browser:** highest immediate utility, but owns new API,
+  capability, operation, cancellation, UI, accessibility, native, and
+  performance obligations. It should be selected only explicitly.
+- **In-process execution:** less IPC work, but can claim only cooperative
+  cancellation/failure handling and cannot isolate hangs or memory exhaustion.
+- **Isolated subprocess (recommended):** supports a bounded kill/reap claim at
+  the cost of an IPC and platform contract.
+- **Checked-in files only (recommended):** exact allowlist and hashes; user
+  decoder directories, capture-selected code, arbitrary module names, stacking,
+  and broad decoder import compatibility remain later work.
+- **Synthetic/replay proof (recommended):** sufficient for deterministic
+  protocol semantics because decoding consumes digital samples; a physical
+  live capture/decode demonstration adds integration confidence but also
+  hardware authority, wiring, provenance, and repeatability obligations.
+- **Independent fixtures plus reference corroboration (recommended):** avoids a
+  circular oracle. Reference-only expected output is cheaper but risks
+  preserving bridge or upstream quirks without an independently stated product
+  contract.
+
+All recommendations in this section are proposals only. Step 4 may approve,
+reject, replace, or defer each one.
+
+### Uncertainty classification
+
+| Topic | Classification | Discovery disposition |
+| --- | --- | --- |
+| Proposed starting baseline and accepted regression surfaces | Locally resolved | Step 1 exact identities and Cycle 1/2 completion evidence govern. |
+| Focused file identities, imports, metadata, hashes, and API calls | Locally resolved | Static inventory above is exact for the checked-in baseline. |
+| Whether any focused file changed after repository import | Locally resolved | No later path commit exists after `407b5ef`. |
+| Whether flattened files exactly equal upstream gitlink `0235970` and what import-time patches exist | Bounded experiment needed | Obtain that exact upstream object from an approved source and compare bytes; do not execute it. |
+| Runtime conformance of wait/matched/skip/lifecycle/output ordering | Bounded experiment needed | Freeze contract fixtures, then run the future host and an approved reference where useful. |
+| Authoritative expected-annotation source and role of reference output | Operator decision needed | Choose independent fixtures, reference authority, or the recommended combined policy. |
+| Decoder scope and exact executable allowlist | Operator decision needed | Choose UART/SPI/I2C-only versus a different explicit scope. |
+| Library/CLI/browser accepted surfaces and approved output classes | Operator decision needed | Each materially changes contract and proof ownership. |
+| In-process versus subprocess execution and security claim | Operator decision needed | Static evidence supports the tradeoff but cannot authorize it. |
+| Numeric timeout, cancellation, memory, recursion, output, and retention ceilings | Bounded experiment then operator decision needed | Measure frozen stress fixtures first; approve ceilings separately. |
+| macOS subprocess/resource-limit behavior and cancellation latency | Bounded experiment needed | Exercise only after the isolation choice is approved. |
+| License/attribution/package metadata for GPLv2+ decoders in the currently MIT-labelled Python project | Operator decision needed | Obtain appropriate legal/project-owner review before packaging or distribution. |
+| Production need for pythonnet, .NET, libsigrokdecode, or sigrok-cli | Locally resolved for the proposed native host | None is required by the three decoder imports; reference use remains optional and bounded. |
+| Platform and CI support beyond macOS | Operator decision needed | Recommend retaining the accepted macOS-only claim. |
+| Replay/synthetic-only versus live physical decode acceptance | Operator decision needed | Digital deterministic fixtures are technically sufficient; physical proof is optional scope. |
+| Decoder stacking, user discovery, all-decoder compatibility, `.lac`, decoder-selected files, and capture-selected code | Deferred outside focused Cycle 3 | Retain roadmap exclusions unless the operator expressly changes scope. |
+| Packaging, release publication, additional OS support, advanced capture/editing/connectivity, and later parity | Deferred outside Cycle 3 | No discovery evidence requires pulling these into the decoder cycle. |
+
+### Risks and recommended controls
+
+1. **Executable-code escape:** prevent any capture, CSV, replay, API field, or
+   user path from naming code; bind a host-owned ID allowlist to file hashes and
+   a closed import root.
+2. **Denial of service:** place execution behind the approved isolation
+   boundary; enforce parent-side deadline/output limits, worker cleanup, and
+   independently approved memory/recursion/retention bounds.
+3. **Semantic drift:** freeze channel position mapping, sample intervals,
+   simultaneous matches, output ordering, annotations, defaults, validation,
+   and canonical serialization against independent fixtures.
+4. **Circular evidence:** derive expected protocol events from reviewed sample
+   timelines, not by copying the implementation's output; use reference output
+   only under the chosen oracle policy.
+5. **License/provenance ambiguity:** retain notices and exact hashes, recover
+   and compare the pinned upstream commit, document local deltas, and reconcile
+   Python package metadata before distribution.
+6. **Browser scope leakage:** if browser output is approved, treat decode as a
+   bounded protected operation and update closed OpenAPI/types, security,
+   cancellation, rendering, native, and performance proofs together.
+7. **False portability:** keep macOS-only claims until exact worker and resource
+   gates pass on any additional platform.
+8. **Evidence lifecycle error:** do not create manifests before evidence;
+   preserve exact candidate/tree and role-separated implementation,
+   verification, accumulated validation, and acceptance ordering.
+
+### Proposed completion evidence
+
+Subject to Step 4 decisions and later batch ownership, a credible Cycle 3 final
+proof set should contain:
+
+- a committed provenance/license inventory binding every executable/helper file
+  to SHA-256, upstream source/commit, verified local delta, notices, package
+  placement, and approved license policy;
+- a frozen API-v3 compatibility matrix and black-box tests for every condition,
+  lifecycle field, output type, channel/option rule, termination case, and
+  sample/order semantic actually exercised by the accepted decoders;
+- independently derived UART, SPI, and I2C sample timelines covering defaults,
+  material option modes, optional/required channels, valid traffic, malformed
+  or incomplete traffic, simultaneous conditions, end-of-input, and exact
+  annotation/Python/binary/meta results;
+- deterministic repeatability across live-model, replay, and CSV-derived
+  `CaptureResult` inputs where those sources are approved, proving that no file
+  can nominate executable code;
+- hostile worker/IPC tests for wrong decoder ID/hash, unknown imports, invalid
+  options/mappings, exception, infinite loop, timeout, cancellation, recursion,
+  memory pressure, excessive/nested/malformed output, worker crash, partial IPC,
+  cleanup, and subsequent successful decode;
+- public library typing and installed CLI black-box proof, plus closed
+  OpenAPI/generated-type/security/browser/native proof only if the browser
+  surface is approved;
+- fresh clean Python 3.12 hash-locked install, dependency check, Ruff, strict
+  mypy, all non-hardware regression, accepted CLI help, exact-candidate macOS
+  hosted CI, and preservation of all Cycle 1/2 manifests and rollback paths;
+- a frozen decoder performance/resource method, raw baseline, independently
+  reviewed threshold proposal, explicit operator approval, and final
+  enforcement on representative and worst focused fixtures; and
+- immutable candidate/tree-bound implementation, verification, accumulated,
+  security, performance, acceptance, manifest, checkpoint, and completion
+  records in the ordering later frozen by the governing contracts.
+
+If live physical proof is approved, it should add an operator-confirmed safe
+wiring/protocol source, sanitized capture/decode evidence, replay of the exact
+captured bytes through the same host, and no persistent device change. It is
+not assumed by this discovery.
+
+### Recommendations presented for Step 4
+
+The discovery recommendations, none yet approved, are:
+
+1. limit Cycle 3 execution to the exact checked-in UART, SPI, and I2C files and
+   their required helper, pinned by hash;
+2. accept a typed headless library plus installed CLI, and defer browser
+   annotation interaction unless the operator values it enough to own the
+   additional API/security/native/performance scope;
+3. execute only the host allowlist; prohibit user, capture, replay, CSV, or
+   request-selected paths/modules and defer stacking/all-decoder discovery;
+4. use a single-use isolated subprocess with parent-enforced deadline, output
+   bounds, cancellation, kill/reap, and structured failure, retaining macOS-only
+   support;
+5. use independently reviewed synthetic/replay protocol timelines as the
+   authoritative oracle and an approved upstream/C# differential run only as
+   corroboration;
+6. freeze exact numeric resource and performance thresholds only after bounded
+   baseline experiments, then obtain explicit threshold approval;
+7. add no production .NET/pythonnet/libsigrokdecode dependency; reconcile the
+   GPLv2+ decoder notices/provenance and Python package license metadata before
+   packaging them; and
+8. accept deterministic offline proof without mandatory hardware, unless the
+   operator explicitly selects a final live capture/decode workflow.
+
+### Step 3 exit-gate assessment
+
+Step 3's content exit gate is met in this revision. The inspected sources,
+exact focused identities and API surface, current integration seams, evidence
+gaps, security/isolation choices, dependency/license/platform/performance
+implications, material alternatives, classified uncertainties, risks, and
+proposed completion evidence are explicit. The operator can decide the Cycle 3
+product, trust, platform, and proof boundaries without an implementor inventing
+them.
+
+This assessment does not complete Step 4, approve any recommendation, settle
+the final contract surface, authorize a bounded experiment, or start Cycle 3.

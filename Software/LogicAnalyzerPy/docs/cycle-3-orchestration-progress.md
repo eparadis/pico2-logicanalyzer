@@ -394,3 +394,23 @@ unchanged.
 - Separation: this and both prior fixture authorship identities remain barred
   from runner/method/probe and B2-B4 product implementation. Fixture verifier,
   fixture acceptance, and all runner identities remain distinct.
+
+### Coherent semantic-fixture candidate and verification round 3
+
+- Candidate commit/tree: `882af78a2530879329e6525fae0c5b1f96883100` /
+  `aedb51155a25720a79417d1a34112c6e171ec0f9`.
+- Candidate author: completing replacement
+  `c3-b1-semantic-fixture-implementor-replacement-2`, with prior fixture authors
+  preserved in history; worktree clean and no unrelated changes.
+- Correction: rebuilt source-shaped UART/SPI/I2C schedules and waits; used an
+  integral UART bit period; added full SPI sampling edges/BITS records and I2C
+  repeated-START state; added terminal failed waits; strengthened owned
+  predicate/source-order checks; replaced option equivalence and cap derivation
+  records. Generator check, immutable round-1 tests, implementation tests (14
+  total), Ruff, and diff checks passed. No decoder ran.
+- Verification identity: reuse
+  `c3-b1-semantic-fixture-verifier-1` only in its verifier role for a complete
+  fresh round. It may create only
+  `docs/reviews/c3-b1-semantic-fixture-verification-round-3.md`, cannot repair
+  candidate or immutable history, and must issue exactly `pass` or
+  `changes_required`. No earlier verdict transfers.

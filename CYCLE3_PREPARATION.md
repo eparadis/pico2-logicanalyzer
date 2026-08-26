@@ -392,7 +392,9 @@ semantics.
 - [x] Step 5 — narrow Cycle 3 contract surface settled in `50d4600`; staged
       API-edge fixtures and numeric thresholds assigned to explicit reviewed
       gates rather than implementation judgment
-- [ ] Step 6 — batches, proof ownership, and stopping conditions settled
+- [x] Step 6 — five batches, 26 requirement-to-proof mappings, and 18 stopping
+      conditions settled in `faf81a3`, with fixture and threshold approval
+      preceding public-host implementation
 - [ ] Step 7 — governing contracts and review framework drafted
 - [ ] Step 8 — governing contracts have three common-commit passes
 - [ ] Step 9 — durable goal has three common-commit passes

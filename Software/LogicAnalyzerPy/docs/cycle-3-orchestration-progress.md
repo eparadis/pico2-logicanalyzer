@@ -331,3 +331,24 @@ unchanged.
   candidate paths, may consume but not edit the immutable verification test or
   record, and must create a new candidate. All round-1 verification is invalid
   for that corrected identity and fresh verification is required.
+
+### Corrected semantic-fixture candidate and verification round 2
+
+- Candidate commit/tree: `79be308bc0bcab6dcdd4568a099fc730fd4fc778` /
+  `8c64cb86f34d57f77b02aec5927689fb86d78953`.
+- Candidate worktree: clean; no unrelated change.
+- Correction: added finite capture boundaries; made wait pins/transitions
+  internally consistent; corrected complete SPI source output order; added
+  UART packet and I2C repeated-start records; replaced generic matrix arguments
+  with option/value-specific source reasoning; added exact-value cap rationales;
+  and completed relative initializer imports. The immutable round-1 verifier
+  test plus implementation suite reported 13 passes; Ruff and diff checks
+  passed. No decoder ran.
+- Verification identity: reuse
+  `c3-b1-semantic-fixture-verifier-1` strictly in its original verifier role.
+  It must independently audit this new exact candidate, create only
+  `docs/reviews/c3-b1-semantic-fixture-verification-round-2.md`, and must not
+  edit the corrected candidate, the immutable round-1 record/test, governance,
+  runner, product, or acceptance paths.
+- No round-1 pass transfers. The required new verdict is exactly `pass` or
+  `changes_required` and remains candidate-specific.

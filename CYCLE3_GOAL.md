@@ -75,13 +75,24 @@ Use these fixed worker-lane profiles throughout Cycle 3:
 | Verifier | `gpt-5.6-sol` | `low` | Independent exact-candidate verification and immutable verdict |
 | Acceptance | `gpt-5.6-sol` | `low` | Independent accumulated-evidence, scope, authority, and readiness acceptance |
 | Manifest verifier | `gpt-5.6-sol` | `low` | Post-acceptance digest recomputation, schema validation, and immutable manifest verdict |
+| Completion-closure auditor | `gpt-5.6-sol` | `low` | Independent audit of the already committed B5 manifest and manifest-verifier record, closure-pending checkpoint, and immutable completion-proof candidate; immutable closure verdict only |
 
-The primary orchestrator is separate from all four evidence lanes and remains
+The primary orchestrator is separate from all five evidence lanes and remains
 the only approval broker. Workers do not spawn subagents. Keep one coordination
 slot for the orchestrator and run no more than three workers concurrently;
 role-separated work may be sequential. Reuse an identity only within its
 original role and only where the contracts permit its prior authorship. A
 replacement uses the same lane profile and is recorded as a new identity.
+
+The completion-closure auditor is a fresh identity distinct from the primary
+orchestrator; every author or assembler of an audit-input artifact; the B5
+verifier, acceptance identity, and manifest verifier; and the terminal-seal
+author. It may not be reused from any role that authored, assembled, verified,
+accepted, manifest-verified, approved, or repaired an audit input. It audits
+only the already committed inputs named in its lane responsibility, cannot edit
+or repair any input, and issues only its immutable `pass` or
+`changes_required` verdict. Its work is scheduled within the same maximum of
+three concurrent workers; it does not create an additional concurrency slot.
 
 B1 uses a semantic-fixture implementor and a different pre-execution-runner
 implementor. Each internal candidate also uses its own verifier and acceptance
@@ -155,10 +166,13 @@ B5 candidate, and proposed-manifest readiness only. After it passes, follow the
 directed terminal chain exactly: commit the B5 manifest and manifest-verifier
 record together; commit the B5 checkpoint as `Complete; Cycle 3 closure
 pending`; commit the immutable `cycle-3-completion.md` proof candidate naming
-that checkpoint and no future closure artifact; obtain and commit a distinct
-completion-closure auditor verdict over those already committed inputs; then,
-only after `pass`, commit `cycle-3-completion-seal.md` last. The seal is not an
-audit input.
+that checkpoint and no future closure artifact; have the fixed, independent
+completion-closure auditor inspect the already committed B5 manifest and
+manifest-verifier record, closure-pending checkpoint, and immutable completion-
+proof candidate without editing or repairing them; obtain and commit that
+auditor's immutable verdict; then, only after `pass`, permit the distinct
+terminal-seal author to commit `cycle-3-completion-seal.md` last. The seal is
+not an audit input.
 
 Every correction to product, fixture, expected value, method, dependency,
 workflow, environment class, runner, launch/import configuration, cap

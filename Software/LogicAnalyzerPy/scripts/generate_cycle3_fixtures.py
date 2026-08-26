@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# ruff: noqa: E501
 """Build inert Cycle 3 B1 fixture data from literals authored in this file.
 
 This is deliberately stdlib-only and never imports/executes a host or decoder.
@@ -282,10 +283,32 @@ def option_rows() -> list[dict[str, object]]:
                 "rejection_rule": rule,
             }
         )
+    source_equivalence = {
+        "baudrate": "uart.Decoder.metadata() sets bit_width=samplerate/baudrate; the fixture uses the same integral 10-sample invariant only for value 115200",
+        "data_bits": "uart.get_data_bits() compares cur_data_bit with options['data_bits']; the named direct fixture materializes the same completed-width branch",
+        "parity": "uart.advance_state() bypasses GET PARITY BIT only when parity=='none'; the named fixture directly fixes that bypass",
+        "stop_bits": "uart.get_stop_bits() waits until len(stopbits) reaches options['stop_bits']; the named fixture directly fixes the one-stop completion branch",
+        "bit_order": "uart.get_data_bits() reverses bits only for 'msb-first'; the named direct fixture fixes the alternative ordering branch",
+        "format": "uart.format_value() selects ascii/dec/hex/oct/bin after the data value is fixed; the named fixture fixes the same value and output ordering",
+        "invert_rx": "uart.decode() derives inv[RX] from options['invert_rx'] before get_wait_cond()/inspect_sample; the named RX fixture fixes the non-inverted branch",
+        "invert_tx": "uart.decode() derives inv[TX] from options['invert_tx'] before get_wait_cond()/inspect_sample; the named TX fixture fixes the non-inverted branch",
+        "sample_point": "uart.get_sample_point() computes ceil(frame_start + bitnum*bit_width + (bit_width-1)*percent/100); the named fixture fixes the default 50% branch",
+        "rx_packet_delim": "uart.handle_packet() compares datavalue against options['rx_packet_delim']; the packet fixture directly materializes delimiter 165",
+        "tx_packet_delim": "uart.handle_packet() compares datavalue against options['tx_packet_delim']; the TX fixture keeps the disabled sentinel branch",
+        "rx_packet_len": "uart.handle_packet() compares len(packet_cache) against options['rx_packet_len']; the packet fixture directly materializes length 1",
+        "tx_packet_len": "uart.handle_packet() compares len(packet_cache) against options['tx_packet_len']; the TX fixture keeps the disabled sentinel branch",
+        "cs_polarity": "spi.cs_asserted() selects cs==0 versus cs==1 from options['cs_polarity']; the active-high one-bit fixture materializes the alternative",
+        "cpol": "spi.find_clk_edge() selects mode through spi_mode[(cpol,cpha)]; mode0 and mode3 direct fixtures materialize both accepted values",
+        "cpha": "spi.find_clk_edge() selects mode through spi_mode[(cpol,cpha)]; mode0 and mode3 direct fixtures materialize both accepted values",
+        "bitorder": "spi.handle_bit() chooses shift position from options['bitorder']; the LSB one-bit fixture materializes the alternate branch",
+        "wordsize": "spi.handle_bit() emits only when bitcount == options['wordsize']; word1 and word8 fixtures materialize both finite branches",
+        "address_format": "i2c.handle_address_or_data() shifts d right only when address_format=='shifted'; direct shifted and unshifted fixtures materialize both branches",
+    }
     for row in rows:
         if row["disposition"] == "static-equivalence":
-            row["equivalence_argument"] += (
-                f" Option {row['option']} value {row['value']!r} is the reviewed source branch."
+            row["equivalence_argument"] = (
+                f"source function/branch: {source_equivalence[row['option']]}. "
+                f"Reviewed value {row['value']!r}; invariant and direct fixture {row['fixture']} are stated above."
             )
     return rows
 
@@ -297,7 +320,7 @@ def record(
     start: int = 0,
     end: int = 1,
     output_id: int = 0,
-    samplerate: int = 1_000_000,
+    samplerate: int = 1_152_000,
     trigger: int = 1,
 ) -> dict[str, object]:
     def time(sample: int) -> dict[str, object]:
@@ -436,6 +459,8 @@ def fixture(
     records: list[dict[str, object]],
     meaning: str,
     trigger: int = 1,
+    samplerate: int = 1_152_000,
+    sample_count: int | None = None,
 ) -> dict[str, object]:
     """A hand-authored protocol case; this does not infer output from transitions."""
     channel_order = {
@@ -463,9 +488,16 @@ def fixture(
     return {
         "id": ident,
         "decoder": decoder,
-        "samplerate_hz": 1_000_000,
+        "samplerate_hz": samplerate,
         "trigger_index": trigger,
-        "sample_count": 256,
+        "sample_count": sample_count
+        if sample_count is not None
+        else max(
+            [at for edges in transitions.values() for at, _ in edges]
+            + [wait["sample"] for wait in waits]
+            + [item["end_sample"] for item in records]
+        )
+        + 1,
         "mapping": mapping,
         "options": options,
         "transitions": transitions,
@@ -902,6 +934,22 @@ def build() -> dict[str, object]:
 
     spi_mosi = spi_complete(165, 1, 1)
     spi_miso = spi_complete(90, 0, 0)
+    # putdata() passes newest-first bit entries.  Preserve the source Data
+    # tuple shape rather than a display-only bit list.
+    for records, value, present_index in ((spi_mosi, 165, 1), (spi_miso, 90, 2)):
+        bits = [int(bit) for bit in f"{value:08b}"]
+        entries = [
+            {"tag": "spi-data", "ss": 10 + 20 * i, "es": 30 + 20 * i, "val": bit}
+            for i, bit in reversed(list(enumerate(bits)))
+        ]
+        records[1]["value"]["value"][present_index] = {"tag": "list", "value": entries}
+        records[0]["start_sample"], records[0]["end_sample"] = 10, 150
+        records[1]["start_sample"], records[1]["end_sample"] = 10, 150
+        records[2]["start_sample"], records[2]["end_sample"] = 10, 150
+        for offset, bit in enumerate(bits):
+            records[3 + offset]["start_sample"] = 10 + 20 * offset
+            records[3 + offset]["end_sample"] = 30 + 20 * offset
+        records[11]["start_sample"], records[11]["end_sample"] = 10, 150
     spi_word1 = [
         record(
             0,
@@ -1413,6 +1461,265 @@ def build() -> dict[str, object]:
             },
         ],
     }
+    # The waits below are intentionally transcribed as source predicates, not
+    # inferred from the record list.  A terminal false match denotes the
+    # failed source wait at finite end-of-input; it is not a decoder emission.
+    by_id = {timeline["id"]: timeline for timeline in fixtures["timelines"]}
+
+    def repin(timeline: dict[str, object]) -> None:
+        order = {"uart": ("rx", "tx"), "spi": ("clk", "miso", "mosi", "cs"), "i2c": ("scl", "sda")}[
+            timeline["decoder"]
+        ]
+        for wait in timeline["expected_wait_trace"]:
+            wait["pins"] = [
+                255
+                if channel not in timeline["mapping"]
+                else [
+                    level
+                    for at, level in timeline["transitions"][f"D{timeline['mapping'][channel]}"]
+                    if at <= wait["sample"]
+                ][-1]
+                for channel in order
+            ]
+
+    def uart_trace(index: str, data_samples: list[int], terminal: int) -> list[dict[str, object]]:
+        # WAIT FOR START: data falling edge and generic edge both match.  All
+        # following data samples are get_wait_cond() skip alternatives plus
+        # the contemporaneous generic edge condition.
+        trace = [{"condition": [{index: "f"}, {index: "e"}], "sample": 1, "matched": [True, True]}]
+        trace += [
+            {
+                "condition": [{"skip": 5 if i == 0 else 10}, {index: "e"}],
+                "sample": sample,
+                "matched": [True, False],
+            }
+            for i, sample in enumerate(data_samples)
+        ]
+        trace.append(
+            {
+                "condition": [{index: "f"}, {index: "e"}, {"skip": 10}],
+                "sample": terminal,
+                "matched": [False, False, False],
+                "terminal": "end-of-input failed wait",
+            }
+        )
+        return trace
+
+    # Exact integral UART schedule: 1,152,000 / 115,200 == 10 samples/bit.
+    # The source samples start at frame_start + ceil(4.5), then every ten.
+    for ident, count in (
+        ("uart-rx-valid-default", 10),
+        ("uart-tx-valid-default", 10),
+        ("uart-parity-invalid-stop-break-idle-packet", 11),
+        ("uart-msb-9bit-boundary-incomplete", 5),
+    ):
+        timeline = by_id[ident]
+        channel = "rx" if "rx" in timeline["mapping"] else "tx"
+        physical = timeline["mapping"][channel]
+        # A stable bit-centre schedule makes skip matches distinct from edges.
+        timeline["transitions"][f"D{physical}"] = [[0, 1], [1, 0]] + [
+            [11 + 10 * i, (i + 1) % 2] for i in range(count)
+        ]
+        if ident.endswith("incomplete"):
+            terminal = 56
+        else:
+            terminal = 106 if ident != "uart-parity-invalid-stop-break-idle-packet" else 116
+        timeline["expected_wait_trace"] = uart_trace(
+            "0" if channel == "rx" else "1", [6 + 10 * i for i in range(count)], terminal
+        )
+        timeline["sample_count"] = terminal
+        timeline["samplerate_hz"] = 1_152_000
+        repin(timeline)
+
+    def spi_trace(samples: list[int], with_cs: bool, terminal: int) -> list[dict[str, object]]:
+        trace = [{"condition": {}, "sample": 0, "matched": [True]}]
+        cond = [{"0": "e"}] + ([{"3": "e"}] if with_cs else [])
+        trace += [
+            {"condition": cond, "sample": sample, "matched": [True] + ([False] if with_cs else [])}
+            for sample in samples
+        ]
+        trace.append(
+            {
+                "condition": cond,
+                "sample": terminal,
+                "matched": [False] * len(cond),
+                "terminal": "end-of-input failed wait",
+            }
+        )
+        return trace
+
+    for ident, sample_edges, sampled_edges in (
+        ("spi-mosi-mode0-word8", list(range(10, 161, 10)), list(range(10, 151, 20))),
+        ("spi-miso-mode3-word8", list(range(10, 161, 10)), list(range(20, 161, 20))),
+    ):
+        timeline = by_id[ident]
+        clk = 0 if ident.startswith("spi-mosi") else 1
+        timeline["transitions"]["D1"] = [[0, clk]] + [
+            [sample, 1 - (i % 2) if clk == 0 else i % 2] for i, sample in enumerate(sample_edges)
+        ]
+        line = "D3" if ident.startswith("spi-mosi") else "D2"
+        bits = [int(bit) for bit in f"{165 if line == 'D3' else 90:08b}"]
+        timeline["transitions"][line] = [[0, bits[0]]] + [
+            [sample, bits[min(i, 7)]] for i, sample in enumerate(sampled_edges)
+        ]
+        timeline["expected_wait_trace"] = spi_trace(sample_edges, False, 161)
+        timeline["sample_count"] = 161
+        repin(timeline)
+
+    word1 = by_id["spi-cs-active-high-lsb-word1"]
+    word1["expected_wait_trace"] = [
+        {"condition": {}, "sample": 0, "matched": [True]},
+        {"condition": [{"0": "e"}, {"3": "e"}], "sample": 10, "matched": [True, False]},
+        {"condition": [{"0": "e"}, {"3": "e"}], "sample": 11, "matched": [False, True]},
+        {
+            "condition": [{"0": "e"}, {"3": "e"}],
+            "sample": 12,
+            "matched": [False, False],
+            "terminal": "end-of-input failed wait",
+        },
+    ]
+    word1["sample_count"] = 12
+    repin(word1)
+    incomplete = by_id["spi-incomplete-no-cs"]
+    incomplete["expected_wait_trace"] = spi_trace([10, 20, 30, 40], False, 41)
+    incomplete["transitions"]["D1"] = [[0, 0], [10, 1], [20, 0], [30, 1], [40, 0]]
+    incomplete["sample_count"] = 41
+    repin(incomplete)
+
+    # I2C uses a high-SCL SDA fall only for START/repeated START, then SCL
+    # rises for each address/data/ack slot.  The alternative predicate is
+    # preserved after the address phase, including STOP priority information.
+    def i2c_bus(timeline: dict[str, object], rises: list[int], stop: int | None) -> None:
+        scl = [[0, 1], [1, 1]]
+        for index, rise in enumerate(rises):
+            scl.extend([[2 if index == 0 else rise - 10, 0], [rise, 1]])
+        sda = [[0, 1], [1, 0]]
+        if stop is not None:
+            sda.append([stop, 1])
+        timeline["transitions"] = {"D2": scl, "D5": sda}
+
+    full = by_id["i2c-shifted-start-address-ack-data-nack-stop"]
+    rises = list(range(10, 171, 20)) + list(range(190, 351, 20))
+    i2c_bus(full, rises, 351)
+    full["expected_wait_trace"] = (
+        [{"condition": {"0": "h", "1": "f"}, "sample": 1, "matched": [True]}]
+        + [{"condition": {"0": "r"}, "sample": sample, "matched": [True]} for sample in rises[:9]]
+        + [
+            {
+                "condition": [{"0": "r"}, {"0": "h", "1": "f"}, {"0": "h", "1": "r"}],
+                "sample": sample,
+                "matched": [True, False, False],
+            }
+            for sample in rises[9:]
+        ]
+        + [
+            {
+                "condition": [{"0": "r"}, {"0": "h", "1": "f"}, {"0": "h", "1": "r"}],
+                "sample": 351,
+                "matched": [False, False, True],
+            },
+            {
+                "condition": {"0": "h", "1": "f"},
+                "sample": 352,
+                "matched": [False],
+                "terminal": "end-of-input failed wait",
+            },
+        ]
+    )
+    full["sample_count"] = 352
+    repin(full)
+    repeat = by_id["i2c-unshifted-repeated-start"]
+    repeat["transitions"] = {
+        "D2": [[0, 1]]
+        + [entry for i in range(8) for entry in ([10 + 20 * i, 0], [20 + 20 * i, 1])],
+        "D5": [[0, 1], [1, 0], [166, 1], [176, 0]],
+    }
+    repeat["expected_wait_trace"] = (
+        [{"condition": {"0": "h", "1": "f"}, "sample": 1, "matched": [True]}]
+        + [{"condition": {"0": "r"}, "sample": 20 + 20 * i, "matched": [True]} for i in range(8)]
+        + [
+            {
+                "condition": [{"0": "r"}, {"0": "h", "1": "f"}, {"0": "h", "1": "r"}],
+                "sample": 176,
+                "matched": [False, True, False],
+            },
+            {
+                "condition": {"0": "r"},
+                "sample": 177,
+                "matched": [False],
+                "terminal": "end-of-input failed wait",
+            },
+        ]
+    )
+    repeat["sample_count"] = 177
+    # Repeated START is emitted at the high-SCL falling SDA coordinate.
+    repeat["expected_records"][2]["start_sample"] = repeat["expected_records"][2]["end_sample"] = (
+        176
+    )
+    repeat["expected_records"][3]["start_sample"] = repeat["expected_records"][3]["end_sample"] = (
+        176
+    )
+    repin(repeat)
+    i2c_incomplete = by_id["i2c-incomplete-boundary"]
+    i2c_bus(i2c_incomplete, [10, 30, 50, 70], None)
+    i2c_incomplete["expected_wait_trace"] = (
+        [{"condition": {"0": "h", "1": "f"}, "sample": 1, "matched": [True]}]
+        + [
+            {"condition": {"0": "r"}, "sample": sample, "matched": [True]}
+            for sample in (10, 30, 50, 70)
+        ]
+        + [
+            {
+                "condition": {"0": "r"},
+                "sample": 71,
+                "matched": [False],
+                "terminal": "end-of-input failed wait",
+            }
+        ]
+    )
+    i2c_incomplete["sample_count"] = 71
+    repin(i2c_incomplete)
+
+    # handle_packet() is called immediately after DATA/binary output, before
+    # the later parity/stop/frame state transitions.  Preserve that emission
+    # position even in the combined diagnostic timeline.
+    uart_packet = by_id["uart-parity-invalid-stop-break-idle-packet"]["expected_records"]
+    packet_records = [
+        item
+        for item in uart_packet
+        if item["kind"] == "python" and item["value"]["value"][0]["value"] == "PACKET"
+    ]
+    packet_annotations = [
+        item
+        for item in uart_packet
+        if item["kind"] == "annotation" and item["value"].get("class_index") == 16
+    ]
+    retained = [item for item in uart_packet if item not in packet_records + packet_annotations]
+    by_id["uart-parity-invalid-stop-break-idle-packet"]["expected_records"] = (
+        packet_records + packet_annotations + retained
+    )
+    for index, item in enumerate(
+        by_id["uart-parity-invalid-stop-break-idle-packet"]["expected_records"]
+    ):
+        item["emission_index"] = index
+
+    # Some source-order records above deliberately receive corrected spans
+    # while assembling the protocol schedule.  Times are derived only from
+    # authoritative integer coordinates, never from a runtime timestamp.
+    for timeline in fixtures["timelines"]:
+        for item in timeline["expected_records"]:
+            for key, sample in (
+                ("start_time", item["start_sample"]),
+                ("end_time", item["end_sample"]),
+            ):
+                item[key] = {
+                    "absolute": {"numerator": sample, "denominator": timeline["samplerate_hz"]},
+                    "trigger_relative": {
+                        "numerator": sample - timeline["trigger_index"],
+                        "denominator": timeline["samplerate_hz"],
+                    },
+                }
+
     value_tags = [
         "null",
         "bool",
@@ -1512,9 +1819,11 @@ def build() -> dict[str, object]:
                 "domain": "positive integer",
                 "boundary": {"accept": value, "reject": value + 1},
                 "rationale": (
-                    f"{value} {unit} is the conservative finite experiment ceiling for {key}; "
-                    "it is independently bounded against related byte, record, depth, retention, "
-                    "and deadline caps."
+                    f"{key}={value} {unit}: maximum measured static fixture coordinate/count is "
+                    f"352 samples, 16 records, and depth 3; this cap is the stated finite "
+                    f"experiment margin (8x fixture maximum, rounded to the listed boundary), "
+                    f"with related byte/record/retention caps no smaller than their represented "
+                    "fixture payload category. No macOS observation or enforcement is claimed."
                 ),
                 "coverage": "runner candidate must enforce later",
             }

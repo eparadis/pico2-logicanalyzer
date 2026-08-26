@@ -20,6 +20,10 @@ def load(name: str) -> object:
     return json.loads((DATA / name).read_text(encoding="utf-8"))
 
 
+def level_at(transitions: list[list[int]], sample: int) -> int:
+    return [level for at, level in transitions if at <= sample][-1]
+
+
 def test_cycle3_fixture_surface_is_present_and_rebuildable() -> None:
     """This initially failed because B1 had no static fixture generator or corpus."""
     assert GENERATOR.is_file()
@@ -169,7 +173,7 @@ def test_hand_authored_protocol_cases_have_real_trace_declarations_and_times() -
         records = timeline["expected_records"]
         for wait in timeline["expected_wait_trace"]:
             assert isinstance(wait["sample"], int) and wait["sample"] >= 0
-            assert wait["matched"] and all(isinstance(value, bool) for value in wait["matched"])
+            assert all(isinstance(value, bool) for value in wait["matched"])
             assert len(wait["pins"]) == {"uart": 2, "spi": 4, "i2c": 2}[timeline["decoder"]]
             assert all(value in {0, 1, 255} for value in wait["pins"])
         assert [item["emission_index"] for item in records] == list(range(len(records)))
@@ -180,9 +184,12 @@ def test_hand_authored_protocol_cases_have_real_trace_declarations_and_times() -
                 (item["start_time"], item["start_sample"]),
                 (item["end_time"], item["end_sample"]),
             ):
-                assert stamp["absolute"] == {"numerator": sample, "denominator": 1_000_000}
+                assert stamp["absolute"] == {
+                    "numerator": sample,
+                    "denominator": timeline["samplerate_hz"],
+                }
                 assert stamp["trigger_relative"]["numerator"] == sample - timeline["trigger_index"]
-                assert stamp["trigger_relative"]["denominator"] == 1_000_000
+                assert stamp["trigger_relative"]["denominator"] == timeline["samplerate_hz"]
     assert all(255 in item["compatibility_pins"] for item in fixtures["optional_pin_cases"])
     decisions = {item["id"]: item for item in fixtures["edge_decisions"]}
     assert decisions["wait-empty"]["expected_calls"][0]["sample"] == 0
@@ -199,7 +206,6 @@ def test_matrix_equivalence_is_named_source_specific_and_caps_cover_all_categori
         if row["disposition"] == "unsupported"
     }
     assert len(semantic_rows) == len([row for row in rows if row["disposition"] == "unsupported"])
-    timelines = {item["id"]: item for item in load("semantic-fixtures.json")["timelines"]}
     direct = {row["fixture"] for row in rows if row["disposition"] == "direct-fixture"}
     assert direct
     assert all(row["fixture"] for row in rows if row["disposition"] != "unsupported")
@@ -208,6 +214,88 @@ def test_matrix_equivalence_is_named_source_specific_and_caps_cover_all_categori
         for row in rows
         if row["disposition"] == "static-equivalence"
     )
+
+
+def test_static_wait_predicates_and_source_order_are_truthful() -> None:
+    """Evaluate literal r/f/e/h/skip predicates without importing a decoder.
+
+    This is deliberately stronger than pin-vector checking: the rejected B1
+    candidates could normalize pins while still claiming false edge matches.
+    """
+    timelines = load("semantic-fixtures.json")["timelines"]
+    channel_order = {
+        "uart": ("rx", "tx"),
+        "spi": ("clk", "miso", "mosi", "cs"),
+        "i2c": ("scl", "sda"),
+    }
+
+    def matches(timeline: dict[str, object], condition: dict[str, object], sample: int) -> bool:
+        if "skip" in condition:
+            return True
+        for index, wanted in condition.items():
+            channel = channel_order[timeline["decoder"]][int(index)]
+            if channel not in timeline["mapping"]:
+                return False
+            edges = timeline["transitions"][f"D{timeline['mapping'][channel]}"]
+            current = level_at(edges, sample)
+            previous = level_at(edges, sample - 1) if sample else current
+            if wanted == "h" and current != 1:
+                return False
+            if wanted == "l" and current != 0:
+                return False
+            if wanted == "r" and not (previous == 0 and current == 1):
+                return False
+            if wanted == "f" and not (previous == 1 and current == 0):
+                return False
+            if wanted == "e" and previous == current:
+                return False
+        return True
+
+    for timeline in timelines:
+        for wait in timeline["expected_wait_trace"]:
+            alternatives = (
+                wait["condition"] if isinstance(wait["condition"], list) else [wait["condition"]]
+            )
+            actual = (
+                [False] * len(alternatives)
+                if wait.get("terminal") == "end-of-input failed wait"
+                else [matches(timeline, item, wait["sample"]) for item in alternatives]
+            )
+            assert wait["matched"] == actual, (timeline["id"], wait, actual)
+            assert 0 <= wait["sample"] <= timeline["sample_count"]
+        assert timeline["expected_wait_trace"][-1].get("terminal") == "end-of-input failed wait"
+        assert not any(timeline["expected_wait_trace"][-1]["matched"])
+
+    by_id = {timeline["id"]: timeline for timeline in timelines}
+    for ident in ("spi-mosi-mode0-word8", "spi-miso-mode3-word8"):
+        records = by_id[ident]["expected_records"]
+        assert [record["kind"] for record in records[:3]] == ["binary", "python", "python"]
+        bits = records[1]["value"]["value"]
+        assert bits[0]["value"] == "BITS"
+        present = bits[1] if ident.startswith("spi-mosi") else bits[2]
+        assert len(present["value"]) == 8
+        assert [record["kind"] for record in records[3:12]] == ["annotation"] * 9
+    uart = by_id["uart-parity-invalid-stop-break-idle-packet"]["expected_records"]
+    packet_index = next(
+        i
+        for i, item in enumerate(uart)
+        if item["kind"] == "python" and item["value"]["value"][0]["value"] == "PACKET"
+    )
+    assert packet_index < next(
+        i
+        for i, item in enumerate(uart)
+        if item["kind"] == "python" and item["value"]["value"][0]["value"] == "PARITY ERROR"
+    )
+    repeated = by_id["i2c-unshifted-repeated-start"]
+    assert any(
+        wait["sample"] == 176 and wait["matched"] == [False, True, False]
+        for wait in repeated["expected_wait_trace"]
+    )
+    # Continue the matrix/vector coverage audit with local data, keeping this
+    # predicate test independent of test ordering.
+    rows = load("option-matrix.json")["rows"]
+    direct = {row["fixture"] for row in rows if row["disposition"] == "direct-fixture"}
+    timelines = by_id
     assert all(
         row["fixture"] in direct for row in rows if row["disposition"] == "static-equivalence"
     )

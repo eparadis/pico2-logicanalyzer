@@ -23,6 +23,14 @@ STOP, shifted/unshifted and incomplete cases.  Each contains the literal input
 transition timeline, expected `wait()` calls and returned pin vector, snapshot
 declarations, request-wide output order, coordinates, and rational times.
 
+UART uses the exact integral schedule 1,152,000 Hz / 115,200 baud = 10
+samples per bit, retaining source `skip`, edge, and idle alternatives plus an
+explicit failed finite wait for incomplete traffic. SPI retains initial
+`wait({})`, edge/CS alternatives, eight sampling edges for word-eight, and
+eight source-order `spi-data` entries in `BITS`. I2C repeated START appears
+only where SDA falls while SCL is high after address-bit waits. These are
+static source transcriptions, never decoder execution.
+
 The option matrix is closed.  A row either names one of those finite fixtures,
 or names the exact fixture with a source-specific explanation of the snapshot
 branch that is unchanged.  It never manufactures a one-edge stimulus merely to
@@ -39,6 +47,10 @@ rationale.  It asserts neither enforcement nor product thresholds.
 Caps are deliberately static values with boundary/coverage entries and no
 claim of executable enforcement. A later, separately owned runner must enforce
 them with non-decoder probes before any snapshot can run.
+
+Each cap names static fixture maxima (352 samples, 16 records, nesting depth
+3), a stated multiplier/rounding margin, and related-cap consistency. macOS
+resource observation and cap enforcement remain runner-owned.
 
 Rebuild with:
 

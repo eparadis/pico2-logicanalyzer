@@ -389,7 +389,9 @@ semantics.
 - [x] Step 4 — all ten operator decisions recorded in `eb5bc31`, including the
       prohibition on C# execution and on production or development/test use of
       .NET, pythonnet, or libsigrokdecode
-- [ ] Step 5 — narrow Cycle 3 contract surface settled
+- [x] Step 5 — narrow Cycle 3 contract surface settled in `50d4600`; staged
+      API-edge fixtures and numeric thresholds assigned to explicit reviewed
+      gates rather than implementation judgment
 - [ ] Step 6 — batches, proof ownership, and stopping conditions settled
 - [ ] Step 7 — governing contracts and review framework drafted
 - [ ] Step 8 — governing contracts have three common-commit passes

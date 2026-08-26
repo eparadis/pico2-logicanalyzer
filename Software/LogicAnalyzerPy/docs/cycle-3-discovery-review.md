@@ -1115,3 +1115,459 @@ host implementation. Independent implementation, verification, and acceptance
 agents therefore have no authority to make a substantive product or trust
 decision. Step 5's content exit gate is met in this revision; committing this
 revision will satisfy its durable-output gate.
+
+## Step 6: proposed batches, proof ownership, and stopping conditions
+
+This section is normative input to the later governing contracts. It turns the
+settled Step 5 surface into five dependency-ordered batches. A batch owns a
+required behavior at the earliest point where that behavior can be proved; all
+final accumulated proof is owned by C3-B5. Repetition by a later batch is a
+regression gate, not a transfer of ownership. The contracts may refine command
+names and owned paths, but may not reorder these dependencies, merge away an
+independent gate, or move a requirement later without a new common-commit
+review.
+
+The sequence deliberately puts authoritative semantic fixtures, a
+characterization method, raw baselines, an independently reviewed threshold
+proposal, and explicit operator threshold approval in C3-B1. No public decoder
+host, library entry point, or CLI decode command may be implemented before that
+checkpoint. C3-B1 may contain a non-installed, characterization-only runner for
+the exact approved snapshots. It is not a product host, is never selected by a
+capture or caller, and may execute only after the approved Cycle 3 goal starts.
+Its source, environment, and results must be immutable evidence so that the
+later exact-candidate measurements can be compared with the same method.
+
+### Common batch mechanics and role ownership
+
+Every batch has one implementation identity, a different verification
+identity, and a third acceptance identity. The orchestrator is a fourth role:
+it integrates changes, creates the immutable product candidate, runs the full
+accumulated gate, assembles evidence only after it exists, and appends the
+checkpoint. The verifier must derive expectations from the settled contract
+and independently reviewed fixtures rather than from production output. The
+acceptance agent audits the candidate, verifier findings, accumulated results,
+scope, provenance, and evidence ordering and never repairs the candidate.
+A B2-B4 product implementor must not have authored B1's authoritative expected
+outputs. If an identity would cross that boundary, a fresh implementation
+identity is assigned for the dependent product work.
+
+The mandatory ordering for every batch is:
+
+1. record a bounded active-batch entry and pass prerequisite/authority
+   preflight;
+2. create or identify a focused failing check, then implement only the owning
+   surface;
+3. pass implementation-focused checks and commit one immutable candidate;
+4. have the independent verifier test that exact candidate and record exactly
+   `pass` or `changes_required`;
+5. have the orchestrator run the batch's complete accumulated gate against the
+   same candidate commit and tree;
+6. have the independent acceptance agent audit the exact candidate, all
+   findings and dispositions, and accumulated evidence and record exactly
+   `pass` or `changes_required`;
+7. only then create that batch's manifest atomically, independently verify its
+   digests and schema validation, commit it, and append the checkpoint record;
+   and
+8. select the next batch only after the checkpoint is committed.
+
+No future-batch manifest, placeholder, template presented as evidence, or
+checkpoint record may be created. A manifest is a descendant of the tested
+candidate and names that candidate's full commit and tree; evidence documents
+and the manifest do not masquerade as part of the tested product tree. Any
+product, fixture, method, dependency, limit, or test correction after candidate
+creation produces a new candidate and invalidates every earlier verifier,
+accumulated, and acceptance pass for that batch. Prior records remain immutable
+history. A regression of a completed interface reopens its earliest owning
+batch and every dependent accumulated gate.
+
+The exact non-hardware command list is frozen in C3-B1 after clean-environment
+characterization. At minimum, every accumulated gate includes a fresh
+Python 3.12 hash-locked development install, no-dependency editable install,
+`pip check`, Ruff, strict mypy, the complete non-hardware pytest suite, installed
+CLI help, the Cycle 1/2 evidence validator, and a dependency/process audit for
+the prohibited runtimes. Existing web regressions may be run only as unchanged
+Cycle 2 regression coverage; no Cycle 3 browser source, endpoint, fixture,
+dependency, launch, or browser evidence is added. Exact-candidate hosted macOS
+CI is required at C3-B4 and C3-B5. A restricted local skip is not CI proof.
+
+### Proposed batch boundaries
+
+#### C3-B1: provenance, semantic fixtures, and approved limits
+
+**Outcome:** The exact executable snapshot and license disposition are
+recorded; independent declarative UART, SPI, and I2C fixtures freeze the five
+API-v3 edge semantics; the characterization method and raw observations exist;
+and all numeric resource/performance ceilings, including maximum SPI word size,
+have independent review and explicit operator approval.
+
+**Prerequisites and authority gates:** The Cycle 3 governing contracts and goal
+have their required common-commit passes and the operator has invoked the goal.
+Until then no decoder executes. Static work may not silently become execution
+evidence. Any dependency download, hosted CI run, or capability requiring
+environment approval is routed through the root orchestrator. Project/legal
+review must record decoder source placement, notices, and project metadata
+before the snapshots are exposed by the editable source installation. Building
+a distributable artifact remains excluded.
+
+**Settled interfaces:** The Step 5 file/digest and import allowlists, declarative
+timeline format, typed output normal form, five edge-semantic questions,
+measurement categories, and macOS-only claim. The timeline and expected-output
+format is independent of the later host wire format.
+
+**Internal gate order:** First commit an immutable semantic-fixture candidate
+containing the declarative timelines, independently calculated expected calls
+and records, and all five API-edge decisions. A verifier and acceptance identity
+must pass that exact fixture candidate before the characterization runner is
+implemented or any snapshot is executed. A correction creates a new fixture
+candidate and transfers no pass. Only the accepted fixture candidate may feed
+the later characterization method. Raw results then precede the threshold
+proposal; proposal verification precedes acceptance; and explicit operator
+approval is last. The final B1 candidate binds every intermediate identity and
+digest and receives the normal complete B1 verification and acceptance sequence
+before its manifest exists.
+
+**Implementation ownership:** Provenance/license inventory; human-reviewable
+timeline schema and independently derived expected records; deterministic
+fixture generator; characterization-only runner; frozen clean-environment and
+measurement method; raw results and deterministic counts. The runner is not
+installed or imported by the product and exposes no public API.
+
+**Verification ownership:** Independently review every timeline and expected
+record; prove the generator does not consume decoder/host output; inspect the
+closed imports and hashes; reproduce the method and raw observations; exercise
+representative, boundary, dense-output, malformed, cancellation/reap, and
+hostile-worker cases; and issue a distinct threshold-proposal verdict.
+
+**Acceptance and operator ownership:** The acceptance identity audits fixture
+independence, edge-semantic decisions, provenance/license disposition, method,
+raw data, and verifier findings. Only after that review does the orchestrator
+propose exact ceilings. The verifier reviews the proposal, the acceptance
+identity records its verdict, and the operator explicitly approves or amends
+the committed values. These values include input samples/request bytes,
+deadline and cancellation grace, worker memory/address space, recursion,
+record/encoded/decoded/text/bytes/item/depth/diagnostic/retention limits,
+performance ceilings, and SPI maximum word size. No default of convenience is
+an approval.
+
+**Focused proof:** Fixture-schema/generator tests; byte-stable fixture rebuild;
+literal review of defaults, options, mappings, all output kinds, ordering, and
+the five edge cases; file/import/license audit; reproducible raw characterization
+report; threshold-proposal review; acceptance verdict; and the explicit
+operator decision record. Decoder execution uses only the approved checked-in
+snapshots and never C#, .NET, pythonnet, libsigrokdecode, `sigrok-cli`, or an
+external/reference runtime.
+
+**Accumulated proof:** Accepted Cycle 1/2 non-hardware regression and evidence
+validation, clean dependency audit, and the new B1 focused proof. B1 cannot
+checkpoint with an unresolved numeric value, provisional SPI maximum, changed
+method, or absent operator decision.
+
+#### C3-B2: isolated compatibility host and containment
+
+**Outcome:** A private native host consumes validated inert requests, executes
+one hash-pinned focused decoder in one single-use process, returns the settled
+typed result, and enforces the approved containment and cleanup behavior. It is
+not yet a public library API or installed CLI command.
+
+**Prerequisite:** C3-B1 complete, including the immutable fixture set and
+operator-approved numeric ceilings. A fixture, method, worker model, or ceiling
+change reopens C3-B1 before B2 proceeds.
+
+**Settled interfaces:** Closed decoder ID/file/import tables; mapping and option
+rules; lifecycle and API-v3 subset; wait/matched/samplenum/skip semantics;
+register/put rules; output normal form and ordering; versioned length-framed
+IPC; approved limits; typed failures; process launch, cancellation, kill, close,
+and reap behavior; inert-data boundary; and the narrow macOS containment claim.
+
+**Implementation ownership:** Internal immutable request/result/value models;
+digest and import-root enforcement; input, mapping, and option validation;
+API-v3 compatibility primitives; single-use worker and streaming IPC; output
+validation; all approved counters/limits; parent-owned deadline/cancellation;
+typed failure conversion; and deterministic cleanup. Product code must not
+import a prohibited runtime or provide an in-process/dynamic-decoder mode.
+
+**Verification ownership:** Black-box mutation of IDs, hashes, paths, symlinks,
+environment/import shadowing, mappings, options, frames, lengths, tags, output
+IDs, coordinates, nested values, diagnostics, exits, signals, exceptions,
+hangs, memory/recursion pressure, output floods, cancellation races, and partial
+IPC. Verify no partial success, traceback/path disclosure, descriptor/worker
+leak, retained result, or poisoned subsequent request. Recompute limit
+boundaries without production counters.
+
+**Acceptance ownership:** Audit every Step 5 host primitive and containment
+claim against the exact candidate, confirm no public surface was added early,
+and confirm the approved limits were enforced without weakening or rebasing.
+
+**Focused proof:** Internal host unit/contract tests, B1 API-edge fixtures,
+adversarial IPC/process tests, deterministic repeated serialization, worker
+lifecycle/process inspection, prohibited-import/dependency tests, and
+post-failure successful decode.
+
+**Accumulated proof:** B1 immutable fixture rebuild and threshold identities,
+all B2 focused checks, and the canonical accepted Cycle 1/2 non-hardware and
+evidence gates.
+
+#### C3-B3: focused UART, SPI, and I2C conformance
+
+**Outcome:** The private host produces every settled output kind for the exact
+UART, SPI, and I2C snapshots across defaults, material options, mappings,
+boundaries, malformed/incomplete traffic, and equivalent capture sources.
+
+**Prerequisite:** C3-B2 complete. Decoder identities, fixture semantics, and
+numeric ceilings remain byte-for-byte those accepted at B1.
+
+**Settled interfaces:** B1 declarative timelines and expected records; B2
+private request/result contract; capture channel/sample/time authority;
+decoder-specific required/optional mappings and option domains; all annotation,
+Python, binary, and metadata declarations; and request-wide emission order.
+
+**Implementation ownership:** Only decoder-specific adapters or tables needed
+to feed the generic B2 host and preserve exact metadata/results. Shared-host
+exceptions, decoder-source edits, or fixture-derived hard-coded output are not
+allowed.
+
+**Verification ownership:** Independently materialize equivalent
+`CaptureResult`, schema-1/schema-2 replay, and explicit-metadata CSV inputs from
+reviewed timelines; compare complete typed results and canonical bytes; test
+each default and material option, required and optional channel combination,
+noncontiguous/reordered physical mapping, start/end and simultaneous events,
+incomplete/malformed traffic, and repeatability. Static source inspection is
+the only allowed use of C# or upstream material.
+
+**Acceptance ownership:** Audit complete focused-decoder coverage, confirm all
+expected data remains fixture-owned, and confirm no decoder-specific behavior
+expanded the host API or trust boundary.
+
+**Focused proof:** Separate UART, SPI, and I2C conformance reports; full output
+record comparisons; cross-source equality; option/mapping negative tests; exact
+digest/import proof; and byte-identical repeat runs.
+
+**Accumulated proof:** B1 fixtures/limits, B2 containment/failure matrix, B3
+decoder conformance, and all inherited non-hardware/evidence regressions.
+
+#### C3-B4: public library and installed CLI
+
+**Outcome:** The settled synchronous typed library and offline installed CLI
+expose the already accepted private host without adding a second semantic path,
+dynamic code selection, optional-web dependence, or live capture.
+
+**Prerequisite:** C3-B3 complete with all three focused decoders accepted.
+
+**Settled interfaces:** `pico_logic_analyzer.decode` immutable models and
+`decode_capture(...)`; non-weakenable caller limits; the exact `pico-la decode`
+grammar; mutually exclusive replay/CSV input; canonical JSON plus LF; stderr
+diagnostics; existing exits plus decoder failure exit 7; and no browser/API,
+serial, stdin-code, export, or decoder-path surface.
+
+**Implementation ownership:** Public type annotations and stable exports;
+library delegation to the one B2 path; CLI parsing/mapping/options, inert
+replay/CSV loading, canonical serialization, diagnostics, and exits;
+documentation; package resource placement as allowed by the B1 license review;
+and hash-locked dependency metadata with no prohibited dependency.
+
+**Verification ownership:** Editable-install black-box library and CLI tests
+from outside the source directory; success-byte and stderr/exit fixtures;
+all duplicate/unknown/invalid input cases; replay/CSV equivalence; absence of
+serial or web import/open; no caller limit weakening; clean installation and
+dependency/process inspection; and exact-candidate hosted macOS CI.
+
+**Acceptance ownership:** Audit public compatibility and documentation, package
+notices/metadata, CLI machine contract, optional-web independence, lock
+closure, macOS-only claim, and CI identity. No publication is authorized.
+
+**Focused proof:** Strict mypy public-surface use, installed library examples,
+installed CLI golden/negative tests, clean hash-locked bootstrap and `pip
+check`, source-resource/license audit, prohibited-runtime/dependency/process
+audit, and exact-candidate hosted CI.
+
+**Accumulated proof:** All B1-B3 gates plus public black-box tests, full existing
+CLI/core/web regression without Cycle 3 browser changes, clean lint/type/test
+and evidence validation, and exact-candidate CI.
+
+#### C3-B5: exact-candidate accumulated proof and completion
+
+**Outcome:** One immutable final product candidate satisfies every Cycle 3
+stopping condition and every inherited regression, security, resource,
+performance, dependency, licensing, platform, and rollback claim has
+independent evidence.
+
+**Prerequisite:** C3-B4 complete; no unresolved finding, unexplained repository
+delta, changed approved fixture/method/limit, or missing operator decision.
+
+**Settled interfaces:** Every accepted B1-B4 checkpoint and the complete
+requirement/proof map below. B5 introduces no new product behavior and may not
+rebase fixtures or thresholds.
+
+**Implementation ownership:** Only corrections in the reopened earliest owning
+batch; otherwise assemble no product change. Any correction creates a new
+candidate and reruns all dependent verification.
+
+**Verification ownership:** Independently rerun the complete semantic,
+decoder-conformance, containment/failure, public library/CLI, clean-install,
+dependency, and exact-candidate performance/resource suites; verify every
+artifact digest and the absence of excluded changes and processes.
+
+**Acceptance ownership:** Audit the exact final candidate/tree, all five role
+sequences and manifests, every finding/disposition, accumulated local and CI
+result, approved-limit enforcement, support/rollback statement, repository
+state, and the numbered stopping checklist. Record one final `pass` or
+`changes_required` before the B5 manifest and checkpoint are created.
+
+**Focused proof:** Final-review packet completeness, digest/schema audit,
+repository/prohibited-action audit, and stopping-condition traceability.
+
+**Accumulated proof:** Fresh clean Python 3.12 bootstrap; dependency check;
+Ruff; strict mypy; all non-hardware tests; installed CLI help and black-box
+decode; Cycle 1/2 evidence validation; B1 fixture regeneration; all three
+decoder suites; full process/IPC/security/cancellation cleanup matrix; final
+measurements against the unchanged approved thresholds on the characterized
+macOS class; exact-candidate hosted macOS CI; license/resource audit; and a
+second independent verification of the final evidence digests.
+
+### Requirement-to-proof ownership map
+
+The `R` identifiers below are stable proposed contract identifiers. Each row
+has exactly one earliest owner and exactly one final accumulated owner. A batch
+manifest may reference its row, but the table and a proposed filename are not
+evidence.
+
+| ID | Required outcome | Earliest owner and objective proof | Final accumulated owner |
+| --- | --- | --- | --- |
+| R1 | Exact UART/SPI/I2C/helper identities, provenance, hashes, closed imports, notices, and package-license disposition | C3-B1: independent file/import/provenance audit and project/legal decision record | C3-B5 |
+| R2 | Independently derived declarative timelines and expected outputs are the sole oracle | C3-B1: literal fixture review, generator-independence audit, and byte-stable rebuild | C3-B5 |
+| R3 | Five API-v3 edge semantics are frozen before host implementation | C3-B1: numbered expected-call fixtures with verifier and acceptance passes | C3-B5 |
+| R4 | Measurement method, raw resource/performance baseline, and deterministic counts are reproducible | C3-B1: independently reproduced characterization report | C3-B5 |
+| R5 | Every numeric ceiling and maximum SPI word size has independent review and explicit operator approval | C3-B1: committed proposal, verifier verdict, acceptance verdict, and operator decision | C3-B5 |
+| R6 | Decoder ID, files, imports, environment, and input data cannot select executable code | C3-B2: allowlist/digest/path/symlink/shadowing and inert-metadata adversarial tests | C3-B5 |
+| R7 | Capture, mapping, samplerate, and option validation is exact and occurs before worker launch | C3-B2: boundary/type/mapping/option tests with spawn counter | C3-B5 |
+| R8 | Required API-v3 lifecycle, wait/matched/samplenum/skip/register/put behavior matches frozen semantics | C3-B2: B1 semantic fixtures against private host | C3-B5 |
+| R9 | Typed outputs preserve declarations, values, coordinates, rational time, and request-wide emission order deterministically | C3-B2: typed-shape, ordering, coordinate, serialization, and repeat-run tests | C3-B5 |
+| R10 | Versioned framed IPC rejects malformed, oversized, partial, extra, or unknown data without partial success | C3-B2: independently generated hostile-frame matrix | C3-B5 |
+| R11 | Deadline, cancellation, memory, recursion, output, diagnostic, and retention limits are parent-enforced | C3-B2: boundary/overrun tests against approved values and independent counters | C3-B5 |
+| R12 | Every failure kills/closes/reaps cleanly and a subsequent valid decode succeeds | C3-B2: process/descriptor inspection and post-failure decode matrix | C3-B5 |
+| R13 | UART defaults/options/mappings and annotation/Python/binary outputs conform | C3-B3: authoritative UART timeline/result comparisons | C3-B5 |
+| R14 | SPI defaults/options/mappings and annotation/Python/binary/meta outputs conform through the approved word-size maximum | C3-B3: authoritative SPI timeline/result comparisons | C3-B5 |
+| R15 | I2C defaults/options/mappings and annotation/Python/binary/meta outputs conform | C3-B3: authoritative I2C timeline/result comparisons | C3-B5 |
+| R16 | Equivalent in-memory, replay-schema-1/2, and explicit-metadata CSV captures yield identical results | C3-B3: independently materialized cross-source comparisons; no physical I/O | C3-B5 |
+| R17 | Public typed synchronous library delegates to the sole isolated host and cannot weaken limits | C3-B4: installed black-box/type tests and limit-delegation audit | C3-B5 |
+| R18 | Installed offline CLI grammar, canonical JSON, stderr, and exits are exact | C3-B4: installed golden/negative CLI suite | C3-B5 |
+| R19 | Core/library/CLI remain independent of optional web and never open serial or add browser behavior | C3-B4: import/open spies, dependency extras audit, and unchanged web regression | C3-B5 |
+| R20 | Clean Python 3.12 locked installation, static checks, tests, and macOS CI pass | C3-B4: fresh bootstrap and exact-candidate hosted CI | C3-B5 |
+| R21 | .NET, C#, pythonnet, libsigrokdecode, `sigrok-cli`, and external/reference runtimes are absent from every production and non-production execution/dependency path | C3-B1: fixture/provenance/dependency-method audit; enforced continuously from the first execution | C3-B5 |
+| R22 | Approved resource/performance ceilings are enforced without rebasing | C3-B2: enforcement boundary tests; B1 owns values, B2 owns enforcement behavior | C3-B5 |
+| R23 | Cycle 1/2 behavior, manifests, rollback paths, and macOS-only claim remain intact | C3-B1: inherited regression/evidence baseline; rerun by each batch | C3-B5 |
+| R24 | Candidate, role separation, finding, manifest, checkpoint, and correction ordering is immutable and auditable | C3-B1: first completed role/evidence sequence under the approved schema | C3-B5 |
+| R25 | Excluded browser, hardware, firmware, live capture, dynamic decoder, stacking, `.lac`, publication, and unsupported-platform work did not occur | C3-B1: scope/prohibited-action audit begun and carried by every checkpoint | C3-B5 |
+| R26 | Final exact candidate meets all approved performance/resource thresholds on the characterized macOS environment class | C3-B5: fresh final measurements; this is final-only proof, not a new earlier product requirement | C3-B5 |
+
+R21, R23, R24, and R25 begin in B1 and are mandatory accumulated audits in
+every later batch. R22 deliberately separates value ownership (R5/B1) from
+enforcement ownership (R22/B2), avoiding a circular gate. R26 is inherently a
+final-candidate observation and therefore has B5 as both earliest and final
+owner. No row has more than one earliest owner.
+
+### Operator and execution gates
+
+The following gates are blocking, not findings that an implementor may resolve:
+
+1. decoder execution begins only after the approved goal is invoked;
+2. only the Step 5 hash-pinned snapshots may execute, with no prohibited
+   runtime or dependency in any role;
+3. the B1 project/legal disposition precedes exposing decoder sources through
+   the editable source installation; no distributable artifact is built;
+4. raw B1 measurements precede the numeric proposal, independent proposal
+   review precedes acceptance, and explicit operator approval precedes B1
+   completion or any public host implementation;
+5. maximum SPI word size is part of that same later explicit operator decision,
+   not an implementation choice;
+6. a changed fixture, method, environment class, worker model, or weakened
+   ceiling reopens B1 and requires a new proposal/review/operator decision;
+7. only the root orchestrator may arrange required dependency/network/hosted-CI
+   execution authority; and
+8. no hardware, firmware, serial, live capture, browser, .NET/C#, pythonnet,
+   libsigrokdecode, `sigrok-cli`, or external/reference-runtime gate exists in
+   Cycle 3. Encountering one is a scope violation, not a reason to request it.
+
+Safe independent documentation, fixture review, and static inspection may
+continue while an external execution approval is pending, but no checkpoint
+may claim missing execution, CI, legal/project, threshold, or operator evidence.
+
+### Numbered final stopping-condition checklist
+
+Cycle 3 is complete only when one exact C3-B5 candidate satisfies all of the
+following objective conditions:
+
+1. The exact UART, SPI, I2C, shim, and helper files, digests, provenance,
+   notices, closed imports, package placement, and license metadata match the
+   accepted B1 record.
+2. Independently derived, byte-reproducible fixtures cover the three decoders,
+   all declared output kinds, mappings/options, malformed/incomplete traffic,
+   boundaries, simultaneous waits, ordering, and the five frozen API-v3 edge
+   semantics.
+3. The approved method, environment identity, raw B1 observations, numeric
+   ceilings, maximum SPI word size, independent reviews, and explicit operator
+   decision are immutable and mutually consistent.
+4. The parent resolves only host-owned decoder IDs, verifies every required
+   digest, constructs the closed import environment, and proves all capture and
+   request metadata inert before each worker launch.
+5. Exact capture, samplerate, channel mapping, and option validation rejects
+   every invalid input before process creation.
+6. One fresh worker implements only the frozen API-v3 subset and returns the
+   complete deterministic typed result with authoritative sample coordinates,
+   rational time, and request-wide emission order.
+7. Versioned streaming IPC and output normalization reject malformed,
+   oversized, unknown, partial, extra, cyclic, or non-finite data without
+   returning partial success.
+8. Approved deadline, cancellation, memory, recursion, output, nesting,
+   diagnostic, retention, and performance ceilings are enforced; every failure
+   closes and reaps the exact worker and a subsequent valid decode succeeds.
+9. Authoritative UART, SPI, and I2C suites pass for defaults, material options,
+   required/optional and reordered physical mappings, boundary traffic, and all
+   annotation/Python/binary/meta outputs applicable to each decoder.
+10. Equivalent in-memory capture, replay schema 1/2, and explicit-metadata CSV
+    inputs produce byte-identical canonical results without physical I/O.
+11. The installed typed library and `pico-la decode` command satisfy their
+    exact success, canonical JSON, stderr, exit, non-weakenable-limit, and
+    no-live-capture contracts from outside the source tree.
+12. Fresh Python 3.12 hash-locked installation, `pip check`, Ruff, strict mypy,
+    every non-hardware test, installed CLI help, and exact-candidate hosted
+    macOS CI pass with no required skip.
+13. Static dependency, process, import, lock, and evidence audits prove no
+    production, development, test, fixture, verification, performance, or
+    acceptance use of C#/.NET, pythonnet, libsigrokdecode, `sigrok-cli`, or any
+    external/reference decoder runtime.
+14. Accepted Cycle 1/2 tests, evidence manifests, replay/CSV/CLI behavior,
+    optional-web separation, rollback paths, and the macOS-only support claim
+    remain intact.
+15. Independent final measurements on the characterized macOS environment
+    class meet every unchanged operator-approved resource/performance threshold
+    and the approved SPI maximum is enforced.
+16. Five ordered checkpoints contain distinct implementation, verification,
+    and acceptance identities; exact candidate/tree evidence; immutable
+    findings; schema-valid post-acceptance manifests; and correction history,
+    with no future manifest or transferred pass.
+17. The final scope audit finds no browser/API/frontend decoder work, hardware,
+    firmware, serial/live capture, dynamic decoder discovery, stacking, `.lac`,
+    packaging/publication, unsupported-platform claim, or other excluded work.
+18. The B5 final review packet maps R1-R26 and conditions 1-17 to committed
+    evidence and independently verified digests, records a clean or fully
+    qualified repository, and has final verification and acceptance verdicts
+    exactly `pass` before its manifest and checkpoint are created.
+
+Conditions 1-17 are product, proof, regression, and governance gates;
+condition 18 proves their complete traceability and ordering. A command's exit
+zero alone is insufficient where a condition requires independent artifacts,
+operator approval, hosted CI, process inspection, or exact-candidate identity.
+
+### Step 6 exit-gate assessment
+
+The five proposed batches have settled prerequisites, interfaces, role
+ownership, focused and accumulated proof, authority gates, and immutable
+candidate/evidence ordering. R1-R26 assign every frozen Step 5 outcome to one
+earliest batch and to C3-B5 final accumulated ownership; the 18-item final
+checklist is objective and traceable. B1 owns semantics and value approval,
+B2 owns enforcement, and B5 owns final measurement, so neither numeric limits
+nor the SPI maximum form a circular implementation gate. No browser, hardware,
+prohibited runtime/dependency, future manifest, or unapproved execution is
+required. Step 6's content exit gate is met in this revision; committing the
+approved revision will satisfy its durable-output gate.

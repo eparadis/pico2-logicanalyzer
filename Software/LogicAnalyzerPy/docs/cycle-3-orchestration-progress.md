@@ -158,3 +158,66 @@ unchanged.
 ## Deferred work
 
 - No deferred or unrelated Cycle 3 finding is recorded at B1 activation.
+
+## C3-B1 semantic-fixture implementation assignment
+
+- Assigned: `2026-08-26T22:55:00Z`.
+- Identity: `c3-b1-semantic-fixture-implementor-1`
+  (`/root/c3_b1_fixture_impl`), implementor lane, `gpt-5.6-terra`, low.
+- Starting orchestration commit/tree:
+  `98ecf5d916be96ad2d52fa3956f8ff0b7ee44759` /
+  `ef1c0d4eec0fe2686d6289cf26997d257592b49b`; candidate not yet created.
+- Prerequisite: approved goal invocation and Step 10 launch record; no prior
+  Cycle 3 checkpoint.
+- Earliest-owned proof: fixture/provenance portions of R1-R5 and the B1 start
+  of R9, R21, R23-R25; stopping conditions 1-3 and static preparation for
+  13-14 and 16-17.
+- Bounded objective: statically inventory the exact frozen snapshot and create
+  independently calculated, human-reviewable semantic/stress timelines,
+  expected calls/records, all five edge decisions, sentinel/mapping fixtures,
+  closed option matrix, version-1 object and literal CLI golden vectors, a
+  deterministic rebuilder, and the complete finite experiment-cap
+  specification without executing a decoder or claiming enforcement.
+- May edit only `docs/cycle-3-decoder-provenance-license.md`,
+  `docs/cycle-3-semantic-fixtures.md`, `testdata/decoders/cycle3/`,
+  `scripts/generate_cycle3_fixtures.py`, and
+  `tests/implementation/test_cycle3_fixtures.py` beneath
+  `Software/LogicAnalyzerPy/`.
+- Prohibited ownership: runner, method, launch/import configuration,
+  cap-enforcement/cleanup, probes, raw observations, product source, locks,
+  workflow, evidence schema/validator/manifests, reviews, acceptance, decoder
+  snapshots, governing sources, Cycle 1/2 evidence, and every excluded action.
+- Focused checks: initial missing-surface failure; deterministic rebuild and
+  byte check; literal schema/default/option/sentinel/tag/edge/cap coverage;
+  static provenance/import/license audit; Ruff on owned Python; and
+  `git diff --check`. Existing local Python only; no dependency installation.
+- Separation: this identity may never author or approve runner/method/probes or
+  implement B2-B4 product behavior. Fixture verifier and acceptance are the
+  distinct planned identities `/root/c3_b1_fixture_verify` and
+  `/root/c3_b1_fixture_accept`.
+- Approval policy: `/Users/ed/.codex/SUBAGENT_POLICY.md`; no direct escalation;
+  none requested.
+
+### Pre-candidate integration review round 1
+
+- Recorded: `2026-08-26T23:02:55Z` at orchestration commit/tree
+  `39e74a27638541b36b2845a8c6f1079bc0a3ae61` /
+  `ab7ff229a58c35cb1019fac3e2d1e45341f3b184`.
+- State: `changes_required`; no immutable semantic-fixture candidate or
+  independent verdict exists, and no pass is transferred.
+- C3B1-I001: option rows inferred “default” from list position, producing
+  false UART/SPI defaults and incomplete accepted/rejected numeric boundaries.
+- C3B1-I002: four generic timelines reused placeholder records and did not
+  establish the required decoder/output/option/mapping/malformed/boundary
+  fixture coverage or full version-1 record/time shape.
+- C3B1-I003: the typed-vector corpus listed tags but its sole literal CLI
+  golden was an empty result, so it did not provide literal bytes for every
+  record/value tag.
+- C3B1-I004: the cap set omitted required retained-result and separate
+  text/bytes accounting categories and lacked per-cap units/domain rationale.
+- C3B1-I005: focused tests mostly asserted set membership and would not reject
+  the factual/default/reference/schema defects above.
+- Disposition: returned by context-preserving follow-up to the same fixture
+  identity within unchanged ownership. The correction must preserve the
+  no-decoder/no-runtime-oracle boundary and provide exact row/fixture/vector/
+  cap references plus stronger tests before root may create a candidate.

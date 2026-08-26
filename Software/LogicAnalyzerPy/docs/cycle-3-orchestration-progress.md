@@ -221,3 +221,32 @@ unchanged.
   identity within unchanged ownership. The correction must preserve the
   no-decoder/no-runtime-oracle boundary and provide exact row/fixture/vector/
   cap references plus stronger tests before root may create a candidate.
+
+### Pre-candidate integration review rounds 2-3 and identity replacement
+
+- State: `changes_required`; no semantic-fixture candidate exists and no pass
+  transfers.
+- C3B1-I006: round 2 corrected defaults, vector byte coverage, cap categories,
+  per-file notice observations, and lint, but mechanically generated one-edge
+  “direct fixtures” still carried fabricated shared annotation records rather
+  than independently calculated decoder-specific behavior.
+- C3B1-I007: the option matrix still omitted required invalid/type/width-
+  dependent rows and linked direct coverage to those fabricated timelines.
+- C3B1-I008: round 3 statically identified real stream registration ordering
+  but did not implement the required hand-authored UART/SPI/I2C timelines,
+  declarations, wait traces, or output records. The implementor returned
+  `changes_required` again with the known candidate defect unchanged.
+- Original identity: `c3-b1-semantic-fixture-implementor-1`
+  (`/root/c3_b1_fixture_impl`). Its draft work and three handoffs are preserved
+  as authorship/history but are not accepted evidence.
+- Replacement identity: `c3-b1-semantic-fixture-implementor-replacement-1`
+  (`/root/c3_b1_fixture_impl_r1`), same implementor lane,
+  `gpt-5.6-terra`, low.
+- Reason: the original identity exhausted multiple correction continuations
+  while the same acknowledged substantive fixture defect remained. The
+  replacement must inspect, replace, and validate the inherited uncommitted
+  fixture-only work and begins with no inherited pass.
+- Ownership and separation remain unchanged. Both fixture authorship
+  identities are permanently barred from the runner/method/probes and B2-B4
+  product implementation. Planned fixture verifier and acceptance identities
+  remain distinct and unassigned until one immutable candidate exists.

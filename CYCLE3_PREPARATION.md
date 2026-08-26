@@ -375,6 +375,136 @@ qualified repository, and an exact approved launch command.
 needing to infer scope, authority, trust, evidence, baseline, or completion
 semantics.
 
+## Step 10 launch preflight record
+
+The final preparation preflight ran at `2026-08-26T16:04:09Z`. Its clean
+pre-record inspection identity was:
+
+- HEAD: `f67843a7dc8fd6f97e1f4389b3fd7e90db03c3d6`;
+- tree: `3afb02e68c9ea6187f3905c7c835318855faa3a2`;
+- branch: `python-rewrite`;
+- upstream qualification: 37 commits ahead of `origin/python-rewrite`, with no
+  tracked, staged, unstaged, or untracked change; and
+- unrelated user changes: none observed.
+
+The only descendants of the approved goal candidate are its three immutable
+`goal-final-round-4` approval records and the preparation-checklist identity
+refresh. They change no product, decoder snapshot, dependency, fixture,
+workflow, approved governing contract, or approved goal. The final launch HEAD
+is the commit that contains this preflight record. The root orchestrator must
+verify that commit's full HEAD/tree, branch, and clean worktree after committing
+this record and before invoking the goal; the initial Cycle 3 progress record
+must repeat that exact launch identity and the approvals below. This unavoidable
+post-record commit identity does not alter an approved governing file.
+
+### Baseline, governing identities, and approvals
+
+The selected technical and governance input baseline remains
+`c163a8353550e0b80dd7f001b21147659ad307ff`, tree
+`45556769aab973c7671f58d57bae1878a46af9f2`, on `python-rewrite`. It inherits
+the accepted Cycle 2 candidate
+`2d5484a73d881496cdf5a35c799dfb01eedad229`, tree
+`8c76bce79922263468cb6ceaa4f1990703a84bfc`, includes the focused launcher and
+documentation delta `5b409a6384624bfb6b51bc323c97a54244477dde`
+without retroactive Cycle 2 acceptance, and includes the preparation governance
+at `c163a83`. Every later change is committed preparation, review, or approval
+evidence; no later product or unrelated change is present.
+
+The approved discovery review, roadmap, orchestration contract, batch contract,
+and review framework are byte-for-byte equal in the worktree and HEAD to the
+six-file governing set at contract commit
+`ea83a403bb6f644d33069d3bebd41d5f1e0a60c0`, tree
+`d9fb09345ab85580cd8c877745262d1b481e366f`. All three immutable
+`contract-final-round-5` records name that exact commit/tree and verdict `pass`;
+the records are committed unchanged in
+`0d3755a2798cdfafd2a89ebaedcac40acc8c356a`.
+
+`CYCLE3_GOAL.md` and the governing set are byte-for-byte equal in the worktree
+and HEAD to goal commit
+`6a2d09a444797bb0b73c94b259b1cbd826084129`, tree
+`b6e1441af95f4e4a3cc17adeb1681e94d06a2557`. All three immutable
+`goal-final-round-4` records name that exact commit/tree and verdict `pass`; the
+records are committed unchanged in
+`3ff24fcacd893869ddb717e6b130b528ff8fd931`.
+
+### Launch provenance and platform
+
+Static SHA-256 recomputation confirmed the approved checked-in snapshot:
+
+| File | SHA-256 |
+| --- | --- |
+| `Software/decoders/sigrokdecode.py` | `385124002ec16379a2542f2905c5ce41f3402032458d89f49617623ab7aaf01a` |
+| `Software/decoders/uart/__init__.py` | `351098a23f5caa205068688550af53bd44a63776e1d02921ba32487ce720b92f` |
+| `Software/decoders/uart/pd.py` | `67655f53162c531bc6eb77d9d29b384edec80a2dd5bd741897b4aa2afc52ffcc` |
+| `Software/decoders/spi/__init__.py` | `91b207f82c59fe1c12ad1458ef669c4293c7e4c8dd19bec14e78b455305af56c` |
+| `Software/decoders/spi/pd.py` | `ef9cac5098404dc164094712e9175ba3715233248d8bbc23cb85ed3fc51d5d3d` |
+| `Software/decoders/i2c/__init__.py` | `37931874732ea0b3ca13784b8df4cd90949a2c1b5822feae5d5df6da81ee886f` |
+| `Software/decoders/i2c/pd.py` | `b6899137fb5b505433e696d319b7f3cc88519b43e2a2e7fea1a9f770ba10a305` |
+| `Software/decoders/common/srdhelper/__init__.py` | `125b0616dfdd974c2f6e0e83e61cf9cdd21340f9ab11ac7b97b648792dad05d1` |
+| `Software/decoders/common/srdhelper/mod.py` | `602b27901820a27af5fcf317b34af1a17d1449fa1ad21279507d1d5ab8acebd6` |
+
+The preflight platform is macOS 15.7.7 build 24G720 with the existing project
+environment's Python 3.12.13. The support and acceptance claim remains macOS
+with Python 3.12 only. No other platform gains a support claim.
+
+### Regression results and qualifications
+
+All commands below were run without installing or updating dependencies:
+
+| Command | Result |
+| --- | --- |
+| `bash -n Software/LogicAnalyzerPy/start_web.sh` | Exit 0; shell syntax passed. |
+| `.venv/bin/python -m pytest -q tests/unit/test_cli.py tests/implementation/test_web_boundary.py tests/implementation/test_web_api.py` | Exit 0; 22 passed, no skips, 57 existing `aiohttp` `NotAppKeyWarning`/started-application state warnings. The warnings do not weaken or replace a mandatory gate. |
+| `.venv/bin/python scripts/validate_cycle2_evidence.py docs/evidence-manifest/cycle2-schema.json testdata/evidence/c2-b1.json` | Exit 0. |
+| `.venv/bin/python scripts/validate_cycle2_evidence.py docs/evidence-manifest/cycle2-schema.json testdata/evidence/c2-b2.json` | Exit 0. |
+| `.venv/bin/python scripts/validate_cycle2_evidence.py docs/evidence-manifest/cycle2-schema.json testdata/evidence/c2-b3.json` | Exit 0. |
+| `.venv/bin/python scripts/validate_cycle2_evidence.py docs/evidence-manifest/cycle2-schema.json testdata/evidence/c2-b4.json` | Exit 0. |
+| `.venv/bin/python scripts/validate_cycle2_evidence.py docs/evidence-manifest/cycle2-schema.json testdata/evidence/c2-b5.json` | Exit 0. |
+| `.venv/bin/python scripts/validate_cycle2_evidence.py docs/evidence-manifest/cycle2-schema.json testdata/evidence/c2-b6.json` | Exit 0. |
+| `git diff --check` | Exit 0 before this record; rerun after editing also passed. |
+
+Static inspection found no .NET, pythonnet, libsigrokdecode, `sigrok-cli`, or
+`dotnet` reference in the current Python package's product source, production
+or development dependency inputs/locks, tests, scripts, or Cycle 2 workflow.
+No matching prohibited runtime was active in the inspected process-name list.
+Preserved C# sources and metadata remain inert rollback/reference material and
+were not included in that scoped absence claim.
+
+### Decisions, future inputs, manifests, and prohibited actions
+
+All ten Step 4 operator decisions remain the launch authority: exact checked-in
+UART/SPI/I2C scope; typed library plus installed CLI only; host-owned closed
+allowlist; single-use isolated subprocess; independently derived reviewed
+fixtures as the sole oracle; staged numeric-limit approval; no production or
+development/test dependency or execution path involving C#, .NET, pythonnet,
+libsigrokdecode, `sigrok-cli`, or another reference host; preserved
+provenance/notices with project/legal review; macOS-only support; and no
+physical proof.
+
+No additional operator input is required to launch. During C3-B1, the recorded
+project/legal packaging review and the independently verified and accepted
+numeric-ceiling/SPI-maximum proposal must exist before their owning gates can
+pass; only then may the operator approve the exact numeric values. Later
+hash-locked installation and hosted macOS CI require normal execution approval
+when prompted. A changed fixture, method, worker model, environment class,
+ceiling, objective, scope, trust boundary, platform, proof source, ownership,
+or stopping condition requires the exact contract's reopening and review rules.
+
+No `c3-b1.json` through `c3-b5.json` or other Cycle 3 evidence manifest exists.
+Preparation did not execute decoder or C# code; build, install, import, invoke,
+or depend on .NET, pythonnet, libsigrokdecode, `sigrok-cli`, or another reference
+host; install dependencies; run a server, browser, network, USB/serial, live
+capture, hardware, firmware, or non-macOS acceptance action; create Cycle 3
+product/tests/fixtures/workflows/manifests; or begin later-cycle work.
+
+### Exact approved launch command
+
+```text
+/goal Execute and verify Cycle 3 of the Python logic-analyzer rewrite by following CYCLE3_GOAL.md exactly and the approved contract commit ea83a403bb6f644d33069d3bebd41d5f1e0a60c0 / tree d9fb09345ab85580cd8c877745262d1b481e366f. Continue until all eighteen stopping conditions in CYCLE3_ORCHESTRATION.md have immutable proof and the directed terminal completion seal is committed, or the documented blocked condition is genuinely reached. Do not modify CYCLE3_GOAL.md or the approved governing contracts. Do not begin Cycle 4.
+```
+
+This record and the checked checklist do not invoke `/goal`.
+
 ## Preparation progress checklist
 
 - [x] Step 1 — starting baseline reconciled in `cb877ed`; proposed technical
@@ -404,9 +534,14 @@ semantics.
 - [x] Step 9 — durable goal has three common-commit passes in
       `goal-final-round-4`, approving goal commit `6a2d09a` / tree `b6e1441`;
       immutable approval records committed in `3ff24fc`
-- [ ] Step 10 — final launch preflight complete
+- [x] Step 10 — final launch preflight complete; all governing-file equality,
+      approval, provenance, platform, baseline-regression, manifest-absence,
+      operator-gate, and prohibited-action checks passed at the pre-record
+      identity above; launch identity is the clean commit containing this record
 
-Preparation status: **not ready to launch Cycle 3**.
+Preparation status: **ready to launch Cycle 3 after the root orchestrator commits
+this record and verifies that exact launch HEAD/tree and clean worktree**. The
+goal has not been invoked.
 
 ## Completion rule
 

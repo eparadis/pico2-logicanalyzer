@@ -386,7 +386,9 @@ semantics.
 - [x] Step 3 — bounded discovery completed in `50a5e9f`; exact focused decoder
       inventory, integration seams, evidence gaps, alternatives, and proposed
       proof recorded without decoder execution
-- [ ] Step 4 — operator decisions recorded
+- [x] Step 4 — all ten operator decisions recorded in `eb5bc31`, including the
+      prohibition on C# execution and on production or development/test use of
+      .NET, pythonnet, or libsigrokdecode
 - [ ] Step 5 — narrow Cycle 3 contract surface settled
 - [ ] Step 6 — batches, proof ownership, and stopping conditions settled
 - [ ] Step 7 — governing contracts and review framework drafted

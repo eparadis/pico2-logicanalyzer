@@ -453,8 +453,12 @@ with inert/hostile non-decoder probes for every cap, digest/import boundary,
 termination, pipe/descriptor close, and exact-child reap path; accumulated
 validation and distinct acceptance must pass and state that no decoder ran.
 Only that exact unchanged runner may then execute an approved snapshot. The
-runner is not a product host, and the expected-fixture owner cannot author or
-approve it. A capped failure is not a passing baseline, and the caps cannot be
+runner is not a product host. A semantic-fixture implementation identity owns
+expected fixtures and cannot author the runner, method, or probes; a different
+pre-execution-runner implementation identity owns those surfaces and cannot
+author expected fixtures. Each internal candidate has separate verifier and
+acceptance identities, and no pass transfers between candidates. A capped
+failure is not a passing baseline, and the caps cannot be
 weakened; later approved product thresholds replace them. Raw observations
 precede the threshold proposal; independent proposal review precedes
 acceptance; explicit operator approval is last. No public host implementation
@@ -561,10 +565,11 @@ path, record the scope violation, and continue only safe independent work.
 
 ## Roles, candidate sequence, and correction rules
 
-Every batch uses five separate roles:
+Every batch uses five separate roles. B1 splits its implementation role into
+the two separately owned internal candidate identities defined below:
 
-- an **implementation identity** for the bounded owning surface and focused
-  implementation checks;
+- an **implementation identity** (two internally distinct implementors in B1)
+  for the bounded owning surface and focused implementation checks;
 - a different **verification identity** that derives independent black-box,
   boundary, security, conformance, or resource proof and reports exactly
   `pass` or `changes_required`;
@@ -578,6 +583,17 @@ Every batch uses five separate roles:
 - the **primary orchestrator**, which integrates, creates the immutable
   candidate, runs the complete accumulated gate, assembles post-acceptance
   evidence, appends checkpoints, and owns the terminal completion seal.
+
+For B1, the **semantic-fixture implementor** owns timelines, independently
+expected records, the fixture generator, and experiment caps and may not author
+runner, measurement-method, launch/import, or probe content. A distinct
+**pre-execution-runner implementor** owns the actual runner, method,
+launch/import configuration, cap/cleanup plumbing, and inert/hostile probes and
+may not author expected fixtures. The fixture candidate and runner candidate
+each receive their own verifier and acceptance identities, all distinct from
+both implementors; their passes are candidate-specific and never transfer. The
+progress entry, assignments, handoffs, final B1 candidate identity map,
+manifest, checkpoint, and completion proof name all six B1 internal identities.
 
 An acceptance agent never repairs its candidate. A verifier cannot approve
 production behavior or expected fixtures it authored. A B2-B4 product
@@ -593,9 +609,12 @@ Every batch follows this exact order:
 4. independent verification of that exact candidate records a verdict;
 5. orchestrator runs the complete accumulated gate on the same candidate;
 6. independent acceptance audits that candidate and all accumulated evidence;
-7. only after both verdicts are `pass`, atomically create the batch manifest;
+7. only after both verdicts are `pass`, atomically create the batch manifest,
+   which may name the assigned manifest verifier but no future verifier verdict,
+   record identity/path, or self-dependent digest;
    have its manifest verifier recompute digests/schema and create the required
-   immutable record, then commit the manifest and verification record; and
+   immutable record naming and hashing the unchanged manifest, then commit the
+   manifest and verification record together; and
 8. append and commit the checkpoint, then select the next batch.
 
 For B5, step 6 is expressly pre-manifest acceptance: it audits B1-B4 committed
@@ -684,7 +703,10 @@ It must not pre-create C3-B2 through C3-B5 manifests. After C3-B1 evidence,
 verification, accumulated validation, and acceptance exist, the orchestrator
 atomically creates only `Software/LogicAnalyzerPy/testdata/evidence/c3-b1.json`,
 then the distinct manifest verifier recomputes all digests, validates the
-schema, and records its immutable verdict. The orchestrator commits the
+schema, and records its immutable verdict in a separate record that names and
+hashes the unchanged manifest. The proposed manifest may name the assigned
+manifest-verifier identity, but contains no future verifier verdict, verifier-
+record identity/path, or self-dependent digest. The orchestrator commits the
 manifest plus verification record and only then appends the checkpoint. Each
 later batch
 does the same only for its own `c3-bN.json`. A filename, placeholder, example,
@@ -702,15 +724,23 @@ applicable:
 - normalized command, status, stable verifier identity, and hosted-CI run/job
   identity bound to the exact candidate;
 - evidence source/provenance, path, digest, and deterministic counts;
-- mutually distinct implementation, verification, acceptance, and manifest-
-  verifier identities, verdicts, numbered findings/dispositions, decisions,
-  limitations, deferrals;
+- mutually distinct implementation, verification, acceptance, and assigned
+  manifest-verifier identities; for B1, the fixture and runner implementor,
+  verifier, and acceptance identity map; existing candidate review verdicts,
+  numbered findings/dispositions, decisions, limitations, and deferrals;
 - every applicable R1-R26 identifier and stopping-condition identifier with
   evidence references and digests;
 - prohibited-runtime/dependency/process and excluded-scope audit results; and
 - for B1, the fixture/API-edge candidates, characterization/raw observations,
   project/legal record, threshold reviews, and operator decision; for B5, final
   measurements and the complete packet digest map.
+
+The schema assigns manifest-verification commands/results, manifest SHA-256,
+findings, and verdict exclusively to the separate immutable manifest-
+verification record, not to the manifest. That record names and hashes the
+unchanged manifest. The manifest and record are committed together; the later
+checkpoint references both committed files and the recorded `pass`. This same
+directed ownership applies to B1-B5.
 
 The validator rejects secret, credential, user-home, machine-local path/URL,
 or other sensitive values. Manifest schema validation and independent digest

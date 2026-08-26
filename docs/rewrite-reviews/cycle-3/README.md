@@ -169,14 +169,22 @@ contradict any of these cross-domain freeze points: exact pre-characterization
 experiment caps; an immutable actual-runner/method/launch/import candidate that
 passes independent inert/hostile non-decoder proof of every cap, digest/import
 boundary, termination, close, and reap path before unchanged snapshot
-execution; integer `0xFF` optional-pin semantics and named mapping fixtures; a
+execution; distinct B1 semantic-fixture and pre-execution-runner implementors,
+with reciprocal authorship exclusions, separate verifier/acceptance identities
+for each internal candidate, and no transferred pass; integer `0xFF` optional-
+pin semantics and named mapping fixtures; a
 closed option-coverage matrix; explicit CSV capture metadata distinct from
 decoder mappings; the version-1 result/error schema and preimplementation
 object/byte goldens; pre-manifest B5 acceptance followed by the directed
 manifest/verification commit, closure-pending checkpoint, immutable proof
 candidate with no future reference, committed closure verdict, and terminal
 non-audit-input seal; the scoped prohibited-use rule above; or a manifest
-verifier independent of the orchestrator/assembler.
+verifier independent of the orchestrator/assembler. Reviewers also require the
+directed B1-B5 manifest protocol: an immutable manifest may name its assigned
+verifier but no future verifier verdict, record identity/path, or self-dependent
+digest; a separate immutable verifier record names and hashes that unchanged
+manifest and owns its commands/results, findings, and verdict; both commit
+together before a later checkpoint references both and the pass.
 
 Creating this framework or any review directory grants no implementation,
 dependency, decoder-execution, hardware, firmware, serial, browser, publication,

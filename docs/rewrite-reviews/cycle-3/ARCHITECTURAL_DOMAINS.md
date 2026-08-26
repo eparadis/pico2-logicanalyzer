@@ -224,8 +224,21 @@ plan-to-proof seam.
   candidate and invalidates prior passes; accumulated validation precedes
   acceptance; manifests are created only after acceptance and independently
   checked before checkpointing.
+- B1 splits implementation ownership between a semantic-fixture identity and a
+  different pre-execution-runner identity. The fixture identity cannot author
+  runner/method/probe content; the runner identity cannot author expected
+  fixtures. Each internal candidate has separate verifier and acceptance
+  identities, and progress/assignment/handoff/final-candidate/manifest/
+  checkpoint records preserve the complete identity map with no transferred
+  pass.
 - A manifest-verifier identity distinct from the orchestrator/assembler records
-  recomputed digests and schema results before manifest commit/checkpoint. B5
+  recomputed digests and schema results before manifest commit/checkpoint. For
+  B1-B5, the immutable proposed manifest may name that assigned identity but
+  contains no future verifier verdict, record identity/path, or self-dependent
+  digest. A separate immutable verifier record names and hashes the unchanged
+  manifest and exclusively owns verification commands/results, findings, and
+  verdict; both commit together before the checkpoint references them and the
+  pass. B5
   acceptance audits only B1-B4 committed manifests and B5 readiness. Its
   terminal chain is directed: manifest/verification record commit; checkpoint
   commit with closure pending; immutable completion-proof candidate naming the

@@ -1297,13 +1297,16 @@ and its exact pre-execution candidate independently passes the non-decoder
 enforcement gate. Its source, method, launch/import configuration, environment,
 cap/cleanup plumbing, and results must be immutable evidence so that the later
 exact-candidate measurements can be compared with the same method. The
-independent expected-fixture owner cannot author or approve the runner.
+semantic-fixture implementation identity cannot author or approve the runner,
+method, or probes; the distinct pre-execution-runner implementation identity
+cannot author expected fixtures. Each internal candidate has its own verifier
+and acceptance identities and transfers no pass.
 
 ### Common batch mechanics and role ownership
 
-Every batch has one implementation identity, a different verification
-identity, a third acceptance identity, and a post-acceptance manifest-verifier
-identity distinct from the orchestrator and evidence assembler. The orchestrator
+Every batch ordinarily has one implementation identity, a different
+verification identity, a third acceptance identity, and a post-acceptance
+manifest-verifier identity distinct from the orchestrator and evidence assembler. The orchestrator
 is another role:
 it integrates changes, creates the immutable product candidate, runs the full
 accumulated gate, assembles evidence only after it exists, and appends the
@@ -1314,6 +1317,15 @@ scope, provenance, and evidence ordering and never repairs the candidate.
 A B2-B4 product implementor must not have authored B1's authoritative expected
 outputs. If an identity would cross that boundary, a fresh implementation
 identity is assigned for the dependent product work.
+
+B1 is the explicit internal exception to “one implementation identity”: its
+semantic-fixture candidate and pre-execution-runner candidate have different
+implementors and each has separate verifier and acceptance identities. The
+fixture implementor owns timelines, expected records, generator, and experiment
+caps but no runner/method/probes; the runner implementor owns runner, method,
+launch/import and cap/cleanup plumbing, inert/hostile probes, and raw results but
+no expected fixtures. Progress, assignments, handoffs, the final B1 identity
+map, manifest, checkpoint, and completion proof preserve all six identities.
 
 The mandatory ordering for every batch is:
 
@@ -1329,11 +1341,13 @@ The mandatory ordering for every batch is:
 6. have the independent acceptance agent audit the exact candidate, all
    findings and dispositions, and accumulated evidence and record exactly
    `pass` or `changes_required`;
-7. only then create that batch's manifest atomically; have the assigned
-   manifest verifier independently recompute every digest, validate the schema,
-   and create an immutable record naming candidate, manifest digest, commands,
-   results, and verdict; then commit the manifest and verification record
-   together and append the checkpoint;
+7. only then create that batch's manifest atomically; it may name the assigned
+   manifest verifier but no future verifier verdict, record identity/path, or
+   self-dependent digest. Have that verifier independently recompute every
+   digest, validate the schema, and create a separate immutable record naming
+   and hashing the unchanged manifest and carrying commands, results, findings,
+   and verdict; then commit both files together and append a later checkpoint
+   that references both committed files and the `pass`;
    and
 8. select the next batch only after the checkpoint is committed.
 
@@ -1346,6 +1360,14 @@ creation produces a new candidate and invalidates every earlier verifier,
 accumulated, and acceptance pass for that batch. Prior records remain immutable
 history. A regression of a completed interface reopens its earliest owning
 batch and every dependent accumulated gate.
+
+For B1-B5, the manifest schema owns only already-existing role assignments and
+review evidence. It may include the assigned manifest-verifier identity, but
+manifest-verification commands/results, manifest SHA-256, findings, verdict,
+and verification-record identity/path belong only to the later immutable
+manifest-verification record. That record names and hashes the unchanged
+manifest; neither artifact predicts the other or contains a self-dependent
+digest.
 
 The exact non-hardware command list is frozen in C3-B1 after clean-environment
 characterization. At minimum, every accumulated gate includes a fresh
@@ -1385,43 +1407,59 @@ format is independent of the later host wire format.
 containing the declarative timelines, independently calculated expected calls
 and records, exact sentinel/mapping fixtures, the closed option-coverage
 matrix, version-1 typed-object/JSON golden vectors, all five API-edge decisions,
-and the exact experiment-only safety envelope. A verifier and acceptance
-identity must pass that exact fixture candidate before the characterization
-runner is implemented. Next commit a separate immutable pre-execution runner
+and the exact experiment-only safety envelope. A semantic-fixture verifier and
+separate semantic-fixture acceptance identity must pass that exact fixture
+candidate before the characterization runner is implemented. Next commit a
+separate immutable pre-execution runner
 candidate containing the actual runner, measurement method, exact launch/import
 configuration, all accepted cap plumbing, and every termination/close/reap path.
-A verifier uses only inert/hostile non-decoder probes to exercise every cap,
+A pre-execution-runner verifier, distinct from the fixture verifier and both
+implementors, uses only inert/hostile non-decoder probes to exercise every cap,
 digest/import boundary, and cleanup path on that candidate; accumulated
-validation and a distinct acceptance identity must pass and state that no
-decoder ran. Only that unchanged runner may then execute an approved snapshot.
+validation and a runner-candidate acceptance identity, also distinct from the
+fixture acceptance identity, must pass and state that no decoder ran. Only that
+unchanged runner may then execute an approved snapshot.
 A correction creates a new owning candidate and transfers no pass. Only the
-accepted fixture candidate may supply expected behavior, and its owner may not
-author or approve the runner. Raw results then precede the threshold proposal;
+accepted fixture candidate may supply expected behavior; its owner may not
+author or approve the runner, and the runner owner may not author expected
+fixtures. Raw results then precede the threshold proposal;
 proposal verification precedes acceptance; and explicit operator approval is
-last. The final B1 candidate binds every intermediate identity and digest and
-receives the normal complete B1 verification and acceptance sequence before
+last. The final B1 candidate binds every intermediate identity and digest,
+including the fixture implementor/verifier/acceptance and distinct runner
+implementor/verifier/acceptance identity map, and receives the normal complete
+B1 verification and acceptance sequence before
 its manifest exists.
 
-**Implementation ownership:** Provenance/license inventory; human-reviewable
-timeline schema and independently derived expected records; deterministic
-fixture generator; characterization-only runner; frozen clean-environment and
-measurement method; raw results and deterministic counts. The runner is not
-installed or imported by the product and exposes no public API.
+**Implementation ownership:** The semantic-fixture implementor owns the
+provenance/license inventory, human-reviewable timeline schema, independently
+derived expected records, deterministic fixture generator, and experiment
+caps. A different pre-execution-runner implementor owns the characterization-
+only runner, frozen clean-environment and measurement method, launch/import and
+cap/cleanup plumbing, inert/hostile probes, raw results, and deterministic
+counts. Neither may author the other's exclusive surface. Each internal
+candidate receives distinct verification and acceptance identities, and the
+final B1 candidate binds the complete six-identity map without transferring a
+pass. The runner is not installed or imported by the product and exposes no
+public API.
 
-**Verification ownership:** Independently review every timeline and expected
-record; prove the generator does not consume decoder/host output; inspect the
-closed imports and hashes; use inert/hostile non-decoder probes against the
-exact immutable runner candidate to recompute every pre-execution cap,
-digest/import boundary, termination, close, and reap path before any snapshot
-execution;
-audit every option-matrix row and the RX-only/TX-only and MISO-only/MOSI-only/
-no-CS sentinel fixtures; reproduce the method and raw observations; exercise
+**Verification ownership:** The semantic-fixture verifier independently reviews
+every timeline and expected record, proves the generator does not consume
+decoder/host output, inspects closed imports/hashes, and audits every option-
+matrix row and the RX-only/TX-only and MISO-only/MOSI-only/no-CS sentinel
+fixtures. A different pre-execution-runner verifier uses inert/hostile non-
+decoder probes against the exact immutable runner candidate to recompute every
+pre-execution cap, digest/import boundary, termination, close, and reap path
+before any snapshot execution. Later independent verification reproduces the
+method and raw observations and exercises
 representative, boundary, dense-output, malformed, cancellation/reap, and
-hostile-worker cases; and issue a distinct threshold-proposal verdict.
+hostile-worker cases; and issues a distinct threshold-proposal verdict.
 
-**Acceptance and operator ownership:** The acceptance identity audits fixture
-independence, edge-semantic decisions, provenance/license disposition, method,
-raw data, and verifier findings. Only after that review does the orchestrator
+**Acceptance and operator ownership:** The semantic-fixture acceptance identity
+audits fixture independence, edge-semantic decisions, provenance/license
+disposition, and its verifier findings. A different pre-execution-runner
+acceptance identity audits the unchanged runner, method, probe evidence,
+exclusions, and gate ordering. Later independent acceptance audits raw data and
+the applicable verifier findings. Only after that review does the orchestrator
 propose exact ceilings. The verifier reviews the proposal, the acceptance
 identity records its verdict, and the operator explicitly approves or amends
 the committed values. These values include input samples/request bytes,

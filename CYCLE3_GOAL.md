@@ -85,10 +85,10 @@ original role and only where the contracts permit its prior authorship. A
 replacement uses the same lane profile and is recorded as a new identity.
 
 The completion-closure auditor is a fresh identity distinct from the primary
-orchestrator; every author or assembler of an audit-input artifact; the B5
-verifier, acceptance identity, and manifest verifier; and the terminal-seal
-author. It may not be reused from any role that authored, assembled, verified,
-accepted, manifest-verified, approved, or repaired an audit input. It audits
+orchestrator; every author or assembler of an audit-input artifact; and the B5
+verifier, acceptance identity, and manifest verifier. It may not be reused from
+any role that authored, assembled, verified, accepted, manifest-verified,
+approved, or repaired an audit input. It audits
 only the already committed inputs named in its lane responsibility, cannot edit
 or repair any input, and issues only its immutable `pass` or
 `changes_required` verdict. Its work is scheduled within the same maximum of
@@ -170,9 +170,8 @@ that checkpoint and no future closure artifact; have the fixed, independent
 completion-closure auditor inspect the already committed B5 manifest and
 manifest-verifier record, closure-pending checkpoint, and immutable completion-
 proof candidate without editing or repairing them; obtain and commit that
-auditor's immutable verdict; then, only after `pass`, permit the distinct
-terminal-seal author to commit `cycle-3-completion-seal.md` last. The seal is
-not an audit input.
+auditor's immutable verdict; then, only after `pass`, the primary orchestrator
+commits `cycle-3-completion-seal.md` last. The seal is not an audit input.
 
 Every correction to product, fixture, expected value, method, dependency,
 workflow, environment class, runner, launch/import configuration, cap

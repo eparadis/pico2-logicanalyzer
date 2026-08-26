@@ -815,6 +815,13 @@ The native compatibility host implements only the following closed surface:
   `Exception`, and all other decoder exceptions are failures;
 - `has_channel(index)` returns a real `bool` and is true exactly for a decoder
   channel present in the validated mapping;
+- every returned pin-tuple element is an exact built-in `int`. A mapped pin is
+  `0` or `1`; an unmapped optional pin is the exact integer sentinel `0xFF`
+  (`255`). The tuple always retains the full declared required-then-optional
+  channel length and order. Required pins can never be absent. `has_channel()`
+  is false exactly for an optional pin whose tuple slot is `0xFF`; the sentinel
+  is never exposed in the public capture or result and is never interpreted as
+  a logic level. This intentionally matches the inert inspected C# source;
 - `register(output_type, proto_id=None, meta=None)` accepts only the four
   supported output constants, assigns monotonically increasing request-local
   integer output IDs in call order beginning at zero, preserves the supplied
@@ -828,8 +835,8 @@ The native compatibility host implements only the following closed surface:
 - `samplenum` is the zero-based index of the sample returned by the most recent
   `wait()`. The pin tuple always follows the decoder's declared required-then-
   optional channel order. An unmapped optional channel is represented only to
-  the decoder compatibility layer by the frozen absent-channel sentinel needed
-  by these snapshots and is never confused with a captured logic level.
+  the decoder compatibility layer by integer `0xFF` as frozen above and is
+  never confused with a captured logic level.
 
 `wait()` is limited to `wait({})`, one condition dictionary, or a non-empty
 list of condition dictionaries. A dictionary is conjunction; the list is
@@ -909,6 +916,18 @@ ceilings under the threshold procedure below. Until those ceilings are
 approved, B1 fixtures use only their reviewed finite sizes and no public host
 surface may be declared complete.
 
+B1 must commit a closed decoder-option coverage matrix before characterization.
+For every checked-in option key it enumerates the default, every enumerated
+choice, every inclusive/exclusive numeric boundary, and every sentinel. Each
+entry has exactly one disposition: `direct-fixture` with a named fixture,
+`static-equivalence` with the named directly covered fixture and a source-based
+equivalence argument, or `unsupported` with the contract rule that rejects it
+before launch. UART packet `-1` sentinels and width boundaries, sample-point
+boundaries, every UART enumeration, every SPI enumeration and word-size
+boundary, and both I2C choices are explicit rows. B3 audits the complete matrix
+against the accepted fixture digests; B5 repeats that audit. “Material
+options” alone is never a coverage disposition.
+
 ### Deterministic result, annotation, and time contract
 
 The accepted output contains all four kinds emitted by the focused snapshots:
@@ -947,6 +966,101 @@ only and must use one frozen formatting rule inherited from the accepted
 capture time contract. The B1 edge-semantic fixture gate above freezes interval
 endpoint interpretation before any annotation presentation is implemented.
 
+#### Normative decode-result schema version 1
+
+The public semantic and JSON contract is separately versioned as
+`pico-logic-analyzer.decode-result/v1`. Canonical JSON is UTF-8, contains no
+BOM, uses no insignificant whitespace, sorts every object key by Unicode code
+point, emits integers as base-10 JSON integers, emits booleans/null as JSON
+literals, escapes strings by the standard JSON rules without ASCII-only
+forcing, and ends in exactly one LF. Arrays preserve the order stated below.
+No unlisted field, `null` substitute, float timestamp, or non-finite number is
+accepted.
+
+The byte encoder is exactly Python 3.12
+`json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False,
+allow_nan=False).encode("utf-8") + b"\n"`; no alternate canonicalizer is a
+conforming CLI path. Thus finite floats, including signed zero and exponent
+form, use Python 3.12's JSON rendering, while integer fields never pass through
+a float.
+
+The root is an object with exactly these fields and types:
+
+- `schema`: the literal string `pico-logic-analyzer.decode-result/v1`;
+- `decoder`: object `{id: string, file_set_sha256: string}` where `id` is the
+  closed decoder ID and the digest is 64 lowercase hexadecimal characters over
+  the ordered path/NUL/file-digest manifest frozen by B1;
+- `samplerate_hz`: positive integer;
+- `channels`: array in decoder declaration order of objects
+  `{decoder_channel: string, physical_channel: integer}` containing mapped
+  channels only;
+- `options`: object whose keys are canonically sorted and whose values are only
+  the fully materialized string, integer, or finite JSON number allowed by the
+  frozen option table (booleans are not integers);
+- `capture`: object `{sample_count: positive integer, trigger_index:
+  non-negative integer}` with `trigger_index < sample_count`;
+- `declarations`: object with `annotations`, `annotation_rows`, `binary`, and
+  `metadata` arrays. Annotation entries are
+  `{index: non-negative integer, id: string, description: string}`; row entries
+  are `{index: non-negative integer, id: string, description: string,
+  annotation_indices: array of non-negative integers}`; binary entries are
+  `{index: non-negative integer, id: string, description: string}`; metadata
+  entries are `{output_id: non-negative integer, value_type: "integer",
+  name: string, description: string}`. Declaration arrays retain checked-in or
+  registration order; and
+- `records`: the request-wide emission-order array described next.
+
+Every record has `emission_index`, `output_id`, `kind`, `start_sample`,
+`end_sample`, `start_time`, `end_time`, and `value`. Indices and coordinates
+are non-negative integers and emission indices are contiguous from zero. Each
+`start_time`/`end_time` is exactly
+`{absolute: {numerator: integer, denominator: positive integer},
+trigger_relative: {numerator: integer, denominator: positive integer}}`.
+Absolute numerator is the corresponding sample coordinate; trigger-relative
+numerator is `sample - trigger_index`; every denominator is `samplerate_hz`,
+without floating-point conversion or reduction. `kind` and `value` are exactly
+one of:
+
+- `annotation`: `{class_index: non-negative integer, texts: non-empty array of
+  strings}`;
+- `python`: one tagged value object. Tags are `null` (no `value` field),
+  `bool`, `integer`, `float`, `string`, `bytes`, `list`, `tuple`, or
+  `spi-data`. Scalar tags have exactly one `value` of the named JSON type; the
+  float is finite; bytes value is canonical padded RFC 4648 base64; list/tuple
+  value is an ordered array of tagged values; and `spi-data` has exactly
+  integer fields `ss`, `es`, and `val` plus `tag`;
+- `binary`: `{class_index: non-negative integer, data_base64: string}` using
+  canonical padded RFC 4648 base64; or
+- `metadata`: `{value_type: "integer", value: integer}` matching its registered
+  metadata declaration.
+
+The public immutable class set is exactly `DecodeResult`, `DecoderIdentity`,
+`DecodeCaptureIdentity`, `DecodeDeclarations`, `AnnotationDeclaration`,
+`AnnotationRowDeclaration`, `BinaryDeclaration`, `MetadataDeclaration`,
+`RationalTime`, `RecordTime`, the closed `DecodeRecord` union of
+`AnnotationRecord`, `PythonRecord`, `BinaryRecord`, and `MetadataRecord`, and
+the closed tagged `PythonValue` variants named by the JSON tags above. Their
+snake-case fields and scalar types match the schema fields exactly; every JSON
+array is an immutable tuple in the library, `options` is an immutable sorted
+tuple of `(str, scalar)` pairs that serializes to the JSON object, and no model
+has an extension field. They serialize only through this one schema. B1's
+independently authored
+fixture candidate includes literal expected typed-object vectors and literal
+CLI UTF-8 golden bytes for every record/value tag before product result or CLI
+implementation. Those artifacts have independent verification and acceptance,
+are identified by digest, and are consumed unchanged by R9, R17, and R18.
+
+Host failures use the separately versioned taxonomy
+`pico-logic-analyzer.decode-error/v1`. The immutable library failure has
+exactly `schema`, `code`, and bounded path/traceback-free `message`; `code` is
+one of `snapshot`, `import`, `ipc`, `decoder`, `recursion`, `memory`,
+`process-exit`, `timeout`, `cancelled`, or `output-limit`. Configuration and
+mapping failures remain the existing configuration class/CLI exit 2, and input
+replay/CSV failures remain the existing input class/CLI exit 5. The ten host
+codes map to CLI exit 7, emit no JSON to stdout, and use one stable bounded
+stderr diagnostic line. Unknown failures may not be relabeled success or
+serialized with an invented tag.
+
 ### Public library and installed CLI only
 
 The public library surface is a typed module under
@@ -962,7 +1076,9 @@ shape.
 The installed `pico-la` entry point gains one offline command:
 
 ```text
-pico-la decode (--replay PATH | --csv PATH) --decoder {uart,spi,i2c}
+pico-la decode (--replay PATH | (--csv PATH --channels D0,D1,...
+               [--sample-rate HZ] --trigger-channel PHYSICAL_CHANNEL
+               --edge {rising,falling})) --decoder {uart,spi,i2c}
                --channel DECODER_CHANNEL=PHYSICAL_CHANNEL
                [--channel ...] [--option KEY=VALUE] [--option ...]
 ```
@@ -977,6 +1093,17 @@ live capture are not supported. Existing exit meanings remain unchanged;
 configuration and mapping errors return 2, input replay/CSV validation returns
 5, and a new documented exit 7 covers decoder digest/import/IPC/exception/
 resource/deadline/cancellation failures. Diagnostics go only to stderr.
+
+`--channels` is the ordered physical `channel_ids` tuple and is separate from
+repeatable decoder mapping `--channel`. For CSV, `--channels`,
+`--trigger-channel`, and `--edge` are always required. `--sample-rate` is also
+required except for the exact accepted legacy D0-D7 header, where omission
+selects only the accepted legacy time-column inference; supplying it always
+overrides inference and its times must validate. All four CSV metadata options
+are forbidden with `--replay`. CSV content never overrides supplied metadata,
+and no decoder option or mapping can supply capture metadata. Duplicate,
+empty, out-of-range, mismatched-label, non-distinct, or otherwise parser-
+invalid metadata fails as input/exit 5 before decoder mapping or worker launch.
 
 No browser endpoint, OpenAPI addition, generated web type, frontend renderer,
 web operation, or annotation interaction is part of Cycle 3. The library and
@@ -1040,7 +1167,7 @@ options, and expected protocol meaning. Capture samples and every expected
 annotation/Python/binary/meta record are derived independently of the host and
 decoder output, checked in with generator/version/digests, and reviewed by a
 verifier who did not implement the host. Expected data must cover each decoder's
-defaults, material options, required/optional mappings, valid and malformed or
+complete accepted option-coverage matrix, required/optional mappings, valid and malformed or
 incomplete traffic, simultaneous waits, start/end boundaries, normal
 termination, and exact ordering. Equivalent live-model, replay, and CSV-derived
 captures must produce the same result where those sources represent identical
@@ -1054,10 +1181,33 @@ fixture generation, tests, verification, performance work, or acceptance.
 Their output cannot corroborate a fixture. Dependency locks, clean-environment
 proof, process inspection, and CI must demonstrate their absence.
 
+That absence audit is scoped to every active Cycle 3 Python product,
+development, test, fixture, characterization, verification, performance,
+acceptance, CI, bootstrap, lock, distribution, import, active-process, command,
+and evidence path. Preserved C# project/source metadata is an inert historical
+rollback and inspection surface and may name a historical dependency; it is
+never restored, built, installed, imported, loaded, or executed for Cycle 3
+and never supplies evidence. Ambient installation or availability on a machine
+alone is not Cycle 3 use and is not a reason to mutate the machine; invocation,
+import, linkage, dependency resolution, active process, command reference, or
+evidence reliance by any in-scope path is prohibited.
+
 ### Baseline-first thresholds and intentionally staged gates
 
 No numeric resource or performance ceiling is frozen by this static review.
-The earliest proposed B1 must first commit the reviewed semantic/stress fixture
+Before the first characterization runner or approved snapshot executes, B1
+must commit an exact conservative experiment-only safety envelope covering
+wall deadline, terminate-to-force-kill grace, input samples/request bytes,
+output records and encoded/decoded bytes, stdout/stderr/diagnostic bytes,
+nested depth/items, recursion, and worker memory/address space. A verifier
+independently recomputes that the runner enforces every cap and an acceptance
+identity passes the same envelope and fixture candidate. A capped termination
+or limit breach is an observation, never a passing baseline; no cap may be
+weakened to obtain data. The later explicitly operator-approved product
+threshold record replaces this experiment-only envelope and may be stricter
+but never authorizes rerunning the baseline with weaker experiment caps.
+
+The earliest proposed B1 must then commit the reviewed semantic/stress fixture
 set and measurement method, including machine/OS/Python identity, warm-up and
 repetition rules, raw observations, deterministic input/output counts, and the
 macOS mechanisms proposed for process memory, recursion, deadline, and reaping.
@@ -1140,7 +1290,9 @@ later exact-candidate measurements can be compared with the same method.
 ### Common batch mechanics and role ownership
 
 Every batch has one implementation identity, a different verification
-identity, and a third acceptance identity. The orchestrator is a fourth role:
+identity, a third acceptance identity, and a post-acceptance manifest-verifier
+identity distinct from the orchestrator and evidence assembler. The orchestrator
+is another role:
 it integrates changes, creates the immutable product candidate, runs the full
 accumulated gate, assembles evidence only after it exists, and appends the
 checkpoint. The verifier must derive expectations from the settled contract
@@ -1165,8 +1317,11 @@ The mandatory ordering for every batch is:
 6. have the independent acceptance agent audit the exact candidate, all
    findings and dispositions, and accumulated evidence and record exactly
    `pass` or `changes_required`;
-7. only then create that batch's manifest atomically, independently verify its
-   digests and schema validation, commit it, and append the checkpoint record;
+7. only then create that batch's manifest atomically; have the assigned
+   manifest verifier independently recompute every digest, validate the schema,
+   and create an immutable record naming candidate, manifest digest, commands,
+   results, and verdict; then commit the manifest and verification record
+   together and append the checkpoint;
    and
 8. select the next batch only after the checkpoint is committed.
 
@@ -1216,7 +1371,9 @@ format is independent of the later host wire format.
 
 **Internal gate order:** First commit an immutable semantic-fixture candidate
 containing the declarative timelines, independently calculated expected calls
-and records, and all five API-edge decisions. A verifier and acceptance identity
+and records, exact sentinel/mapping fixtures, the closed option-coverage
+matrix, version-1 typed-object/JSON golden vectors, all five API-edge decisions,
+and the exact experiment-only safety envelope. A verifier and acceptance identity
 must pass that exact fixture candidate before the characterization runner is
 implemented or any snapshot is executed. A correction creates a new fixture
 candidate and transfers no pass. Only the accepted fixture candidate may feed
@@ -1234,7 +1391,9 @@ installed or imported by the product and exposes no public API.
 
 **Verification ownership:** Independently review every timeline and expected
 record; prove the generator does not consume decoder/host output; inspect the
-closed imports and hashes; reproduce the method and raw observations; exercise
+closed imports and hashes; recompute enforcement of the pre-execution envelope;
+audit every option-matrix row and the RX-only/TX-only and MISO-only/MOSI-only/
+no-CS sentinel fixtures; reproduce the method and raw observations; exercise
 representative, boundary, dense-output, malformed, cancellation/reap, and
 hostile-worker cases; and issue a distinct threshold-proposal verdict.
 
@@ -1310,7 +1469,7 @@ evidence gates.
 #### C3-B3: focused UART, SPI, and I2C conformance
 
 **Outcome:** The private host produces every settled output kind for the exact
-UART, SPI, and I2C snapshots across defaults, material options, mappings,
+UART, SPI, and I2C snapshots across every accepted option-matrix row, mappings,
 boundaries, malformed/incomplete traffic, and equivalent capture sources.
 
 **Prerequisite:** C3-B2 complete. Decoder identities, fixture semantics, and
@@ -1329,7 +1488,8 @@ allowed.
 **Verification ownership:** Independently materialize equivalent
 `CaptureResult`, schema-1/schema-2 replay, and explicit-metadata CSV inputs from
 reviewed timelines; compare complete typed results and canonical bytes; test
-each default and material option, required and optional channel combination,
+each row of the accepted closed option-coverage matrix, required and optional
+channel combination,
 noncontiguous/reordered physical mapping, start/end and simultaneous events,
 incomplete/malformed traffic, and repeatability. Static source inspection is
 the only allowed use of C# or upstream material.
@@ -1407,11 +1567,17 @@ decoder-conformance, containment/failure, public library/CLI, clean-install,
 dependency, and exact-candidate performance/resource suites; verify every
 artifact digest and the absence of excluded changes and processes.
 
-**Acceptance ownership:** Audit the exact final candidate/tree, all five role
-sequences and manifests, every finding/disposition, accumulated local and CI
-result, approved-limit enforcement, support/rollback statement, repository
-state, and the numbered stopping checklist. Record one final `pass` or
-`changes_required` before the B5 manifest and checkpoint are created.
+**Acceptance ownership:** Audit the exact final candidate/tree, the completed
+B1-B4 role sequences/manifests/checkpoints, the proposed B5 manifest inputs and
+readiness (but not a nonexistent B5 manifest/checkpoint), every finding and
+disposition, accumulated local and CI result, approved-limit enforcement,
+support/rollback statement, repository state, and numbered stopping checklist.
+Record one pre-manifest `pass` or `changes_required`. After a pass, a distinct
+manifest-verifier identity recomputes the proposed B5 manifest's digests and
+schema, records its candidate, commands, manifest digest, results, and verdict,
+then the orchestrator commits the manifest and checkpoint. A separate
+completion-closure auditor finally checks the committed B5 manifest,
+verification record, checkpoint, and completion proof without changing them.
 
 **Focused proof:** Final-review packet completeness, digest/schema audit,
 repository/prohibited-action audit, and stopping-condition traceability.
@@ -1441,7 +1607,7 @@ evidence.
 | R6 | Decoder ID, files, imports, environment, and input data cannot select executable code | C3-B2: allowlist/digest/path/symlink/shadowing and inert-metadata adversarial tests | C3-B5 |
 | R7 | Capture, mapping, samplerate, and option validation is exact and occurs before worker launch | C3-B2: boundary/type/mapping/option tests with spawn counter | C3-B5 |
 | R8 | Required API-v3 lifecycle, wait/matched/samplenum/skip/register/put behavior matches frozen semantics | C3-B2: B1 semantic fixtures against private host | C3-B5 |
-| R9 | Typed outputs preserve declarations, values, coordinates, rational time, and request-wide emission order deterministically | C3-B2: typed-shape, ordering, coordinate, serialization, and repeat-run tests | C3-B5 |
+| R9 | Typed outputs preserve the version-1 declarations, tags, values, coordinates, rational time, and request-wide emission order deterministically | C3-B1: independent typed-object and canonical-JSON golden identities; C3-B2 consumes them in shape/order/serialization/repeat tests | C3-B5 |
 | R10 | Versioned framed IPC rejects malformed, oversized, partial, extra, or unknown data without partial success | C3-B2: independently generated hostile-frame matrix | C3-B5 |
 | R11 | Deadline, cancellation, memory, recursion, output, diagnostic, and retention limits are parent-enforced | C3-B2: boundary/overrun tests against approved values and independent counters | C3-B5 |
 | R12 | Every failure kills/closes/reaps cleanly and a subsequent valid decode succeeds | C3-B2: process/descriptor inspection and post-failure decode matrix | C3-B5 |
@@ -1449,11 +1615,11 @@ evidence.
 | R14 | SPI defaults/options/mappings and annotation/Python/binary/meta outputs conform through the approved word-size maximum | C3-B3: authoritative SPI timeline/result comparisons | C3-B5 |
 | R15 | I2C defaults/options/mappings and annotation/Python/binary/meta outputs conform | C3-B3: authoritative I2C timeline/result comparisons | C3-B5 |
 | R16 | Equivalent in-memory, replay-schema-1/2, and explicit-metadata CSV captures yield identical results | C3-B3: independently materialized cross-source comparisons; no physical I/O | C3-B5 |
-| R17 | Public typed synchronous library delegates to the sole isolated host and cannot weaken limits | C3-B4: installed black-box/type tests and limit-delegation audit | C3-B5 |
-| R18 | Installed offline CLI grammar, canonical JSON, stderr, and exits are exact | C3-B4: installed golden/negative CLI suite | C3-B5 |
+| R17 | Public typed synchronous library implements the version-1 immutable models, delegates to the sole isolated host, and cannot weaken limits | C3-B4: installed black-box/type tests against B1 expected object vectors and limit-delegation audit | C3-B5 |
+| R18 | Installed offline CLI grammar, explicit CSV metadata, version-1 canonical JSON, stderr, failure taxonomy, and exits are exact | C3-B4: installed golden/negative CLI suite against B1 literal bytes | C3-B5 |
 | R19 | Core/library/CLI remain independent of optional web and never open serial or add browser behavior | C3-B4: import/open spies, dependency extras audit, and unchanged web regression | C3-B5 |
 | R20 | Clean Python 3.12 locked installation, static checks, tests, and macOS CI pass | C3-B4: fresh bootstrap and exact-candidate hosted CI | C3-B5 |
-| R21 | .NET, C#, pythonnet, libsigrokdecode, `sigrok-cli`, and external/reference runtimes are absent from every production and non-production execution/dependency path | C3-B1: fixture/provenance/dependency-method audit; enforced continuously from the first execution | C3-B5 |
+| R21 | Prohibited runtimes/dependencies have no invocation, import, linkage, resolution, active process, command, or evidence reliance in any scoped active Cycle 3 path; preserved C# metadata remains inert | C3-B1: scoped fixture/provenance/dependency-method audit; enforced continuously from the first execution | C3-B5 |
 | R22 | Approved resource/performance ceilings are enforced without rebasing | C3-B2: enforcement boundary tests; B1 owns values, B2 owns enforcement behavior | C3-B5 |
 | R23 | Cycle 1/2 behavior, manifests, rollback paths, and macOS-only claim remain intact | C3-B1: inherited regression/evidence baseline; rerun by each batch | C3-B5 |
 | R24 | Candidate, role separation, finding, manifest, checkpoint, and correction ordering is immutable and auditable | C3-B1: first completed role/evidence sequence under the approved schema | C3-B5 |
@@ -1501,9 +1667,11 @@ following objective conditions:
    notices, closed imports, package placement, and license metadata match the
    accepted B1 record.
 2. Independently derived, byte-reproducible fixtures cover the three decoders,
-   all declared output kinds, mappings/options, malformed/incomplete traffic,
-   boundaries, simultaneous waits, ordering, and the five frozen API-v3 edge
-   semantics.
+   all declared output kinds, the complete option-coverage matrix, integer
+   `0xFF` optional-pin semantics including RX-only/TX-only and MISO-only/
+   MOSI-only/no-CS, malformed/incomplete traffic, boundaries, simultaneous
+   waits, ordering, the version-1 object/JSON goldens, and the five frozen
+   API-v3 edge semantics.
 3. The approved method, environment identity, raw B1 observations, numeric
    ceilings, maximum SPI word size, independent reviews, and explicit operator
    decision are immutable and mutually consistent.
@@ -1521,21 +1689,22 @@ following objective conditions:
 8. Approved deadline, cancellation, memory, recursion, output, nesting,
    diagnostic, retention, and performance ceilings are enforced; every failure
    closes and reaps the exact worker and a subsequent valid decode succeeds.
-9. Authoritative UART, SPI, and I2C suites pass for defaults, material options,
+9. Authoritative UART, SPI, and I2C suites pass every accepted option-matrix row,
    required/optional and reordered physical mappings, boundary traffic, and all
    annotation/Python/binary/meta outputs applicable to each decoder.
 10. Equivalent in-memory capture, replay schema 1/2, and explicit-metadata CSV
     inputs produce byte-identical canonical results without physical I/O.
 11. The installed typed library and `pico-la decode` command satisfy their
-    exact success, canonical JSON, stderr, exit, non-weakenable-limit, and
+    exact version-1 object/JSON/failure, explicit-CSV-metadata, stderr, exit,
+    non-weakenable-limit, and
     no-live-capture contracts from outside the source tree.
 12. Fresh Python 3.12 hash-locked installation, `pip check`, Ruff, strict mypy,
     every non-hardware test, installed CLI help, and exact-candidate hosted
     macOS CI pass with no required skip.
-13. Static dependency, process, import, lock, and evidence audits prove no
-    production, development, test, fixture, verification, performance, or
-    acceptance use of C#/.NET, pythonnet, libsigrokdecode, `sigrok-cli`, or any
-    external/reference decoder runtime.
+13. Static dependency, process, import, lock, command, and evidence audits prove
+    no prohibited use in any active Cycle 3 path under the scoped-audit rule;
+    preserved inert C# metadata is never restored, built, installed, imported,
+    executed, or relied on as evidence.
 14. Accepted Cycle 1/2 tests, evidence manifests, replay/CSV/CLI behavior,
     optional-web separation, rollback paths, and the macOS-only support claim
     remain intact.
@@ -1543,16 +1712,17 @@ following objective conditions:
     class meet every unchanged operator-approved resource/performance threshold
     and the approved SPI maximum is enforced.
 16. Five ordered checkpoints contain distinct implementation, verification,
-    and acceptance identities; exact candidate/tree evidence; immutable
-    findings; schema-valid post-acceptance manifests; and correction history,
-    with no future manifest or transferred pass.
+    acceptance, and manifest-verifier identities; exact candidate/tree
+    evidence; immutable findings; schema-valid post-acceptance manifests; and
+    correction history, with no future manifest or transferred pass.
 17. The final scope audit finds no browser/API/frontend decoder work, hardware,
     firmware, serial/live capture, dynamic decoder discovery, stacking, `.lac`,
     packaging/publication, unsupported-platform claim, or other excluded work.
-18. The B5 final review packet maps R1-R26 and conditions 1-17 to committed
-    evidence and independently verified digests, records a clean or fully
-    qualified repository, and has final verification and acceptance verdicts
-    exactly `pass` before its manifest and checkpoint are created.
+18. The B5 packet maps R1-R26 and conditions 1-17 to committed evidence and
+    records a clean or qualified repository; verification and pre-manifest
+    acceptance pass before manifest creation, the distinct manifest-verification
+    pass precedes checkpointing, and the separate completion-closure audit
+    passes over the committed manifest/checkpoint/completion proof.
 
 Conditions 1-17 are product, proof, regression, and governance gates;
 condition 18 proves their complete traceability and ordering. A command's exit

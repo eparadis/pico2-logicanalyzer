@@ -79,6 +79,17 @@ be installed, imported, linked, invoked, or used as a production or
 non-production dependency or executable, including during development, fixture
 generation, tests, verification, performance work, CI, or acceptance.
 
+The audit covers every active Cycle 3 Python product, development, test,
+fixture, characterization, verification, performance, acceptance, CI,
+bootstrap, lock, distribution, import, active-process, command, and evidence
+path. Preserved C# project/source metadata remains inert historical rollback
+and inspection material and may name a historical dependency; it is never
+restored, built, installed, imported, loaded, executed, or used as evidence.
+Ambient installed availability alone is not Cycle 3 use and does not authorize
+machine mutation. Invocation, import, linkage, dependency resolution, active
+process, command reference, or evidence reliance from an in-scope path is use
+and is prohibited.
+
 ## Approved Cycle 3 decisions
 
 The following operator decisions are exact and may not be weakened by an
@@ -149,6 +160,14 @@ binary/integer-metadata outputs settled in Step 5 of the discovery record.
 `OUTPUT_LOGIC`, broad API compatibility, decoder stacking, decoder-to-decoder
 input, and dynamic discovery are not supported.
 
+The compatibility pin tuple always retains declared required-then-optional
+channel order and contains exact built-in integers: mapped samples are `0` or
+`1`, while an unmapped optional channel is exactly `0xFF` (`255`). Required
+channels cannot be absent. `has_channel()` returns a real `bool`, false exactly
+for an optional slot represented by `0xFF`; the sentinel never crosses the
+compatibility boundary as capture data or a decoded result. B1 includes UART
+RX-only/TX-only and SPI MISO-only/MOSI-only/no-CS fixtures.
+
 Before general host implementation, independently reviewed C3-B1 fixtures must
 freeze the five unresolved edge semantics:
 
@@ -173,6 +192,13 @@ those frozen in the discovery record. All invalid mappings/options fail before
 worker launch. Numeric ceilings, including maximum input size and SPI word
 size, are owned by C3-B1's explicit threshold approval.
 
+B1 freezes the closed option-coverage matrix defined by discovery. Every
+default, enumerated choice, numeric boundary, and sentinel is classified only
+as a named direct fixture, source-justified static equivalence to a named
+fixture, or unsupported pre-launch rejection. B3 consumes and audits every row;
+B5 repeats the matrix-to-fixture digest audit. The phrase “material options”
+does not permit sampling or omission.
+
 The typed `DecodeResult` contains decoder/file-set identity, samplerate,
 canonical mapping, materialized options, capture count/trigger, declarations,
 and an emission-ordered tuple of typed output records. It preserves annotation
@@ -180,6 +206,13 @@ text alternatives, bytes, integer metadata, the closed tagged Python-value
 tree, sample coordinates, rational time, and request-wide emission order.
 Machine serialization is canonical and byte-repeatable for identical inputs,
 hashes, and limits.
+
+The complete normative public representation is exactly discovery's separately
+versioned `pico-logic-analyzer.decode-result/v1` schema and
+`pico-logic-analyzer.decode-error/v1` taxonomy. No implementation may add,
+remove, rename, coerce, or reorder a promised semantic field/tag. B1 freezes
+independently authored expected immutable-object vectors and literal canonical
+CLI bytes for every tag; B2, B4, and B5 consume those exact digests.
 
 The public API is one synchronous typed path under
 `pico_logic_analyzer.decode`, centered on
@@ -190,7 +223,9 @@ checks, validation, cancellation/reaping, or the allowlist.
 The installed CLI adds only:
 
 ```text
-pico-la decode (--replay PATH | --csv PATH) --decoder {uart,spi,i2c}
+pico-la decode (--replay PATH | (--csv PATH --channels D0,D1,...
+               [--sample-rate HZ] --trigger-channel PHYSICAL_CHANNEL
+               --edge {rising,falling})) --decoder {uart,spi,i2c}
                --channel DECODER_CHANNEL=PHYSICAL_CHANNEL
                [--channel ...] [--option KEY=VALUE] [--option ...]
 ```
@@ -200,7 +235,13 @@ Failure writes no machine data to stdout and sends bounded diagnostics to
 stderr. Existing exit meanings remain; configuration/mapping errors use 2,
 replay/CSV validation uses 5, and decoder digest/import/IPC/exception/resource/
 deadline/cancellation failures use documented exit 7. Replay and CSV remain
-inert and mutually exclusive. No live capture, serial, stdin code, decoder
+inert and mutually exclusive. For CSV, `--channels` carries ordered physical
+IDs and is distinct from decoder mapping `--channel`; `--trigger-channel` and
+`--edge` are required. `--sample-rate` is required except for the exact
+accepted legacy D0-D7 header, where omission alone selects accepted inference.
+These metadata options are forbidden with replay, CSV never overrides them,
+and validation occurs before decoder mapping or launch exactly as frozen in
+discovery. No live capture, serial, stdin code, decoder
 path, plugin directory, export, browser, or second semantic route is added.
 
 ### Worker containment and inert-data boundary
@@ -404,7 +445,11 @@ Cycle 3 executes five batches in this dependency order:
 C3-B1 is an intentionally staged prerequisite. Its authoritative fixture
 candidate receives independent verification and acceptance before any approved
 snapshot executes. Its characterization-only runner is non-installed and is
-not a product host. Raw observations precede the threshold proposal; independent
+not a product host. That same pre-execution gate freezes and proves the exact
+conservative experiment-only deadline, kill-grace, input, output/diagnostic,
+recursion, and memory/address-space caps. A capped failure is not a passing
+baseline, and the caps cannot be weakened; later approved product thresholds
+replace them. Raw observations precede the threshold proposal; independent
 proposal review precedes acceptance; explicit operator approval is last. No
 public host implementation begins until the complete C3-B1 checkpoint exists.
 
@@ -429,7 +474,7 @@ ownership. Later repetition is regression proof, not transferred ownership.
 | R6 | ID/files/imports/environment/data cannot select code | B2 digest/path/symlink/shadowing/inert-data adversarial proof | B5 |
 | R7 | Capture/mapping/samplerate/options validate before launch | B2 exact boundary tests with spawn counter | B5 |
 | R8 | Frozen lifecycle/wait/matched/samplenum/skip/register/put behavior | B2 B1 fixtures against private host | B5 |
-| R9 | Typed values, coordinates, rational time, and emission order are deterministic | B2 shape/order/serialization/repeat tests | B5 |
+| R9 | Version-1 typed declarations/tags/values, rational time, coordinates, and emission order are deterministic | B1 independent object/JSON golden identities; B2 consumes them in shape/order/serialization/repeat tests | B5 |
 | R10 | Framed IPC rejects malformed/oversized/partial/extra/unknown data | B2 independent hostile-frame matrix | B5 |
 | R11 | Approved deadline/cancel/memory/recursion/output/retention limits are parent-enforced | B2 boundary/overrun proof and independent counters | B5 |
 | R12 | Failures cleanly kill/close/reap and subsequent decode succeeds | B2 process/descriptor and post-failure matrix | B5 |
@@ -437,11 +482,11 @@ ownership. Later repetition is regression proof, not transferred ownership.
 | R14 | SPI conforms through approved word size for all output kinds | B3 authoritative SPI comparisons | B5 |
 | R15 | I2C conforms for all applicable output kinds | B3 authoritative I2C comparisons | B5 |
 | R16 | In-memory, replay schema 1/2, and explicit CSV inputs agree | B3 independently materialized cross-source comparison | B5 |
-| R17 | Typed library delegates to one isolated host and cannot weaken limits | B4 installed black-box/type and delegation audit | B5 |
-| R18 | Installed CLI grammar, JSON, stderr, and exits are exact | B4 installed golden/negative suite | B5 |
+| R17 | Typed library implements the version-1 immutable models, delegates to one isolated host, and cannot weaken limits | B4 installed black-box/type tests against B1 object vectors and delegation audit | B5 |
+| R18 | Installed CLI grammar, explicit CSV metadata, version-1 JSON/failures, stderr, and exits are exact | B4 installed golden/negative suite against B1 literal bytes | B5 |
 | R19 | Core/library/CLI remain web-independent and never open serial | B4 import/open spies, extras audit, unchanged web regression | B5 |
 | R20 | Clean locked Python 3.12, static/test gates, and macOS CI pass | B4 fresh bootstrap and exact-candidate CI | B5 |
-| R21 | Prohibited runtimes/dependencies are absent from all production and non-production paths | B1 audit, enforced continuously from first execution | B5 |
+| R21 | Prohibited runtimes/dependencies have no use in any scoped active Cycle 3 path; preserved C# metadata remains inert | B1 scoped audit, enforced continuously from first execution | B5 |
 | R22 | Approved resource/performance ceilings enforce without rebasing | B2 boundary enforcement; B1 owns values | B5 |
 | R23 | Cycle 1/2 behavior, manifests, rollback, and macOS claim remain | B1 inherited baseline, rerun each batch | B5 |
 | R24 | Candidate/role/finding/manifest/checkpoint/correction order is auditable | B1 first complete governed sequence | B5 |
@@ -509,7 +554,7 @@ path, record the scope violation, and continue only safe independent work.
 
 ## Roles, candidate sequence, and correction rules
 
-Every batch uses four separate roles:
+Every batch uses five separate roles:
 
 - an **implementation identity** for the bounded owning surface and focused
   implementation checks;
@@ -518,7 +563,11 @@ Every batch uses four separate roles:
   `pass` or `changes_required`;
 - a third **acceptance identity** that audits the exact candidate, findings,
   accumulated results, scope, provenance, and evidence ordering and reports
-  exactly `pass` or `changes_required`; and
+  exactly `pass` or `changes_required`;
+- a post-acceptance **manifest-verifier identity**, distinct from the
+  orchestrator/evidence assembler, that independently recomputes all artifact
+  digests, validates the manifest schema, and creates an immutable record
+  naming candidate, manifest digest, commands, results, and verdict; and
 - the **primary orchestrator**, which integrates, creates the immutable
   candidate, runs the complete accumulated gate, assembles post-acceptance
   evidence, appends checkpoints, and owns final completion.
@@ -537,9 +586,19 @@ Every batch follows this exact order:
 4. independent verification of that exact candidate records a verdict;
 5. orchestrator runs the complete accumulated gate on the same candidate;
 6. independent acceptance audits that candidate and all accumulated evidence;
-7. only after both verdicts are `pass`, atomically create and independently
-   digest/schema-validate that batch's manifest and commit it; and
+7. only after both verdicts are `pass`, atomically create the batch manifest;
+   have its manifest verifier recompute digests/schema and create the required
+   immutable record, then commit the manifest and verification record; and
 8. append and commit the checkpoint, then select the next batch.
+
+For B5, step 6 is expressly pre-manifest acceptance: it audits B1-B4 committed
+manifests/checkpoints plus the exact final candidate and proposed B5 manifest
+inputs/readiness, never a future B5 manifest or checkpoint. After step 8, a
+separate completion-closure auditor verifies the committed B5 manifest and its
+manifest-verification record, checkpoint, and completion proof against the
+same final candidate. It records a final immutable `pass` or
+`changes_required` and does not assemble or repair those artifacts. A failed
+closure audit reopens the earliest owning correction and all invalidated gates.
 
 Any product, fixture, method, dependency, workflow, limit, or test correction
 after candidate creation makes a new candidate and invalidates all earlier
@@ -578,7 +637,13 @@ the recorded identity. Focused tests never replace accumulated validation.
 Expected values come from accepted fixtures and independent calculation, not
 from production or prohibited reference output.
 
-C3-B1 measures and freezes the environment, fixture digests, warm-up/repetition
+C3-B1's accepted fixture gate first freezes exact experiment-only caps for wall
+deadline, termination/force-kill grace, input samples/request bytes, output
+records and encoded/decoded bytes, stdout/stderr/diagnostic bytes, nesting,
+recursion, and worker memory/address space. Independent verification proves
+enforcement before decoder execution. Limit termination is data, not a passing
+baseline, and no experiment cap may be weakened. C3-B1 then measures and
+freezes the environment, fixture digests, warm-up/repetition
 rules, raw observations, and deterministic counts for request size, spawn/
 import/decode time, cancellation/kill/reap latency, worker and retained memory,
 recursion, every output/count/byte/depth/item/diagnostic/retention category, and
@@ -600,7 +665,10 @@ C3-B1 creates, before accepting implementation evidence:
 It must not pre-create C3-B2 through C3-B5 manifests. After C3-B1 evidence,
 verification, accumulated validation, and acceptance exist, the orchestrator
 atomically creates only `Software/LogicAnalyzerPy/testdata/evidence/c3-b1.json`,
-validates it, commits it, and then appends the checkpoint. Each later batch
+then the distinct manifest verifier recomputes all digests, validates the
+schema, and records its immutable verdict. The orchestrator commits the
+manifest plus verification record and only then appends the checkpoint. Each
+later batch
 does the same only for its own `c3-bN.json`. A filename, placeholder, example,
 empty object, or template is never evidence.
 
@@ -616,8 +684,9 @@ applicable:
 - normalized command, status, stable verifier identity, and hosted-CI run/job
   identity bound to the exact candidate;
 - evidence source/provenance, path, digest, and deterministic counts;
-- mutually distinct implementation, verification, and acceptance identities,
-  verdicts, numbered findings/dispositions, decisions, limitations, deferrals;
+- mutually distinct implementation, verification, acceptance, and manifest-
+  verifier identities, verdicts, numbered findings/dispositions, decisions,
+  limitations, deferrals;
 - every applicable R1-R26 identifier and stopping-condition identifier with
   evidence references and digests;
 - prohibited-runtime/dependency/process and excluded-scope audit results; and
@@ -644,8 +713,9 @@ Cycle 3 is complete only when one exact C3-B5 candidate satisfies every item:
 1. Exact UART, SPI, I2C, shim, and helper files, digests, provenance, notices,
    closed imports, package placement, and license metadata match B1.
 2. Independent byte-reproducible fixtures cover all three decoders, output
-   kinds, mappings/options, malformed/incomplete traffic, boundaries,
-   simultaneous waits, ordering, and five frozen API-v3 edge semantics.
+   kinds, every option-matrix row, exact optional-pin sentinel combinations,
+   malformed/incomplete traffic, boundaries, simultaneous waits, ordering,
+   version-1 object/JSON goldens, and five frozen API-v3 edge semantics.
 3. Method, environment identity, raw B1 observations, numeric ceilings,
    maximum SPI word size, independent reviews, and operator decision are
    immutable and mutually consistent.
@@ -662,37 +732,39 @@ Cycle 3 is complete only when one exact C3-B5 candidate satisfies every item:
 8. Approved deadline, cancellation, memory, recursion, output, nesting,
    diagnostic, retention, and performance ceilings are enforced; every failure
    closes/reaps the worker and a subsequent valid decode succeeds.
-9. Authoritative UART, SPI, and I2C suites pass for defaults, material options,
+9. Authoritative UART, SPI, and I2C suites pass every accepted option-matrix row,
    required/optional and reordered mappings, boundary traffic, and every
    applicable annotation/Python/binary/meta output.
 10. Equivalent in-memory, replay schema 1/2, and explicit-metadata CSV inputs
     produce byte-identical canonical results without physical I/O.
 11. The installed typed library and `pico-la decode` command satisfy exact
-    success, canonical JSON, stderr, exit, non-weakenable-limit, and
+    version-1 object/JSON/failure, explicit-CSV-metadata, stderr, exit,
+    non-weakenable-limit, and
     no-live-capture contracts outside the source tree.
 12. Fresh Python 3.12 hash-locked install, `pip check`, Ruff, strict mypy, all
     non-hardware tests, installed CLI help, and exact-candidate hosted macOS CI
     pass with no required skip.
-13. Dependency, process, import, lock, and evidence audits prove no production,
-    development, test, fixture, verification, performance, CI, or acceptance
-    use of C#/.NET, pythonnet, libsigrokdecode, `sigrok-cli`, or an
-    external/reference decoder runtime.
+13. Dependency, process, import, lock, command, and evidence audits prove no
+    prohibited use in any active Cycle 3 path under the exact scoped-audit rule;
+    preserved inert C# historical metadata is never built/restored/installed/
+    imported/executed or relied on as evidence.
 14. Accepted Cycle 1/2 tests, manifests, replay/CSV/CLI behavior, optional-web
     separation, rollback paths, and macOS-only claim remain intact.
 15. Independent final measurements on the characterized macOS class meet every
     unchanged approved resource/performance threshold and enforce the approved
     SPI maximum.
 16. Five ordered checkpoints contain distinct implementation, verification,
-    and acceptance identities; exact candidate/tree proof; immutable findings;
-    schema-valid post-acceptance manifests; and correction history, with no
-    future manifest or transferred pass.
+    acceptance, and manifest-verifier identities; exact candidate/tree proof;
+    immutable findings; schema-valid post-acceptance manifests; and correction
+    history, with no future manifest or transferred pass.
 17. Final scope audit finds no browser/API/frontend decoder work, hardware,
     firmware, serial/live capture, dynamic discovery, stacking, `.lac`,
     packaging/publication, unsupported platform claim, or other excluded work.
-18. The B5 packet maps R1-R26 and items 1-17 to committed evidence and
-    independently verified digests, records a clean or qualified repository,
-    and has final verification and acceptance verdicts exactly `pass` before
-    its manifest and checkpoint are created.
+18. The B5 packet maps R1-R26 and items 1-17 to committed evidence and records
+    a clean or qualified repository; verification and pre-manifest acceptance
+    pass before manifest creation, the distinct manifest-verification pass
+    precedes checkpointing, and the separate completion-closure audit passes
+    over the committed manifest/checkpoint/completion proof.
 
 A fake substitute, prohibited reference execution, skipped required gate,
 unapproved numeric value, stale candidate pass, or command-only claim cannot
@@ -733,7 +805,8 @@ At completion create
 - B1 edge-semantic fixture identities, raw characterization, project/legal
   disposition, threshold reviews, and explicit operator decision;
 - all five checkpoint, implementation, verification, acceptance, correction,
-  manifest, and independent digest-verification records;
+  manifest, distinct manifest-verification records, and the B5 completion-
+  closure record;
 - the exact macOS-only support and bounded-process-containment claims;
 - known limitations and deferred work;
 - rollback to the accepted pre-Cycle-3 Python candidate and preservation of the
@@ -745,6 +818,7 @@ At completion create
 
 Rollback never authorizes editing or deleting the C# application or firmware.
 Stop successfully only when every condition is linked to objective evidence,
-the final verification and acceptance verdicts are `pass`, the B5 manifest and
+the final verification, pre-manifest acceptance, manifest-verification, and
+post-checkpoint completion-closure verdicts are `pass`, the B5 manifest and
 checkpoint are committed in the required order, and no implementation or
 evidence correction follows the accepted candidate. Do not begin Cycle 4.

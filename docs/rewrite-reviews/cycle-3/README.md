@@ -154,6 +154,25 @@ for expected decoder outputs. The prohibition on .NET, pythonnet, and
 libsigrokdecode applies to production, development, test, fixture-generation,
 verification, performance, acceptance, and review dependencies and execution.
 
+For this audit, “absence” means absence from every active Cycle 3 Python
+product, development, test, fixture, characterization, verification,
+performance, acceptance, CI, bootstrap, lock, distribution, import,
+active-process, command, and evidence path. Preserved C# project/source
+metadata is inert historical rollback/inspection material and may name a
+historical dependency; it must never be restored, built, installed, imported,
+loaded, executed, or used as evidence. Ambient installed availability alone is
+not use; invocation, import, linkage, dependency resolution, active process,
+command reference, or evidence reliance by an in-scope path is prohibited.
+
+A contract reviewer records `changes_required` if the documents omit or
+contradict any of these cross-domain freeze points: exact pre-characterization
+experiment caps and their review gate; integer `0xFF` optional-pin semantics
+and named mapping fixtures; a closed option-coverage matrix; explicit CSV
+capture metadata distinct from decoder mappings; the version-1 result/error
+schema and preimplementation object/byte goldens; pre-manifest B5 acceptance
+separate from post-checkpoint completion closure; the scoped prohibited-use
+rule above; or a manifest verifier independent of the orchestrator/assembler.
+
 Creating this framework or any review directory grants no implementation,
 dependency, decoder-execution, hardware, firmware, serial, browser, publication,
 or `/goal` authority.

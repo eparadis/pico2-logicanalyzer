@@ -65,7 +65,7 @@ checkpoints and not permission to reorder the five batches.
 
 ## Required identities and separation
 
-Each batch uses three distinct stable identities:
+Each batch uses four distinct stable evidence identities:
 
 - **Implementation agent:** owns only the bounded implementation surface and
   its focused implementation checks.
@@ -76,12 +76,17 @@ Each batch uses three distinct stable identities:
   dispositions, complete accumulated results, scope, authority, provenance,
   evidence ordering, and checkpoint gate and reports exactly `pass` or
   `changes_required`.
+- **Manifest verifier:** after acceptance, independently recomputes every
+  artifact digest, validates the atomic manifest against the accepted schema,
+  and records candidate, manifest digest, commands, results, and verdict before
+  manifest commit/checkpoint. This identity is not the orchestrator or manifest
+  assembler.
 
-The primary orchestrator is a fourth role. It owns preflight, assignments,
+The primary orchestrator is a separate role. It owns preflight, assignments,
 integration, immutable candidate creation, complete accumulated validation,
-approval routing, evidence assembly, manifest digest/schema checks, checkpoint
-records, and final completion. Those duties do not make it one of the three
-independent identities.
+approval routing, evidence and manifest assembly, checkpoint
+records, and final completion. Those duties do not make it one of the four
+independent evidence identities.
 
 The following separation rules are mandatory:
 
@@ -115,6 +120,7 @@ frozen by C3-B1. Its active entry has this form:
 - Implementation agent: <stable identity>
 - Verification agent: <different stable identity>
 - Acceptance agent: <third stable identity>
+- Manifest verifier: <fourth stable identity>
 - In scope: <specific behaviors and artifacts>
 - Out of scope: <nearby tempting or prohibited work>
 - Owned paths: <non-overlapping path ownership by identity>
@@ -162,7 +168,10 @@ Before every implementation or validation phase:
   or publication action is reachable from the assignment.
 
 No decoder executes before the approved goal is invoked. C3-B1 additionally
-requires acceptance of the exact semantic-fixture candidate before its
+requires acceptance of the exact semantic-fixture candidate, including the
+closed option matrix, version-1 object/JSON goldens, sentinel cases, and exact
+conservative experiment-only deadline, kill-grace, input, output/diagnostic,
+recursion, and memory/address-space caps, before its
 characterization runner or any decoder snapshot executes. If a prerequisite is
 absent, keep the batch pending or record the exact blocker. Never simulate
 operator approval, hosted CI, process/resource evidence, project/legal review,
@@ -294,13 +303,21 @@ skipped, missing, wrong-candidate, wrong-environment, unapproved, or simulated
 gate. A correction after acceptance creates a new candidate and invalidates the
 candidate's verification, accumulated, and acceptance passes.
 
+For B5 this is explicitly pre-manifest acceptance. It audits the completed
+B1-B4 manifests/checkpoints and the exact B5 candidate plus proposed-manifest
+inputs/readiness, not a future B5 manifest or checkpoint.
+
 ### 9. Create the manifest atomically, then checkpoint
 
 Only after implementation evidence, independent verification `pass`, complete
 accumulated validation, and independent acceptance `pass` all exist does the
 orchestrator assemble that batch's machine-readable manifest in one atomic
-write. It then independently recomputes every digest, validates the manifest
-against the accepted Cycle 3 schema, commits the manifest, and appends the
+write. The assigned manifest verifier then independently recomputes every
+digest, validates the manifest against the accepted Cycle 3 schema, and creates
+an immutable record naming its identity, candidate commit/tree, manifest path
+and SHA-256, exact commands/results, UTC timestamp, findings/dispositions, and
+verdict exactly `pass` or `changes_required`. Only a pass permits the
+orchestrator to commit the manifest and verification record and append the
 checkpoint in a later commit.
 
 The manifest is an evidence descendant and names the tested candidate's full
@@ -317,9 +334,12 @@ validator, and an explicitly non-evidence documented format example; only
 after B1 acceptance may it create the actual B1 manifest. B2-B5 each create
 only their own manifest at the equivalent point.
 
-A batch becomes `Complete` only after its schema-valid manifest commit and
-checkpoint commit exist. The next batch consumes the checkpoint, not an
-uncommitted manifest or conversational pass.
+A batch becomes `Complete` only after its schema-valid, independently verified
+manifest commit and checkpoint commit exist. The next batch consumes the
+checkpoint, not an uncommitted manifest or conversational pass. After the B5
+checkpoint, a separate completion-closure auditor checks the committed B5
+manifest and manifest-verification record, checkpoint, and completion proof,
+records a final immutable verdict, and repairs none of them.
 
 ### 10. Decide the next action
 
@@ -447,18 +467,32 @@ or distributable artifact is authorized.
    exact skip advancement; simultaneous conjunction/alternative priority;
    interval endpoint and boundary coordinates; and end-of-input treatment of
    partial units and already-emitted records.
-3. Commit one immutable **semantic-fixture candidate** binding every source,
-   generator, timeline, expected record, decision, and digest.
+   It also freezes integer `0xFF` absent-pin behavior with UART RX-only/TX-only
+   and SPI MISO-only/MOSI-only/no-CS cases; a closed matrix classifying every
+   option default, enumeration, numeric boundary, and sentinel as a named
+   direct fixture, justified static equivalent, or unsupported pre-launch
+   rejection; and independently authored version-1 typed-object vectors plus
+   literal canonical CLI golden bytes for every result/value tag.
+3. Freeze exact conservative experiment-only caps for wall deadline,
+   terminate-to-force-kill grace, input samples/request bytes, output records
+   and encoded/decoded bytes, stdout/stderr/diagnostic bytes, nested depth/items,
+   recursion, and worker memory/address space. Commit one immutable
+   **semantic-fixture candidate** binding every source, generator, timeline,
+   expected record, option/sentinel/schema artifact, safety cap, decision, and
+   digest.
 4. A verifier independently reviews that exact fixture candidate and records
    `pass` or `changes_required`.
 5. The orchestrator runs the complete fixture accumulated gate against that
    exact candidate, including byte rebuild, schema/generator tests, literal
-   review coverage, provenance/import/license audit, and inherited regressions.
+   review coverage, independent cap-enforcement tests, provenance/import/license
+   audit, and inherited regressions.
 6. The acceptance identity audits that same fixture candidate, verifier record,
    and accumulated result and records `pass` or `changes_required`.
 7. Only after all three gates pass may the implementation identity add the non-installed
    characterization runner and measurement method and execute the approved
-   checked-in snapshots.
+   checked-in snapshots under those exact caps. A cap termination is an
+   observation, never a passing baseline, and no cap may be weakened to obtain
+   data. Later operator-approved product limits replace these experiment caps.
 8. Commit an immutable raw-baseline candidate containing the runner, method,
    and observations with machine/OS/Python, warm-up, repetition,
    deterministic input/output counts, fixture/method/runner digests, and the
@@ -501,7 +535,9 @@ has no public API.
 
 Verification independently reviews every literal timeline and expected record,
 proves the generator consumes no decoder/host output, inspects closed imports
-and hashes, reproduces characterization, exercises representative, boundary,
+and hashes, audits every option-matrix row and sentinel fixture, independently
+proves all pre-execution caps are enforced, reproduces characterization,
+exercises representative, boundary,
 dense-output, malformed, cancellation/reap, and hostile-worker cases, and
 issues a distinct threshold-proposal verdict.
 
@@ -510,8 +546,10 @@ provenance/notices/project-license disposition, method, raw data, reproduction,
 proposal reasoning, verifier findings, exclusions, and candidate ordering.
 Only the operator approves exact numeric values.
 
-Focused evidence includes byte-stable fixture rebuild, literal defaults/options/
-mappings/all-output/order/edge-case review, file/import/license audit,
+Focused evidence includes byte-stable fixture rebuild, closed option-matrix and
+integer-sentinel mapping audit, version-1 object/JSON golden-byte rebuild,
+all-output/order/edge-case review, pre-execution cap enforcement,
+file/import/license audit,
 reproducible raw characterization, proposal review, acceptance verdict, and
 operator decision. Accumulated evidence includes accepted Cycle 1/2 non-hardware
 and manifest validation, a fresh locked environment, and dependency/import/
@@ -549,7 +587,9 @@ models; digest/import-root enforcement; exact pre-spawn capture, samplerate,
 mapping, and option validation; the frozen API-v3 primitives; one single-use
 worker; versioned streaming length-framed IPC; output normalization and every
 approved counter; parent-owned deadline/cancellation; typed failure conversion;
-and deterministic kill/close/reap cleanup. It may not add a public surface,
+and deterministic kill/close/reap cleanup. Results/failures conform exactly to
+the B1-golden-bound `decode-result/v1` and `decode-error/v1` schemas. It may not
+add a public surface,
 in-process mode, dynamic decoder path, or prohibited dependency.
 
 Verification independently mutates IDs, hashes, paths, symlinks, environment/
@@ -577,7 +617,8 @@ fixture rebuild, approved limits, B2 proof, and inherited regressions/evidence.
 
 Prove that the private host produces every settled annotation, Python, binary,
 and metadata output applicable to the exact UART, SPI, and I2C snapshots across
-defaults, material options, mappings, boundaries, malformed/incomplete traffic,
+every row of the accepted closed option-coverage matrix, mappings, boundaries,
+malformed/incomplete traffic,
 simultaneous waits, and equivalent inert capture sources.
 
 C3-B2 must be complete. Decoder identities, source hashes, fixture semantics,
@@ -592,8 +633,10 @@ or hard-code fixture outputs.
 
 Verification independently materializes equivalent `CaptureResult`, replay
 schema 1/2, and explicit-metadata CSV inputs from reviewed timelines. It compares
-complete typed records and canonical bytes for every default/material option,
-required/optional channel combination, noncontiguous/reordered physical mapping,
+complete typed records and canonical bytes for every accepted matrix row and
+required/optional channel combination, including UART RX-only/TX-only and SPI
+MISO-only/MOSI-only/no-CS integer-`0xFF` behavior, noncontiguous/reordered
+physical mapping,
 start/end and simultaneous events, malformed/incomplete traffic, and repeat
 runs. Static source inspection is the sole allowed use of C# or upstream
 material; its runtime output is never generated or used.
@@ -622,14 +665,20 @@ browser/API behavior. C3-B3 must be complete for all three decoders.
 Implementation owns R17-R20: immutable public types and stable exports under
 `pico_logic_analyzer.decode`; `decode_capture(...)` delegation to the B2 host;
 non-weakenable limits; exact `pico-la decode` replay/CSV grammar; typed option/
-mapping parsing; canonical compact sorted-key JSON plus LF; stderr-only
+mapping parsing; the separate CSV `--channels`, optional legacy-only
+`--sample-rate`, required `--trigger-channel`, and required `--edge` metadata
+contract and replay exclusion; exact version-1 immutable models and canonical
+compact sorted-key JSON plus LF; stderr-only
 diagnostics; existing exits plus decoder failure exit 7; documentation;
 package-resource placement allowed by B1; and hash-locked metadata with no
 prohibited production or development/test dependency.
 
 Verification runs editable-installed library and CLI black-box tests from
 outside the source directory: success bytes; stderr/exits; duplicate, unknown,
-and invalid inputs; replay/CSV equivalence; no caller limit weakening; import/
+and invalid inputs; CSV metadata presence, precedence, legacy inference, label/
+identity validation, and separation from decoder mappings; replay/CSV
+equivalence; B1 expected object vectors and literal golden-byte identity; no
+caller limit weakening; import/
 open spies proving no web or serial side effect; clean install and lock/process
 audit; and exact-candidate hosted macOS CI.
 
@@ -668,11 +717,17 @@ and exact-candidate resource/performance suites. It verifies every artifact
 digest, excluded-action absence, repository state, and unchanged approved
 fixture/method/environment/limit identities.
 
-Acceptance audits the exact final candidate/tree, all five ordered role
-sequences and manifests, every finding/disposition, local and hosted-CI results,
-limit enforcement, source/license/support/rollback statements, clean or fully
-qualified repository, R1-R26 mapping, and conditions 1-18. It records final
-`pass` or `changes_required` before the B5 manifest and checkpoint exist.
+Acceptance audits the exact final candidate/tree, completed B1-B4 ordered role
+sequences/manifests/checkpoints, the proposed B5 manifest inputs/readiness,
+every finding/disposition, local and hosted-CI results, limit enforcement,
+source/license/support/rollback statements, clean or fully qualified
+repository, R1-R26 mapping, and conditions 1-18. It records pre-manifest `pass`
+or `changes_required` without requiring a nonexistent B5 manifest/checkpoint.
+After a pass, the distinct B5 manifest verifier performs the standard digest/
+schema audit and records its immutable pass before manifest commit/checkpoint.
+A separate completion-closure auditor then verifies the committed B5 manifest,
+manifest-verification record, checkpoint, and completion proof and records a
+final immutable verdict without assembling or repairing them.
 
 The B5 focused gate checks final packet completeness, schema/digest audit,
 repository/prohibited-action audit, role/evidence ordering, and stopping-
@@ -687,7 +742,8 @@ verification.
 
 The Cycle 3 goal remains active until the B5 manifest and checkpoint are
 committed, the completion record identifies the exact accepted candidate/tree,
-and every stopping condition is durably mapped to evidence.
+every stopping condition is durably mapped to evidence, and the separate
+completion-closure verdict is `pass`.
 
 ## Correction, reopening, and rollback
 
@@ -759,6 +815,16 @@ Encountering a prohibited runtime or action is a scope violation to remove or
 report, never a reason to request authority for it. C# and already available
 upstream/reference source may be read only as inert explanatory material.
 
+The prohibited-use audit covers every active Cycle 3 Python product,
+development, test, fixture, characterization, verification, performance,
+acceptance, CI, bootstrap, lock, distribution, import, active-process, command,
+and evidence path. Preserved C# project/source metadata is inert historical
+rollback material and may name a historical dependency, but is never restored,
+built, installed, imported, loaded, executed, or evidence-producing. Ambient
+installed availability alone is not in-scope use; invocation, import, linkage,
+dependency resolution, active process, command reference, or evidence reliance
+by any in-scope path is prohibited.
+
 ## Checkpoint record template
 
 Append one record after each accepted batch:
@@ -776,6 +842,8 @@ Append one record after each accepted batch:
 - Verification agent and verdict: <different identity; pass>
 - Accumulated-validation owner/result: <orchestrator; exact result>
 - Acceptance agent and verdict: <third identity; pass>
+- Manifest verifier and verdict: <fourth identity; record path/digest; pass>
+- B5 completion-closure auditor/verdict: <distinct identity; pass, or not applicable>
 - Governing contract/goal identities: <full commits/trees>
 - Prior checkpoint/manifest identity: <path, commit, SHA-256>
 - Environment: <OS/arch/Python and characterized class>
@@ -824,9 +892,9 @@ Verification must be structurally independent of production output:
   optional-web and serial imports/opens.
 - Reproduce B1 characterization and B5 final measurement methods on the
   approved macOS environment class without changing fixtures or thresholds.
-- Audit locks, installed distributions, imports, process tables, CI steps, and
-  evidence to prove prohibited runtimes are absent from all non-production as
-  well as production paths.
+- Audit locks, installed distributions, imports, process tables, commands, CI
+  steps, and evidence under the exact active-path scope above; preserved inert
+  C# metadata is not falsely reported as an active dependency.
 
 Ambiguous evidence is reported before changing expected behavior. A finding
 that changes objective, scope, trust, authority, batch ownership, evidence

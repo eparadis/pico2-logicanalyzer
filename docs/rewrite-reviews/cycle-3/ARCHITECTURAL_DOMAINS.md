@@ -70,6 +70,11 @@ public CLI workflow.
   semantics are explicit, internally consistent, and objectively testable.
 - Decoder-specific mappings, option defaults/domains, declarations, and all
   annotation, Python, binary, and metadata output shapes are complete.
+- The absent optional pin is exact integer `0xFF`; tuple and `has_channel()`
+  semantics plus UART RX-only/TX-only and SPI MISO-only/MOSI-only/no-CS
+  fixtures are explicit. A closed matrix classifies every option default,
+  enumeration, numeric boundary, and sentinel as direct fixture, justified
+  static equivalent, or unsupported pre-launch rejection.
 - Expected results are independently calculated from declarative sample
   timelines and checked-in source semantics. Fixtures remain independent of
   implementation and runtime output and are byte-reproducible.
@@ -117,9 +122,16 @@ and the absence of an unapproved API/browser decoder surface.
 - Replay schema 1/2, explicit-metadata CSV, and in-memory captures converge on
   one semantic path and yield byte-identical canonical results for equivalent
   data.
+- The CLI carries ordered CSV physical channel IDs, samplerate/legacy-inference
+  rule, trigger channel, and edge explicitly and separately from decoder
+  channel mappings, with exact presence, exclusion, precedence, and validation.
 - The typed result preserves declarations, complete output kinds, immutable
   values, integer sample coordinates, rational time, and request-wide emission
   order. Presentation views cannot rewrite the authoritative record order.
+- The separately versioned result/error schemas freeze every field, type, tag,
+  ordering rule, rational-time representation, base64 representation, and
+  failure class; independently authored expected typed objects and literal CLI
+  bytes exist before product result/CLI implementation.
 - Python-output normalization is closed, bounded, tagged, deterministic, and
   rejects unknown, cyclic, or non-finite values instead of stringifying them.
 - The public library delegates to exactly one isolated host path and cannot
@@ -180,10 +192,21 @@ plan-to-proof seam.
   review and acceptance precede explicit operator approval; enforcement and
   final unchanged-threshold measurement occur only in their owning later
   batches. No implementor invents or rebases a ceiling.
+- Before the first characterization or snapshot execution, exact conservative
+  experiment-only wall, kill-grace, input, output/diagnostic, recursion, and
+  memory/address-space caps have independent verification and acceptance. A
+  capped run is not a passing baseline and caps are never weakened for data.
 - C#, .NET, pythonnet, libsigrokdecode, `sigrok-cli`, and external/reference
   runtimes are absent from production and every non-production dependency and
   execution path, including development, tests, fixtures, verification,
   performance, acceptance, review, locks, bootstrap, CI, and evidence.
+- That audit covers every active Cycle 3 Python product/development/test/
+  fixture/characterization/verification/performance/acceptance/CI/bootstrap/
+  lock/distribution/import/process/command/evidence path. Preserved C# metadata
+  is inert history that may name dependencies but is never restored, built,
+  installed, imported, loaded, executed, or evidence-producing; ambient
+  availability alone is not use, while invocation/import/linkage/resolution/
+  active process/command/evidence reliance is prohibited.
 - Decoder license/attribution identity and a recorded project/legal packaging
   disposition precede source exposure through editable installation; process
   isolation is not presented as resolving licensing, and publication remains
@@ -195,6 +218,11 @@ plan-to-proof seam.
   candidate and invalidates prior passes; accumulated validation precedes
   acceptance; manifests are created only after acceptance and independently
   checked before checkpointing.
+- A manifest-verifier identity distinct from the orchestrator/assembler records
+  recomputed digests and schema results before manifest commit/checkpoint. B5
+  acceptance audits only B1-B4 committed manifests and B5 readiness; a
+  separate post-checkpoint completion-closure auditor checks the committed B5
+  manifest, verification record, checkpoint, and completion proof.
 - Evidence binds full candidate commit/tree, commands, environment, artifact
   digests, findings/dispositions, role identities, and real results. No future
   manifest, placeholder, transferred pass, or command exit alone substitutes

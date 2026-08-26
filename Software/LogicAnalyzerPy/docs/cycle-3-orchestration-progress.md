@@ -278,3 +278,29 @@ unchanged.
   fixture identity. It must remove semantic duplicates, assert ID and semantic-
   row uniqueness, regenerate, and rerun the full focused gate. No immutable
   candidate exists until this correction passes root integration.
+
+### Immutable semantic-fixture candidate and verification assignment
+
+- Candidate commit: `95ce93d8e1f504c6476cd8ab09ba35fe26082add`.
+- Candidate tree: `7815d9a70a44dbef8042a921ccc10cfd9aebaa67`.
+- Candidate worktree: clean; no unrelated change.
+- Candidate authorship: original fixture implementor
+  `c3-b1-semantic-fixture-implementor-1` and completing replacement
+  `c3-b1-semantic-fixture-implementor-replacement-1`; both remain fixture-only
+  identities and are barred from runner/method/probe and B2-B4 product work.
+- Root focused integration: deterministic generator `--check`, 6 focused
+  fixture tests, normal Ruff on owned Python, unique option IDs/semantic
+  rejection rows, direct/equivalence closure, static prohibited-oracle search,
+  artifact digest recomputation, and `git diff --check` passed. No decoder ran.
+- Verification identity: `c3-b1-semantic-fixture-verifier-1`
+  (`/root/c3_b1_fixture_verify`), verifier lane, `gpt-5.6-sol`, low; distinct
+  from both implementors and every planned runner identity.
+- Verification ownership: inspect only the exact candidate; independently
+  derive expectations from governing contracts and inert source; add only
+  `tests/verification/test_c3_b1_semantic_fixture_candidate.py` and immutable
+  `docs/reviews/c3-b1-semantic-fixture-verification-round-1.md` in a descendant
+  evidence commit. It may not repair fixtures, generator, docs, product, or
+  governance.
+- Required verdict: exactly `pass` or `changes_required`; all findings and
+  dispositions remain immutable and candidate-specific. A correction creates
+  a new fixture candidate and receives fresh verification.

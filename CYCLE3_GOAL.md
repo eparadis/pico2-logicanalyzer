@@ -7,14 +7,14 @@ goal, authorize implementation, execute a decoder, or permit a dependency or
 environment change. Do not modify it during goal execution.
 
 The exact governing contract is commit
-`59390b75a406eebd6660d52381c68325ebd5fbdc`, tree
-`cabb1fc44372be99f504384ff08985e169e07109`. Its three
-`contract-final-round-4` passes are committed in
-`68e57d6af6b881218c70c17602232545636b9237` at:
+`ea83a403bb6f644d33069d3bebd41d5f1e0a60c0`, tree
+`d9fb09345ab85580cd8c877745262d1b481e366f`. Its three
+`contract-final-round-5` passes are committed in
+`0d3755a2798cdfafd2a89ebaedcac40acc8c356a` at:
 
-- `docs/rewrite-reviews/cycle-3/contract-final-round-4/reviewer-1-decoder-api-runtime-fixtures.md`;
-- `docs/rewrite-reviews/cycle-3/contract-final-round-4/reviewer-2-capture-annotation-cli-workflows.md`; and
-- `docs/rewrite-reviews/cycle-3/contract-final-round-4/reviewer-3-security-delivery-orchestration.md`.
+- `docs/rewrite-reviews/cycle-3/contract-final-round-5/reviewer-1-decoder-api-runtime-fixtures.md`;
+- `docs/rewrite-reviews/cycle-3/contract-final-round-5/reviewer-2-capture-annotation-cli-workflows.md`; and
+- `docs/rewrite-reviews/cycle-3/contract-final-round-5/reviewer-3-security-delivery-orchestration.md`.
 
 This goal must itself receive the separate three-reviewer common-commit
 approval required by Step 9 of `CYCLE3_PREPARATION.md` before the `/goal`
@@ -43,7 +43,7 @@ Read these sources in order before implementation:
    contracts, and tests as regression baselines.
 8. `docs/rewrite-reviews/cycle-3/README.md`,
    `docs/rewrite-reviews/cycle-3/ARCHITECTURAL_DOMAINS.md`, and the three
-   `contract-final-round-4` records named above.
+   `contract-final-round-5` records named above.
 
 `CYCLE3_ORCHESTRATION.md` and `CYCLE3_BATCH_EXECUTION.md` at the approved
 contract commit remain authoritative for objective, scope, product contracts,
@@ -251,5 +251,5 @@ unrelated user changes, and proof that no prohibited action occurred.
 ## Launch command
 
 ```text
-/goal Execute and verify Cycle 3 of the Python logic-analyzer rewrite by following CYCLE3_GOAL.md exactly and the approved contract commit 59390b75a406eebd6660d52381c68325ebd5fbdc / tree cabb1fc44372be99f504384ff08985e169e07109. Continue until all eighteen stopping conditions in CYCLE3_ORCHESTRATION.md have immutable proof and the directed terminal completion seal is committed, or the documented blocked condition is genuinely reached. Do not modify CYCLE3_GOAL.md or the approved governing contracts. Do not begin Cycle 4.
+/goal Execute and verify Cycle 3 of the Python logic-analyzer rewrite by following CYCLE3_GOAL.md exactly and the approved contract commit ea83a403bb6f644d33069d3bebd41d5f1e0a60c0 / tree d9fb09345ab85580cd8c877745262d1b481e366f. Continue until all eighteen stopping conditions in CYCLE3_ORCHESTRATION.md have immutable proof and the directed terminal completion seal is committed, or the documented blocked condition is genuinely reached. Do not modify CYCLE3_GOAL.md or the approved governing contracts. Do not begin Cycle 4.
 ```

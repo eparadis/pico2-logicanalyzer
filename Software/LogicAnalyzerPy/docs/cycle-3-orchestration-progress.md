@@ -304,3 +304,30 @@ unchanged.
 - Required verdict: exactly `pass` or `changes_required`; all findings and
   dispositions remain immutable and candidate-specific. A correction creates
   a new fixture candidate and receives fresh verification.
+
+### Semantic-fixture verification round 1
+
+- Tested candidate/tree: `95ce93d8e1f504c6476cd8ab09ba35fe26082add` /
+  `7815d9a70a44dbef8042a921ccc10cfd9aebaa67`.
+- Verifier: `c3-b1-semantic-fixture-verifier-1`; verdict
+  `changes_required`, committed immutably in `165917e` at
+  `docs/reviews/c3-b1-semantic-fixture-verification-round-1.md` with its
+  independent test `tests/verification/test_c3_b1_semantic_fixture_candidate.py`.
+- Independent result: 6 failed, 1 passed; implementation-focused tests did not
+  substitute for verification. No decoder ran.
+- Findings: every timeline lacked `sample_count`; 56 wait pin values
+  contradicted declared transitions; SPI output omitted/reordered source-
+  required binary/BITS/DATA/bit annotations; named UART PACKET and I2C repeated-
+  START outputs were absent; 40 static equivalences used generic frequently
+  false arguments; all 17 cap rationales were tautological rather than value-
+  derived; and relative `.pd` initializer imports were absent from the claimed
+  closed import inventory.
+- Passing facts retained only as diagnosis, not as a transferred pass: exact
+  file/artifact digests, notice observations, static deterministic generator,
+  v1 shape/tag/canonical bytes, finite cap categories/boundaries/no-enforcement
+  claim, and unique direct-row materialization.
+- Correction owner: `c3-b1-semantic-fixture-implementor-replacement-1` in its
+  original fixture-only role. It may change only the previously assigned ten
+  candidate paths, may consume but not edit the immutable verification test or
+  record, and must create a new candidate. All round-1 verification is invalid
+  for that corrected identity and fresh verification is required.

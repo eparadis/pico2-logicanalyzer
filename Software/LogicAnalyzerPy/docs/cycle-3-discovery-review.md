@@ -108,14 +108,32 @@ inspect serial devices, and start a server. Those effects were deliberately not
 invoked during preparation. Existing local dependencies were used only for
 non-hardware regression tests.
 
-The following safe checks were run against inspection HEAD `c163a83`:
+The original safe checks were recorded against inspection HEAD `c163a83`.
+The validator rows also preserve the Step 10 correction and its later
+inspection identity explicitly:
 
 | Command | Result |
 | --- | --- |
 | `git diff --check f558b58..5b409a6` | Exit 0; no whitespace errors in the post-completion launcher delta. |
 | `bash -n Software/LogicAnalyzerPy/start_web.sh` | Exit 0; launcher shell syntax is valid. |
 | `.venv/bin/python -m pytest -q tests/unit/test_cli.py tests/implementation/test_web_boundary.py tests/implementation/test_web_api.py` | Exit 0; 21 passed, 1 restricted-sandbox loopback test skipped, 14 existing `aiohttp` `NotAppKeyWarning` warnings. The skip is not presented as new live-loopback proof. |
-| `.venv/bin/python scripts/validate_cycle2_evidence.py docs/evidence-manifest/cycle2-schema.json testdata/evidence/c2-b1.json testdata/evidence/c2-b2.json testdata/evidence/c2-b3.json testdata/evidence/c2-b4.json testdata/evidence/c2-b5.json testdata/evidence/c2-b6.json` | Exit 0; all six accepted Cycle 2 manifests validate. |
+| `.venv/bin/python scripts/validate_cycle2_evidence.py docs/evidence-manifest/cycle2-schema.json testdata/evidence/c2-b1.json testdata/evidence/c2-b2.json testdata/evidence/c2-b3.json testdata/evidence/c2-b4.json testdata/evidence/c2-b5.json testdata/evidence/c2-b6.json` | Exit 2. The original Step 1 record erroneously claimed Exit 0 for this aggregate invocation. The validator requires a schema plus exactly one manifest, so this command cannot validate all six manifests in one process. Step 10 preflight discovered the error; this record does not retroactively claim that the invalid aggregate command passed. |
+| `.venv/bin/python scripts/validate_cycle2_evidence.py docs/evidence-manifest/cycle2-schema.json testdata/evidence/c2-b1.json` | Exit 0 during Step 10 preflight; the accepted C2-B1 manifest validates. |
+| `.venv/bin/python scripts/validate_cycle2_evidence.py docs/evidence-manifest/cycle2-schema.json testdata/evidence/c2-b2.json` | Exit 0 during Step 10 preflight; the accepted C2-B2 manifest validates. |
+| `.venv/bin/python scripts/validate_cycle2_evidence.py docs/evidence-manifest/cycle2-schema.json testdata/evidence/c2-b3.json` | Exit 0 during Step 10 preflight; the accepted C2-B3 manifest validates. |
+| `.venv/bin/python scripts/validate_cycle2_evidence.py docs/evidence-manifest/cycle2-schema.json testdata/evidence/c2-b4.json` | Exit 0 during Step 10 preflight; the accepted C2-B4 manifest validates. |
+| `.venv/bin/python scripts/validate_cycle2_evidence.py docs/evidence-manifest/cycle2-schema.json testdata/evidence/c2-b5.json` | Exit 0 during Step 10 preflight; the accepted C2-B5 manifest validates. |
+| `.venv/bin/python scripts/validate_cycle2_evidence.py docs/evidence-manifest/cycle2-schema.json testdata/evidence/c2-b6.json` | Exit 0 during Step 10 preflight; the accepted C2-B6 manifest validates. |
+
+The validator, Cycle 2 schema, and all six accepted manifests are byte-identical
+between the original inspection commit
+`c163a8353550e0b80dd7f001b21147659ad307ff` and the Step 10 inspection HEAD
+`64af244bf95572b147246a412c33fed13ed34afd`, tree
+`1bb01eefaf5c94c932ecaf434917cf19033e1ddf`. The six successful per-manifest
+preflight invocations therefore correct the command record while preserving
+the remaining Step 1 baseline claims. Because this is a factual correction to
+an approved governing document, it requires fresh contract and goal reviews on
+their respective exact common commits before Cycle 3 may launch.
 
 No dependency was installed or updated; no decoder code, hardware, firmware,
 serial operation, browser, server, network, or SSH command was executed. These

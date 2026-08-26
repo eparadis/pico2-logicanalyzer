@@ -395,7 +395,9 @@ semantics.
 - [x] Step 6 — five batches, 26 requirement-to-proof mappings, and 18 stopping
       conditions settled in `faf81a3`, with fixture and threshold approval
       preceding public-host implementation
-- [ ] Step 7 — governing contracts and review framework drafted
+- [x] Step 7 — governing contracts and three-domain review framework drafted
+      in proposed contract commit `8bd6ba0`; cross-document consistency audit
+      passed after making review sets and repository instructions durable
 - [ ] Step 8 — governing contracts have three common-commit passes
 - [ ] Step 9 — durable goal has three common-commit passes
 - [ ] Step 10 — final launch preflight complete

@@ -49,6 +49,9 @@ def test_provenance_is_closed_and_matches_checked_in_static_sources() -> None:
     assert provenance["import_commit"] == "407b5ef039aa0474c400c0721749baa126e53270"
     assert provenance["prior_gitlink"] == "0235970293590f673a253950e6c61017cefa97df"
     assert provenance["permitted_imports"] == [
+        "i2c.pd (relative package import .pd)",
+        "spi.pd (relative package import .pd)",
+        "uart.pd (relative package import .pd)",
         "common.srdhelper",
         "collections.namedtuple",
         "enum.Enum",

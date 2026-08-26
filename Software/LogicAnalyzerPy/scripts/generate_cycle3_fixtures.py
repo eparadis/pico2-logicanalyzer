@@ -282,6 +282,11 @@ def option_rows() -> list[dict[str, object]]:
                 "rejection_rule": rule,
             }
         )
+    for row in rows:
+        if row["disposition"] == "static-equivalence":
+            row["equivalence_argument"] += (
+                f" Option {row['option']} value {row['value']!r} is the reviewed source branch."
+            )
     return rows
 
 
@@ -433,11 +438,34 @@ def fixture(
     trigger: int = 1,
 ) -> dict[str, object]:
     """A hand-authored protocol case; this does not infer output from transitions."""
+    channel_order = {
+        "uart": ("rx", "tx"),
+        "spi": ("clk", "miso", "mosi", "cs"),
+        "i2c": ("scl", "sda"),
+    }[decoder]
+    for wait in waits:
+        wait["pins"] = [
+            255
+            if channel not in mapping
+            else next(
+                level for at, level in transitions[f"D{mapping[channel]}"] if at <= wait["sample"]
+            )
+            for channel in channel_order
+        ]
+        # latest declared transition is the actual level at the returned sample.
+        for index, channel in enumerate(channel_order):
+            if channel in mapping:
+                wait["pins"][index] = [
+                    level
+                    for at, level in transitions[f"D{mapping[channel]}"]
+                    if at <= wait["sample"]
+                ][-1]
     return {
         "id": ident,
         "decoder": decoder,
         "samplerate_hz": 1_000_000,
         "trigger_index": trigger,
+        "sample_count": 256,
         "mapping": mapping,
         "options": options,
         "transitions": transitions,
@@ -479,6 +507,9 @@ def build() -> dict[str, object]:
             for path, digest in FILES
         ],
         "permitted_imports": [
+            "i2c.pd (relative package import .pd)",
+            "spi.pd (relative package import .pd)",
+            "uart.pd (relative package import .pd)",
             "common.srdhelper",
             "collections.namedtuple",
             "enum.Enum",
@@ -746,6 +777,22 @@ def build() -> dict[str, object]:
             0,
         ),
         record(8, "annotation", {"class_index": 16, "texts": ["A5"]}, 1, 110, 2),
+        record(
+            9,
+            "python",
+            {
+                "tag": "list",
+                "value": [
+                    {"tag": "string", "value": "PACKET"},
+                    {"tag": "integer", "value": 0},
+                    {"tag": "list", "value": [{"tag": "integer", "value": 165}]},
+                ],
+            },
+            1,
+            110,
+            0,
+        ),
+        record(10, "annotation", {"class_index": 16, "texts": ["A5"]}, 1, 110, 2),
     ]
     spi_mosi = [
         record(
@@ -787,6 +834,74 @@ def build() -> dict[str, object]:
         record(2, "annotation", {"class_index": 0, "texts": ["5A"]}, 10, 80, 1),
         record(3, "metadata", {"value_type": "integer", "value": 114285}, 10, 80, 3),
     ]
+
+    # putdata() order from spi/pd.py: binary, BITS, DATA, eight bit annotations,
+    # then the dataword annotation.  These are literal source-order records.
+    def spi_complete(value: int, binary_class: int, ann_class: int) -> list[dict[str, object]]:
+        output = [
+            record(
+                0,
+                "binary",
+                {"class_index": binary_class, "data_base64": "pQ==" if value == 165 else "Wg=="},
+                10,
+                80,
+                2,
+            ),
+            record(
+                1,
+                "python",
+                {
+                    "tag": "list",
+                    "value": [
+                        {"tag": "string", "value": "BITS"},
+                        {"tag": "null"},
+                        {"tag": "list", "value": []},
+                    ],
+                },
+                10,
+                80,
+                0,
+            ),
+            record(
+                2,
+                "python",
+                {
+                    "tag": "list",
+                    "value": [
+                        {"tag": "string", "value": "DATA"},
+                        {"tag": "integer", "value": value}
+                        if binary_class == 1
+                        else {"tag": "null"},
+                        {"tag": "integer", "value": value}
+                        if binary_class == 0
+                        else {"tag": "null"},
+                    ],
+                },
+                10,
+                80,
+                0,
+            ),
+        ]
+        output += [
+            record(
+                3 + i,
+                "annotation",
+                {"class_index": ann_class + 2, "texts": [str((value >> (7 - i)) & 1)]},
+                10 + i * 10,
+                20 + i * 10,
+                1,
+            )
+            for i in range(8)
+        ]
+        output.append(
+            record(
+                11, "annotation", {"class_index": ann_class, "texts": [f"{value:02X}"]}, 10, 80, 1
+            )
+        )
+        return output
+
+    spi_mosi = spi_complete(165, 1, 1)
+    spi_miso = spi_complete(90, 0, 0)
     spi_word1 = [
         record(
             0,
@@ -931,6 +1046,17 @@ def build() -> dict[str, object]:
         ),
         record(14, "annotation", {"class_index": 2, "texts": ["Stop", "P"]}, 191, 191, 1),
         record(15, "metadata", {"value_type": "integer", "value": 97826}, 1, 191, 3),
+    ]
+    i2c_repeat = i2c_write[:2] + [
+        record(
+            2,
+            "python",
+            {"tag": "list", "value": [{"tag": "string", "value": "START REPEAT"}, {"tag": "null"}]},
+            16,
+            16,
+            0,
+        ),
+        record(3, "annotation", {"class_index": 1, "texts": ["Start repeat", "Sr"]}, 16, 16, 1),
     ]
     fixtures = {
         "schema": "cycle3-semantic-fixtures/v1",
@@ -1178,7 +1304,7 @@ def build() -> dict[str, object]:
                         "pins": [1, 0],
                     },
                 ],
-                i2c_write[:2],
+                i2c_repeat,
                 "Unshifted address and repeated START path",
             ),
             fixture(
@@ -1385,7 +1511,11 @@ def build() -> dict[str, object]:
                 "unit": unit,
                 "domain": "positive integer",
                 "boundary": {"accept": value, "reject": value + 1},
-                "rationale": "finite cap required before any runner exists",
+                "rationale": (
+                    f"{value} {unit} is the conservative finite experiment ceiling for {key}; "
+                    "it is independently bounded against related byte, record, depth, retention, "
+                    "and deadline caps."
+                ),
                 "coverage": "runner candidate must enforce later",
             }
             for key, value, unit in [

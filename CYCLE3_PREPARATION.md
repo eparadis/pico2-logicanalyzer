@@ -398,7 +398,9 @@ semantics.
 - [x] Step 7 — governing contracts and three-domain review framework drafted
       in proposed contract commit `8bd6ba0`; cross-document consistency audit
       passed after making review sets and repository instructions durable
-- [ ] Step 8 — governing contracts have three common-commit passes
+- [x] Step 8 — governing contracts have three common-commit passes in
+      `contract-final-round-4`, approving contract commit `59390b7` / tree
+      `cabb1fc`; immutable approval records committed in `68e57d6`
 - [ ] Step 9 — durable goal has three common-commit passes
 - [ ] Step 10 — final launch preflight complete
 

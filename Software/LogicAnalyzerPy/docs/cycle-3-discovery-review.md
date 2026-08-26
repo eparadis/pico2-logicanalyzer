@@ -2,9 +2,9 @@
 
 ## Status, purpose, and authority boundary
 
-- Status: Steps 1 and 2 are committed, Step 3 bounded technical discovery is
-  committed, and the operator has resolved all ten Step 4 decisions in this
-  revision. Step 4's exit gate is met, subject to committing this record.
+- Status: Steps 1 through 4 are committed. This revision freezes the Step 5
+  narrow contract surface and meets its content exit gate, subject to committing
+  this record.
 - Inspection date: 2026-08-25 (America/Los_Angeles).
 - Authority: `CYCLE3_PREPARATION.md`, committed at
   `c163a8353550e0b80dd7f001b21147659ad307ff`.
@@ -746,3 +746,372 @@ Step 4's content exit gate is met in this revision; committing this revision
 will satisfy its required durable-output gate. Numeric thresholds deliberately
 remain subject to the approved baseline-then-approval procedure and do not
 reopen the Cycle 3 scope or trust decisions.
+
+## Step 5: frozen narrow Cycle 3 contract surface
+
+This section is normative input to the later Cycle 3 governing contracts. It
+settles the product and trust decisions that implementation, verification, and
+acceptance agents must not reinterpret. Where static inspection cannot prove an
+API-v3 edge semantic or justify a numeric ceiling, the section names a closed
+decision gate and its earliest owner instead of allowing an implementor to pick
+an answer. Step 6 may rename or split the proposed batches, but it must preserve
+their dependency order and the named gate before dependent implementation.
+
+### Executable identity, provenance, license, and imports
+
+The executable decoder allowlist is closed to these checked-in files at the
+digests recorded in Step 3:
+
+- `Software/decoders/sigrokdecode.py`;
+- `Software/decoders/uart/{__init__.py,pd.py}`;
+- `Software/decoders/spi/{__init__.py,pd.py}`;
+- `Software/decoders/i2c/{__init__.py,pd.py}`; and
+- `Software/decoders/common/srdhelper/{__init__.py,mod.py}`.
+
+The public decoder IDs are exactly `uart`, `spi`, and `i2c`; an ID is resolved
+through a host-owned constant table, never as an import name or path supplied by
+a caller. Before every worker launch, the parent must verify every file required
+by that decoder against the frozen digest table and fail closed before executing
+anything on a missing, extra, replaced, unreadable, or mismatched file. Symlink,
+path traversal, alternate package root, namespace-package merging, bytecode-only
+substitution, environment `PYTHONPATH`, user-site, and current-directory module
+shadowing are not valid resolution mechanisms.
+
+The permitted import graph is also closed. Decoder code may import only the
+frozen local `sigrokdecode` compatibility module, the frozen local
+`common.srdhelper` package, and these Python-standard-library names statically
+required by the frozen files: `math.floor`, `math.ceil`,
+`collections.namedtuple`, `enum.Enum`, `enum.IntEnum`, `enum.unique`,
+`itertools.chain`, and `re`. The worker must use an import root constructed by
+the host and reject any other decoder-originated import. This is an allowlist
+for the three trusted snapshots, not a general Python sandbox or a claim that a
+subprocess makes arbitrary Python safe.
+
+The provenance record must retain import commit `407b5ef`, prior gitlink
+`0235970`, all file hashes, copyright attributions, and GPLv2-or-later notices.
+An inert byte comparison with an approved source copy may establish the exact
+upstream delta; neither that comparison nor an unavailable upstream object may
+delay freezing the checked-in hashes as Cycle 3 identity. Before the decoder
+files enter a distributable Python artifact, a recorded project/legal review
+must reconcile their GPLv2+ terms and notices with the package's current MIT
+metadata and state the package placement and resulting metadata. No governing
+contract may claim that process isolation resolves licensing.
+
+### Required API-v3 compatibility host
+
+The native compatibility host implements only the following closed surface:
+
+- constants `SRD_CONF_SAMPLERATE = 0`, `OUTPUT_ANN = 0`,
+  `OUTPUT_PYTHON = 1`, `OUTPUT_BINARY = 2`, and `OUTPUT_META = 4`;
+  `OUTPUT_LOGIC` is not supported;
+- the focused decoder class metadata enumerated in Step 3, host-populated
+  `options`, `samplenum`, and `matched`, plus `has_channel()`, `wait()`,
+  `register()`, and `put()`; no other libsigrokdecode API is promised;
+- one fresh decoder instance and fresh interpreter process per request, with
+  constructor/reset initialization, host option injection, `start()`, exactly
+  one samplerate `metadata(SRD_CONF_SAMPLERATE, positive_integer_hz)` call, and
+  zero-argument `decode()` in that order; normal end of capture is a host-owned
+  non-catchable termination path rather than a decoder-visible generic
+  `Exception`, and all other decoder exceptions are failures;
+- `has_channel(index)` returns a real `bool` and is true exactly for a decoder
+  channel present in the validated mapping;
+- `register(output_type, proto_id=None, meta=None)` accepts only the four
+  supported output constants, assigns monotonically increasing request-local
+  integer output IDs in call order beginning at zero, preserves the supplied
+  `meta` declaration, and otherwise ignores `proto_id` because stacking is
+  excluded;
+- `put(ss, es, output_id, value)` accepts only a registered request-local
+  output ID and integer sample coordinates, validates the output-specific value
+  shape, and appends one immutable record with a monotonically increasing
+  request-wide emission index. It never sorts, merges, clips, repairs, or drops
+  an accepted record; and
+- `samplenum` is the zero-based index of the sample returned by the most recent
+  `wait()`. The pin tuple always follows the decoder's declared required-then-
+  optional channel order. An unmapped optional channel is represented only to
+  the decoder compatibility layer by the frozen absent-channel sentinel needed
+  by these snapshots and is never confused with a captured logic level.
+
+`wait()` is limited to `wait({})`, one condition dictionary, or a non-empty
+list of condition dictionaries. A dictionary is conjunction; the list is
+alternatives. Supported channel predicates are `r`, `f`, `e`, and `h`, and the
+only non-channel predicate is `{'skip': N}` for a non-negative integer `N`.
+Predicates `l` and `s`, `None`, unknown keys/codes, mixed skip-and-channel
+conditions, empty alternative lists, duplicate/invalid channel indexes, and
+non-integer or negative skips are outside the focused API and fail validation.
+For an alternative list, `matched` is a same-length tuple of real booleans;
+every condition true at the returned sample is marked true, even when multiple
+alternatives match simultaneously. For a single dictionary or `wait({})`,
+`matched` is a one-element tuple.
+
+The following API-v3 edge details cannot be established authoritatively by
+static inspection alone and must be frozen by reviewed, independently derived
+black-box fixtures in the earliest proposed provenance/API/fixture batch
+(`C3-B1` unless Step 6 renames it), before any general host implementation:
+
+1. whether the first `wait({})` returns sample 0 without advancement and the
+   exact behavior of any later `wait({})` call;
+2. whether condition searches begin at the current sample or the next sample,
+   the previous-sample definition at index 0, and exact `skip: 0` and positive
+   skip advancement;
+3. priority when a level-and-edge conjunction and multiple alternatives become
+   true on the same sample;
+4. whether `put()` end coordinates are closed or half-open for presentation,
+   and the accepted treatment of decoder-calculated coordinates at or beyond
+   the capture boundary; and
+5. whether normal end-of-input may preserve a final partial protocol unit and,
+   if so, which already-emitted records remain visible.
+
+The B1 fixture review must select one answer per item, based on the checked-in
+decoder source, independently specified sample timelines, and API-v3
+compatibility needs. It must record exact expected calls and results and obtain
+independent verification and acceptance before the host batch consumes them.
+No C#, .NET, pythonnet, libsigrokdecode, `sigrok-cli`, upstream decoder runtime,
+or other reference executable may be run to make or corroborate these choices.
+A correction after that gate requires a new reviewed fixture candidate, not an
+implementation-local compatibility exception.
+
+### Inputs, mappings, and options
+
+The library accepts an already validated, non-empty `CaptureResult`, one closed
+decoder ID, a mapping from decoder channel ID to physical channel ID, and an
+option mapping. The samplerate comes only from the capture. Physical IDs are
+resolved through the capture's ordered `channel_ids`; raw packed words are
+never indexed by physical ID. Mapping keys must be known decoder channel IDs,
+values must be distinct physical IDs present in the capture, all required
+channels must be mapped, and no undeclared key is accepted. UART requires at
+least one of `rx`/`tx`; SPI requires `clk` and at least one of `miso`/`mosi`,
+with `cs` optional; I2C requires both `scl` and `sda`.
+
+Options are a closed mapping. Omitted known keys receive the exact checked-in
+defaults; unknown keys, duplicate CLI assignments, booleans presented as
+integers, coercion from strings inside the library, NaN/infinity, and values
+outside the rules below are configuration failures before worker launch:
+
+- UART: `baudrate` is a positive integer; `data_bits` is one of 5, 6, 7, 8,
+  or 9; `parity` is one of `none`, `odd`, `even`, `zero`, `one`, or `ignore`;
+  `stop_bits` is one of 0.0, 0.5, 1.0, 1.5, or 2.0; `bit_order` is
+  `lsb-first` or `msb-first`; `format` is `ascii`, `dec`, `hex`, `oct`, or
+  `bin`; `invert_rx` and `invert_tx` are each `yes` or `no`; `sample_point`
+  is an integer from 1 through 99 rather than relying on the decoder's silent
+  fallback; each packet delimiter is `-1` or an integer representable by the
+  selected data-bit width; and each packet length is `-1` or a positive
+  integer. `-1` alone disables the respective delimiter or length rule.
+- SPI: `cs_polarity` is `active-low` or `active-high`; `cpol` and `cpha` are
+  integer 0 or 1; `bitorder` is `msb-first` or `lsb-first`; and `wordsize` is a
+  positive integer. Its exact maximum is a resource ceiling owned by the B1
+  baseline/threshold proposal and subsequent explicit operator approval; until
+  approved, no SPI word size beyond the checked-in default of 8 is eligible for
+  implementation or acceptance.
+- I2C: `address_format` is exactly `shifted` or `unshifted`.
+
+Input sample count and serialized option/mapping size also require numeric
+ceilings under the threshold procedure below. Until those ceilings are
+approved, B1 fixtures use only their reviewed finite sizes and no public host
+surface may be declared complete.
+
+### Deterministic result, annotation, and time contract
+
+The accepted output contains all four kinds emitted by the focused snapshots:
+annotation, Python, binary, and integer metadata. A typed `DecodeResult` binds
+the decoder ID and frozen file-set identity, integer samplerate, canonical
+channel mapping, fully materialized options, capture sample count and trigger
+index, declared annotation classes/rows and binary/meta declarations, and an
+emission-ordered tuple of output records. Every record carries its emission
+index, registered output ID and kind, start and end sample coordinates, and a
+typed value. Annotation records preserve class index and ordered text
+alternatives. Binary records preserve binary class and bytes. Metadata records
+preserve the registered integer definition and integer value.
+
+Python output is normalized at the worker boundary into a closed tagged value
+tree containing only null, bool, integer, finite float, UTF-8 string, bytes,
+list, tuple, and SPI `Data(ss, es, val)`. Container kind and order are
+preserved; bytes use canonical base64 in JSON; the SPI namedtuple becomes a
+tagged `spi-data` value with integer `ss`, `es`, and `val`. Dictionaries,
+sets, arbitrary objects, non-finite floats, unknown namedtuples, cycles, and
+values beyond approved depth/item/byte limits are protocol failures, not
+stringified output.
+
+Request-wide emission order is authoritative across output kinds and
+registered streams. Per-row presentation may derive a stable view ordered by
+`(start_sample, end_sample, emission_index)` but may not change the underlying
+order. Repeated identical requests against identical capture bytes, mapping,
+options, decoder hashes, and limits must produce byte-identical canonical
+serialization or the same stable typed failure.
+
+Sample coordinates, not floating-point timestamps, are authoritative. Derived
+absolute seconds are `sample / samplerate`; trigger-relative seconds are
+`(sample - trigger_index) / samplerate`. Canonical machine output carries
+integer sample coordinates and rational time components (integer numerator and
+positive integer samplerate denominator); decimal rendering is presentation
+only and must use one frozen formatting rule inherited from the accepted
+capture time contract. The B1 edge-semantic fixture gate above freezes interval
+endpoint interpretation before any annotation presentation is implemented.
+
+### Public library and installed CLI only
+
+The public library surface is a typed module under
+`pico_logic_analyzer.decode` exposing immutable request/result/value models and
+one synchronous `decode_capture(capture, decoder_id, channels, options,
+limits=None) -> DecodeResult` operation. `limits` may only select values no
+weaker than the approved host ceilings; callers cannot disable isolation,
+digest checks, output validation, cancellation/reaping, or the allowlist. The
+governing contracts may refine Python type names for consistency, but may not
+add a dynamic decoder path, an in-process mode, or a second semantic result
+shape.
+
+The installed `pico-la` entry point gains one offline command:
+
+```text
+pico-la decode (--replay PATH | --csv PATH) --decoder {uart,spi,i2c}
+               --channel DECODER_CHANNEL=PHYSICAL_CHANNEL
+               [--channel ...] [--option KEY=VALUE] [--option ...]
+```
+
+It writes exactly one canonical compact, sorted-key JSON result plus LF to
+stdout on success and no machine data to stdout on failure. Replay and explicit-
+metadata CSV are mutually exclusive and use their already accepted inert
+parsers; CLI strings are parsed to the same closed typed option rules before
+calling the library. Duplicate channel/option keys, overwrite/export options,
+stdin code or capture input, decoder paths, plugin directories, and implicit
+live capture are not supported. Existing exit meanings remain unchanged;
+configuration and mapping errors return 2, input replay/CSV validation returns
+5, and a new documented exit 7 covers decoder digest/import/IPC/exception/
+resource/deadline/cancellation failures. Diagnostics go only to stderr.
+
+No browser endpoint, OpenAPI addition, generated web type, frontend renderer,
+web operation, or annotation interaction is part of Cycle 3. The library and
+CLI must not import or require the optional web dependency.
+
+### Worker, IPC, cancellation, and failure isolation
+
+Each decode uses a newly spawned, single-request Python worker launched through
+an installed package-owned entry point, not a shell and not a caller-provided
+command. The parent supplies a deterministic minimal environment and explicit
+closed import root, disables user-site and inherited Python import paths, uses a
+non-user-controlled working directory, and passes only inert validated request
+data. The worker receives one length-framed, versioned request over a dedicated
+pipe and returns length-framed, versioned records over a separate dedicated
+pipe. Protocol stdout is not decoder stdout; incidental stdout and stderr are
+separately captured under small parent-enforced limits and never parsed as IPC.
+The worker accepts exactly one request and exits.
+
+The parent accounts for request bytes, record count, aggregate encoded and
+decoded output bytes, text/bytes length, nested items/depth, and all diagnostic
+bytes while streaming; it must not first allocate an untrusted declared length.
+It rejects wrong protocol versions, unknown fields/tags/output IDs, malformed
+frames, truncated/extra data, invalid coordinates/types, limit overruns, and a
+success result followed by abnormal worker exit. Partial output is never
+returned as success.
+
+Cancellation is parent-owned and race-safe. A cancellation request or deadline
+expiry stops accepting output, terminates the worker, escalates to force-kill
+when the approved grace expires, closes every pipe, reaps the exact child, and
+returns one stable typed failure. Spawn/import failure, decoder exception,
+recursion failure, memory/allocation failure, IPC corruption, signal exit,
+unexpected exit, timeout, cancellation, and output-limit breach are distinct
+typed failure categories but reveal no traceback or local path in canonical
+machine output. After any failure, the parent must have no live worker, open
+worker descriptor, retained partial result, or poisoned global decoder state;
+an immediately subsequent valid request must succeed.
+
+The worker must apply the independently approved address-space/allocation and
+recursion ceilings before importing decoder code. The parent always retains its
+own wall deadline and byte/count limits. The security claim is deliberately
+narrow: this boundary contains ordinary Python exceptions, hangs, recursion,
+bounded output, and worker-process allocation up to the characterized macOS
+controls, and supplies deterministic kill/reap cleanup. It does not claim an OS
+sandbox, privilege separation, protection from arbitrary malicious native code,
+or portability beyond macOS. Decoder snapshots remain trusted, hash-pinned code.
+
+### Inert capture/decoder boundary and fixture authority
+
+Replay, CSV, capture metadata, channel labels, options, IPC values, and decoder
+outputs are data only. None may supply or influence a module/package/path,
+import root, code string, command, environment variable, working directory,
+output file, or dynamic type lookup. Decoder identity is an explicit API/CLI
+enum resolved solely by the parent allowlist. Decoder code has no supported
+filesystem, network, subprocess, dynamic-import, native-extension, environment,
+serial, firmware, or hardware capability. A test that merely stores a decoder-
+like name or path in a capture must prove it remains inert.
+
+Authoritative fixtures begin from a human-reviewable declarative protocol
+timeline: samplerate, finite per-channel logic transitions, physical mapping,
+options, and expected protocol meaning. Capture samples and every expected
+annotation/Python/binary/meta record are derived independently of the host and
+decoder output, checked in with generator/version/digests, and reviewed by a
+verifier who did not implement the host. Expected data must cover each decoder's
+defaults, material options, required/optional mappings, valid and malformed or
+incomplete traffic, simultaneous waits, start/end boundaries, normal
+termination, and exact ordering. Equivalent live-model, replay, and CSV-derived
+captures must produce the same result where those sources represent identical
+samples and metadata.
+
+C# source and upstream source may be inspected as inert explanatory material
+only. C# must never run. .NET, pythonnet, libsigrokdecode, `sigrok-cli`, an
+upstream/reference decoder host, or any other differential runtime must never
+be installed, imported, linked, invoked, or used in production, development,
+fixture generation, tests, verification, performance work, or acceptance.
+Their output cannot corroborate a fixture. Dependency locks, clean-environment
+proof, process inspection, and CI must demonstrate their absence.
+
+### Baseline-first thresholds and intentionally staged gates
+
+No numeric resource or performance ceiling is frozen by this static review.
+The earliest proposed B1 must first commit the reviewed semantic/stress fixture
+set and measurement method, including machine/OS/Python identity, warm-up and
+repetition rules, raw observations, deterministic input/output counts, and the
+macOS mechanisms proposed for process memory, recursion, deadline, and reaping.
+It must measure, without executing any prohibited runtime:
+
+- input samples and request bytes;
+- spawn/import and decode wall time plus cancellation/kill/reap latency;
+- worker peak memory/address space and parent retained memory;
+- recursion behavior;
+- output record, encoded/decoded byte, per-text/per-bytes, nested depth/item,
+  diagnostic, and retained-result counts; and
+- representative UART skip-heavy, SPI edge-heavy/default-word-size, I2C mixed-
+  condition, malformed, dense-output, and hostile-worker cases.
+
+Only after those raw baselines and methods receive independent review may a
+threshold proposal name exact input, timeout, cancellation grace, memory,
+recursion, output, nesting, diagnostic, retention, and performance ceilings,
+including the SPI maximum word size. Exact values require separate explicit
+operator approval and a committed decision record. The later contracts must
+make that approval a blocking prerequisite to the first public host batch and
+must require final enforcement on the exact candidate. A changed fixture,
+method, environment class, worker model, or weakened ceiling invalidates the
+approval and requires a new proposal; an implementation may not silently tune
+a gate to pass.
+
+Thus the intentionally staged decisions are limited to numeric ceilings and the
+five API-v3 fixture semantics listed above. Their choices are owned by reviewed
+B1 artifacts and, for numeric thresholds, the operator; no implementor,
+verifier, or acceptance agent may resolve them informally.
+
+### Explicit exclusions
+
+Cycle 3 excludes decoder stacking or decoder-to-decoder inputs, user/system
+decoder discovery, arbitrary decoder import compatibility, capture/request-
+selected executable code, decoder-selected files, output files or exports,
+`.lac`, browser/API/frontend annotation integration, live physical proof,
+firmware/hardware changes, packaging/publication, Linux or Windows support, and
+all later capture/editing/connectivity/parity work. It also excludes every
+production and non-production dependency on or execution of .NET, C#,
+pythonnet, libsigrokdecode, `sigrok-cli`, and external/reference decoder hosts.
+Static inspection of already available source is the sole permitted use of C#
+or upstream/reference material.
+
+### Step 5 exit-gate assessment
+
+The narrow Cycle 3 surface is frozen: executable identity and imports, license
+gate, API-v3 subset, mappings/options, typed outputs and ordering, sample/time
+authority, library/installed-CLI workflows, single-use worker and IPC behavior,
+cancellation/failure cleanup, inert-data boundary, independent fixture oracle,
+baseline-then-approval procedure, and exclusions are explicit. The only
+unfrozen values are the five statically unprovable API-v3 edge semantics and
+numeric resource/performance ceilings; each has a named reviewed B1 gate, and
+numeric choices additionally require explicit operator approval before public
+host implementation. Independent implementation, verification, and acceptance
+agents therefore have no authority to make a substantive product or trust
+decision. Step 5's content exit gate is met in this revision; committing this
+revision will satisfy its durable-output gate.

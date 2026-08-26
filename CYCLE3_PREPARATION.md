@@ -401,7 +401,9 @@ semantics.
 - [x] Step 8 — governing contracts have three common-commit passes in
       `contract-final-round-4`, approving contract commit `59390b7` / tree
       `cabb1fc`; immutable approval records committed in `68e57d6`
-- [ ] Step 9 — durable goal has three common-commit passes
+- [x] Step 9 — durable goal has three common-commit passes in
+      `goal-final-round-3`, approving goal commit `255262e` / tree `c552947`;
+      immutable approval records committed in `6f949f6`
 - [ ] Step 10 — final launch preflight complete
 
 Preparation status: **not ready to launch Cycle 3**.

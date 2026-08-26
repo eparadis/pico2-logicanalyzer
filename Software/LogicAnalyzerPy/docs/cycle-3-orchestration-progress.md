@@ -374,3 +374,23 @@ unchanged.
   bounds cannot satisfy the gate. The same replacement fixture implementor may
   correct only its original paths and cannot edit immutable verifier artifacts.
   A new candidate and fresh verification are mandatory; no pass transfers.
+
+### Second semantic-fixture implementor replacement
+
+- Prior completing identity:
+  `c3-b1-semantic-fixture-implementor-replacement-1`
+  (`/root/c3_b1_fixture_impl_r1`). After consuming the round-2 immutable
+  findings, it correctly reported that the remaining work required substantive
+  state-machine reconstruction, but returned no correction and declined to
+  continue. Its authored candidate history remains immutable and unaccepted.
+- New identity: `c3-b1-semantic-fixture-implementor-replacement-2`
+  (`/root/c3_b1_fixture_impl_r2`), same implementor lane,
+  `gpt-5.6-terra`, low. No pass or correctness claim transfers.
+- Bounded outcome: replace the failed protocol schedules, waits, expected
+  records, option equivalences, cap derivations, generator, and focused tests
+  within the same fixture-only paths until the immutable round-1 checks and new
+  independent schedule/predicate/source-order checks pass. It may inspect but
+  not edit either immutable verifier record/test.
+- Separation: this and both prior fixture authorship identities remain barred
+  from runner/method/probe and B2-B4 product implementation. Fixture verifier,
+  fixture acceptance, and all runner identities remain distinct.

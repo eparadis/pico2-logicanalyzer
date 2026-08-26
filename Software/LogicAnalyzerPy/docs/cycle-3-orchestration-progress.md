@@ -438,3 +438,21 @@ unchanged.
   dispositions, and cap calculations within original ownership, create a new
   candidate, and receive fresh verification. Immutable review history cannot
   be edited and no pass transfers.
+
+### Third semantic-fixture implementor replacement
+
+- Prior identity: `c3-b1-semantic-fixture-implementor-replacement-2`
+  (`/root/c3_b1_fixture_impl_r2`). It corrected v1 samplerate/time invariants,
+  per-case finite bounds, and SPI word-eight source math after round 3, then
+  twice returned without completing UART/I2C, SPI word-one, option disposition,
+  cap arithmetic, or strong-test corrections. It reported no external blocker.
+- Preserved uncommitted fixture-only changes: generator, generated fixture
+  manifest/semantic/v1 vectors, and implementation test. They pass the existing
+  14 tests but are neither a candidate nor accepted evidence.
+- New identity: `c3-b1-semantic-fixture-implementor-replacement-3`
+  (`/root/c3_b1_fixture_impl_r3`), same implementor lane,
+  `gpt-5.6-terra`, low. It must independently inspect and complete or replace
+  the inherited changes; no pass transfers.
+- Ownership/separation remains identical. All four fixture authorship
+  identities remain barred from runner/method/probes and B2-B4 product work;
+  verifier/acceptance/runner identities remain distinct.

@@ -2,9 +2,9 @@
 
 ## Status, purpose, and authority boundary
 
-- Status: Steps 1 and 2 are committed. Step 3 bounded technical discovery is
-  complete in this revision and ready for operator consideration; every Cycle
-  3 product, trust, platform, and proof choice remains unapproved until Step 4.
+- Status: Steps 1 and 2 are committed, Step 3 bounded technical discovery is
+  committed, and the operator has resolved all ten Step 4 decisions in this
+  revision. Step 4's exit gate is met, subject to committing this record.
 - Inspection date: 2026-08-25 (America/Los_Angeles).
 - Authority: `CYCLE3_PREPARATION.md`, committed at
   `c163a8353550e0b80dd7f001b21147659ad307ff`.
@@ -416,8 +416,10 @@ It must not be copied as the Cycle 3 security or correctness contract. It:
 - exposes UI-shaped annotation objects rather than a frozen Python public
   contract.
 
-It is therefore a read-only compatibility oracle candidate only if the operator
-later authorizes a bounded experiment. Cycle 3 does not require .NET or
+It is therefore a static code-inspection reference only. The operator has
+prohibited executing the C# application or bridge for fixture generation,
+differential output, verification, or any other Cycle 3 purpose. No runtime
+result from it may be treated as evidence. Cycle 3 must not depend on .NET or
 pythonnet merely because the reference uses them.
 
 ### Deterministic capture and annotation evidence
@@ -440,9 +442,11 @@ Some existing NPZ patterns could exercise termination and output-volume
 bounds, but using them as protocol truth would invent expectations after seeing
 decoder output. Focused protocol fixtures must instead be generated from an
 independent declarative description or hand-reviewed sample timeline, with
-expected outputs derived independently of the host under test. A reference
-libsigrokdecode or C# run could corroborate those fixtures, but should not be
-the sole oracle unless the operator explicitly chooses that policy.
+expected outputs derived independently of the host under test. Those reviewed
+fixtures are authoritative. C# and upstream sources may inform static code
+inspection, but neither C# nor an external/reference libsigrokdecode runtime may
+be executed to generate, corroborate, differentially compare, verify, or accept
+fixture outputs.
 
 ### Trust, isolation, resource, platform, dependency, and performance implications
 
@@ -477,10 +481,12 @@ The accepted baseline is Python >=3.12 with NumPy, pyserial, optional aiohttp,
 and a macOS-only support claim. The focused decoder imports require no new
 third-party runtime package if a native compatibility host is written. The
 decoder files are outside the Python package today, so packaging their exact
-allowlisted files and helper is an explicit product/license choice. Adding
-pythonnet, libsigrokdecode, sigrok-cli, or .NET as a production dependency is
-not technically required and is not recommended for the narrow host; any of
-them may be considered only as a separately bounded verification oracle.
+allowlisted files and helper is an explicit product/license choice. .NET,
+pythonnet, and libsigrokdecode are prohibited as production, development, test,
+fixture-generation, and verification dependencies or executables. The focused
+native host must add none of them. Static source inspection is allowed;
+`sigrok-cli` is likewise outside the focused host and is not an approved
+reference executable.
 
 The accepted CI has only a macOS support claim. Subprocess semantics, resource
 measurement, and performance are platform-sensitive; historical Linux code or
@@ -532,13 +538,14 @@ Material alternatives are:
   protocol semantics because decoding consumes digital samples; a physical
   live capture/decode demonstration adds integration confidence but also
   hardware authority, wiring, provenance, and repeatability obligations.
-- **Independent fixtures plus reference corroboration (recommended):** avoids a
-  circular oracle. Reference-only expected output is cheaper but risks
-  preserving bridge or upstream quirks without an independently stated product
-  contract.
+- **Independently reviewed fixtures (recommended):** avoids a circular oracle
+  and supplies the sole authoritative expected output. Static C# or upstream
+  source inspection may inform review, but runtime reference corroboration and
+  differential execution are prohibited.
 
-All recommendations in this section are proposals only. Step 4 may approve,
-reject, replace, or defer each one.
+At Step 3 completion, all alternatives in this section were proposals only.
+The Step 4 record below now approves, replaces, or defers the applicable
+choices and governs any conflicting alternative.
 
 ### Uncertainty classification
 
@@ -547,18 +554,18 @@ reject, replace, or defer each one.
 | Proposed starting baseline and accepted regression surfaces | Locally resolved | Step 1 exact identities and Cycle 1/2 completion evidence govern. |
 | Focused file identities, imports, metadata, hashes, and API calls | Locally resolved | Static inventory above is exact for the checked-in baseline. |
 | Whether any focused file changed after repository import | Locally resolved | No later path commit exists after `407b5ef`. |
-| Whether flattened files exactly equal upstream gitlink `0235970` and what import-time patches exist | Bounded experiment needed | Obtain that exact upstream object from an approved source and compare bytes; do not execute it. |
-| Runtime conformance of wait/matched/skip/lifecycle/output ordering | Bounded experiment needed | Freeze contract fixtures, then run the future host and an approved reference where useful. |
-| Authoritative expected-annotation source and role of reference output | Operator decision needed | Choose independent fixtures, reference authority, or the recommended combined policy. |
-| Decoder scope and exact executable allowlist | Operator decision needed | Choose UART/SPI/I2C-only versus a different explicit scope. |
-| Library/CLI/browser accepted surfaces and approved output classes | Operator decision needed | Each materially changes contract and proof ownership. |
-| In-process versus subprocess execution and security claim | Operator decision needed | Static evidence supports the tradeoff but cannot authorize it. |
-| Numeric timeout, cancellation, memory, recursion, output, and retention ceilings | Bounded experiment then operator decision needed | Measure frozen stress fixtures first; approve ceilings separately. |
+| Whether flattened files exactly equal upstream gitlink `0235970` and what import-time patches exist | Bounded static comparison needed | If available without adding a prohibited dependency or executable, obtain that exact upstream source object from an approved source and compare inert bytes; never execute it. |
+| Runtime conformance of wait/matched/skip/lifecycle/output ordering | Bounded experiment needed | Freeze independently derived, reviewed contract fixtures, then run only the future native host against them. |
+| Authoritative expected-annotation source and role of reference output | Resolved by operator | Independently derived, reviewed fixtures are authoritative; no C# or external/reference libsigrokdecode runtime output is permitted. |
+| Decoder scope and exact executable allowlist | Resolved by operator | Exact checked-in UART, SPI, and I2C decoders and their required helper only, pinned by hash. |
+| Library/CLI/browser accepted surfaces and approved output classes | Resolved by operator | Typed headless library plus installed CLI; browser annotation display and interaction are deferred. |
+| In-process versus subprocess execution and security claim | Resolved by operator | Use a single-use isolated subprocess with parent-enforced deadline, output bounds, cancellation, and kill/reap. |
+| Numeric timeout, cancellation, memory, recursion, output, and retention ceilings | Approved procedure; bounded experiment then threshold approval needed | Measure frozen stress fixtures first and separately approve exact ceilings before enforcement. |
 | macOS subprocess/resource-limit behavior and cancellation latency | Bounded experiment needed | Exercise only after the isolation choice is approved. |
-| License/attribution/package metadata for GPLv2+ decoders in the currently MIT-labelled Python project | Operator decision needed | Obtain appropriate legal/project-owner review before packaging or distribution. |
-| Production need for pythonnet, .NET, libsigrokdecode, or sigrok-cli | Locally resolved for the proposed native host | None is required by the three decoder imports; reference use remains optional and bounded. |
-| Platform and CI support beyond macOS | Operator decision needed | Recommend retaining the accepted macOS-only claim. |
-| Replay/synthetic-only versus live physical decode acceptance | Operator decision needed | Digital deterministic fixtures are technically sufficient; physical proof is optional scope. |
+| License/attribution/package metadata for GPLv2+ decoders in the currently MIT-labelled Python project | Resolved policy with required review | Retain notices and reconcile decoder packaging with the Python package's MIT metadata before distribution. |
+| Production or non-production need for pythonnet, .NET, or libsigrokdecode | Resolved by operator | They are prohibited as dependencies and executables in production, development, testing, fixture generation, and verification; static source inspection alone is allowed. |
+| Platform and CI support beyond macOS | Resolved by operator | Retain the accepted macOS-only support claim. |
+| Replay/synthetic-only versus live physical decode acceptance | Resolved by operator | Deterministic offline fixtures suffice; no live physical capture/decode gate is required. |
 | Decoder stacking, user discovery, all-decoder compatibility, `.lac`, decoder-selected files, and capture-selected code | Deferred outside focused Cycle 3 | Retain roadmap exclusions unless the operator expressly changes scope. |
 | Packaging, release publication, additional OS support, advanced capture/editing/connectivity, and later parity | Deferred outside Cycle 3 | No discovery evidence requires pulling these into the decoder cycle. |
 
@@ -574,8 +581,8 @@ reject, replace, or defer each one.
    simultaneous matches, output ordering, annotations, defaults, validation,
    and canonical serialization against independent fixtures.
 4. **Circular evidence:** derive expected protocol events from reviewed sample
-   timelines, not by copying the implementation's output; use reference output
-   only under the chosen oracle policy.
+   timelines, not by copying implementation or reference runtime output; C# and
+   upstream sources are static-inspection evidence only.
 5. **License/provenance ambiguity:** retain notices and exact hashes, recover
    and compare the pinned upstream commit, document local deltas, and reconcile
    Python package metadata before distribution.
@@ -623,14 +630,18 @@ proof set should contain:
   security, performance, acceptance, manifest, checkpoint, and completion
   records in the ordering later frozen by the governing contracts.
 
-If live physical proof is approved, it should add an operator-confirmed safe
-wiring/protocol source, sanitized capture/decode evidence, replay of the exact
-captured bytes through the same host, and no persistent device change. It is
-not assumed by this discovery.
+Live physical proof is not part of the approved Cycle 3 acceptance boundary.
+Any later proposal to add it would require new operator authority and an
+operator-confirmed safe wiring/protocol source, sanitized capture/decode
+evidence, replay of the exact captured bytes through the same host, and no
+persistent device change.
 
 ### Recommendations presented for Step 4
 
-The discovery recommendations, none yet approved, are:
+At Step 3 completion these were proposals only. They are separated here into
+the ten operator-decision topics required by `CYCLE3_PREPARATION.md`; the Step 4
+record below is authoritative where it approves, replaces, or strengthens a
+proposal.
 
 1. limit Cycle 3 execution to the exact checked-in UART, SPI, and I2C files and
    their required helper, pinned by hash;
@@ -640,18 +651,18 @@ The discovery recommendations, none yet approved, are:
 3. execute only the host allowlist; prohibit user, capture, replay, CSV, or
    request-selected paths/modules and defer stacking/all-decoder discovery;
 4. use a single-use isolated subprocess with parent-enforced deadline, output
-   bounds, cancellation, kill/reap, and structured failure, retaining macOS-only
-   support;
+   bounds, cancellation, kill/reap, and structured failure;
 5. use independently reviewed synthetic/replay protocol timelines as the
-   authoritative oracle and an approved upstream/C# differential run only as
-   corroboration;
+   authoritative oracle; Step 3 also identified reference-runtime
+   corroboration as an alternative for operator consideration;
 6. freeze exact numeric resource and performance thresholds only after bounded
    baseline experiments, then obtain explicit threshold approval;
-7. add no production .NET/pythonnet/libsigrokdecode dependency; reconcile the
-   GPLv2+ decoder notices/provenance and Python package license metadata before
-   packaging them; and
-8. accept deterministic offline proof without mandatory hardware, unless the
-   operator explicitly selects a final live capture/decode workflow.
+7. add no production .NET, pythonnet, or libsigrokdecode dependency;
+8. retain GPLv2+ notices and reconcile decoder provenance, packaging, and the
+   Python package's MIT license metadata before distribution;
+9. retain the accepted macOS-only platform and CI support claim; and
+10. accept deterministic offline proof without a mandatory live physical
+    capture/decode workflow.
 
 ### Step 3 exit-gate assessment
 
@@ -663,5 +674,75 @@ proposed completion evidence are explicit. The operator can decide the Cycle 3
 product, trust, platform, and proof boundaries without an implementor inventing
 them.
 
-This assessment does not complete Step 4, approve any recommendation, settle
-the final contract surface, authorize a bounded experiment, or start Cycle 3.
+This Step 3 assessment did not itself complete Step 4, approve any
+recommendation, settle the final contract surface, authorize a bounded
+experiment, or start Cycle 3. The following operator record now completes the
+Step 4 decision gate without starting implementation.
+
+## Step 4: operator decisions
+
+On 2026-08-25, the operator resolved all ten presented decision topics as
+follows:
+
+1. **Focused decoder scope — approved as proposed.** Cycle 3 is limited to the
+   exact checked-in UART, SPI, and I2C decoder versions and their required
+   checked-in helper, all pinned by hash.
+2. **Accepted product surface — approved as proposed.** The accepted surface is
+   a typed headless Python library plus an installed CLI. Browser annotation
+   display and interaction are deferred outside Cycle 3.
+3. **Executable trust boundary — approved as proposed.** Only the host-owned,
+   hash-pinned checked-in allowlist may execute. User-, capture-, replay-, CSV-,
+   request-, or path-selected modules, stacking, and broad decoder discovery
+   are prohibited or deferred.
+4. **Execution isolation — approved as proposed.** Decoder execution must use a
+   single-use isolated subprocess with parent-enforced deadline, bounded
+   output, cancellation, structured failure, and kill/reap behavior. The later
+   contract must state the precise bounded-process security claim and must not
+   imply protection beyond that boundary.
+5. **Expected-output authority — proposal replaced.** Independently derived,
+   reviewed fixtures are the sole authoritative source for expected
+   annotations and other outputs. C# is static code-inspection evidence only
+   and must never be executed for Cycle 3; C# differential runtime output is
+   prohibited. External/reference libsigrokdecode runtime output is likewise
+   prohibited. Static upstream byte comparison may be considered for
+   provenance only when it adds no prohibited executable or dependency, and it
+   cannot replace the authoritative reviewed fixtures.
+6. **Resource and performance thresholds — approved as proposed.** Freeze the
+   fixture set, method, environment identity, raw baseline, and deterministic
+   resource counts first; then obtain separate explicit operator approval for
+   exact timeout, cancellation, memory, recursion, output, retention, and
+   performance ceilings before enforcing them.
+7. **Dependency boundary — proposal strengthened.** .NET, pythonnet, and
+   libsigrokdecode are prohibited as production, development, test,
+   fixture-generation, and verification dependencies or executables. Static
+   source/code inspection is allowed. The focused native host must add none of
+   them. This prohibition does not exclude the future native host from
+   executing the three approved checked-in decoder snapshots; it excludes
+   installing or invoking a libsigrokdecode host/runtime, library, CLI, package,
+   or other external reference implementation.
+8. **Provenance and licensing — approved as proposed.** Preserve the exact
+   decoder/helper identities, hashes, attribution, and GPLv2+ notices, and
+   reconcile decoder packaging with the Python package's MIT metadata before
+   distribution. This is a required project/legal review gate, not a legal
+   conclusion in this document.
+9. **Platform and CI claim — approved as proposed.** Cycle 3 remains macOS-only;
+   historical or incidental execution elsewhere establishes no additional
+   support claim.
+10. **Physical proof — approved as proposed.** Deterministic offline replay and
+    synthetic fixtures suffice. Cycle 3 has no mandatory live physical
+    capture/decode workflow.
+
+These decisions supersede every unapproved Step 3 alternative, especially the
+earlier possibility of C# or libsigrokdecode runtime corroboration and the
+weaker production-only dependency exclusion. They do not authorize decoder
+execution or implementation during preparation.
+
+### Step 4 exit-gate assessment
+
+All ten operator decisions are resolved. No remaining operator choice can
+materially change the proposed Cycle 3 objective, executable trust boundary,
+macOS-only platform claim, authoritative proof source, or stopping condition.
+Step 4's content exit gate is met in this revision; committing this revision
+will satisfy its required durable-output gate. Numeric thresholds deliberately
+remain subject to the approved baseline-then-approval procedure and do not
+reopen the Cycle 3 scope or trust decisions.

@@ -1,0 +1,217 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Pico logic analyzer Cycle 3 checkpoint evidence manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "checkpoint", "tested_commit", "tested_tree",
+    "timestamp_utc", "worktree_state", "environment", "locks", "roles",
+    "commands", "artifacts", "requirements", "stopping_conditions",
+    "findings", "decisions", "limitations", "deferred_work", "audits"
+  ],
+  "properties": {
+    "schema_version": {"const": 3},
+    "checkpoint": {"type": "string", "pattern": "^C3-B[1-5]$"},
+    "tested_commit": {"$ref": "#/$defs/commit"},
+    "tested_tree": {"$ref": "#/$defs/commit"},
+    "timestamp_utc": {"type": "string", "format": "date-time"},
+    "worktree_state": {"type": "string", "minLength": 1, "maxLength": 2048},
+    "environment": {"$ref": "#/$defs/environment"},
+    "locks": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/named_digest"}},
+    "roles": {"$ref": "#/$defs/roles"},
+    "commands": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/command"}},
+    "artifacts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/artifact"}},
+    "requirements": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/requirement"}},
+    "stopping_conditions": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/condition"}},
+    "findings": {"type": "array", "items": {"$ref": "#/$defs/finding"}},
+    "decisions": {"type": "array", "items": {"$ref": "#/$defs/decision"}},
+    "limitations": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "deferred_work": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "audits": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/audit"}},
+    "hosted_ci": {"$ref": "#/$defs/hosted_ci"},
+    "b1_evidence": {"$ref": "#/$defs/b1_evidence"},
+    "final_measurements": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/measurement"}}
+  },
+  "$defs": {
+    "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "path": {"type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\\\]+$", "minLength": 1},
+    "reference": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {"path": {"$ref": "#/$defs/path"}, "sha256": {"$ref": "#/$defs/digest"}}
+    },
+    "named_digest": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "path", "sha256"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "path": {"$ref": "#/$defs/path"},
+        "sha256": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "environment": {
+      "type": "object", "additionalProperties": false,
+      "required": ["os", "architecture", "python", "environment_class"],
+      "properties": {
+        "os": {"type": "string", "pattern": "^macOS ", "minLength": 1},
+        "architecture": {"enum": ["arm64", "x86_64"]},
+        "python": {"type": "string", "pattern": "^3\\.12(?:\\.|$)"},
+        "environment_class": {"type": "string", "minLength": 1},
+        "resource_observation": {"type": "string", "minLength": 1}
+      }
+    },
+    "b1_internal_roles": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "semantic_fixture_implementation", "semantic_fixture_verification",
+        "semantic_fixture_acceptance", "runner_implementation",
+        "runner_verification", "runner_acceptance"
+      ],
+      "properties": {
+        "semantic_fixture_implementation": {"type": "string", "minLength": 1},
+        "semantic_fixture_verification": {"type": "string", "minLength": 1},
+        "semantic_fixture_acceptance": {"type": "string", "minLength": 1},
+        "runner_implementation": {"type": "string", "minLength": 1},
+        "runner_verification": {"type": "string", "minLength": 1},
+        "runner_acceptance": {"type": "string", "minLength": 1}
+      }
+    },
+    "roles": {
+      "type": "object", "additionalProperties": false,
+      "required": ["implementation", "verification", "acceptance", "manifest_verifier"],
+      "properties": {
+        "implementation": {"type": "string", "minLength": 1},
+        "verification": {"type": "string", "minLength": 1},
+        "acceptance": {"type": "string", "minLength": 1},
+        "manifest_verifier": {"type": "string", "minLength": 1},
+        "b1_internal": {"$ref": "#/$defs/b1_internal_roles"}
+      }
+    },
+    "command": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "command", "exit_status", "verifier", "candidate_commit", "result", "skipped"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "command": {"type": "string", "minLength": 1},
+        "exit_status": {"type": "integer", "minimum": 0, "maximum": 255},
+        "verifier": {"type": "string", "minLength": 1},
+        "candidate_commit": {"$ref": "#/$defs/commit"},
+        "result": {"type": "string", "minLength": 1},
+        "skipped": {"const": false},
+        "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/reference"}}
+      }
+    },
+    "counts": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["name", "value"],
+        "properties": {
+          "name": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+          "value": {"type": "integer", "minimum": 0}
+        }
+      }
+    },
+    "artifact": {
+      "type": "object", "additionalProperties": false,
+      "required": ["category", "provenance", "revision", "path", "sha256"],
+      "properties": {
+        "category": {"enum": [
+          "accepted-baseline", "decoder-snapshot", "fixture-source",
+          "generated-fixture", "method", "raw-observation", "threshold",
+          "review", "operator-decision", "project-legal", "test", "workflow",
+          "process-audit", "scope-audit", "rollback", "checkpoint"
+        ]},
+        "provenance": {"type": "string", "minLength": 1},
+        "revision": {"type": "string", "minLength": 1},
+        "path": {"$ref": "#/$defs/path"},
+        "sha256": {"$ref": "#/$defs/digest"},
+        "counts": {"$ref": "#/$defs/counts"}
+      }
+    },
+    "requirement": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "status", "evidence"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^R(?:[1-9]|1[0-9]|2[0-6])$"},
+        "status": {"const": "pass"},
+        "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/reference"}}
+      }
+    },
+    "condition": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "status", "evidence"],
+      "properties": {
+        "id": {"type": "integer", "minimum": 1, "maximum": 18},
+        "status": {"const": "pass"},
+        "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/reference"}}
+      }
+    },
+    "finding": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "status", "disposition", "evidence"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "status": {"enum": ["closed", "accepted-limitation"]},
+        "disposition": {"type": "string", "minLength": 1},
+        "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/reference"}}
+      }
+    },
+    "decision": {
+      "type": "object", "additionalProperties": false,
+      "required": ["authority", "decision", "evidence"],
+      "properties": {
+        "authority": {"type": "string", "minLength": 1},
+        "decision": {"type": "string", "minLength": 1},
+        "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/reference"}}
+      }
+    },
+    "audit": {
+      "type": "object", "additionalProperties": false,
+      "required": ["category", "verdict", "scope", "evidence"],
+      "properties": {
+        "category": {"enum": ["prohibited-runtime", "dependency", "process", "import", "scope", "license", "rollback", "repository"]},
+        "verdict": {"const": "pass"},
+        "scope": {"type": "string", "minLength": 1},
+        "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/reference"}}
+      }
+    },
+    "hosted_ci": {
+      "type": "object", "additionalProperties": false,
+      "required": ["provider", "run_id", "job_id", "candidate_commit", "platform", "result"],
+      "properties": {
+        "provider": {"type": "string", "minLength": 1},
+        "run_id": {"type": "string", "pattern": "^[A-Za-z0-9._-]+$"},
+        "job_id": {"type": "string", "pattern": "^[A-Za-z0-9._-]+$"},
+        "candidate_commit": {"$ref": "#/$defs/commit"},
+        "platform": {"const": "macOS"},
+        "result": {"const": "success"}
+      }
+    },
+    "b1_evidence": {
+      "type": "object", "additionalProperties": false,
+      "required": ["fixture_candidate", "runner_candidate", "raw_candidate", "threshold_candidate", "project_legal", "operator_decision"],
+      "properties": {
+        "fixture_candidate": {"$ref": "#/$defs/reference"},
+        "runner_candidate": {"$ref": "#/$defs/reference"},
+        "raw_candidate": {"$ref": "#/$defs/reference"},
+        "threshold_candidate": {"$ref": "#/$defs/reference"},
+        "project_legal": {"$ref": "#/$defs/reference"},
+        "operator_decision": {"$ref": "#/$defs/reference"}
+      }
+    },
+    "measurement": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "observed", "ceiling", "unit", "status", "evidence"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "observed": {"type": "number", "minimum": 0},
+        "ceiling": {"type": "number", "exclusiveMinimum": 0},
+        "unit": {"type": "string", "minLength": 1},
+        "status": {"const": "pass"},
+        "evidence": {"$ref": "#/$defs/reference"}
+      }
+    }
+  }
+}

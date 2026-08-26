@@ -523,17 +523,23 @@ or distributable artifact is authorized.
    recursion, and worker memory/address space. Commit one immutable
    **semantic-fixture candidate** binding every source, generator, timeline,
    expected record, option/sentinel/schema artifact, safety cap, decision, and
-   digest.
+   digest. This candidate specifies only the complete finite cap set, exact
+   values and schema, boundary cases, coverage, and independently derived
+   rationale; it contains no runner or executable cap-enforcement plumbing.
 4. A semantic-fixture verifier independently reviews that exact fixture
-   candidate and records
-   `pass` or `changes_required`.
+   candidate's cap-set completeness, exact finite values, schema, boundaries,
+   coverage, and independent derivation, as well as its fixture semantics, and
+   records `pass` or `changes_required`.
 5. The orchestrator runs the complete fixture accumulated gate against that
    exact candidate, including byte rebuild, schema/generator tests, literal
-   review coverage, independent cap-enforcement tests, provenance/import/license
-   audit, and inherited regressions.
+   review coverage, static cap completeness/schema/boundary/coverage review,
+   provenance/import/license audit, and inherited regressions. Executable cap
+   enforcement is absent and is neither tested nor claimed by this gate.
 6. A separate semantic-fixture acceptance identity audits that same fixture
    candidate, verifier record,
-   and accumulated result and records `pass` or `changes_required`.
+   and accumulated result, including the static experiment-cap specification,
+   and records `pass` or `changes_required`. Its pass never transfers to runner
+   enforcement.
 7. Only after all three fixture gates pass may the distinct pre-execution-
    runner implementation identity add the actual non-installed
    characterization runner and measurement method.
@@ -625,8 +631,11 @@ product and has no public API.
 The semantic-fixture verifier independently reviews every literal timeline and
 expected record, proves the generator consumes no decoder/host output, inspects
 closed imports and hashes, and audits every option-matrix row and sentinel
-fixture. A different pre-execution-runner verifier independently proves on the
-immutable runner candidate, without decoder execution, that all pre-execution
+fixture. It also reviews only experiment-cap completeness, exact finite values,
+schema, boundaries, coverage, and independent derivation; it does not test or
+claim executable enforcement. A different pre-execution-runner verifier
+independently proves on the immutable runner candidate, without decoder
+execution, that all pre-execution
 caps, digest/import boundaries, termination, close, and reap paths are enforced.
 Later independently assigned verification reproduces characterization,
 exercises representative, boundary, dense-output, malformed,
@@ -634,8 +643,10 @@ cancellation/reap, and hostile-worker cases, and
 issues a distinct threshold-proposal verdict.
 
 The semantic-fixture acceptance identity audits fixture independence, all five
-API-edge decisions, provenance/notices/project-license disposition, and its
-verifier findings. A different pre-execution-runner acceptance identity audits
+API-edge decisions, provenance/notices/project-license disposition, the static
+experiment-cap specification, and its verifier findings, without accepting any
+executable enforcement claim. A different pre-execution-runner acceptance
+identity audits
 the unchanged runner candidate, method, probe evidence, exclusions, and gate
 ordering. Later independently assigned acceptance audits raw data,
 reproduction, proposal reasoning, and its verifier findings. Only the operator
@@ -643,8 +654,10 @@ approves exact numeric values.
 
 Focused evidence includes byte-stable fixture rebuild, closed option-matrix and
 integer-sentinel mapping audit, version-1 object/JSON golden-byte rebuild,
-all-output/order/edge-case review, the accepted immutable runner candidate and
-its complete non-decoder pre-execution enforcement/cleanup matrix,
+all-output/order/edge-case review, static review of the complete exact finite
+experiment-cap set, schema, boundaries, coverage, and independent derivation,
+the accepted immutable runner candidate and its complete non-decoder pre-
+execution enforcement/cleanup matrix,
 file/import/license audit,
 reproducible raw characterization, proposal review, acceptance verdict, and
 operator decision. Accumulated evidence includes accepted Cycle 1/2 non-hardware

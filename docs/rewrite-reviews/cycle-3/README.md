@@ -166,7 +166,10 @@ command reference, or evidence reliance by an in-scope path is prohibited.
 
 A contract reviewer records `changes_required` if the documents omit or
 contradict any of these cross-domain freeze points: exact pre-characterization
-experiment caps; an immutable actual-runner/method/launch/import candidate that
+experiment caps whose semantic-fixture review covers only completeness, exact
+finite values, schema, boundaries, coverage, and independent derivation and
+claims no executable enforcement; an immutable actual-runner/method/launch/
+import candidate that
 passes independent inert/hostile non-decoder proof of every cap, digest/import
 boundary, termination, close, and reap path before unchanged snapshot
 execution; distinct B1 semantic-fixture and pre-execution-runner implementors,

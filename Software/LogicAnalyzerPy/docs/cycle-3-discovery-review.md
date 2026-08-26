@@ -1204,7 +1204,10 @@ immutable pre-execution candidate containing the actual non-installed
 characterization runner, measurement method, exact executable/arguments,
 environment, working directory, closed import root/allowlist and digest checks,
 and the enforcement plumbing for every cap and terminate/force-kill/close/reap
-path. A verifier tests that exact candidate with inert and hostile non-decoder
+path. The earlier safety-envelope gate reviews only cap-set completeness, exact
+finite values, schema, boundaries, coverage, and independent derivation; no
+executable enforcement exists or is claimed there. A verifier tests that exact
+runner candidate with inert and hostile non-decoder
 probes for every cap and digest/import/cleanup path; accumulated validation and
 a distinct acceptance identity pass the unchanged candidate and explicitly
 record that no decoder ran. Only then may that unchanged runner execute an
@@ -1409,7 +1412,10 @@ and records, exact sentinel/mapping fixtures, the closed option-coverage
 matrix, version-1 typed-object/JSON golden vectors, all five API-edge decisions,
 and the exact experiment-only safety envelope. A semantic-fixture verifier and
 separate semantic-fixture acceptance identity must pass that exact fixture
-candidate before the characterization runner is implemented. Next commit a
+candidate before the characterization runner is implemented. Their cap review
+is limited to completeness, exact finite values, schema, boundaries, coverage,
+and independent derivation; executable enforcement is absent and is neither
+tested nor claimed, and no fixture pass transfers to it. Next commit a
 separate immutable pre-execution runner
 candidate containing the actual runner, measurement method, exact launch/import
 configuration, all accepted cap plumbing, and every termination/close/reap path.
@@ -1446,7 +1452,9 @@ public API.
 every timeline and expected record, proves the generator does not consume
 decoder/host output, inspects closed imports/hashes, and audits every option-
 matrix row and the RX-only/TX-only and MISO-only/MOSI-only/no-CS sentinel
-fixtures. A different pre-execution-runner verifier uses inert/hostile non-
+fixtures. It statically reviews the experiment caps only for completeness,
+exact finite values, schema, boundaries, coverage, and independent derivation.
+A different pre-execution-runner verifier uses inert/hostile non-
 decoder probes against the exact immutable runner candidate to recompute every
 pre-execution cap, digest/import boundary, termination, close, and reap path
 before any snapshot execution. Later independent verification reproduces the
@@ -1456,7 +1464,8 @@ hostile-worker cases; and issues a distinct threshold-proposal verdict.
 
 **Acceptance and operator ownership:** The semantic-fixture acceptance identity
 audits fixture independence, edge-semantic decisions, provenance/license
-disposition, and its verifier findings. A different pre-execution-runner
+disposition, the static cap specification, and its verifier findings without
+accepting executable enforcement. A different pre-execution-runner
 acceptance identity audits the unchanged runner, method, probe evidence,
 exclusions, and gate ordering. Later independent acceptance audits raw data and
 the applicable verifier findings. Only after that review does the orchestrator

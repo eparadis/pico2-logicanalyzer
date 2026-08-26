@@ -443,7 +443,10 @@ Cycle 3 executes five batches in this dependency order:
    scope gate against one final immutable candidate.
 
 C3-B1 is an intentionally staged prerequisite. Its authoritative fixture
-candidate receives independent verification and acceptance first. It then
+candidate receives independent verification and acceptance first. That fixture
+gate reviews only the complete exact finite experiment-cap set, its schema,
+boundaries, coverage, and independent derivation; no executable enforcement
+exists or is claimed there. It then
 commits a separate immutable pre-execution candidate containing the actual
 non-installed characterization runner, measurement method, exact launch/import
 configuration, and enforcement/cleanup plumbing for the accepted conservative
@@ -517,9 +520,10 @@ circular threshold gate.
 - Edit only Cycle 3-owned Python product, tests, deterministic fixtures,
   dependency metadata, workflow, evidence schema/validator, and documentation
   under the paths assigned by the batch contract.
-- Execute only the exact approved checked-in decoder snapshots after the B1
-  fixture gate, through the active batch's approved characterization or native
-  host path.
+- Execute only the exact approved checked-in decoder snapshots after both the
+  B1 semantic-fixture gate and the later immutable pre-execution-runner gate
+  pass, through the active batch's approved characterization or native host
+  path.
 - Run deterministic offline format, lint, type, unit, integration, replay, CSV,
   subprocess/IPC, security, resource, performance, CLI, and unchanged
   non-hardware regression checks.
@@ -594,6 +598,10 @@ each receive their own verifier and acceptance identities, all distinct from
 both implementors; their passes are candidate-specific and never transfer. The
 progress entry, assignments, handoffs, final B1 candidate identity map,
 manifest, checkpoint, and completion proof name all six B1 internal identities.
+The fixture verifier and acceptance identity review cap-set completeness, exact
+finite values, schema, boundaries, coverage, and independent derivation only;
+executable cap-enforcement and cleanup proof belongs exclusively to the later
+immutable runner candidate and its separate verifier and acceptance identity.
 
 An acceptance agent never repairs its candidate. A verifier cannot approve
 production behavior or expected fixtures it authored. A B2-B4 product
@@ -672,9 +680,11 @@ from production or prohibited reference output.
 C3-B1's accepted fixture gate first freezes exact experiment-only caps for wall
 deadline, termination/force-kill grace, input samples/request bytes, output
 records and encoded/decoded bytes, stdout/stderr/diagnostic bytes, nesting,
-recursion, and worker memory/address space. C3-B1 next commits the actual runner,
-method, exact launch/import configuration, and cap/cleanup plumbing as an
-immutable pre-execution candidate. Independent verification uses inert and
+recursion, and worker memory/address space. Its review proves only specification
+completeness, exact finite values, schema, boundaries, coverage, and independent
+derivation; it makes no executable-enforcement claim. C3-B1 next commits the
+actual runner, method, exact launch/import configuration, and cap/cleanup
+plumbing as an immutable pre-execution candidate. Independent verification uses inert and
 hostile non-decoder probes to prove every cap, digest/import boundary,
 termination, close, and reap path on that unchanged candidate; accumulated
 validation and acceptance pass and explicitly record that no decoder ran.

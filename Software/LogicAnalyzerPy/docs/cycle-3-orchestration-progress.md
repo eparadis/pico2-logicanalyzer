@@ -352,3 +352,25 @@ unchanged.
   runner, product, or acceptance paths.
 - No round-1 pass transfers. The required new verdict is exactly `pass` or
   `changes_required` and remains candidate-specific.
+
+### Semantic-fixture verification round 2
+
+- Tested candidate/tree: `79be308bc0bcab6dcdd4568a099fc730fd4fc778` /
+  `8c64cb86f34d57f77b02aec5927689fb86d78953`.
+- Verifier/verdict: `c3-b1-semantic-fixture-verifier-1` /
+  `changes_required`; immutable record committed at `cee0d2e` in
+  `docs/reviews/c3-b1-semantic-fixture-verification-round-2.md`.
+- Existing tests: 13 passed, but deeper independent predicate/source audit
+  contradicted the candidate; test success did not replace semantic proof.
+- Findings: 57 of 89 waits claimed false matches; traces omitted the decoders'
+  actual call shapes; uniform sample count did not define real traffic or EOI;
+  SPI word-eight fixtures had four sampling edges, empty/wrong BITS values, and
+  synthetic coordinates; UART packet/I2C repeated-start records were appended
+  at impossible source order/bus state; option equivalences and cap rationales
+  were made string-unique/value-bearing without actual derivation.
+- Correction rule: rebuild coherent finite protocol schedules first, then
+  independently derive exact waits and outputs from inert source. Post-hoc pin
+  normalization, appended tags, string variation, or mechanically uniform
+  bounds cannot satisfy the gate. The same replacement fixture implementor may
+  correct only its original paths and cannot edit immutable verifier artifacts.
+  A new candidate and fresh verification are mandatory; no pass transfers.

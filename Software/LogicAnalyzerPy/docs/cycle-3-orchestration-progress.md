@@ -250,3 +250,31 @@ unchanged.
   identities are permanently barred from the runner/method/probes and B2-B4
   product implementation. Planned fixture verifier and acceptance identities
   remain distinct and unassigned until one immutable candidate exists.
+
+### Replacement implementation review rounds 1-3
+
+- Replacement round 1 removed the mechanical one-edge expansion, added named
+  protocol timelines and source declarations, and retained static-only checks,
+  but still had no directly classified option rows and reused wrong-direction
+  UART/SPI records. State: `changes_required`.
+- C3B1-I009: UART TX reused RX direction/classes; UART error/packet, SPI MISO/
+  word-one, and I2C data/NACK claims were not represented by their expected
+  records; short wait traces did not describe complete transactions.
+- C3B1-I010: all option rows were static equivalences with no direct target;
+  matrix rejection/type/width coverage remained incomplete.
+- Replacement round 2 added direct/equivalence closure, typed rejection rows,
+  direction-specific records, UART error tags, SPI MISO/word-one/CS records,
+  and I2C data/NACK/STOP outputs, but correctly reported that per-edge traces
+  and deep semantic audit remained incomplete. State: `changes_required`.
+- Replacement round 3 expanded wait/match/pin traces and API-edge vectors and
+  reported focused generator/check/pytest/Ruff/diff passes. Root independently
+  reran those checks successfully, then found four duplicated matrix row IDs:
+  `reject-i2c-address_format-str-wide`, `reject-spi-wordsize-int-9`,
+  `reject-uart-rx_packet_len-int-0`, and
+  `reject-uart-tx_packet_len-int--2`.
+- C3B1-I011: duplicate matrix identities contradict a closed uniquely
+  auditable option matrix, and existing focused tests did not reject them.
+- Disposition: context-preserving correction assigned to the replacement
+  fixture identity. It must remove semantic duplicates, assert ID and semantic-
+  row uniqueness, regenerate, and rerun the full focused gate. No immutable
+  candidate exists until this correction passes root integration.

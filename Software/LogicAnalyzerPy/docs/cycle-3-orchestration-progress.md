@@ -456,3 +456,23 @@ unchanged.
 - Ownership/separation remains identical. All four fixture authorship
   identities remain barred from runner/method/probes and B2-B4 product work;
   verifier/acceptance/runner identities remain distinct.
+
+### Fourth semantic-fixture implementor replacement
+
+- Prior identity: `c3-b1-semantic-fixture-implementor-replacement-3`
+  (`/root/c3_b1_fixture_impl_r3`). It reconstructed truthful default UART A5
+  samples and source-order records, full shifted-I2C byte/ACK/NACK/STOP output,
+  a coherent unshifted-I2C repeated START, and SPI one-bit/word records. Its
+  fixture-only changes pass the generator check, 14 implementation and
+  immutable verification tests, Ruff, and diff checks, but it returned before
+  splitting the impossible combined UART error case, replacing false option
+  equivalences with direct witnesses, or deriving exact experiment caps.
+- Preserved uncommitted fixture-only changes remain neither a candidate nor
+  accepted evidence. No decoder or prohibited runtime has executed.
+- New identity: `c3-b1-semantic-fixture-implementor-replacement-4`, same
+  implementor lane, `gpt-5.6-terra`, low. It must independently inspect and
+  complete or replace the inherited changes, including strong tests for all
+  three remaining round-3 findings; no pass or correctness claim transfers.
+- Ownership/separation remains identical. Every fixture authorship identity is
+  barred from runner/method/probes and B2-B4 product work; verifier,
+  acceptance, and runner identities remain distinct.

@@ -1195,22 +1195,31 @@ evidence reliance by any in-scope path is prohibited.
 ### Baseline-first thresholds and intentionally staged gates
 
 No numeric resource or performance ceiling is frozen by this static review.
-Before the first characterization runner or approved snapshot executes, B1
-must commit an exact conservative experiment-only safety envelope covering
-wall deadline, terminate-to-force-kill grace, input samples/request bytes,
-output records and encoded/decoded bytes, stdout/stderr/diagnostic bytes,
-nested depth/items, recursion, and worker memory/address space. A verifier
-independently recomputes that the runner enforces every cap and an acceptance
-identity passes the same envelope and fixture candidate. A capped termination
-or limit breach is an observation, never a passing baseline; no cap may be
-weakened to obtain data. The later explicitly operator-approved product
-threshold record replaces this experiment-only envelope and may be stricter
-but never authorizes rerunning the baseline with weaker experiment caps.
+Before the first approved snapshot executes, B1 must first accept an exact
+conservative experiment-only safety envelope covering wall deadline,
+terminate-to-force-kill grace, input samples/request bytes, output records and
+encoded/decoded bytes, stdout/stderr/diagnostic bytes, nested depth/items,
+recursion, and worker memory/address space. It must then commit a separate
+immutable pre-execution candidate containing the actual non-installed
+characterization runner, measurement method, exact executable/arguments,
+environment, working directory, closed import root/allowlist and digest checks,
+and the enforcement plumbing for every cap and terminate/force-kill/close/reap
+path. A verifier tests that exact candidate with inert and hostile non-decoder
+probes for every cap and digest/import/cleanup path; accumulated validation and
+a distinct acceptance identity pass the unchanged candidate and explicitly
+record that no decoder ran. Only then may that unchanged runner execute an
+approved snapshot. A capped termination or limit breach is an observation,
+never a passing baseline; no cap may be weakened to obtain data. The later
+explicitly operator-approved product threshold record replaces this experiment-
+only envelope and may be stricter but never authorizes rerunning the baseline
+with weaker experiment caps.
 
-The earliest proposed B1 must then commit the reviewed semantic/stress fixture
-set and measurement method, including machine/OS/Python identity, warm-up and
-repetition rules, raw observations, deterministic input/output counts, and the
-macOS mechanisms proposed for process memory, recursion, deadline, and reaping.
+The earliest proposed B1 must first commit the reviewed semantic/stress fixture
+set and safety envelope. After the separate actual-runner candidate passes its
+non-decoder gate, B1 commits the raw-baseline candidate containing that unchanged
+runner and measurement method, including machine/OS/Python identity, warm-up
+and repetition rules, raw observations, deterministic input/output counts, and
+the macOS mechanisms used for process memory, recursion, deadline, and reaping.
 It must measure, without executing any prohibited runtime:
 
 - input samples and request bytes;
@@ -1283,9 +1292,12 @@ proposal, and explicit operator threshold approval in C3-B1. No public decoder
 host, library entry point, or CLI decode command may be implemented before that
 checkpoint. C3-B1 may contain a non-installed, characterization-only runner for
 the exact approved snapshots. It is not a product host, is never selected by a
-capture or caller, and may execute only after the approved Cycle 3 goal starts.
-Its source, environment, and results must be immutable evidence so that the
-later exact-candidate measurements can be compared with the same method.
+capture or caller, and may execute only after the approved Cycle 3 goal starts
+and its exact pre-execution candidate independently passes the non-decoder
+enforcement gate. Its source, method, launch/import configuration, environment,
+cap/cleanup plumbing, and results must be immutable evidence so that the later
+exact-candidate measurements can be compared with the same method. The
+independent expected-fixture owner cannot author or approve the runner.
 
 ### Common batch mechanics and role ownership
 
@@ -1373,15 +1385,22 @@ format is independent of the later host wire format.
 containing the declarative timelines, independently calculated expected calls
 and records, exact sentinel/mapping fixtures, the closed option-coverage
 matrix, version-1 typed-object/JSON golden vectors, all five API-edge decisions,
-and the exact experiment-only safety envelope. A verifier and acceptance identity
-must pass that exact fixture candidate before the characterization runner is
-implemented or any snapshot is executed. A correction creates a new fixture
-candidate and transfers no pass. Only the accepted fixture candidate may feed
-the later characterization method. Raw results then precede the threshold
-proposal; proposal verification precedes acceptance; and explicit operator
-approval is last. The final B1 candidate binds every intermediate identity and
-digest and receives the normal complete B1 verification and acceptance sequence
-before its manifest exists.
+and the exact experiment-only safety envelope. A verifier and acceptance
+identity must pass that exact fixture candidate before the characterization
+runner is implemented. Next commit a separate immutable pre-execution runner
+candidate containing the actual runner, measurement method, exact launch/import
+configuration, all accepted cap plumbing, and every termination/close/reap path.
+A verifier uses only inert/hostile non-decoder probes to exercise every cap,
+digest/import boundary, and cleanup path on that candidate; accumulated
+validation and a distinct acceptance identity must pass and state that no
+decoder ran. Only that unchanged runner may then execute an approved snapshot.
+A correction creates a new owning candidate and transfers no pass. Only the
+accepted fixture candidate may supply expected behavior, and its owner may not
+author or approve the runner. Raw results then precede the threshold proposal;
+proposal verification precedes acceptance; and explicit operator approval is
+last. The final B1 candidate binds every intermediate identity and digest and
+receives the normal complete B1 verification and acceptance sequence before
+its manifest exists.
 
 **Implementation ownership:** Provenance/license inventory; human-reviewable
 timeline schema and independently derived expected records; deterministic
@@ -1391,7 +1410,10 @@ installed or imported by the product and exposes no public API.
 
 **Verification ownership:** Independently review every timeline and expected
 record; prove the generator does not consume decoder/host output; inspect the
-closed imports and hashes; recompute enforcement of the pre-execution envelope;
+closed imports and hashes; use inert/hostile non-decoder probes against the
+exact immutable runner candidate to recompute every pre-execution cap,
+digest/import boundary, termination, close, and reap path before any snapshot
+execution;
 audit every option-matrix row and the RX-only/TX-only and MISO-only/MOSI-only/
 no-CS sentinel fixtures; reproduce the method and raw observations; exercise
 representative, boundary, dense-output, malformed, cancellation/reap, and
@@ -1575,9 +1597,13 @@ support/rollback statement, repository state, and numbered stopping checklist.
 Record one pre-manifest `pass` or `changes_required`. After a pass, a distinct
 manifest-verifier identity recomputes the proposed B5 manifest's digests and
 schema, records its candidate, commands, manifest digest, results, and verdict,
-then the orchestrator commits the manifest and checkpoint. A separate
-completion-closure auditor finally checks the committed B5 manifest,
-verification record, checkpoint, and completion proof without changing them.
+then the orchestrator commits the manifest/verification record and commits the
+B5 checkpoint with state `Complete; Cycle 3 closure pending`. The orchestrator
+then commits an immutable completion-proof candidate that names the checkpoint
+but no future closure auditor, verdict, record, or terminal seal. A separate
+completion-closure auditor checks those committed inputs without changing them
+and commits its verdict. Only after a `pass` may the orchestrator commit a
+terminal completion seal; the seal is not an audit input and is the final stop.
 
 **Focused proof:** Final-review packet completeness, digest/schema audit,
 repository/prohibited-action audit, and stopping-condition traceability.
@@ -1719,10 +1745,13 @@ following objective conditions:
     firmware, serial/live capture, dynamic decoder discovery, stacking, `.lac`,
     packaging/publication, unsupported-platform claim, or other excluded work.
 18. The B5 packet maps R1-R26 and conditions 1-17 to committed evidence and
-    records a clean or qualified repository; verification and pre-manifest
-    acceptance pass before manifest creation, the distinct manifest-verification
-    pass precedes checkpointing, and the separate completion-closure audit
-    passes over the committed manifest/checkpoint/completion proof.
+    records a clean or qualified repository. Verification and pre-manifest
+    acceptance pass before manifest creation; the distinct manifest-verification
+    pass and manifest commit precede the closure-pending checkpoint; the
+    immutable completion-proof candidate then names that committed checkpoint
+    and no future closure artifact; the distinct closure verdict passes over
+    those committed inputs; and a terminal completion seal, which was not an
+    audit input, is committed last.
 
 Conditions 1-17 are product, proof, regression, and governance gates;
 condition 18 proves their complete traceability and ordering. A command's exit

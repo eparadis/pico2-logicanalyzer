@@ -168,14 +168,16 @@ Before every implementation or validation phase:
   or publication action is reachable from the assignment.
 
 No decoder executes before the approved goal is invoked. C3-B1 additionally
-requires acceptance of the exact semantic-fixture candidate, including the
-closed option matrix, version-1 object/JSON goldens, sentinel cases, and exact
-conservative experiment-only deadline, kill-grace, input, output/diagnostic,
-recursion, and memory/address-space caps, before its
-characterization runner or any decoder snapshot executes. If a prerequisite is
-absent, keep the batch pending or record the exact blocker. Never simulate
-operator approval, hosted CI, process/resource evidence, project/legal review,
-or decoder execution.
+requires acceptance of both the exact semantic-fixture candidate and a later
+immutable pre-execution runner candidate. The runner candidate contains the
+actual non-installed characterization runner, measurement method, exact
+launch/import configuration, and plumbing for every conservative experiment-
+only deadline, kill-grace, input, output/diagnostic, recursion, and memory/
+address-space cap. Its independent gate uses only inert and hostile non-decoder
+probes and must pass before that unchanged runner executes any decoder snapshot.
+If a prerequisite is absent, keep the batch pending or record the exact
+blocker. Never simulate operator approval, hosted CI, process/resource
+evidence, project/legal review, or decoder execution.
 
 ### 3. Assign bounded path ownership
 
@@ -336,14 +338,22 @@ only their own manifest at the equivalent point.
 
 A batch becomes `Complete` only after its schema-valid, independently verified
 manifest commit and checkpoint commit exist. The next batch consumes the
-checkpoint, not an uncommitted manifest or conversational pass. After the B5
-checkpoint, a separate completion-closure auditor checks the committed B5
-manifest and manifest-verification record, checkpoint, and completion proof,
-records a final immutable verdict, and repairs none of them.
+checkpoint, not an uncommitted manifest or conversational pass. B5 uses this
+directed terminal order, with no future-record references: commit the B5
+manifest and manifest-verification record; commit the B5 checkpoint with state
+`Complete; Cycle 3 closure pending`; commit the immutable
+`cycle-3-completion.md` proof candidate, which names that checkpoint and says
+only that closure is pending; have a separate completion-closure auditor inspect
+those committed artifacts and commit its verdict; then commit the terminal
+`cycle-3-completion-seal.md`. The proof candidate and checkpoint must not name
+or predict the future auditor, verdict, record path, or seal. The seal is not an
+audit input and is the final stop.
 
 ### 10. Decide the next action
 
-- **Pass:** append the checkpoint and select the next batch.
+- **Pass:** for B1-B4 append the checkpoint and select the next batch; for B5
+  follow the directed proof/audit/seal terminal chain after its closure-pending
+  checkpoint.
 - **Product or owned-proof defect:** remain in the earliest owning batch and
   create a new candidate.
 - **Earlier-interface regression:** reopen the earliest owning checkpoint and
@@ -488,42 +498,73 @@ or distributable artifact is authorized.
    audit, and inherited regressions.
 6. The acceptance identity audits that same fixture candidate, verifier record,
    and accumulated result and records `pass` or `changes_required`.
-7. Only after all three gates pass may the implementation identity add the non-installed
-   characterization runner and measurement method and execute the approved
-   checked-in snapshots under those exact caps. A cap termination is an
-   observation, never a passing baseline, and no cap may be weakened to obtain
-   data. Later operator-approved product limits replace these experiment caps.
-8. Commit an immutable raw-baseline candidate containing the runner, method,
+7. Only after all three fixture gates pass may the implementation identity add
+   the actual non-installed characterization runner and measurement method.
+   Before any snapshot executes, commit a separate immutable
+   **pre-execution runner candidate** binding the accepted fixture/cap digests,
+   runner and method digests, exact executable and arguments, environment,
+   working directory, closed import root and allowlist, digest checks, request
+   framing, a closed internal pre-execution probe mode and exact probe-source
+   digests, cap values and enforcement plumbing, termination/force-kill order,
+   pipe/descriptor closure, and exact-child reap behavior. Probe mode is not
+   caller-selectable and is disabled for characterization. The identity that
+   owns independently expected fixture content must not author, verify, or
+   approve this runner candidate.
+8. A verifier independently tests that exact runner candidate using only inert
+   and hostile **non-decoder** probes. No probe may import or invoke a decoder,
+   compatibility shim, helper, product host, or expected-fixture generator.
+   The matrix must exercise every input,
+   request-byte, wall-deadline, kill-grace, output-record, encoded/decoded-byte,
+   stdout/stderr/diagnostic-byte, nested-depth/item, recursion, memory/address-
+   space, and retained-result cap; accepted and rejected digest/import roots,
+   files, symlinks, shadowing, environment, and working directories; graceful
+   termination and forced kill; every success/failure pipe and descriptor close;
+   exact-child reap; and a valid probe after each failure. The record binds the
+   candidate commit/tree and all source/configuration digests and explicitly
+   states that no decoder or approved snapshot ran. The orchestrator runs the
+   corresponding accumulated non-decoder gate, then a distinct acceptance
+   identity audits the unchanged candidate, verifier record, and accumulated
+   result and records `pass` or `changes_required`.
+9. Only after all three runner-candidate gates pass may that exact unchanged
+   runner execute the approved checked-in snapshots under the accepted caps.
+   Any runner, method, launch/import, digest, cap-plumbing, cleanup, or
+   environment change creates a new pre-execution runner candidate and repeats
+   step 8 before execution. A cap termination is an observation, never a
+   passing baseline, and no cap may be weakened to obtain data. Later operator-
+   approved product limits replace these experiment caps.
+10. Commit an immutable raw-baseline candidate containing the runner, method,
    and observations with machine/OS/Python, warm-up, repetition,
    deterministic input/output counts, fixture/method/runner digests, and the
    macOS resource-observation mechanisms. Raw data is never edited to match a
    later limit.
-9. The verifier independently reproduces the method and raw observations; the
+11. The verifier independently reproduces the method and raw observations; the
    orchestrator then runs the complete raw-baseline accumulated gate; and only
    then does the acceptance identity audit the candidate, method, environment,
    completeness, provenance, reproduction, and discrepancies.
-10. Only after those passes does the orchestrator commit an immutable proposal
+12. Only after those passes does the orchestrator commit an immutable proposal
     candidate naming exact input sample/request-byte, deadline, cancellation-
     grace, memory/address-space, recursion, output record/encoded/decoded/text/
     bytes/item/depth, diagnostic, retained-result, performance, and SPI-word-
     size ceilings.
-11. The verifier reviews the exact proposal candidate against raw evidence and
+13. The verifier reviews the exact proposal candidate against raw evidence and
     boundary cases; the orchestrator runs the complete proposal accumulated
     gate; and the acceptance identity then audits that same proposal candidate
     and records its verdict.
-12. The operator explicitly approves or amends the committed values. An
+14. The operator explicitly approves or amends the committed values. An
     amendment creates a new proposal candidate and repeats proposal
     verification, accumulated validation, and acceptance before renewed
     operator approval.
-13. The orchestrator assembles the final B1 candidate binding all intermediate
+15. The orchestrator assembles the final B1 candidate binding all intermediate
     identities/digests and exact frozen commands. It receives the standard
     candidate verification, complete accumulated validation, acceptance,
     atomic manifest, and checkpoint sequence.
 
 A correction at steps 1-6 creates a new semantic-fixture candidate and transfers
-no fixture pass. A changed fixture, method, runner, environment class, worker
-model, or weakened ceiling after steps 7-13 reopens the owning internal gate and
-invalidates all dependent observations, proposals, approvals, and batch passes.
+no fixture pass. A correction at steps 7-8 creates a new pre-execution runner
+candidate and transfers no runner pass. A changed fixture, method, runner,
+launch/import configuration, cap plumbing, environment class, worker model, or
+weakened ceiling after step 9 reopens the owning internal gate and invalidates
+all dependent observations, proposals, approvals, and batch passes.
 
 ### Ownership and proof
 
@@ -536,7 +577,9 @@ has no public API.
 Verification independently reviews every literal timeline and expected record,
 proves the generator consumes no decoder/host output, inspects closed imports
 and hashes, audits every option-matrix row and sentinel fixture, independently
-proves all pre-execution caps are enforced, reproduces characterization,
+proves on the immutable actual runner candidate, without decoder execution,
+that all pre-execution caps, digest/import boundaries, termination, close, and
+reap paths are enforced; reproduces characterization,
 exercises representative, boundary,
 dense-output, malformed, cancellation/reap, and hostile-worker cases, and
 issues a distinct threshold-proposal verdict.
@@ -548,7 +591,8 @@ Only the operator approves exact numeric values.
 
 Focused evidence includes byte-stable fixture rebuild, closed option-matrix and
 integer-sentinel mapping audit, version-1 object/JSON golden-byte rebuild,
-all-output/order/edge-case review, pre-execution cap enforcement,
+all-output/order/edge-case review, the accepted immutable runner candidate and
+its complete non-decoder pre-execution enforcement/cleanup matrix,
 file/import/license audit,
 reproducible raw characterization, proposal review, acceptance verdict, and
 operator decision. Accumulated evidence includes accepted Cycle 1/2 non-hardware
@@ -697,11 +741,12 @@ changes, static checks, manifest validation, and exact-candidate CI.
 
 ### Outcome and prerequisite
 
-Prove one immutable final product candidate against R1-R26 and all 18 Cycle 3
-stopping conditions. B5 introduces no product behavior, changes no fixture or
-threshold, and rebases no approved method. C3-B4 must be complete with no
-unresolved finding, missing decision, changed approved identity, or unexplained
-repository delta.
+Prove one immutable final product candidate against R1-R26 and stopping
+conditions 1-17, and prove the committed inputs are ready for the directed
+condition-18 terminal chain. B5 introduces no product behavior, changes no
+fixture or threshold, and rebases no approved method. C3-B4 must be complete
+with no unresolved finding, missing decision, changed approved identity, or
+unexplained repository delta.
 
 ### Ownership and proof
 
@@ -721,13 +766,20 @@ Acceptance audits the exact final candidate/tree, completed B1-B4 ordered role
 sequences/manifests/checkpoints, the proposed B5 manifest inputs/readiness,
 every finding/disposition, local and hosted-CI results, limit enforcement,
 source/license/support/rollback statements, clean or fully qualified
-repository, R1-R26 mapping, and conditions 1-18. It records pre-manifest `pass`
-or `changes_required` without requiring a nonexistent B5 manifest/checkpoint.
+repository, R1-R26 mapping, conditions 1-17, and readiness of the already-
+available condition-18 inputs. It records pre-manifest `pass` or
+`changes_required` without requiring a nonexistent B5 manifest/checkpoint or
+future closure artifact.
 After a pass, the distinct B5 manifest verifier performs the standard digest/
 schema audit and records its immutable pass before manifest commit/checkpoint.
-A separate completion-closure auditor then verifies the committed B5 manifest,
-manifest-verification record, checkpoint, and completion proof and records a
-final immutable verdict without assembling or repairing them.
+The B5 checkpoint is then committed with `Complete; Cycle 3 closure pending`.
+The orchestrator next commits an immutable completion-proof candidate naming
+the committed checkpoint and no future closure auditor, verdict, record, or
+seal. A separate completion-closure auditor verifies the committed B5 manifest,
+manifest-verification record, checkpoint, and completion-proof candidate and
+commits a final immutable verdict without assembling or repairing them. Only
+after that verdict is committed may the orchestrator commit the terminal
+completion seal; the seal is not an input to the closure audit.
 
 The B5 focused gate checks final packet completeness, schema/digest audit,
 repository/prohibited-action audit, role/evidence ordering, and stopping-
@@ -740,10 +792,11 @@ thresholds on the characterized macOS environment class; exact-candidate hosted
 macOS CI; license/resource audit; and a second independent evidence-digest
 verification.
 
-The Cycle 3 goal remains active until the B5 manifest and checkpoint are
-committed, the completion record identifies the exact accepted candidate/tree,
-every stopping condition is durably mapped to evidence, and the separate
-completion-closure verdict is `pass`.
+The Cycle 3 goal remains active until the directed terminal sequence is
+complete and `cycle-3-completion-seal.md` is committed last. The seal binds the
+already committed B5 manifest/verification record, closure-pending checkpoint,
+completion-proof candidate, and `pass` closure verdict by commit and digest; it
+contains no new product or proof claim and was not an audit input.
 
 ## Correction, reopening, and rollback
 
@@ -832,7 +885,7 @@ Append one record after each accepted batch:
 ```markdown
 ### Checkpoint C3-BN — <name>
 
-- State: Complete
+- State: <B1-B4 `Complete`; B5 `Complete; Cycle 3 closure pending`>
 - Completed at: <ISO-8601 UTC timestamp>
 - Tested candidate commit: <full hash>
 - Tested candidate tree: <full hash>
@@ -843,7 +896,8 @@ Append one record after each accepted batch:
 - Accumulated-validation owner/result: <orchestrator; exact result>
 - Acceptance agent and verdict: <third identity; pass>
 - Manifest verifier and verdict: <fourth identity; record path/digest; pass>
-- B5 completion-closure auditor/verdict: <distinct identity; pass, or not applicable>
+- Completion-closure state: <for B5 exactly `closure-pending`; for B1-B4
+  `not applicable`; never name a future auditor, verdict, record, or seal>
 - Governing contract/goal identities: <full commits/trees>
 - Prior checkpoint/manifest identity: <path, commit, SHA-256>
 - Environment: <OS/arch/Python and characterized class>
@@ -851,7 +905,9 @@ Append one record after each accepted batch:
 - Decoder/fixture identity: <allowlist, file-set, fixture digests>
 - Approved-limit identity: <decision path/commit/digest>
 - Objective evidence: <tests, reports, observations>
-- R identifiers and stopping conditions: <mapped evidence>
+- R identifiers and stopping conditions: <B1-B4 mapped evidence; B5 maps
+  R1-R26 and conditions 1-17, with condition 18 explicitly closure-pending and
+  no future reference>
 - Files changed: <paths or concise groups>
 - Focused commands: <command and exact outcome>
 - Accumulated commands: <command and exact outcome>
@@ -905,8 +961,11 @@ review process.
 
 Before C3-B5 acceptance, assemble immutable links and digests for:
 
-- R1-R26 and all 18 stopping conditions;
-- five checkpoint records and five post-acceptance manifests;
+- R1-R26, stopping conditions 1-17, and the then-existing inputs/readiness for
+  condition 18 without naming a future artifact;
+- the four committed B1-B4 checkpoint records and post-acceptance manifests,
+  plus the exact proposed B5 manifest inputs/readiness but no B5 manifest,
+  checkpoint, completion proof, closure verdict, or seal;
 - every implementation handoff and immutable verification/acceptance record,
   including failed and superseded rounds;
 - exact decoder/shim/helper files, hashes, provenance, closed imports, notices,

@@ -443,15 +443,22 @@ Cycle 3 executes five batches in this dependency order:
    scope gate against one final immutable candidate.
 
 C3-B1 is an intentionally staged prerequisite. Its authoritative fixture
-candidate receives independent verification and acceptance before any approved
-snapshot executes. Its characterization-only runner is non-installed and is
-not a product host. That same pre-execution gate freezes and proves the exact
-conservative experiment-only deadline, kill-grace, input, output/diagnostic,
-recursion, and memory/address-space caps. A capped failure is not a passing
-baseline, and the caps cannot be weakened; later approved product thresholds
-replace them. Raw observations precede the threshold proposal; independent
-proposal review precedes acceptance; explicit operator approval is last. No
-public host implementation begins until the complete C3-B1 checkpoint exists.
+candidate receives independent verification and acceptance first. It then
+commits a separate immutable pre-execution candidate containing the actual
+non-installed characterization runner, measurement method, exact launch/import
+configuration, and enforcement/cleanup plumbing for the accepted conservative
+experiment-only deadline, kill-grace, input, output/diagnostic, recursion, and
+memory/address-space caps. A verifier exercises that exact candidate solely
+with inert/hostile non-decoder probes for every cap, digest/import boundary,
+termination, pipe/descriptor close, and exact-child reap path; accumulated
+validation and distinct acceptance must pass and state that no decoder ran.
+Only that exact unchanged runner may then execute an approved snapshot. The
+runner is not a product host, and the expected-fixture owner cannot author or
+approve it. A capped failure is not a passing baseline, and the caps cannot be
+weakened; later approved product thresholds replace them. Raw observations
+precede the threshold proposal; independent proposal review precedes
+acceptance; explicit operator approval is last. No public host implementation
+begins until the complete C3-B1 checkpoint exists.
 
 A checkpoint is valid only after the exact candidate's independent verification,
 complete accumulated validation, and independent acceptance all pass; its
@@ -570,7 +577,7 @@ Every batch uses five separate roles:
   naming candidate, manifest digest, commands, results, and verdict; and
 - the **primary orchestrator**, which integrates, creates the immutable
   candidate, runs the complete accumulated gate, assembles post-acceptance
-  evidence, appends checkpoints, and owns final completion.
+  evidence, appends checkpoints, and owns the terminal completion seal.
 
 An acceptance agent never repairs its candidate. A verifier cannot approve
 production behavior or expected fixtures it authored. A B2-B4 product
@@ -593,12 +600,18 @@ Every batch follows this exact order:
 
 For B5, step 6 is expressly pre-manifest acceptance: it audits B1-B4 committed
 manifests/checkpoints plus the exact final candidate and proposed B5 manifest
-inputs/readiness, never a future B5 manifest or checkpoint. After step 8, a
-separate completion-closure auditor verifies the committed B5 manifest and its
-manifest-verification record, checkpoint, and completion proof against the
-same final candidate. It records a final immutable `pass` or
-`changes_required` and does not assemble or repair those artifacts. A failed
-closure audit reopens the earliest owning correction and all invalidated gates.
+inputs/readiness, never a future B5 manifest or checkpoint. B5 then has this
+single directed terminal order: (1) commit its manifest and manifest-
+verification record; (2) commit its checkpoint with state `Complete; Cycle 3
+closure pending`; (3) commit the immutable `cycle-3-completion.md` proof
+candidate, which names the checkpoint and contains no future closure auditor,
+verdict, record, or seal reference; (4) have a distinct completion-closure
+auditor inspect only those already committed artifacts and commit its immutable
+`pass` or `changes_required` verdict; and (5), only after `pass`, commit
+`cycle-3-completion-seal.md` as the terminal stop. The seal is not an audit
+input and adds no product or proof claim. A failed closure audit reopens the
+earliest owning correction and all invalidated gates; a corrected artifact
+requires a new proof candidate and closure audit before any seal.
 
 Any product, fixture, method, dependency, workflow, limit, or test correction
 after candidate creation makes a new candidate and invalidates all earlier
@@ -640,9 +653,14 @@ from production or prohibited reference output.
 C3-B1's accepted fixture gate first freezes exact experiment-only caps for wall
 deadline, termination/force-kill grace, input samples/request bytes, output
 records and encoded/decoded bytes, stdout/stderr/diagnostic bytes, nesting,
-recursion, and worker memory/address space. Independent verification proves
-enforcement before decoder execution. Limit termination is data, not a passing
-baseline, and no experiment cap may be weakened. C3-B1 then measures and
+recursion, and worker memory/address space. C3-B1 next commits the actual runner,
+method, exact launch/import configuration, and cap/cleanup plumbing as an
+immutable pre-execution candidate. Independent verification uses inert and
+hostile non-decoder probes to prove every cap, digest/import boundary,
+termination, close, and reap path on that unchanged candidate; accumulated
+validation and acceptance pass and explicitly record that no decoder ran.
+Limit termination is data, not a passing baseline, and no experiment cap may
+be weakened. Only then does C3-B1 measure and
 freezes the environment, fixture digests, warm-up/repetition
 rules, raw observations, and deterministic counts for request size, spawn/
 import/decode time, cancellation/kill/reap latency, worker and retained memory,
@@ -761,10 +779,13 @@ Cycle 3 is complete only when one exact C3-B5 candidate satisfies every item:
     firmware, serial/live capture, dynamic discovery, stacking, `.lac`,
     packaging/publication, unsupported platform claim, or other excluded work.
 18. The B5 packet maps R1-R26 and items 1-17 to committed evidence and records
-    a clean or qualified repository; verification and pre-manifest acceptance
-    pass before manifest creation, the distinct manifest-verification pass
-    precedes checkpointing, and the separate completion-closure audit passes
-    over the committed manifest/checkpoint/completion proof.
+    a clean or qualified repository. Verification and pre-manifest acceptance
+    pass before manifest creation; the distinct manifest-verification pass and
+    manifest commit precede the closure-pending checkpoint; the immutable
+    completion-proof candidate then names that committed checkpoint and no
+    future closure artifact; the distinct closure verdict passes over those
+    committed inputs; and a terminal completion seal, which was not an audit
+    input, is committed last.
 
 A fake substitute, prohibited reference execution, skipped required gate,
 unapproved numeric value, stale candidate pass, or command-only claim cannot
@@ -792,10 +813,13 @@ satisfy an item.
 
 ## Completion proof, rollback, and handoff
 
-At completion create
+After the B5 manifest/verification record and closure-pending checkpoint are
+committed, create and commit the immutable completion-proof candidate
 `Software/LogicAnalyzerPy/docs/cycle-3-completion.md` containing:
 
-- all 18 stopping conditions and R1-R26 linked to immutable pass evidence;
+- stopping conditions 1-17 and R1-R26 linked to immutable pass evidence, plus
+  condition 18's completed manifest/verification/checkpoint ordering and
+  literal `closure pending` remainder, without naming a future artifact;
 - exact final candidate commit/tree and clean or qualified repository state;
 - exact decoder/shim/helper, dependency-lock, fixture, method, threshold,
   evidence-manifest, and relevant package-resource digests;
@@ -805,8 +829,10 @@ At completion create
 - B1 edge-semantic fixture identities, raw characterization, project/legal
   disposition, threshold reviews, and explicit operator decision;
 - all five checkpoint, implementation, verification, acceptance, correction,
-  manifest, distinct manifest-verification records, and the B5 completion-
-  closure record;
+  manifest, and distinct manifest-verification records;
+- the exact committed B5 checkpoint identity and literal state `Complete;
+  Cycle 3 closure pending`, with no predicted closure auditor, verdict, record
+  path, or terminal-seal identity;
 - the exact macOS-only support and bounded-process-containment claims;
 - known limitations and deferred work;
 - rollback to the accepted pre-Cycle-3 Python candidate and preservation of the
@@ -816,9 +842,21 @@ At completion create
   `.lac`, dynamic discovery, packaging/publication, unsupported-platform work,
   and Cycle 4 did not occur.
 
+The completion-proof candidate is immutable once submitted to closure audit.
+The distinct auditor inspects the committed B5 manifest and verification
+record, closure-pending checkpoint, and completion-proof candidate, then
+commits its verdict without repairing any input. After a `pass`, the
+orchestrator commits
+`Software/LogicAnalyzerPy/docs/cycle-3-completion-seal.md` containing only the
+commits and SHA-256 digests of those already committed audit inputs and the
+committed closure verdict, plus the statement that this seal is not an audit
+input and adds no product/evidence claim. No future artifact is named by any
+audited input.
+
 Rollback never authorizes editing or deleting the C# application or firmware.
 Stop successfully only when every condition is linked to objective evidence,
 the final verification, pre-manifest acceptance, manifest-verification, and
-post-checkpoint completion-closure verdicts are `pass`, the B5 manifest and
-checkpoint are committed in the required order, and no implementation or
-evidence correction follows the accepted candidate. Do not begin Cycle 4.
+post-proof completion-closure verdicts are `pass`, the directed B5 terminal
+chain is committed without a future reference, the terminal completion seal is
+the last Cycle 3 commit, and no implementation or evidence correction follows
+the accepted candidate. Do not begin Cycle 4.

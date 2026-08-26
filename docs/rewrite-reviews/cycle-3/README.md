@@ -166,12 +166,17 @@ command reference, or evidence reliance by an in-scope path is prohibited.
 
 A contract reviewer records `changes_required` if the documents omit or
 contradict any of these cross-domain freeze points: exact pre-characterization
-experiment caps and their review gate; integer `0xFF` optional-pin semantics
-and named mapping fixtures; a closed option-coverage matrix; explicit CSV
-capture metadata distinct from decoder mappings; the version-1 result/error
-schema and preimplementation object/byte goldens; pre-manifest B5 acceptance
-separate from post-checkpoint completion closure; the scoped prohibited-use
-rule above; or a manifest verifier independent of the orchestrator/assembler.
+experiment caps; an immutable actual-runner/method/launch/import candidate that
+passes independent inert/hostile non-decoder proof of every cap, digest/import
+boundary, termination, close, and reap path before unchanged snapshot
+execution; integer `0xFF` optional-pin semantics and named mapping fixtures; a
+closed option-coverage matrix; explicit CSV capture metadata distinct from
+decoder mappings; the version-1 result/error schema and preimplementation
+object/byte goldens; pre-manifest B5 acceptance followed by the directed
+manifest/verification commit, closure-pending checkpoint, immutable proof
+candidate with no future reference, committed closure verdict, and terminal
+non-audit-input seal; the scoped prohibited-use rule above; or a manifest
+verifier independent of the orchestrator/assembler.
 
 Creating this framework or any review directory grants no implementation,
 dependency, decoder-execution, hardware, firmware, serial, browser, publication,

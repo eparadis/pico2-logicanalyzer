@@ -192,10 +192,16 @@ plan-to-proof seam.
   review and acceptance precede explicit operator approval; enforcement and
   final unchanged-threshold measurement occur only in their owning later
   batches. No implementor invents or rebases a ceiling.
-- Before the first characterization or snapshot execution, exact conservative
-  experiment-only wall, kill-grace, input, output/diagnostic, recursion, and
-  memory/address-space caps have independent verification and acceptance. A
-  capped run is not a passing baseline and caps are never weakened for data.
+- Before the first snapshot execution, exact conservative experiment-only wall,
+  kill-grace, input, output/diagnostic, recursion, and memory/address-space caps
+  are accepted, then the actual non-installed runner, method, exact launch/
+  import configuration, and cap/cleanup plumbing are committed as an immutable
+  pre-execution candidate. Independent inert/hostile non-decoder probes prove
+  every cap, digest/import boundary, termination, close, and reap path on that
+  exact candidate; accumulated validation and acceptance pass, explicitly
+  recording that no decoder ran. Only the unchanged runner may then execute an
+  approved snapshot. A capped run is not a passing baseline, caps are never
+  weakened for data, and expected-fixture ownership remains independent.
 - C#, .NET, pythonnet, libsigrokdecode, `sigrok-cli`, and external/reference
   runtimes are absent from production and every non-production dependency and
   execution path, including development, tests, fixtures, verification,
@@ -220,9 +226,13 @@ plan-to-proof seam.
   checked before checkpointing.
 - A manifest-verifier identity distinct from the orchestrator/assembler records
   recomputed digests and schema results before manifest commit/checkpoint. B5
-  acceptance audits only B1-B4 committed manifests and B5 readiness; a
-  separate post-checkpoint completion-closure auditor checks the committed B5
-  manifest, verification record, checkpoint, and completion proof.
+  acceptance audits only B1-B4 committed manifests and B5 readiness. Its
+  terminal chain is directed: manifest/verification record commit; checkpoint
+  commit with closure pending; immutable completion-proof candidate naming the
+  checkpoint and no future closure artifact; distinct closure audit and
+  committed verdict over those inputs; terminal completion seal committed last.
+  The seal is not an audit input and audited artifacts are never amended to add
+  later identities or verdicts.
 - Evidence binds full candidate commit/tree, commands, environment, artifact
   digests, findings/dispositions, role identities, and real results. No future
   manifest, placeholder, transferred pass, or command exit alone substitutes

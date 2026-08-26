@@ -414,3 +414,27 @@ unchanged.
   `docs/reviews/c3-b1-semantic-fixture-verification-round-3.md`, cannot repair
   candidate or immutable history, and must issue exactly `pass` or
   `changes_required`. No earlier verdict transfers.
+
+### Semantic-fixture verification round 3
+
+- Tested candidate/tree: `882af78a2530879329e6525fae0c5b1f96883100` /
+  `aedb51155a25720a79417d1a34112c6e171ec0f9`.
+- Verifier/verdict: `c3-b1-semantic-fixture-verifier-1` /
+  `changes_required`; immutable record committed at `11d1c39` in
+  `docs/reviews/c3-b1-semantic-fixture-verification-round-3.md`.
+- Passing correction: all 107 waits now use truthful predicates, matched
+  tuples, pins, skip/empty/terminal behavior and source-shaped call forms;
+  provenance, imports, notices, digests, rebuild, no-oracle, and no-enforcement
+  audits also passed. These facts do not transfer to a changed candidate.
+- Remaining findings: five records exceed capture bounds; UART data lines/
+  coordinates do not encode claimed values and its combined error schedule is
+  impossible; SPI BITS/spans/output sets remain inconsistent with source; I2C
+  bus levels do not encode claimed address/data/NACK; all v1 vector time
+  denominators conflict with their root samplerate; materially different
+  accepted option values are falsely classified equivalent; and cap arithmetic
+  does not derive the stated exact values.
+- Correction owner: second replacement fixture implementor in its same role.
+  It must correct protocol data/coordinates/outputs, v1 denominators, option
+  dispositions, and cap calculations within original ownership, create a new
+  candidate, and receive fresh verification. Immutable review history cannot
+  be edited and no pass transfers.

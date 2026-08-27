@@ -1020,3 +1020,36 @@ unchanged.
   It may run only inert/hostile non-decoder probes and may not create a raw
   observation. Root will not commit or assign verification until the complete
   worktree is independently integration-reviewed with no open requirement.
+
+### Pre-candidate runner integration review round 3
+
+- Recorded: `2026-08-27T02:45:38Z`. State remains `changes_required`; the
+  replacement produced a useful dedicated-protocol prototype with 15 focused
+  passes but explicitly withheld candidate readiness. No verifier is assigned.
+- C3B1-RI007: binding v2 lists only launch/runner/worker. It omits method,
+  probes, accepted cap/fixture/provenance artifacts, and all nine exact source
+  files; it permits an empty launch allowlist, does not verify the configured
+  executable, and trusts binding-selected paths instead of requiring one exact
+  closed set. Directory-component symlink/root/shadow/bytecode constraints are
+  not proven.
+- C3B1-RI008: worker recursion and address-space limits remain unset. Decoded
+  bytes are treated as a canonical re-encoding, retained memory as raw frame
+  length, binary bytes as UTF-8 string length, and diagnostics as a truncated
+  stderr copy rather than distinct enforced counters. Production-only caps
+  still lack safe exact-boundary profiles and independent assertions.
+- C3B1-RI009: the deep probe adds an unknown top-level field and is rejected by
+  shape before depth is audited; the item probe primarily tests record count.
+  No recursion/address-space/input/request/decoded/retained/text/binary/
+  diagnostic accept-plus-one matrix exists. The future `characterize()` path
+  validates only five shallow request fields then unconditionally fails; it
+  does not yet define the closed exact file-set launch request consumed by the
+  same worker with probe selection absent.
+- C3B1-RI010: `# ruff: noqa`, dense one-line implementation, dead `_collect`,
+  and missing focused type coverage hide defects, including the invalid
+  `float.is_finite()` call. Passing Ruff under a file-wide waiver is not an
+  acceptable gate. The corrected candidate must be maintainable, type-checked,
+  and contain no broad lint suppression or dead pre-candidate path.
+- Disposition: keep the same replacement identity for a fresh correction turn;
+  finish RI001-RI010, refresh all non-self digests only after stable code/docs,
+  and rerun the expanded matrix. The work may execute only non-decoder probes
+  and remains uncommitted until root finds no open requirement.

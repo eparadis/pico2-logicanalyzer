@@ -575,3 +575,38 @@ unchanged.
   fixture generator, generated Cycle 3 fixture artifacts, fixture documentation,
   and implementation fixture tests; it remains barred from runner/product work,
   verification, acceptance, immutable history, contracts, and Cycle 4.
+
+### Corrected semantic-fixture candidate and verification round 5
+
+- Candidate commit/tree: `38276fcd8878da84c5e2b7f30e4de275f88a91b6` /
+  `ca5b3e6489f3f0285c60e4374911ca4b2b1b39a1`; worktree clean immediately
+  after commit. Candidate owner:
+  `c3-b1-semantic-fixture-implementor-replacement-6`, with all prior fixture
+  authorship and failed candidates preserved.
+- Correction: added earliest-event UART edge/skip returns and state-specific
+  idle/EOI waits; ordinary nested UART/I2C list normalization; complete
+  pre-BREAK emissions and annotation-only packet output; no-CS/active-CS SPI
+  events; intervening I2C data/STOP/repeated-START events; real per-decoder
+  ordered file-set identities; decoder-bound v1 declarations/output IDs and
+  fully materialized defaults; dependent cap/digest rebuild. Static source
+  recurrence proves SPI ends 170/180 and I2C bitrate is 49681.
+- Root focused result: generator/check, 10 implementation tests, Ruff, diff,
+  record/capture/terminal bounds, file-set hash recomputation, v1 output-ID
+  binding, and prohibited-runtime scan passed. No decoder executed.
+- Historical verification-artifact disposition: the round-1 verifier test has
+  two source-disproven assertions—binary must precede the mandatory initial
+  no-CS `CS-CHANGE`, and UART must emit Python `PACKET`. The approved batch
+  contract makes the verdict record immutable while permitting separately
+  owned verification artifacts in a descendant evidence commit. Therefore the
+  old test blob/history remains preserved, but only the original verifier may
+  correct those two assertions in the round-5 descendant; the implementor and
+  orchestrator may not edit it. This supersedes earlier progress language that
+  called the test itself immutable, without rewriting that history.
+- Verification identity: reuse only
+  `c3-b1-semantic-fixture-verifier-1` for a complete fresh round. It may edit
+  only `tests/verification/test_c3_b1_semantic_fixture_candidate.py` to replace
+  the two proven-stale assertions, and create only
+  `docs/reviews/c3-b1-semantic-fixture-verification-round-5.md`. It cannot
+  repair candidate paths. Its record binds candidate plus verification-test
+  before/after digests and verdict exactly `pass` or `changes_required`; no
+  earlier pass or finding transfers.

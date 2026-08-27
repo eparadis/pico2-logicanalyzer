@@ -2514,7 +2514,9 @@ unchanged.
 
 ## C3-B2: isolated compatibility host and containment
 
-- State: Ready.
+- State: Pending. B2 implementation exposed post-checkpoint authoritative
+  fixture finding `C3B2-IF001`; the governing correction rule reopens the B1
+  semantic-fixture gate before this batch may consume that fixture again.
 - Objective: implement one private native host that accepts only validated
   inert requests, executes exactly one hash-pinned focused decoder in one fresh
   single-use Python worker, returns the frozen typed result, and enforces every
@@ -2593,3 +2595,33 @@ unchanged.
   validation, deterministic fixture rebuild, runner binding check, final
   20-test static verifier, and the manifest/approval/fixture/proposal digest
   checks all passed. No prerequisite byte changed.
+- Implementation checkpoint: the uncommitted owned-path B2 work has a
+  functional fixed-worker UART route, closed pinned imports, lifecycle/result
+  projection, strict framed IPC, and inert compatibility coverage. It remains
+  deliberately uncommitted and is not a candidate while its authoritative
+  fixture prerequisite is reopened.
+- Open finding `C3B2-IF001`: timeline
+  `uart-msb-9bit-boundary-incomplete` declares UART `sample_point: 99`, but its
+  expected wait trace uses the default 50-percent schedule and its expected
+  records contain only the start-bit Python/annotation pair. Independent
+  inspection of the frozen UART source and declarative transitions shows that
+  the selected 99-percent option changes the sample coordinates and that
+  already-emitted incomplete-frame bit annotations cannot be omitted under the
+  accepted end-of-input rule. The accepted raw observation also differs, but
+  it is characterization evidence only and is not an expected-output oracle.
+- Finding evidence: the real private worker produced its first record at
+  samples `5..15`; the fixture specifies `0..10`. The focused implementation
+  suite currently reports `42 passed, 2 failed`: this exact semantic mismatch
+  and one superseded implementation-local wait assertion. No result has been
+  coerced, rebased, dropped, or relabeled to make the fixture pass.
+- Required disposition: Step 5 requires a new independently authored and
+  reviewed fixture candidate after the B1 gate. A fresh fixture-only
+  implementor must derive the corrected wait trace and complete expected
+  record sequence from the frozen source and declarative timeline without
+  consuming decoder/host/raw runtime output as an oracle. Independent fixture
+  verification and acceptance, affected digest/binder/manifest correction,
+  and prerequisite checkpoint repair must complete before B2 resumes.
+- Authority state: no external capability or shell authorization is missing.
+  The remaining authority need is one fresh semantic-fixture implementation
+  identity; the assigned B2 implementor is permanently barred from authoring
+  B1 expected output, and the primary orchestrator is not an evidence identity.

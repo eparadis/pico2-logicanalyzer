@@ -1446,3 +1446,51 @@ unchanged.
   before committing an immutable raw-baseline candidate. Only then may a fresh
   independent raw-baseline verifier be assigned; no pre-execution verifier or
   acceptance pass transfers.
+
+### First authorized execution discovers runner self-mutation
+
+- Recorded: `2026-08-27T05:18:30Z`. State: `changes_required`; raw-baseline
+  collection is paused and no raw candidate exists. Runner candidate
+  `11a8ade5d828830347095bf2580766c149cb8aef` remains immutable history, but its
+  verification, accumulated, and acceptance passes no longer authorize further
+  execution because the exact accepted launch is not repeatable in its own
+  closed inventory.
+- C3B1-RI013: launch arguments are `-I worker.py` while bytecode suppression is
+  supplied only through `PYTHONDONTWRITEBYTECODE=1`. CPython isolated mode
+  implies environment isolation and ignores that `PYTHON*` variable. The first
+  characterization worker therefore imports the fixed sibling
+  `snapshot_host.py` and creates
+  `tools/cycle3_characterize/__pycache__/snapshot_host.cpython-312.pyc` after
+  the parent's successful preflight. The next parent launch correctly rejects
+  that extra path as `RunnerFailure: tool inventory rejected`. A standalone
+  parent import with `python -B` leaves the inventory clean, proving the child
+  launch, not bound source bytes or the RTK wrapper, is the cause.
+- Exactly three controlled collection attempts were made while isolating the
+  cause. In each attempt only the unrecorded warm-up for
+  `uart-rx-valid-default` succeeded; it then created the cache, and all five
+  recorded repetitions plus every later warm-up/repetition failed before a
+  worker launch. Thus three authorized executions of the same accepted UART
+  snapshot occurred after the ordered acceptance gate, but zero recorded
+  baseline repetitions succeeded and no SPI or I2C snapshot ran. Earlier
+  statements that no decoder ran applied before this authorized phase; the
+  implementor's contemporaneous no-worker diagnosis was corrected by the
+  retained warm-up status and cache timing evidence.
+- The provisional uncommitted JSON was not a baseline and was not edited into
+  a pass. It and each generated cache were moved intact to explicit
+  `/private/tmp/cycle3-raw-invalidated-launch-v1-20260827T0518` and
+  `/private/tmp/cycle3-characterize-pycache-failed-*` quarantine paths. The
+  repository is clean and the frozen candidate bytes remain unchanged.
+- Correction returns to final runner owner
+  `c3-b1-pre-execution-runner-implementor-replacement-3`
+  (`/root/c3_b1_runner_impl_r4`) within its original runner/method/launch/test
+  ownership. It must make bytecode suppression an explicit isolated-child
+  executable argument, update the exact launch/binding/method/test identities,
+  and add a real consecutive characterization-route regression proving the
+  worker creates no filesystem entry and the second launch reaches the worker.
+  No cap, fixture, expected record, snapshot, product, or excluded surface may
+  change.
+- The correction creates a new immutable pre-execution runner candidate. A
+  complete fresh independent inert/hostile verification, root accumulated
+  non-decoder gate, and acceptance are mandatory before any fourth snapshot
+  execution or raw-baseline retry. No prior pass or provisional observation
+  transfers.

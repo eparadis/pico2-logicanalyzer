@@ -610,3 +610,26 @@ unchanged.
   repair candidate paths. Its record binds candidate plus verification-test
   before/after digests and verdict exactly `pass` or `changes_required`; no
   earlier pass or finding transfers.
+
+### Semantic-fixture verification round 5
+
+- Tested candidate/tree: `38276fcd8878da84c5e2b7f30e4de275f88a91b6` /
+  `ca5b3e6489f3f0285c60e4374911ca4b2b1b39a1`.
+- Verifier/verdict: `c3-b1-semantic-fixture-verifier-1` /
+  `changes_required`; immutable record and source-adjudicated verification
+  artifact committed together at `5acf903`. The corrected verifier digest is
+  `e7081c043c790223d07b76724d6b5f73cca6c1d185635b0ad18f591bbd7a5cf9`.
+- Fresh passes: all earliest-event schedules; SPI no-CS/CS/order and literal
+  newest-first recurrence at 170/180; provenance/declarations/sentinels;
+  option-matrix structure and direct reasoning; per-decoder file-set identities;
+  all v1 objects/bytes; all 17 cap derivations; generator/no-oracle/exclusions.
+  None transfers to a changed candidate.
+- Exact remaining defects: the all-low BREAK fixture's scalar/annotation/binary
+  outputs say zero while its nested bit triples still encode A5; and full I2C's
+  newly preserved partial data event at sample 370 increments `pdu_bits` to 17,
+  making metadata `int(1152000 * 17 / 371) = 52787` rather than 49681.
+- Correction owner remains
+  `c3-b1-semantic-fixture-implementor-replacement-6`, limited to these two
+  fixture defects and dependent generator/artifact/cap/test/doc rebuild. No
+  decoder runs, no immutable verification artifact is edited, and no pass
+  transfers. A new candidate and complete fresh verification are required.

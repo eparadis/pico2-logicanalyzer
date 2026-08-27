@@ -1,6 +1,7 @@
 {
     "arguments": [
         "-I",
+        "-B",
         "worker.py"
     ],
     "characterization_probe_mode": "disabled",

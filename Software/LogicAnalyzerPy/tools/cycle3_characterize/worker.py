@@ -166,6 +166,28 @@ def main() -> int:
         details = {"recursion": sys.getrecursionlimit(), "soft": soft, "hard": hard}
         _write({"version": 1, "records": [], "diagnostics": json.dumps(details)})
         return 0
+    if kind == "bytecode":
+        worker_directory = str(Path(__file__).resolve().parent)
+        sys.path.insert(0, worker_directory)
+        try:
+            probes = __import__("probes")
+        finally:
+            sys.path.remove(worker_directory)
+        probe_file = probes.__file__
+        expected_probe = Path(__file__).with_name("probes.py").resolve()
+        if probe_file is None or Path(probe_file).resolve() != expected_probe:
+            raise ValueError("probe import rejected")
+
+        _write(
+            {
+                "version": 1,
+                "records": [],
+                "diagnostics": json.dumps(
+                    {"dont_write_bytecode": sys.dont_write_bytecode, "probes": bool(probes.PROBES)}
+                ),
+            }
+        )
+        return 0
     if kind == "raise_address_space":
         soft, hard = resource.getrlimit(resource.RLIMIT_AS)
         rejected = False

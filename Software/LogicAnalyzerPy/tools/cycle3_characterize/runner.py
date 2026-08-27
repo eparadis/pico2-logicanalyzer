@@ -283,7 +283,7 @@ def _validate_launch_document(launch: object) -> None:
         raise RunnerFailure("launch configuration rejected")
     if launch["executable"] != {"major": 3, "minor": 12, "path": "sys.executable"}:
         raise RunnerFailure("launch executable rejected")
-    if launch["arguments"] != ["-I", "worker.py"]:
+    if launch["arguments"] != ["-I", "-B", "worker.py"]:
         raise RunnerFailure("launch executable rejected")
     boundary_ok = (
         launch["environment"]
@@ -323,7 +323,7 @@ def _child_environment(write_fd: int, caps: CapProfile, token: str) -> dict[str,
 
 def _popen_spec(write_fd: int, caps: CapProfile, token: str) -> dict[str, Any]:
     return {
-        "args": [sys.executable, "-I", "worker.py"],
+        "args": [sys.executable, "-I", "-B", "worker.py"],
         "cwd": TOOL_ROOT,
         "env": _child_environment(write_fd, caps, token),
         "stdin": subprocess.PIPE,

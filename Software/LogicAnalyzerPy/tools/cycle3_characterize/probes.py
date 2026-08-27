@@ -26,6 +26,7 @@ PROBES = frozenset(
         "recursion_over",
         "raise_address_space",
         "address_space_over",
+        "bytecode",
         "address_space_over",
     }
 )

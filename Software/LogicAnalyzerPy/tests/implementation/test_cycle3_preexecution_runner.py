@@ -439,11 +439,20 @@ def test_popen_spec_is_fixed_independent_of_caller_cwd(
     monkeypatch.chdir(tmp_path)
     caps = private_test_profile({"request_bytes": 1})
     spec = _popen_spec(23, caps, "token")
-    assert spec["args"] == [os.sys.executable, "-I", "worker.py"]
+    assert spec["args"] == [os.sys.executable, "-I", "-B", "worker.py"]
     assert spec["cwd"] == TOOL
     assert spec["env"] == _child_environment(23, caps, "token")
     assert spec["pass_fds"] == (23,)
     assert spec["close_fds"] is True and spec["shell"] is False
+
+
+def test_two_isolated_bytecode_probe_launches_leave_inventory_clean() -> None:
+    first = run_internal_probe("bytecode")
+    second = run_internal_probe("bytecode")
+    expected = {"dont_write_bytecode": True, "probes": True}
+    assert json.loads(first.diagnostics) == expected
+    assert json.loads(second.diagnostics) == expected
+    _verify_tool_inventory()
 
 
 @pytest.mark.parametrize(
@@ -724,9 +733,10 @@ def test_tool_imports_no_decoder_surface() -> None:
         ]
         if dynamic_imports:
             assert path.name == "worker.py"
-            assert len(dynamic_imports) == 1
-            argument = dynamic_imports[0].args[0]
-            assert isinstance(argument, ast.Constant) and argument.value == "snapshot_host"
+            assert len(dynamic_imports) == 2
+            arguments = [call.args[0] for call in dynamic_imports]
+            assert all(isinstance(argument, ast.Constant) for argument in arguments)
+            assert [argument.value for argument in arguments] == ["snapshot_host", "probes"]
 
 
 def _closed_request(decoder: str = "uart") -> dict[str, object]:

@@ -834,3 +834,64 @@ unchanged.
   or any excluded action. A `pass` authorizes only the next ordered internal
   B1 runner candidate; it does not authorize decoder execution, create a B1
   manifest/checkpoint, or transfer to a changed fixture candidate.
+
+### Semantic-fixture acceptance pass and pre-execution-runner assignment
+
+- Recorded: `2026-08-27T02:23:55Z`.
+- Fixture acceptance identity/verdict:
+  `c3-b1-semantic-fixture-acceptance-1` / `pass`; immutable record committed at
+  `5d2f800a3c4e0912031eb27580d8c858ba92c4c9` in
+  `docs/reviews/c3-b1-semantic-fixture-acceptance-round-1.md`, SHA-256
+  `99a209b07078913cd6a741485e97c863c5e1505cef1e0e581bc5b09807259598`.
+  It found no discrepancy and accepts only exact fixture candidate/tree
+  `c1420ad9b4309fc7417acbc228085b68237c24d0` /
+  `26ef344bfb76bec4a8e68be06a411b4d27d20de1` for entry into the distinct
+  runner phase. It makes no executable-enforcement, decoder-execution,
+  characterization, legal, threshold, manifest, or checkpoint claim.
+- Runner assignment starts from committed acceptance descendant/tree
+  `5d2f800a3c4e0912031eb27580d8c858ba92c4c9` /
+  `4890d67e2907dc515e089d94dadd917b71cad274`; worktree is clean.
+- Assigned implementation identity:
+  `c3-b1-pre-execution-runner-implementor-1` (`/root/c3_b1_runner_impl`),
+  distinct from the fixture implementor/verifier/acceptance identities and all
+  planned runner verifier/acceptance identities. Lane/model/reasoning:
+  implementor, `gpt-5.6-terra`, low.
+- Bounded objective: create the actual non-installed characterization runner,
+  measurement method, exact launch/import configuration, cap/cleanup plumbing,
+  and closed internal inert/hostile probe surface. The immutable candidate must
+  bind the accepted fixture/cap digests; runner/method/config/probe digests;
+  exact Python executable and arguments, environment and working directory;
+  closed import root/allowlist and pre-launch digest checks; length-framed
+  request/result transport; all 17 accepted experiment-cap values and every
+  enforcement path; graceful terminate then force-kill order; pipe/descriptor
+  closure; exact-child reap; and a valid probe after failure. Probe mode must
+  not be caller-selectable and must be disabled for later characterization.
+- Owned paths are only `tools/cycle3_characterize/`,
+  `docs/cycle-3-characterization-method.md`, and
+  `tests/implementation/test_cycle3_preexecution_runner.py` beneath
+  `Software/LogicAnalyzerPy/`. No raw observation may be created yet; the
+  separately ordered `testdata/decoders/cycle3-raw/` surface remains unopened.
+  The implementor must not change accepted fixture/cap/generator/test bytes,
+  decoder/shim/helper snapshots, product source/API/CLI, locks, workflows,
+  reviews, progress/contracts, evidence schema/manifest, or Cycle 1/2 evidence.
+- Focused implementation proof may execute only the candidate's inert/hostile
+  non-decoder probes. It must cover all cap categories and accept/reject
+  boundaries; digest/import-root/file/symlink/shadow/environment/CWD rejection;
+  framing/malformed/partial/extra/non-finite data rejection; graceful and
+  forced termination; stdout/stderr/diagnostic containment; pipe/descriptor
+  close; exact-child reap; retained-result cleanup; and recovery with a valid
+  probe after every failure. It must statically prove the decoder/helper files
+  remain inert and no probe imports fixture generation or expected outputs.
+- This assignment authorizes no decoder, compatibility shim/helper, product
+  host, C#, .NET, pythonnet, libsigrokdecode, sigrok runtime, hardware,
+  network install, raw characterization, threshold proposal, package placement,
+  publication, excluded scope, or Cycle 4 action. A clean local stdlib-only
+  Python 3.12 command shape and existing reusable root-broker approvals must be
+  used; the implementor may not request escalation directly.
+- Handoff requires a focused failing check, smallest owning implementation,
+  Ruff and focused tests passing, explicit command/results and digest map,
+  exact scope/status, no-decoder/process audit, and no open finding. The root
+  orchestrator alone integrates and commits the immutable runner candidate;
+  afterward a fresh distinct runner verifier receives only one fixed
+  verification-record path and may repair nothing. No fixture pass transfers
+  to runner enforcement.

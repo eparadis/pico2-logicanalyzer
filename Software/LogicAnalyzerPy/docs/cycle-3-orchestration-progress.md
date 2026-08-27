@@ -2052,3 +2052,24 @@ unchanged.
   unapproved status. It must transfer no pass, execute no snapshot/decoder/
   probe, and make no operator decision. A pass authorizes only presentation of
   the exact committed values for explicit operator approval or amendment.
+
+### Threshold-proposal round-2 acceptance pass and operator decision gate
+
+- Recorded: `2026-08-27T13:54:53Z`. Acceptance identity/verdict:
+  `c3-b1-pre-execution-runner-acceptance-1` / `pass`; immutable record
+  committed at `91de257667fa819dd1c183d4ec112f106ed6742a` in
+  `docs/reviews/c3-b1-threshold-proposal-acceptance-round-2.md`, SHA-256
+  `f507f0225b9326cf1fd15cbcfe61415c2554ca44bcc491bf7b0f9250e058f102`.
+- Acceptance found no open issue in candidate scope/status, `C3B1-TPV001`
+  correction, all 29 values and boundaries, evidence/provenance closure, fresh
+  verification, accumulated evidence, transparent historical applicability,
+  local tooling/authorization, ordering, cleanup, or safety. Static inspection
+  only occurred; no operator decision was made.
+- Exact proposal `395646fa1172382928581d7266723f5b044cf8f2` has now passed
+  fresh verification, complete accumulated validation, and fresh independent
+  acceptance. It remains exactly `proposal-not-approved`.
+- State: awaiting explicit operator approval or amendment of the exact round-2
+  committed values. No approved-limit record, final B1 candidate, B1 manifest,
+  checkpoint, or B2 product work is authorized before that decision. Any
+  amendment creates a new immutable proposal candidate and repeats proposal
+  verification, accumulated validation, and acceptance.

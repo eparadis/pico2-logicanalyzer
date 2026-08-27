@@ -2364,3 +2364,26 @@ unchanged.
   and must return exactly `pass` or `changes_required` after auditing the exact
   candidate, C3B1-MP001 correction, fresh verification, complete accumulated
   evidence, scope, findings, exclusions, cleanup, and manifest readiness.
+
+### C3B1-MP001 fresh acceptance pass and atomic manifest assignment
+
+- Recorded: `2026-08-27T19:23:28Z`. Fresh acceptance identity/verdict:
+  `c3-b1-final-acceptance-2` / `pass`; immutable record committed at
+  `792fec42fef2c0b37aab80bcb48231dff9949e8b`. Record SHA-256 is
+  `3eaa4dfdfe0b5a3ab002eb10c2a06cfb65433521674a18d839fa153fdf361724`.
+- Acceptance independently confirmed candidate `1f87932`, FV001 and
+  C3B1-MP001 correction ordering, all six internal identities/histories, 32
+  digests and 20 reachable commits, five evidence groups, project/legal
+  limitation, 29 exact approved boundaries, fresh distinct verification,
+  fresh complete accumulation, applicability, exclusions, and cleanup. No
+  finding remains open.
+- Root is assigned atomic creation of only `testdata/evidence/c3-b1.json`.
+  It must bind candidate/tree `1f87932` / `cbe33ca`, the truthful fresh primary
+  verifier/acceptance identities, all already-existing evidence, exact command
+  results, B1 requirement/stopping-condition ownership, and assigned fresh
+  manifest identity `c3-b1-manifest-verifier-2`. It must predict no manifest
+  verifier verdict, record, or manifest digest.
+- After assembly, that fresh manifest verifier alone may create
+  `docs/reviews/c3-b1-manifest-verification-round-1.md`. Both uncommitted files
+  are committed together only after its independent digest/schema pass; the
+  checkpoint remains later. No B2 authority exists yet.

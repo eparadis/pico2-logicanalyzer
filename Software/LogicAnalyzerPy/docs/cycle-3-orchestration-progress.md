@@ -895,3 +895,32 @@ unchanged.
   afterward a fresh distinct runner verifier receives only one fixed
   verification-record path and may repair nothing. No fixture pass transfers
   to runner enforcement.
+
+### B1 project/license disposition review assignment
+
+- Assigned: `2026-08-27T02:26:31Z` from clean orchestration commit `cac51ef`.
+- Identity: `c3-b1-project-license-reviewer-1`
+  (`/root/c3_b1_legal_review`), independent review lane, `gpt-5.6-sol`, low;
+  distinct from every B1 implementation, verification, acceptance, manifest,
+  and orchestration identity.
+- Bounded objective: settle the repository's engineering package-placement,
+  notice, attribution-manifest, license-text, and Python metadata disposition
+  for the exact nine-file GPL-2.0-or-later decoder/shim/helper set, while
+  preserving every observed source notice and the repository's existing GPLv3
+  text. The review must use authoritative primary licensing and Python
+  packaging sources, separate factual compatibility/metadata requirements from
+  legal advice, and make no publication or distribution claim.
+- The reviewer owns only
+  `docs/reviews/c3-b1-project-license-review-round-1.md`. It may inspect exact
+  source bytes, history, current metadata, accepted provenance artifacts, and
+  authoritative public documentation; it may repair nothing and may not edit
+  package/product/fixture/runner/test/lock/workflow/governance/evidence paths.
+  The record must bind exact file/digest identities, state the precise future
+  private package placement, retained notices/attribution/license files and
+  metadata changes required before snapshots enter an installed distribution,
+  list unresolved external-counsel limitations without using them to simulate
+  a conclusion, and end exactly `pass` or `changes_required`.
+- No decoder, runner, C#/.NET/pythonnet/libsigrokdecode/sigrok runtime,
+  dependency install, hardware, package build/publication, or Cycle 4 action is
+  authorized. This static review can proceed in parallel with the non-decoder
+  runner implementation; neither result transfers to the other.

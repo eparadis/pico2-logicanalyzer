@@ -1,0 +1,75 @@
+{
+    "arguments": [
+        "-I",
+        "worker.py"
+    ],
+    "characterization_probe_mode": "disabled",
+    "environment": {
+        "PYTHONNOUSERSITE": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": ""
+    },
+    "executable": {
+        "major": 3,
+        "minor": 12,
+        "path": "sys.executable"
+    },
+    "import_roots": [
+        "tools/cycle3_characterize"
+    ],
+    "protocol_fd": "inherited-write-only",
+    "request_version": 1,
+    "schema": "cycle3-characterize-launch/v3",
+    "source_allowlist": [
+        "Software/decoders/common/srdhelper/__init__.py",
+        "Software/decoders/common/srdhelper/mod.py",
+        "Software/decoders/i2c/__init__.py",
+        "Software/decoders/i2c/pd.py",
+        "Software/decoders/sigrokdecode.py",
+        "Software/decoders/spi/__init__.py",
+        "Software/decoders/spi/pd.py",
+        "Software/decoders/uart/__init__.py",
+        "Software/decoders/uart/pd.py",
+        "docs/cycle-3-characterization-method.md",
+        "testdata/decoders/cycle3/experiment-caps.json",
+        "testdata/decoders/cycle3/manifest.json",
+        "testdata/decoders/cycle3/option-matrix.json",
+        "testdata/decoders/cycle3/provenance.json",
+        "testdata/decoders/cycle3/semantic-fixtures.json",
+        "testdata/decoders/cycle3/typed-vectors.json",
+        "tools/cycle3_characterize/__init__.py",
+        "tools/cycle3_characterize/accounting.py",
+        "tools/cycle3_characterize/binding.py",
+        "tools/cycle3_characterize/launch.json",
+        "tools/cycle3_characterize/probes.py",
+        "tools/cycle3_characterize/runner.py",
+        "tools/cycle3_characterize/snapshot_host.py",
+        "tools/cycle3_characterize/worker.py"
+    ],
+    "stdlib_allowlist": [
+        "argparse",
+        "base64",
+        "collections",
+        "dataclasses",
+        "enum",
+        "hashlib",
+        "itertools",
+        "json",
+        "math",
+        "mmap",
+        "os",
+        "pathlib",
+        "re",
+        "resource",
+        "secrets",
+        "selectors",
+        "signal",
+        "struct",
+        "subprocess",
+        "sys",
+        "time",
+        "typing",
+        "types"
+    ],
+    "working_directory": "tools/cycle3_characterize"
+}

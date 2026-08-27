@@ -1652,3 +1652,32 @@ unchanged.
   candidate equality, cache-free repeated execution, and process cleanup before
   committing the raw candidate and assigning independent reproduction. No
   threshold proposal or product-host work is authorized yet.
+
+### Concurrent collector attempt invalidated before raw candidate
+
+- Recorded: `2026-08-27T05:46:21Z`. State: raw collection restart required;
+  corrected runner authority remains valid and unchanged, but no observation
+  from this attempt may transfer.
+- The implementor launched collector PID 8908 and, after its long no-output
+  interval, launched a second collector PID 9980 instead of resuming the first
+  command session. Root detected both exact collectors concurrently. Concurrent
+  worker scheduling and shared parent/machine resource contention invalidate
+  every timing and retained-memory observation from both processes; a shared
+  output target also made eventual file replacement unsafe.
+- Root interrupted the implementor and terminated only the four exact collector/
+  wrapper PIDs 8906, 8908, 9957, and 9980. No worker remained. The collector was
+  deliberately write-at-end, so no raw repository artifact or partial result
+  was created; the number of completed snapshot calls before termination was
+  not retained and no result can be represented as baseline evidence.
+- Static root audit also rejected the temporary collector before reuse: success
+  resource timestamps were evaluated before the runner call; empty valid-probe
+  diagnostics were parsed as JSON; pin initialization was implicit; environment
+  identities/digests were incomplete; and per-field and hostile summaries were
+  incomplete. These are temporary orchestration-script defects, not changes to
+  the frozen runner or caps.
+- The same raw owner must correct only the temporary collector and hand it to
+  root without execution. Root will start and monitor exactly one serialized
+  process to completion, validate all required fields and counts before any
+  repository write is accepted, and restart warm-up plus all five repetitions
+  from zero. No concurrent or killed result transfers, and no threshold or
+  product authority is created.

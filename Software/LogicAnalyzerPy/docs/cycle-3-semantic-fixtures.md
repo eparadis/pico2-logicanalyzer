@@ -36,6 +36,11 @@ static source transcriptions, never decoder execution.
 The option matrix is closed. Every accepted row names one of those finite direct
 fixtures, while unsupported rows name their explicit rejection rule.
 It never manufactures a one-edge stimulus merely to claim option coverage.
+Packet-delimiter boundaries retain the checked-in `rx_packet_delim` or
+`tx_packet_delim` key and a machine-readable selected `data_bits` context:
+both directions cover inclusive maxima and exclusive max-plus-one values for
+widths 5 through 9. The provenance import inventory also names every local
+relative edge, including `common.srdhelper` initializer import `.mod`.
 
 `typed-vectors.json` is independently literal v1 object data plus canonical
 UTF-8 JSON bytes, including every Python value tag and all four record kinds.

@@ -100,8 +100,8 @@ def option_rows() -> list[dict[str, object]]:
             "invert_rx": ["yes", "no"],
             "invert_tx": ["yes", "no"],
             "sample_point": [1, 50, 99],
-            "rx_packet_delim": [-1, 0, 255, 511],
-            "tx_packet_delim": [-1, 0, 255, 511],
+            "rx_packet_delim": [-1, 0, 31, 63, 127, 255, 511],
+            "tx_packet_delim": [-1, 0, 31, 63, 127, 255, 511],
             "rx_packet_len": [-1, 1],
             "tx_packet_len": [-1, 1],
         },
@@ -157,6 +157,11 @@ def option_rows() -> list[dict[str, object]]:
                         "fixture": direct_fixture,
                         "equivalence_argument": None,
                         "rejection_rule": None,
+                        "selected_width_context": (
+                            {"data_bits": value.bit_length()}
+                            if option.endswith("packet_delim") and value in {31, 63, 127, 255, 511}
+                            else None
+                        ),
                     }
                 )
     rejected = [
@@ -186,21 +191,8 @@ def option_rows() -> list[dict[str, object]]:
     for direction in ("rx", "tx"):
         for width in (5, 6, 7, 8, 9):
             maximum = (1 << width) - 1
-            rejected += [
-                (
-                    "uart",
-                    f"{direction}_packet_delim_width_{width}",
-                    maximum + 1,
-                    f"data_bits={width} maximum {maximum}",
-                ),
-                (
-                    "uart",
-                    f"{direction}_packet_delim_width_{width}",
-                    -2,
-                    "-1 or non-negative integer",
-                ),
-                ("uart", f"{direction}_packet_delim_width_{width}", "1", "integer, not string"),
-            ]
+            # Width-dependent delimiter rejections are appended below with
+            # the real option key and explicit data_bits context.
         rejected += [
             ("uart", f"{direction}_packet_len", value, "-1 or positive integer")
             for value in (0, -2, "1", True)
@@ -254,6 +246,30 @@ def option_rows() -> list[dict[str, object]]:
                 "rejection_rule": rule,
             }
         )
+    for direction in ("rx", "tx"):
+        option = f"{direction}_packet_delim"
+        for width in (5, 6, 7, 8, 9):
+            maximum = (1 << width) - 1
+            for value, rule in (
+                (maximum + 1, f"data_bits={width} maximum {maximum}"),
+                (-2, "-1 or non-negative integer"),
+                ("1", "integer, not string"),
+            ):
+                type_id = type(value).__name__.replace("bool", "boolean")
+                rows.append(
+                    {
+                        "id": f"reject-uart-{option}-width-{width}-{type_id}-{str(value).replace('-', 'neg')}",
+                        "decoder": "uart",
+                        "option": option,
+                        "value": value,
+                        "classification": "exclusive-boundary-sentinel-or-prelaunch-type",
+                        "disposition": "unsupported",
+                        "fixture": None,
+                        "equivalence_argument": None,
+                        "rejection_rule": rule,
+                        "selected_width_context": {"data_bits": width},
+                    }
+                )
     source_equivalence = {
         "baudrate": "uart.Decoder.metadata() sets bit_width=samplerate/baudrate; the fixture uses the same integral 10-sample invariant only for value 115200",
         "data_bits": "uart.get_data_bits() compares cur_data_bit with options['data_bits']; the named direct fixture materializes the same completed-width branch",
@@ -512,6 +528,7 @@ def build() -> dict[str, object]:
             "bytes, and one LF byte; SHA-256 the resulting byte stream."
         ),
         "permitted_imports": [
+            "common.srdhelper.mod (relative package import .mod)",
             "i2c.pd (relative package import .pd)",
             "spi.pd (relative package import .pd)",
             "uart.pd (relative package import .pd)",
@@ -2119,13 +2136,15 @@ def build() -> dict[str, object]:
     # each witness gets a separately displaced finite trace *and* a changed
     # source-visible output. Each accepted row has its own literal source-shaped
     # input, waits, and output; no option row relies on equivalence prose.
-    def direct_uart(option: str, value: object) -> dict[str, object]:
+    def direct_uart(
+        option: str, value: object, selected_width_context: dict[str, int] | None = None
+    ) -> dict[str, object]:
         """Literal finite UART frame derived from the selected source branch."""
         options = {option: value}
         bits_n = int(value) if option == "data_bits" else 8
-        if option.endswith("packet_delim") and value == 511:
-            bits_n = 9
-            options["data_bits"] = 9
+        if option.endswith("packet_delim") and selected_width_context is not None:
+            bits_n = selected_width_context["data_bits"]
+            options["data_bits"] = bits_n
         baud = int(value) if option == "baudrate" else 115200
         samplerate = 10 if baud == 1 else 1_152_000
         bit_width = samplerate // baud
@@ -2188,8 +2207,8 @@ def build() -> dict[str, object]:
         records += [
             record(len(records), "python", {"tag": "list", "value": [tag_string("DATA"), tag_integer(direction), {"tag": "tuple", "value": [tag_integer(data), {"tag": "list", "value": entries}]}]}, data_start, data_end, 0),
             record(len(records) + 1, "annotation", {"class_index": data_class, "texts": [rendered]}, data_start, data_end, 2),
-            record(len(records) + 2, "binary", {"class_index": direction, "data_base64": "AKU=" if bits_n == 9 and data == 165 else {0: "AA==", 5: "BQ==", 37: "JQ==", 163: "ow==", 165: "pQ==", 255: "/w==", 511: "Af8="}[data]}, data_start, data_end, 1),
-            record(len(records) + 3, "binary", {"class_index": 2, "data_base64": "AKU=" if bits_n == 9 and data == 165 else {0: "AA==", 5: "BQ==", 37: "JQ==", 163: "ow==", 165: "pQ==", 255: "/w==", 511: "Af8="}[data]}, data_start, data_end, 1),
+            record(len(records) + 2, "binary", {"class_index": direction, "data_base64": "AKU=" if bits_n == 9 and data == 165 else {0: "AA==", 5: "BQ==", 31: "Hw==", 37: "JQ==", 63: "Pw==", 127: "fw==", 163: "ow==", 165: "pQ==", 255: "/w==", 511: "Af8="}[data]}, data_start, data_end, 1),
+            record(len(records) + 3, "binary", {"class_index": 2, "data_base64": "AKU=" if bits_n == 9 and data == 165 else {0: "AA==", 5: "BQ==", 31: "Hw==", 37: "JQ==", 63: "Pw==", 127: "fw==", 163: "ow==", 165: "pQ==", 255: "/w==", 511: "Af8="}[data]}, data_start, data_end, 1),
         ]
         packet = (option.endswith("packet_len") and value == 1) or (option.endswith("packet_delim") and value == data)
         if packet:
@@ -2208,7 +2227,9 @@ def build() -> dict[str, object]:
         if option_row["disposition"] != "direct-fixture" or not str(witness_id).startswith("direct-"):
             continue
         if option_row["decoder"] == "uart":
-            witness = direct_uart(option_row["option"], option_row["value"])
+            witness = direct_uart(
+                option_row["option"], option_row["value"], option_row.get("selected_width_context")
+            )
         else:
             # Explicit mode-0 MOSI schedule: sample on rising edges 10..150,
             # with intervening falling edges.  CS polarity is meaningful only

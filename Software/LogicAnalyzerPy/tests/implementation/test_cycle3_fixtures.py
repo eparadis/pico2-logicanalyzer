@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import base64
 import hashlib
 import json
 import subprocess
@@ -113,6 +114,7 @@ def test_provenance_is_closed_and_matches_checked_in_static_sources() -> None:
     assert provenance["import_commit"] == "407b5ef039aa0474c400c0721749baa126e53270"
     assert provenance["prior_gitlink"] == "0235970293590f673a253950e6c61017cefa97df"
     assert provenance["permitted_imports"] == [
+        "common.srdhelper.mod (relative package import .mod)",
         "i2c.pd (relative package import .pd)",
         "spi.pd (relative package import .pd)",
         "uart.pd (relative package import .pd)",
@@ -261,7 +263,13 @@ def test_matrix_equivalence_is_named_source_specific_and_caps_cover_all_categori
     rows = load("option-matrix.json")["rows"]
     assert len({row["id"] for row in rows}) == len(rows)
     semantic_rows = {
-        (row["decoder"], row["option"], repr(row["value"]), row["rejection_rule"])
+        (
+            row["decoder"],
+            row["option"],
+            repr(row["value"]),
+            row["rejection_rule"],
+            repr(row.get("selected_width_context")),
+        )
         for row in rows
         if row["disposition"] == "unsupported"
     }
@@ -274,6 +282,62 @@ def test_matrix_equivalence_is_named_source_specific_and_caps_cover_all_categori
         for row in rows
         if row["disposition"] == "static-equivalence"
     )
+    delimiter_rows = [
+        row
+        for row in rows
+        if row["decoder"] == "uart" and row["option"] in {"rx_packet_delim", "tx_packet_delim"}
+    ]
+    assert not any("_packet_delim_width_" in row["option"] for row in rows)
+    timelines = {
+        timeline["id"]: timeline for timeline in load("semantic-fixtures.json")["timelines"]
+    }
+    for direction in ("rx", "tx"):
+        option = f"{direction}_packet_delim"
+        for width in range(5, 10):
+            maximum = (1 << width) - 1
+            accepted = next(
+                row
+                for row in delimiter_rows
+                if row["option"] == option
+                and row["value"] == maximum
+                and row["disposition"] == "direct-fixture"
+                and row.get("selected_width_context") == {"data_bits": width}
+            )
+            assert accepted["fixture"]
+            timeline = timelines[accepted["fixture"]]
+            assert timeline["options"][option] == maximum
+            assert timeline["options"]["data_bits"] == width
+            assert timeline["mapping"] == {direction: 4}
+            data = next(
+                record
+                for record in timeline["expected_records"]
+                if record["kind"] == "python" and record["value"]["value"][0]["value"] == "DATA"
+            )
+            assert data["value"]["value"][1]["value"] == (1 if direction == "tx" else 0)
+            assert data["value"]["value"][2]["value"][0]["value"] == maximum
+            triples = data["value"]["value"][2]["value"][1]["value"]
+            assert len(triples) == width
+            assert [triple["value"][0]["value"] for triple in triples] == [1] * width
+            expected_b64 = base64.b64encode(
+                maximum.to_bytes((width + 7) // 8, byteorder="big")
+            ).decode("ascii")
+            assert [
+                record["value"]["data_base64"]
+                for record in timeline["expected_records"]
+                if record["kind"] == "binary"
+            ] == [expected_b64, expected_b64]
+            assert any(
+                record["kind"] == "annotation"
+                and record["value"].get("class_index") == 16 + (direction == "tx")
+                for record in timeline["expected_records"]
+            )
+            assert any(
+                row["option"] == option
+                and row["value"] == maximum + 1
+                and row["disposition"] == "unsupported"
+                and row.get("selected_width_context") == {"data_bits": width}
+                for row in delimiter_rows
+            )
 
 
 def test_direct_option_witnesses_bind_value_to_stimulus_wait_and_output() -> None:

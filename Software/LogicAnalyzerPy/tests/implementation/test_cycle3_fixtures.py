@@ -150,6 +150,41 @@ def test_provenance_is_closed_and_matches_checked_in_static_sources() -> None:
             assert "GPLv2-or-later" in item["notice_observation"]
 
 
+def test_uart_declaration_descriptions_are_static_source_bound() -> None:
+    """Read the checked-in source as data; never import or execute a decoder."""
+    source = ROOT.parents[1] / "Software" / "decoders" / "uart" / "pd.py"
+    module = ast.parse(source.read_text(encoding="utf-8"))
+    decoder = next(
+        node
+        for node in module.body
+        if isinstance(node, ast.ClassDef) and node.name == "Decoder"
+    )
+    assignment = next(
+        node
+        for node in decoder.body
+        if isinstance(node, ast.Assign)
+        and any(
+            isinstance(target, ast.Name) and target.id == "annotations" for target in node.targets
+        )
+    )
+    source_annotations = ast.literal_eval(assignment.value)
+    expected = [("rx-parity-err", "RX parity error bit"), ("tx-parity-err", "TX parity error bit")]
+    assert list(source_annotations[6:8]) == expected
+    timelines = load("semantic-fixtures.json")["timelines"]
+    for timeline in timelines:
+        if timeline["decoder"] == "uart":
+            assert [
+                (item["id"], item["description"])
+                for item in timeline["declarations"]["annotations"][6:8]
+            ] == expected
+    for vector in load("typed-vectors.json")["vectors"]:
+        if vector["object"]["decoder"]["id"] == "uart":
+            assert [
+                (item["id"], item["description"])
+                for item in vector["object"]["declarations"]["annotations"][6:8]
+            ] == expected
+
+
 def test_semantics_sentinels_options_tags_and_caps_are_closed() -> None:
     fixtures = load("semantic-fixtures.json")
     assert {item["id"] for item in fixtures["edge_decisions"]} == {

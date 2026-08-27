@@ -1681,3 +1681,25 @@ unchanged.
   repository write is accepted, and restart warm-up plus all five repetitions
   from zero. No concurrent or killed result transfers, and no threshold or
   product authority is created.
+
+### First serialized raw run discarded before repository write
+
+- Recorded: `2026-08-27T05:54:46Z`. The corrected temporary collector first
+  rejected its own logical-to-physical request packer before any worker launch;
+  root fixed it to maintain `D<number>` physical-pin state and require every
+  mapped pin's explicit sample-zero transition.
+- One and only one monitored collector session then completed the 63 timeline
+  warm-up/five-repetition loops and all ten hostile warm-up/five-repetition plus
+  required recovery loops: 378 snapshot-route calls and 100 inert/hostile probe
+  calls. After collection, its metadata-only digest step incorrectly resolved
+  repository-relative `Software/decoders/...` paths beneath
+  `Software/LogicAnalyzerPy` and raised `FileNotFoundError`.
+- The collector's write-at-end design created no repository raw file. Therefore
+  none of that run's outputs, timings, counts, or resources can be audited or
+  transferred, and the entire run is discarded rather than spliced or edited.
+  The frozen runner, method, snapshots, caps, and environment class are
+  unchanged; no cache, worker, or raw file remained.
+- Root corrected only the temporary digest resolver to use repository root for
+  `Software/...` paths. A new single monitored run must restart every warm-up
+  and repetition from zero and pass all pre-write assertions before any raw
+  candidate may exist.

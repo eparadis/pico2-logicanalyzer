@@ -1985,3 +1985,28 @@ unchanged.
   candidate, the existing verifier role receives a fresh round-2 assignment;
   accumulated validation and fresh acceptance remain forbidden until that
   new verdict passes.
+
+### Immutable threshold-proposal round-2 candidate and verification assignment
+
+- Recorded: `2026-08-27T13:33:55Z`. Corrected proposal candidate commit/tree:
+  `395646fa1172382928581d7266723f5b044cf8f2` /
+  `6857f9a67ff70220e6d6b2a11f9ca450005c8321`. Proposal JSON SHA-256 is
+  `94882b710f2d569c0ea0535366a0c1c3df3514aa20a18e4cd35f652177458ec2`;
+  rationale SHA-256 is
+  `18a6b58a2b05f7dd7aa302a6e1bb4d074621440648a2e735a1d16d9708b209b0`.
+- Root's pre-candidate audit passed JSON parsing, exactly 29 limits, unapproved
+  status, exact 900-ms formula arithmetic and boundaries, and normalized
+  equality with round 1 after reversing only the assigned correction and
+  round/provenance metadata. No other numeric proposal meaning changed.
+- Fresh round-2 verification is assigned to existing verifier-role identity
+  `c3-b1-pre-execution-runner-verifier-1`
+  (`/root/c3_b1_runner_verify`). It may create only
+  `tests/verification/test_c3_b1_threshold_proposal_round2.py` and
+  `docs/reviews/c3-b1-threshold-proposal-verification-round-2.md`; it may
+  repair nothing and must report exactly `pass` or `changes_required`.
+- The verifier must repeat the complete round-1 proposal audit and negative
+  matrix against the new immutable candidate, independently recompute
+  `ceil_to_100ms(105815301 * 8) == 900000000`, audit exact correction scope
+  and complete provenance, and transfer no earlier pass. Static inspection
+  only; no snapshot, decoder, hostile probe, product host, hardware, network,
+  install, external runtime, or excluded action is authorized.

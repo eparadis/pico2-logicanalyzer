@@ -989,3 +989,34 @@ unchanged.
   product/package gate before snapshots can enter an installed distribution;
   they do not alter or unblock the current non-installed, non-decoder runner
   probe gate.
+
+### Pre-candidate runner integration review round 2 and identity replacement
+
+- Recorded: `2026-08-27T02:37:05Z`. State remains `changes_required`; no
+  candidate or runner-gate verdict exists. Initial implementor
+  `c3-b1-pre-execution-runner-implementor-1` remained in scope and correctly
+  declined candidate readiness, but exhausted its implementation turns before
+  completing RI003/RI004.
+- C3B1-RI005: the protocol currently shares stdout even though accepted
+  `stdout_bytes=193152` is smaller than `encoded_bytes=6180864`; that makes the
+  encoded-result domain unreachable and conflates protocol with diagnostic
+  containment. The corrected design requires a separately inherited bounded
+  protocol pipe/descriptor, with stdout and stderr independently captured and
+  bounded, explicit diagnostic accounting, and all streams closed/reaped.
+- C3B1-RI006: the surface exposes only `run_internal_probe`; it lacks the exact
+  later characterization entry point/request shape that will execute only the
+  closed approved snapshot set after the runner gate passes. The immutable
+  candidate must contain and bind that real path with internal probe mode
+  disabled, even though only probes may execute before acceptance.
+- Replacement identity:
+  `c3-b1-pre-execution-runner-implementor-replacement-1`
+  (`/root/c3_b1_runner_impl_r2`), implementor lane, `gpt-5.6-terra`, low. It is
+  distinct from every fixture/verifier/acceptance/manifest/orchestration role,
+  inherits only the original three path families, and may replace incomplete
+  uncommitted runner work. The original identity remains immutable history and
+  authors no expected fixture.
+- The replacement must close RI001-RI006, remove incomplete/dead paths and
+  overclaims, and produce strong focused proof for every candidate invariant.
+  It may run only inert/hostile non-decoder probes and may not create a raw
+  observation. Root will not commit or assign verification until the complete
+  worktree is independently integration-reviewed with no open requirement.

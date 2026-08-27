@@ -1053,3 +1053,43 @@ unchanged.
   finish RI001-RI010, refresh all non-self digests only after stable code/docs,
   and rerun the expanded matrix. The work may execute only non-decoder probes
   and remains uncommitted until root finds no open requirement.
+
+### Runner enforcement discovery reopens semantic-fixture cap candidate
+
+- Recorded: `2026-08-27T02:56:04Z`. State: semantic-fixture correction in
+  progress; runner work paused before any candidate. Exact fixture candidate
+  `c1420ad9b4309fc7417acbc228085b68237c24d0` remains immutable history, but its
+  round-8 verification, accumulated, and acceptance passes no longer authorize
+  subsequent work because one accepted cap is not enforceable on the governed
+  environment class.
+- C3B1-RI011: accepted `worker_address_space_bytes=2966700032` is below the
+  freshly launched managed CPython 3.12.13 macOS-x86_64 virtual-address-space
+  baseline. A clean inert Python child measured `34272160` KiB VSZ
+  (`35094691840` bytes) and 9440 KiB RSS before importing any decoder. Exact
+  `resource.setrlimit(RLIMIT_AS, (2966700032, 2966700032))` fails before request
+  parsing with `ValueError: current limit exceeds maximum limit`; silently
+  skipping, relabelling as RSS/data/growth, or accepting cap termination would
+  weaken/change the frozen cap and is prohibited.
+- Feasibility boundary: exact `RLIMIT_AS` of `68719476736` bytes (64 GiB) sets
+  successfully in the same managed Python environment. This is discovery input
+  only, not an approved replacement cap. The fixture owner must derive one
+  conservative exact finite macOS-x86_64 address-space floor, regenerate every
+  dependent cap/manifest/digest/prose/assertion, and preserve accept-at-value /
+  reject-at-value-plus-one semantics. The corrected cap still makes no runtime
+  or product-threshold claim.
+- Ordered invalidation: semantic-fixture verification round 8, accumulated
+  round 1, and acceptance round 1 remain historically accurate for their exact
+  old candidate but transfer no pass. Project/license review remains an
+  independent unchanged static input. No pre-execution-runner candidate,
+  verifier, accumulated result, acceptance, decoder execution, raw observation,
+  or threshold exists.
+- Correction owner is the existing fixture-only identity
+  `c3-b1-semantic-fixture-implementor-replacement-6`; it may edit only its
+  original fixture-owned paths and may not touch runner/review/progress/product/
+  contract paths. A fresh immutable fixture candidate, complete independent
+  verification, accumulated validation, and acceptance are mandatory before
+  runner implementation resumes.
+- The uncommitted runner prototype was moved intact outside the repository for
+  later adaptation; the repository is clean. It is not evidence, a candidate,
+  or an accepted implementation, and none of its old-cap digests/results may
+  transfer.

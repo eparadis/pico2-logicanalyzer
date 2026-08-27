@@ -216,6 +216,163 @@ def test_matrix_equivalence_is_named_source_specific_and_caps_cover_all_categori
     )
 
 
+def test_direct_option_witnesses_bind_value_to_stimulus_wait_and_output() -> None:
+    """A direct row cannot pass merely because its ID/options were renamed.
+
+    The source fixture generator gives every direct row an independently
+    placed finite trace and a final source-branch emission.  This check binds
+    the matrix value to all three observable layers and rejects a future
+    baseline deep-copy whose expected output happens to look plausible.
+    """
+    rows = [
+        row for row in load("option-matrix.json")["rows"] if row["disposition"] == "direct-fixture"
+    ]
+    timelines = {
+        timeline["id"]: timeline for timeline in load("semantic-fixtures.json")["timelines"]
+    }
+    direct_rows = [row for row in rows if row["fixture"].startswith("direct-")]
+    assert direct_rows
+    for row in direct_rows:
+        timeline = timelines[row["fixture"]]
+        assert timeline["options"][row["option"]] == row["value"]
+        # Input edge positions and waits are literal protocol timing, while
+        # DATA/format/parity/stop/packet records appear in source state order.
+        edges = tuple(
+            (channel, tuple(tuple(edge) for edge in values))
+            for channel, values in sorted(timeline["transitions"].items())
+        )
+        waits = tuple(wait["sample"] for wait in timeline["expected_wait_trace"])
+        assert min(edge[0] for _, values in edges for edge in values if edge[0]) > 0
+        assert max(waits) > 1
+        records = timeline["expected_records"]
+        assert [item["emission_index"] for item in records] == list(range(len(records)))
+        tags = [item["value"]["value"][0]["value"] for item in records if item["kind"] == "python"]
+        if row["decoder"] == "uart":
+            assert tags.index("DATA") < tags.index("FRAME")
+            width = timeline["samplerate_hz"] // int(timeline["options"].get("baudrate", 115200))
+            bits_n = int(timeline["options"].get("data_bits", 8))
+            frame_start = timeline["transitions"]["D4"][1][0]
+            point = int(timeline["options"].get("sample_point", 50))
+            centres = [
+                frame_start + ((width - 1) * point + 99) // 100 + slot * width
+                for slot in range(len(timeline["expected_wait_trace"]) - 2)
+            ]
+            waits = timeline["expected_wait_trace"]
+            raw_start = (
+                "r"
+                if timeline["options"].get("invert_rx") == "yes"
+                or timeline["options"].get("invert_tx") == "yes"
+                else "f"
+            )
+            assert (
+                waits[0]["condition"][0]["0" if "rx" in timeline["mapping"] else "1"] == raw_start
+            )
+            previous = frame_start
+            for wait, centre in zip(waits[1:-1], centres):
+                assert wait["sample"] == centre
+                assert wait["condition"][0]["skip"] == centre - previous
+                previous = centre
+            stop_bits = float(timeline["options"].get("stop_bits", 1.0))
+            frame_len = int(
+                (1 + bits_n + (timeline["options"].get("parity", "none") != "none") + stop_bits)
+                * width
+            )
+            terminal = waits[-1]
+            assert len(terminal["condition"]) == 3
+            assert terminal["condition"][2]["skip"] == frame_start + 2 * frame_len - previous
+            half_floor, half_ceil = width // 2, (width + 1) // 2
+            start = records[0]
+            assert (start["start_sample"], start["end_sample"]) == (
+                centres[0] - half_floor,
+                centres[0] + half_ceil,
+            )
+            data_record = next(
+                item
+                for item in records
+                if item["kind"] == "python" and item["value"]["value"][0]["value"] == "DATA"
+            )
+            assert (data_record["start_sample"], data_record["end_sample"]) == (
+                centres[1] - half_floor,
+                centres[bits_n] + half_ceil,
+            )
+            frame = next(
+                item
+                for item in records
+                if item["kind"] == "python" and item["value"]["value"][0]["value"] == "FRAME"
+            )
+            assert frame["end_sample"] == centres[-1] + half_ceil
+        if row["decoder"] == "uart" and row["option"] == "parity" and row["value"] != "none":
+            assert tags.index("PARITYBIT") > tags.index("DATA")
+        if row["decoder"] == "uart" and row["option"] == "stop_bits" and row["value"] != 0.0:
+            assert tags.index("STOPBIT") > tags.index("DATA")
+        if row["option"].endswith("packet_len") and row["value"] == 1:
+            assert any(item["value"].get("class_index") in {16, 17} for item in records)
+    # The snapshot uses ceil() for sample centres: 10 samples/bit at 50%
+    # therefore samples the start slot at 6, not the floor value 5.
+    default_uart = timelines["direct-uart-parity-none"]
+    assert default_uart["expected_wait_trace"][1]["sample"] == 15
+    active_low = timelines["direct-spi-cs_polarity-activeneglow"]
+    cs_tags = [
+        item["value"]["value"][0]["value"]
+        for item in active_low["expected_records"]
+        if item["kind"] == "python"
+    ]
+    assert cs_tags[0] == "CS-CHANGE" and cs_tags[-2:] == ["CS-CHANGE", "TRANSFER"]
+    transfer = active_low["expected_records"][-1]["value"]["value"][1]
+    assert transfer["value"] == [{"tag": "spi-data", "ss": 10, "es": 170, "val": 165}]
+    for ident in (
+        "spi-mosi-mode0-word8",
+        "spi-miso-mode3-word8",
+        "direct-spi-bitorder-msbnegfirst",
+        "direct-spi-cs_polarity-activeneglow",
+    ):
+        timeline = timelines[ident]
+        assert timeline["expected_wait_trace"][-1]["sample"] == timeline["sample_count"]
+        assert timeline["sample_count"] == max(
+            item["end_sample"] for item in timeline["expected_records"]
+        )
+    for value in (0, 255, 511):
+        timeline = timelines[f"direct-uart-rx_packet_delim-{str(value).replace('-', 'neg')}"]
+        data = next(
+            item
+            for item in timeline["expected_records"]
+            if item["kind"] == "python" and item["value"]["value"][0]["value"] == "DATA"
+        )
+        assert data["value"]["value"][2]["value"][0]["value"] == value
+        assert any(item["value"].get("class_index") == 16 for item in timeline["expected_records"])
+    delimiter_511 = timelines["direct-uart-rx_packet_delim-511"]
+    assert delimiter_511["options"]["data_bits"] == 9
+    binary = [item for item in delimiter_511["expected_records"] if item["kind"] == "binary"]
+    assert [item["value"]["data_base64"] for item in binary] == ["Af8=", "Af8="]
+    nine = timelines["direct-uart-data_bits-9"]
+    nine_tags = [
+        item["value"]["value"][0]["value"]
+        for item in nine["expected_records"]
+        if item["kind"] == "python"
+    ]
+    assert nine_tags[-1] == "FRAME" and nine_tags.index("DATA") < nine_tags.index("FRAME")
+    assert [
+        item["value"]["data_base64"]
+        for item in nine["expected_records"]
+        if item["kind"] == "binary"
+    ] == ["AKU=", "AKU="]
+    msb = timelines["direct-uart-bit_order-msbnegfirst"]
+    msb_data = next(
+        item
+        for item in msb["expected_records"]
+        if item["kind"] == "python" and item["value"]["value"][0]["value"] == "DATA"
+    )
+    assert msb_data["value"]["value"][2]["value"][0]["value"] == 163
+    p99 = timelines["direct-uart-sample_point-99"]
+    assert p99["expected_wait_trace"][1]["sample"] == 19
+    even = timelines["direct-uart-parity-even"]
+    assert any(
+        item["value"]["value"][0]["value"] == "PARITYBIT"
+        for item in even["expected_records"]
+        if item["kind"] == "python"
+    )
+
+
 def test_static_wait_predicates_and_source_order_are_truthful() -> None:
     """Evaluate literal r/f/e/h/skip predicates without importing a decoder.
 
@@ -288,9 +445,28 @@ def test_static_wait_predicates_and_source_order_are_truthful() -> None:
     )
     repeated = by_id["i2c-unshifted-repeated-start"]
     assert any(
-        wait["sample"] == 176 and wait["matched"] == [False, True, False]
+        wait["sample"] == 216 and wait["matched"] == [False, True, False]
         for wait in repeated["expected_wait_trace"]
     )
+    full_i2c = by_id["i2c-shifted-start-address-ack-data-nack-stop"]
+    i2c_bits = [
+        item
+        for item in full_i2c["expected_records"]
+        if item["kind"] == "python" and item["value"]["value"][0]["value"] == "BITS"
+    ]
+    bit_values = [
+        [entry["val"] for entry in item["value"]["value"][1]["value"]] for item in i2c_bits
+    ]
+    assert bit_values == [
+        [0, 0, 0, 0, 0, 1, 0, 1],
+        [1, 1, 0, 0, 1, 1, 0, 0],
+    ]
+    assert [(item["start_sample"], item["end_sample"]) for item in i2c_bits] == [
+        (10, 170),
+        (190, 350),
+    ]
+    assert full_i2c["expected_records"][-2]["kind"] == "python"
+    assert full_i2c["expected_records"][-3]["value"]["value"] == 49676
     # Continue the matrix/vector coverage audit with local data, keeping this
     # predicate test independent of test ordering.
     rows = load("option-matrix.json")["rows"]
@@ -300,15 +476,34 @@ def test_static_wait_predicates_and_source_order_are_truthful() -> None:
         row["fixture"] in direct for row in rows if row["disposition"] == "static-equivalence"
     )
     assert all(row["fixture"] in timelines for row in rows if row["disposition"] != "unsupported")
+    assert all(
+        timelines[row["fixture"]]["options"].get(row["option"]) == row["value"]
+        for row in rows
+        if row["disposition"] == "direct-fixture"
+    )
     tx = timelines["uart-tx-valid-default"]["expected_records"]
     assert tx[0]["value"]["value"][1]["value"] == 1
     assert any(record["value"].get("class_index") == 1 for record in tx)
+    rx = timelines["uart-rx-valid-default"]["expected_records"]
+    assert [record["value"]["texts"][0] for record in rx[2:10]] == list("10100101")
+    assert [(record["start_sample"], record["end_sample"]) for record in rx[2:10]] == [
+        (11 + 10 * index, 21 + 10 * index) for index in range(8)
+    ]
+    assert [record["kind"] for record in rx[10:14]] == ["python", "annotation", "binary", "binary"]
     error_tags = {
         record["value"]["value"][0]["value"]
         for record in timelines["uart-parity-invalid-stop-break-idle-packet"]["expected_records"]
         if record["kind"] == "python"
     }
-    assert {"PARITY ERROR", "INVALID STOPBIT", "BREAK", "IDLE", "FRAME"} <= error_tags
+    assert {"DATA", "PARITY ERROR", "INVALID STOPBIT", "STOPBIT", "FRAME"} <= error_tags
+    assert "BREAK" not in error_tags and "IDLE" not in error_tags
+    break_records = timelines["uart-break-low-interval"]["expected_records"]
+    assert [
+        item["value"]["value"][0]["value"] for item in break_records if item["kind"] == "python"
+    ] == ["BREAK"]
+    idle_records = timelines["uart-idle-after-valid-frame"]["expected_records"]
+    assert idle_records[-1]["value"]["value"][0]["value"] == "IDLE"
+    assert (idle_records[-1]["start_sample"], idle_records[-1]["end_sample"]) == (101, 201)
     assert {row["option"] for row in rows} >= {
         "baudrate",
         "data_bits",
@@ -378,6 +573,14 @@ def test_static_wait_predicates_and_source_order_are_truthful() -> None:
     }
     assert set(goldens) == {vector["id"] for vector in vectors["vectors"]}
     for vector in vectors["vectors"]:
+        root = vector["object"]
+        for item in root["records"]:
+            for stamp in (item["start_time"], item["end_time"]):
+                assert stamp["absolute"]["denominator"] == root["samplerate_hz"]
+                assert stamp["trigger_relative"]["denominator"] == root["samplerate_hz"]
+                assert stamp["trigger_relative"]["numerator"] == (
+                    stamp["absolute"]["numerator"] - root["capture"]["trigger_index"]
+                )
         assert (
             goldens[vector["id"]]
             == json.dumps(
@@ -390,11 +593,44 @@ def test_static_wait_predicates_and_source_order_are_truthful() -> None:
             + b"\n"
         )
     caps = load("experiment-caps.json")
+    input_cap = next(item for item in caps["caps"] if item["id"] == "input_samples")
+    corpus_max = max(item["sample_count"] for item in load("semantic-fixtures.json")["timelines"])
+    assert input_cap["value"] >= corpus_max * 256
+    assert f"basis_value={corpus_max}" in input_cap["rationale"]
+    assert "multiplier=256" in input_cap["rationale"] and "floor=100000" in input_cap["rationale"]
     assert (
         caps["enforcement_claim"]
         == "none; static experiment-only specification, not product thresholds"
     )
     assert all(isinstance(item["value"], int) and item["value"] > 0 for item in caps["caps"])
+    assert all(
+        item["boundary"] == {"accept": item["value"], "reject": item["value"] + 1}
+        and "basis_category=" in item["rationale"]
+        and "No macOS observation" in item["rationale"]
+        for item in caps["caps"]
+    )
+    for item in caps["caps"]:
+        derivation = item["derivation"]
+        computed = derivation["basis_value"] * derivation["multiplier"]
+        if derivation["operation"] == "max-floor":
+            computed = max(computed, derivation["floor"])
+        assert derivation["operation"] in {"multiply", "max-floor"}
+        assert derivation["result"] == computed == item["value"]
+        assert not (derivation["basis_value"] == item["value"] and derivation["multiplier"] == 1)
+        for field in (
+            "operation",
+            "basis_category",
+            "basis_value",
+            "multiplier",
+            "floor",
+            "result",
+        ):
+            assert f"{field}={derivation[field]}" in item["rationale"]
+        assert str(item["value"]) in item["rationale"]
+    by_cap = {item["id"]: item for item in caps["caps"]}
+    assert (
+        by_cap["stderr_bytes"]["derivation"]["basis_value"] == by_cap["diagnostic_bytes"]["value"]
+    )
     assert {item["id"] for item in caps["caps"]} == {
         "wall_deadline_ms",
         "terminate_grace_ms",
@@ -436,7 +672,7 @@ def test_generator_is_static_and_contains_no_runtime_oracle() -> None:
         for node in ast.walk(tree)
         if isinstance(node, ast.ImportFrom) and node.module
     }
-    assert imports <= {"__future__", "argparse", "hashlib", "json", "pathlib"}
+    assert imports <= {"__future__", "argparse", "copy", "hashlib", "json", "pathlib"}
     assert "subprocess" not in source and "importlib" not in source
     manifest = load("manifest.json")
     assert manifest["generator_sha256"] == sha256(GENERATOR)

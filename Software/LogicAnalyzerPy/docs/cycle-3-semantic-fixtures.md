@@ -15,8 +15,10 @@ experiment-only cap schema.
 The fixture names are protocol review inputs, not abbreviated smoke tests.
 `uart-rx-valid-default` and `uart-tx-valid-default` record the separate
 optional-pin vectors and UART's Python/binary/annotation registration order;
-the UART error case names the parity, invalid stop, break, idle, frame, and
-packet branches, while the 9-bit case ends mid-frame.  SPI names the MISO-only,
+the UART parity/invalid-stop case is separate from the distinct BREAK and IDLE
+timelines; complete direct option witnesses cover 9-bit, MSB, parity, and
+sample-point branches while the legacy 9-bit case remains an incomplete edge
+case. SPI names the MISO-only,
 MOSI-only, no-CS, mode, CS-polarity, bit-order, word-size one/eight and
 incomplete cases.  I2C names START, repeated START, address, ACK/NACK, data,
 STOP, shifted/unshifted and incomplete cases.  Each contains the literal input
@@ -31,10 +33,9 @@ eight source-order `spi-data` entries in `BITS`. I2C repeated START appears
 only where SDA falls while SCL is high after address-bit waits. These are
 static source transcriptions, never decoder execution.
 
-The option matrix is closed.  A row either names one of those finite fixtures,
-or names the exact fixture with a source-specific explanation of the snapshot
-branch that is unchanged.  It never manufactures a one-edge stimulus merely to
-claim option coverage.  Rejected rows state the prelaunch validation rule.
+The option matrix is closed. Every accepted row names one of those finite direct
+fixtures, while unsupported rows name their explicit rejection rule.
+It never manufactures a one-edge stimulus merely to claim option coverage.
 
 `typed-vectors.json` is independently literal v1 object data plus canonical
 UTF-8 JSON bytes, including every Python value tag and all four record kinds.
@@ -48,9 +49,16 @@ Caps are deliberately static values with boundary/coverage entries and no
 claim of executable enforcement. A later, separately owned runner must enforce
 them with non-decoder probes before any snapshot can run.
 
-Each cap names static fixture maxima (352 samples, 16 records, nesting depth
-3), a stated multiplier/rounding margin, and related-cap consistency. macOS
+Each cap names dynamically recomputed static fixture maxima and its exact
+integer corpus formula (rather than fixed historical maxima), with related-cap
+consistency. macOS
 resource observation and cap enforcement remain runner-owned.
+
+Every cap also carries a machine-readable derivation object (operation, named
+basis category/value, multiplier, optional floor, and result). This records
+the 50ms scheduling-policy wall/grace bounds, input and diagnostic corpus
+floors, and stderr's reference to the diagnostic result without interpreting
+prose.
 
 Rebuild with:
 

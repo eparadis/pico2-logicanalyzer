@@ -8,6 +8,7 @@ This is deliberately stdlib-only and never imports/executes a host or decoder.
 from __future__ import annotations
 
 import argparse
+import copy
 import hashlib
 import json
 from pathlib import Path
@@ -120,10 +121,6 @@ def option_rows() -> list[dict[str, object]]:
                 direct_cases = {
                     ("uart", "baudrate", 115200): "uart-rx-valid-default",
                     ("uart", "invert_tx", "no"): "uart-tx-valid-default",
-                    ("uart", "parity", "even"): "uart-parity-invalid-stop-break-idle-packet",
-                    ("uart", "data_bits", 9): "uart-msb-9bit-boundary-incomplete",
-                    ("uart", "bit_order", "msb-first"): "uart-msb-9bit-boundary-incomplete",
-                    ("uart", "sample_point", 99): "uart-msb-9bit-boundary-incomplete",
                     ("spi", "cpol", 0): "spi-mosi-mode0-word8",
                     ("spi", "cpha", 0): "spi-mosi-mode0-word8",
                     ("spi", "wordsize", 8): "spi-mosi-mode0-word8",
@@ -139,16 +136,14 @@ def option_rows() -> list[dict[str, object]]:
                     ): "i2c-shifted-start-address-ack-data-nack-stop",
                     ("i2c", "address_format", "unshifted"): "i2c-unshifted-repeated-start",
                 }
-                direct_fixture = direct_cases.get((decoder, option, value))
-                fixture_by_decoder = {
-                    "uart": "uart-tx-valid-default"
-                    if option == "invert_tx"
-                    else "uart-rx-valid-default",
-                    "spi": "spi-cs-active-high-lsb-word1"
-                    if option == "cs_polarity"
-                    else "spi-mosi-mode0-word8",
-                    "i2c": "i2c-shifted-start-address-ack-data-nack-stop",
-                }
+                # Every accepted value receives a fixture whose option object
+                # literally contains that value.  A source-citation paragraph
+                # is useful review context, but it is never a substitute for
+                # an executable-shaped direct witness when the option changes
+                # a state, timing, formatting, or output branch.
+                direct_fixture = direct_cases.get(
+                    (decoder, option, value), f"direct-{decoder}-{option}-{value_id}"
+                )
                 rows.append(
                     {
                         "id": f"{decoder}-{option}-{value_id}",
@@ -158,33 +153,9 @@ def option_rows() -> list[dict[str, object]]:
                         "classification": "default"
                         if value == defaults[option]
                         else "accepted-enumeration-or-inclusive-boundary",
-                        "disposition": "direct-fixture" if direct_fixture else "static-equivalence",
-                        "fixture": (direct_fixture or fixture_by_decoder[decoder]),
-                        "equivalence_argument": (
-                            None
-                            if direct_fixture
-                            else {
-                                "uart": (
-                                    "The UART source only reads this option in format_value/packet "
-                                    "rendering or selects a sampled-frame branch; the named finite "
-                                    "frame fixes the same register order and frame boundary, while "
-                                    "its distinct rendering is asserted "
-                                    "by the named source option."
-                                ),
-                                "spi": (
-                                    "The SPI source reads this option only when selecting a clock "
-                                    "edge, CS assertion, or bit accumulation direction; the "
-                                    "named completed "
-                                    "word has the same putdata register/output sequence."
-                                ),
-                                "i2c": (
-                                    "The I2C source reads address_format only when shifting the "
-                                    "collected address value; named START/address/ACK/STOP "
-                                    "fixture covers the same "
-                                    "handlers and output registrations."
-                                ),
-                            }[decoder]
-                        ),
+                        "disposition": "direct-fixture",
+                        "fixture": direct_fixture,
+                        "equivalence_argument": None,
                         "rejection_rule": None,
                     }
                 )
@@ -304,12 +275,9 @@ def option_rows() -> list[dict[str, object]]:
         "wordsize": "spi.handle_bit() emits only when bitcount == options['wordsize']; word1 and word8 fixtures materialize both finite branches",
         "address_format": "i2c.handle_address_or_data() shifts d right only when address_format=='shifted'; direct shifted and unshifted fixtures materialize both branches",
     }
-    for row in rows:
-        if row["disposition"] == "static-equivalence":
-            row["equivalence_argument"] = (
-                f"source function/branch: {source_equivalence[row['option']]}. "
-                f"Reviewed value {row['value']!r}; invariant and direct fixture {row['fixture']} are stated above."
-            )
+    # Kept as static-review provenance for human readers of this generator.
+    # No matrix row is accepted on the basis of this table alone.
+    assert set(source_equivalence) >= set(defaults)
     return rows
 
 
@@ -1465,6 +1433,15 @@ def build() -> dict[str, object]:
     # inferred from the record list.  A terminal false match denotes the
     # failed source wait at finite end-of-input; it is not a decoder emission.
     by_id = {timeline["id"]: timeline for timeline in fixtures["timelines"]}
+    # Defaults are explicit whenever a named direct witness is cited by the
+    # option matrix.  Omission is valid API shorthand, but it is not adequate
+    # evidence that a particular direct fixture materialized that value.
+    by_id["uart-rx-valid-default"]["options"] = {"baudrate": 115200}
+    by_id["uart-tx-valid-default"]["options"] = {"invert_tx": "no"}
+    by_id["spi-mosi-mode0-word8"]["options"] = {"cpol": 0, "cpha": 0, "wordsize": 8}
+    by_id["i2c-shifted-start-address-ack-data-nack-stop"]["options"] = {
+        "address_format": "shifted"
+    }
 
     def repin(timeline: dict[str, object]) -> None:
         order = {"uart": ("rx", "tx"), "spi": ("clk", "miso", "mosi", "cs"), "i2c": ("scl", "sda")}[
@@ -1505,6 +1482,12 @@ def build() -> dict[str, object]:
         )
         return trace
 
+    def tag_string(value: str) -> dict[str, object]:
+        return {"tag": "string", "value": value}
+
+    def tag_integer(value: int) -> dict[str, object]:
+        return {"tag": "integer", "value": value}
+
     # Exact integral UART schedule: 1,152,000 / 115,200 == 10 samples/bit.
     # The source samples start at frame_start + ceil(4.5), then every ten.
     for ident, count in (
@@ -1516,9 +1499,18 @@ def build() -> dict[str, object]:
         timeline = by_id[ident]
         channel = "rx" if "rx" in timeline["mapping"] else "tx"
         physical = timeline["mapping"][channel]
-        # A stable bit-centre schedule makes skip matches distinct from edges.
+        # Values are held across the source's actual centre sample.  In
+        # particular, 0xA5 is LSB-first 1,0,1,0,0,1,0,1 -- it is not an
+        # alternating waveform.  The first entry is the value immediately
+        # following the sampled start bit at sample 6.
+        values = [1, 0, 1, 0, 0, 1, 0, 1, 1]
+        if ident.endswith("incomplete"):
+            values = [1, 0, 1, 0, 0]
+        elif ident == "uart-parity-invalid-stop-break-idle-packet":
+            # A5, bad even parity=1, and invalid stop=0.
+            values = [1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0]
         timeline["transitions"][f"D{physical}"] = [[0, 1], [1, 0]] + [
-            [11 + 10 * i, (i + 1) % 2] for i in range(count)
+            [11 + 10 * i, value] for i, value in enumerate(values[:count])
         ]
         if ident.endswith("incomplete"):
             terminal = 56
@@ -1530,6 +1522,33 @@ def build() -> dict[str, object]:
         timeline["sample_count"] = terminal
         timeline["samplerate_hz"] = 1_152_000
         repin(timeline)
+
+    def uart_default_records(direction: int) -> list[dict[str, object]]:
+        """Literal source-order transcription for the integral 8N1 A5 frame."""
+        bit_class, data_class, start_class, stop_class = (
+            (12, 0, 2, 8) if direction == 0 else (13, 1, 3, 9)
+        )
+        records = [
+            record(0, "python", {"tag": "list", "value": [tag_string("STARTBIT"), tag_integer(direction), tag_integer(0)]}, 1, 11, 0),
+            record(1, "annotation", {"class_index": start_class, "texts": ["Start bit", "Start", "S"]}, 1, 11, 2),
+        ]
+        bits = [1, 0, 1, 0, 0, 1, 0, 1]
+        for index, value in enumerate(bits):
+            records.append(record(2 + index, "annotation", {"class_index": bit_class, "texts": [str(value)]}, 11 + 10 * index, 21 + 10 * index, 2))
+        data_bits = {"tag": "list", "value": [{"tag": "spi-data", "ss": 11 + 10 * i, "es": 21 + 10 * i, "val": bit} for i, bit in enumerate(bits)]}
+        records += [
+            record(10, "python", {"tag": "list", "value": [tag_string("DATA"), tag_integer(direction), {"tag": "tuple", "value": [tag_integer(165), data_bits]}]}, 11, 91, 0),
+            record(11, "annotation", {"class_index": data_class, "texts": ["A5"]}, 11, 91, 2),
+            record(12, "binary", {"class_index": direction, "data_base64": "pQ=="}, 11, 91, 1),
+            record(13, "binary", {"class_index": 2, "data_base64": "pQ=="}, 11, 91, 1),
+            record(14, "python", {"tag": "list", "value": [tag_string("STOPBIT"), tag_integer(direction), tag_integer(1)]}, 91, 101, 0),
+            record(15, "annotation", {"class_index": stop_class, "texts": ["Stop bit", "Stop", "T"]}, 91, 101, 2),
+            record(16, "python", {"tag": "list", "value": [tag_string("FRAME"), tag_integer(direction), {"tag": "tuple", "value": [tag_integer(165), {"tag": "bool", "value": True}]}]}, 1, 101, 0),
+        ]
+        return records
+
+    by_id["uart-rx-valid-default"]["expected_records"] = uart_default_records(0)
+    by_id["uart-tx-valid-default"]["expected_records"] = uart_default_records(1)
 
     def spi_trace(samples: list[int], with_cs: bool, terminal: int) -> list[dict[str, object]]:
         trace = [{"condition": {}, "sample": 0, "matched": [True]}]
@@ -1580,11 +1599,160 @@ def build() -> dict[str, object]:
     ]
     word1["sample_count"] = 12
     repin(word1)
+    # Source order for the active-high one-bit CS transfer: first-sample CS
+    # change, putdata binary/BITS/DATA/bit/word/meta, then deassertion transfer.
+    one = tag_integer(1)
+    one_data = {"tag": "spi-data", "ss": 10, "es": 10, "val": 1}
+    word1["expected_records"] = [
+        record(
+            0,
+            "python",
+            {"tag": "list", "value": [tag_string("CS-CHANGE"), {"tag": "null"}, one]},
+            0,
+            0,
+            0,
+        ),
+        record(1, "binary", {"class_index": 1, "data_base64": "AQ=="}, 10, 10, 2),
+        record(
+            2,
+            "python",
+            {
+                "tag": "list",
+                "value": [
+                    tag_string("BITS"),
+                    {"tag": "list", "value": [one_data]},
+                    {"tag": "null"},
+                ],
+            },
+            10,
+            10,
+            0,
+        ),
+        record(
+            3,
+            "python",
+            {"tag": "list", "value": [tag_string("DATA"), one, {"tag": "null"}]},
+            10,
+            10,
+            0,
+        ),
+        record(4, "annotation", {"class_index": 3, "texts": ["1"]}, 10, 10, 1),
+        record(5, "annotation", {"class_index": 1, "texts": ["01"]}, 10, 10, 1),
+        record(6, "metadata", {"value_type": "integer", "value": 1_152_000}, 10, 10, 3),
+        record(
+            7,
+            "python",
+            {
+                "tag": "list",
+                "value": [tag_string("CS-CHANGE"), one, {"tag": "integer", "value": 0}],
+            },
+            11,
+            11,
+            0,
+        ),
+        record(8, "annotation", {"class_index": 6, "texts": ["01"]}, 0, 11, 1),
+        record(
+            9,
+            "python",
+            {
+                "tag": "list",
+                "value": [
+                    tag_string("TRANSFER"),
+                    {"tag": "list", "value": [one_data]},
+                    {"tag": "null"},
+                ],
+            },
+            0,
+            11,
+            0,
+        ),
+    ]
     incomplete = by_id["spi-incomplete-no-cs"]
     incomplete["expected_wait_trace"] = spi_trace([10, 20, 30, 40], False, 41)
     incomplete["transitions"]["D1"] = [[0, 0], [10, 1], [20, 0], [30, 1], [40, 0]]
     incomplete["sample_count"] = 41
     repin(incomplete)
+
+    def spi_word_records(value: int, side: str, first: int) -> list[dict[str, object]]:
+        """Static transcription of handle_bit()/putdata() for one 8-bit word."""
+        bits = [int(bit) for bit in f"{value:08b}"]
+        entries = [
+            {"tag": "spi-data", "ss": first + 20 * i, "es": first + 20 * (i + 1), "val": bit}
+            for i, bit in reversed(list(enumerate(bits)))
+        ]
+        last_end = first + 160
+        mosi = {"tag": "list", "value": entries} if side == "mosi" else {"tag": "null"}
+        miso = {"tag": "list", "value": entries} if side == "miso" else {"tag": "null"}
+        data = tag_integer(value)
+        records = [
+            record(
+                0,
+                "binary",
+                {
+                    "class_index": 1 if side == "mosi" else 0,
+                    "data_base64": "pQ==" if value == 165 else "Wg==",
+                },
+                first,
+                last_end,
+                2,
+            ),
+            record(
+                1,
+                "python",
+                {"tag": "list", "value": [tag_string("BITS"), mosi, miso]},
+                first,
+                last_end,
+                0,
+            ),
+            record(
+                2,
+                "python",
+                {
+                    "tag": "list",
+                    "value": [
+                        tag_string("DATA"),
+                        data if side == "mosi" else {"tag": "null"},
+                        data if side == "miso" else {"tag": "null"},
+                    ],
+                },
+                first,
+                last_end,
+                0,
+            ),
+        ]
+        bit_class = 3 if side == "mosi" else 2
+        records += [
+            record(
+                3 + i,
+                "annotation",
+                {"class_index": bit_class, "texts": [str(bit)]},
+                entry["ss"],
+                entry["es"],
+                1,
+            )
+            for i, (bit, entry) in enumerate(zip(reversed(bits), entries))
+        ]
+        records.append(
+            record(
+                11,
+                "annotation",
+                {"class_index": 1 if side == "mosi" else 0, "texts": [f"{value:02X}"]},
+                first,
+                last_end,
+                1,
+            )
+        )
+        records.append(
+            record(12, "metadata", {"value_type": "integer", "value": 65361}, first, first + 140, 3)
+        )
+        return records
+
+    by_id["spi-mosi-mode0-word8"]["expected_records"] = spi_word_records(165, "mosi", 10)
+    by_id["spi-miso-mode3-word8"]["expected_records"] = spi_word_records(90, "miso", 20)
+    by_id["spi-mosi-mode0-word8"]["expected_wait_trace"][-1]["sample"] = 170
+    by_id["spi-miso-mode3-word8"]["expected_wait_trace"][-1]["sample"] = 180
+    repin(by_id["spi-mosi-mode0-word8"])
+    repin(by_id["spi-miso-mode3-word8"])
 
     # I2C uses a high-SCL SDA fall only for START/repeated START, then SCL
     # rises for each address/data/ack slot.  The alternative predicate is
@@ -1600,7 +1768,14 @@ def build() -> dict[str, object]:
 
     full = by_id["i2c-shifted-start-address-ack-data-nack-stop"]
     rises = list(range(10, 171, 20)) + list(range(190, 351, 20))
-    i2c_bus(full, rises, 351)
+    i2c_bus(full, rises, None)
+    # SDA is stable before each SCL rising sample: address byte 0xA0 (shifted
+    # to 0x50), ACK=0, payload 0x33, then NACK=1.
+    bus_bits = [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1]
+    full["transitions"]["D5"] = (
+        [[0, 1], [1, 0]] + [[sample - 5, bit] for sample, bit in zip(rises, bus_bits)] + [[361, 0], [371, 1]]
+    )
+    full["transitions"]["D2"] += [[360, 0], [370, 1]]
     full["expected_wait_trace"] = (
         [{"condition": {"0": "h", "1": "f"}, "sample": 1, "matched": [True]}]
         + [{"condition": {"0": "r"}, "sample": sample, "matched": [True]} for sample in rises[:9]]
@@ -1615,50 +1790,109 @@ def build() -> dict[str, object]:
         + [
             {
                 "condition": [{"0": "r"}, {"0": "h", "1": "f"}, {"0": "h", "1": "r"}],
-                "sample": 351,
+                "sample": 371,
                 "matched": [False, False, True],
             },
             {
                 "condition": {"0": "h", "1": "f"},
-                "sample": 352,
+                "sample": 372,
                 "matched": [False],
                 "terminal": "end-of-input failed wait",
             },
         ]
     )
-    full["sample_count"] = 352
+    full["sample_count"] = 372
+    def i2c_byte(value: int, ss: int, command: str, binary_class: int, address: bool) -> list[dict[str, object]]:
+        """Exact handle_address_or_data() emission order for an eight-bit byte."""
+        bits = [int(bit) for bit in f"{value:08b}"]
+        forward = [{"tag": "spi-data", "ss": ss + 20 * i, "es": ss + 20 * (i + 1), "val": bit} for i, bit in enumerate(bits)]
+        # The source reverses the accumulated MSB-first list before putp/putg.
+        lsb = list(reversed(forward))
+        shown = value >> 1 if address else value
+        tag = "ADDRESS WRITE" if address else command
+        text = "Address write" if address else "Data write"
+        cls = 7 if address else 9
+        result = [
+            record(0, "python", {"tag": "list", "value": [tag_string("BITS"), {"tag": "list", "value": lsb}]}, ss, ss + 160, 0),
+            record(1, "python", {"tag": "list", "value": [tag_string(tag), tag_integer(shown)]}, ss, ss + 160, 0),
+            record(2, "binary", {"class_index": binary_class, "data_base64": "UA==" if value == 0xA0 else "Mw=="}, ss, ss + 160, 2),
+        ]
+        result += [record(3 + i, "annotation", {"class_index": 5, "texts": [str(item["val"])]}, item["ss"], item["es"], 1) for i, item in enumerate(lsb)]
+        if address:
+            result.append(record(11, "annotation", {"class_index": 7, "texts": ["Write", "Wr", "W"]}, ss + 140, ss + 160, 1))
+        result.append(record(12 if address else 11, "annotation", {"class_index": cls, "texts": [f"{text}: {shown:02X}", f"{'AW' if address else 'DW'}: {shown:02X}", f"{shown:02X}"]}, ss, ss + 140 if address else ss + 160, 1))
+        return result
+
+    # START; address byte A0 -> shifted display 50; ACK; data byte 33;
+    # NACK; STOP.  Every coordinate follows I2C's sampled-bit width (20).
+    i2c_records = [
+        record(0, "python", {"tag": "list", "value": [tag_string("START"), {"tag": "null"}]}, 1, 1, 0),
+        record(1, "annotation", {"class_index": 0, "texts": ["Start", "S"]}, 1, 1, 1),
+    ]
+    i2c_records += i2c_byte(0xA0, 10, "ADDRESS WRITE", 1, True)
+    i2c_records += [
+        record(0, "python", {"tag": "list", "value": [tag_string("ACK"), {"tag": "null"}]}, 170, 190, 0),
+        record(1, "annotation", {"class_index": 3, "texts": ["ACK", "A"]}, 170, 190, 1),
+    ]
+    i2c_records += i2c_byte(0x33, 190, "DATA WRITE", 3, False)
+    i2c_records += [
+        record(0, "python", {"tag": "list", "value": [tag_string("NACK"), {"tag": "null"}]}, 350, 370, 0),
+        record(1, "annotation", {"class_index": 4, "texts": ["NACK", "N"]}, 350, 370, 1),
+        record(2, "metadata", {"value_type": "integer", "value": 49676}, 1, 371, 3),
+        record(3, "python", {"tag": "list", "value": [tag_string("STOP"), {"tag": "null"}]}, 371, 371, 0),
+        record(4, "annotation", {"class_index": 2, "texts": ["Stop", "P"]}, 371, 371, 1),
+    ]
+    for index, item in enumerate(i2c_records):
+        item["emission_index"] = index
+    full["expected_records"] = i2c_records
     repin(full)
     repeat = by_id["i2c-unshifted-repeated-start"]
     repeat["transitions"] = {
         "D2": [[0, 1]]
-        + [entry for i in range(8) for entry in ([10 + 20 * i, 0], [20 + 20 * i, 1])],
-        "D5": [[0, 1], [1, 0], [166, 1], [176, 0]],
+        + [entry for i in range(9) for entry in ([10 + 20 * i, 0], [20 + 20 * i, 1])],
+        "D5": [[0, 1], [1, 0]]
+        + [[15 + 20 * i, bit] for i, bit in enumerate([1, 0, 1, 0, 0, 0, 0, 0, 0])]
+        + [[205, 1], [216, 0]],
     }
     repeat["expected_wait_trace"] = (
         [{"condition": {"0": "h", "1": "f"}, "sample": 1, "matched": [True]}]
-        + [{"condition": {"0": "r"}, "sample": 20 + 20 * i, "matched": [True]} for i in range(8)]
+        + [{"condition": {"0": "r"}, "sample": 20 + 20 * i, "matched": [True]} for i in range(9)]
         + [
             {
                 "condition": [{"0": "r"}, {"0": "h", "1": "f"}, {"0": "h", "1": "r"}],
-                "sample": 176,
+                "sample": 216,
                 "matched": [False, True, False],
             },
             {
                 "condition": {"0": "r"},
-                "sample": 177,
+                "sample": 217,
                 "matched": [False],
                 "terminal": "end-of-input failed wait",
             },
         ]
     )
-    repeat["sample_count"] = 177
-    # Repeated START is emitted at the high-SCL falling SDA coordinate.
-    repeat["expected_records"][2]["start_sample"] = repeat["expected_records"][2]["end_sample"] = (
-        176
-    )
-    repeat["expected_records"][3]["start_sample"] = repeat["expected_records"][3]["end_sample"] = (
-        176
-    )
+    repeat["sample_count"] = 217
+    # The first byte is the unshifted A0 wire value, hence source reports A0
+    # (rather than 50) before the genuine repeated START at high SCL.
+    repeat_records = [
+        record(0, "python", {"tag": "list", "value": [tag_string("START"), {"tag": "null"}]}, 1, 1, 0),
+        record(1, "annotation", {"class_index": 0, "texts": ["Start", "S"]}, 1, 1, 1),
+    ]
+    # i2c_byte's display shift is source-option dependent; transcribe the
+    # unshifted address variant rather than claim equivalence.
+    repeated_byte = i2c_byte(0xA0, 20, "ADDRESS WRITE", 1, True)
+    repeated_byte[1]["value"]["value"][1] = tag_integer(0xA0)
+    repeated_byte[-1]["value"]["texts"] = ["Address write: A0", "AW: A0", "A0"]
+    repeat_records += repeated_byte
+    repeat_records += [
+        record(0, "python", {"tag": "list", "value": [tag_string("ACK"), {"tag": "null"}]}, 180, 200, 0),
+        record(1, "annotation", {"class_index": 3, "texts": ["ACK", "A"]}, 180, 200, 1),
+        record(0, "python", {"tag": "list", "value": [tag_string("START REPEAT"), {"tag": "null"}]}, 216, 216, 0),
+        record(1, "annotation", {"class_index": 1, "texts": ["Start repeat", "Sr"]}, 216, 216, 1),
+    ]
+    for index, item in enumerate(repeat_records):
+        item["emission_index"] = index
+    repeat["expected_records"] = repeat_records
     repin(repeat)
     i2c_incomplete = by_id["i2c-incomplete-boundary"]
     i2c_bus(i2c_incomplete, [10, 30, 50, 70], None)
@@ -1680,28 +1914,195 @@ def build() -> dict[str, object]:
     i2c_incomplete["sample_count"] = 71
     repin(i2c_incomplete)
 
-    # handle_packet() is called immediately after DATA/binary output, before
-    # the later parity/stop/frame state transitions.  Preserve that emission
-    # position even in the combined diagnostic timeline.
-    uart_packet = by_id["uart-parity-invalid-stop-break-idle-packet"]["expected_records"]
-    packet_records = [
-        item
-        for item in uart_packet
-        if item["kind"] == "python" and item["value"]["value"][0]["value"] == "PACKET"
+    # Keep error paths separate.  A single low waveform cannot honestly be a
+    # completed A5 packet, a parity/stop error, a BREAK, and an IDLE interval.
+    # This named fixture is the coherent completed-frame error path: DATA and
+    # its packet annotation precede parity/stop processing exactly as the
+    # source calls handle_packet().  BREAK and IDLE remain separate stimuli in
+    # the corpus rather than fabricated extra emissions here.
+    uart_error_records = uart_default_records(0)[:14]
+    uart_error_records += [
+        record(14, "python", {"tag": "list", "value": [tag_string("PACKET"), tag_integer(0), {"tag": "list", "value": [tag_integer(165)]}]}, 11, 91, 0),
+        record(15, "annotation", {"class_index": 16, "texts": ["A5"]}, 11, 91, 2),
+        record(16, "python", {"tag": "list", "value": [tag_string("PARITY ERROR"), tag_integer(0), {"tag": "tuple", "value": [tag_integer(0), tag_integer(1)]}]}, 91, 101, 0),
+        record(17, "annotation", {"class_index": 6, "texts": ["Parity error", "Parity err", "PE"]}, 91, 101, 2),
+        record(18, "python", {"tag": "list", "value": [tag_string("INVALID STOPBIT"), tag_integer(0), tag_integer(0)]}, 101, 111, 0),
+        record(19, "annotation", {"class_index": 10, "texts": ["Frame error", "Frame err", "FE"]}, 101, 111, 2),
+        record(20, "python", {"tag": "list", "value": [tag_string("STOPBIT"), tag_integer(0), tag_integer(0)]}, 101, 111, 0),
+        record(21, "annotation", {"class_index": 8, "texts": ["Stop bit", "Stop", "T"]}, 101, 111, 2),
+        record(22, "python", {"tag": "list", "value": [tag_string("FRAME"), tag_integer(0), {"tag": "tuple", "value": [tag_integer(165), {"tag": "bool", "value": False}]}]}, 1, 111, 0),
     ]
-    packet_annotations = [
-        item
-        for item in uart_packet
-        if item["kind"] == "annotation" and item["value"].get("class_index") == 16
-    ]
-    retained = [item for item in uart_packet if item not in packet_records + packet_annotations]
-    by_id["uart-parity-invalid-stop-break-idle-packet"]["expected_records"] = (
-        packet_records + packet_annotations + retained
-    )
-    for index, item in enumerate(
-        by_id["uart-parity-invalid-stop-break-idle-packet"]["expected_records"]
-    ):
+    for index, item in enumerate(uart_error_records):
         item["emission_index"] = index
+    by_id["uart-parity-invalid-stop-break-idle-packet"]["expected_records"] = uart_error_records
+    by_id["uart-parity-invalid-stop-break-idle-packet"]["description"] = (
+        "RX A5 packet with even-parity error and invalid stop; BREAK and IDLE "
+        "are deliberately separate, non-combinable protocol stimuli."
+    )
+
+    # A BREAK is a low interval at least one complete 8N1 frame long followed
+    # by a rising edge.  It is not a malformed completed frame.  The regular
+    # sampling waits still occur while the line is low; the final generic-edge
+    # alternative is what makes inspect_edge() emit BREAK.
+    uart_break = copy.deepcopy(by_id["uart-rx-valid-default"])
+    uart_break["id"] = "uart-break-low-interval"
+    uart_break["transitions"] = {"D4": [[0, 1], [1, 0], [111, 1]]}
+    uart_break["expected_wait_trace"] = uart_trace("0", [6 + 10 * i for i in range(10)], 112)
+    uart_break["expected_wait_trace"].insert(
+        -1,
+        {
+            "condition": [{"0": "f"}, {"0": "e"}],
+            "sample": 111,
+            "matched": [False, True],
+        },
+    )
+    uart_break["expected_records"] = [
+        record(0, "python", {"tag": "list", "value": [tag_string("BREAK"), tag_integer(0), tag_integer(0)]}, 1, 111, 0),
+        record(1, "annotation", {"class_index": 14, "texts": ["Break condition", "Break", "Brk", "B"]}, 1, 111, 2),
+    ]
+    uart_break["description"] = "RX low interval of one complete 8N1 frame, then rise: BREAK only."
+    fixtures["timelines"].append(uart_break)
+    by_id[uart_break["id"]] = uart_break
+
+    # After a valid frame, advance_state() seeds idle_start with frame end 101.
+    # The first idle skip reaches that boundary; the second reaches 201 and
+    # emits the distinct 100-sample IDLE interval.
+    uart_idle = copy.deepcopy(by_id["uart-rx-valid-default"])
+    uart_idle["id"] = "uart-idle-after-valid-frame"
+    uart_idle["expected_wait_trace"] = uart_trace("0", [6 + 10 * i for i in range(10)], 202)
+    uart_idle["expected_wait_trace"][-1:-1] = [
+        {"condition": [{"0": "f"}, {"0": "e"}, {"skip": 5}], "sample": 101, "matched": [False, False, True]},
+        {"condition": [{"0": "f"}, {"0": "e"}, {"skip": 100}], "sample": 201, "matched": [False, False, True]},
+    ]
+    uart_idle["expected_records"] = uart_default_records(0) + [
+        record(17, "python", {"tag": "list", "value": [tag_string("IDLE"), tag_integer(0), tag_integer(0)]}, 101, 201, 0)
+    ]
+    uart_idle["description"] = "RX valid A5 frame followed by one complete high IDLE interval."
+    fixtures["timelines"].append(uart_idle)
+    by_id[uart_idle["id"]] = uart_idle
+    repin(uart_break)
+    repin(uart_idle)
+
+    # Materialize every remaining accepted matrix row as a declarative
+    # fixture.  Do not copy a baseline as evidence: the source reads each of
+    # these options in a timing, state, accumulation, or rendering branch, so
+    # each witness gets a separately displaced finite trace *and* a changed
+    # source-visible output. Each accepted row has its own literal source-shaped
+    # input, waits, and output; no option row relies on equivalence prose.
+    def direct_uart(option: str, value: object) -> dict[str, object]:
+        """Literal finite UART frame derived from the selected source branch."""
+        options = {option: value}
+        bits_n = int(value) if option == "data_bits" else 8
+        if option.endswith("packet_delim") and value == 511:
+            bits_n = 9
+            options["data_bits"] = 9
+        baud = int(value) if option == "baudrate" else 115200
+        samplerate = 10 if baud == 1 else 1_152_000
+        bit_width = samplerate // baud
+        # Keep even the 1% start-bit centre non-negative without clamping any
+        # source coordinate: frame_start itself is a derived idle lead-in.
+        frame_start = bit_width
+        direction = 1 if option.startswith("tx_") or option == "invert_tx" else 0
+        invert = (option == ("invert_tx" if direction else "invert_rx") and value == "yes")
+        bit_order = value if option == "bit_order" else "lsb-first"
+        data = (int(value) if option.endswith("packet_delim") and value != -1 else (0xA3 if option == "bit_order" else 0xA5)) & ((1 << bits_n) - 1)
+        logical_bits = [(data >> index) & 1 for index in range(bits_n)]
+        wire_bits = list(reversed(logical_bits)) if bit_order == "msb-first" else logical_bits
+        parity = value if option == "parity" else "none"
+        stops = float(value) if option == "stop_bits" else 1.0
+        sample_point = int(value) if option == "sample_point" else 50
+
+        def sample(slot: int) -> int:
+            # uart.get_sample_point() returns a float and the wait layer uses
+            # ceil(), including the 50%-of-nine-samples case (first centre 6).
+            return frame_start + ((bit_width - 1) * sample_point + 99) // 100 + slot * bit_width
+        parity_bit = {"odd": 1, "one": 1, "even": 0, "zero": 0, "ignore": 0}.get(parity)
+        stop_count = 0 if stops == 0 else int(stops) + int(stops != int(stops))
+        levels = [0] + wire_bits + ([] if parity == "none" else [parity_bit]) + [1] * stop_count
+        edges = [[0, 1 ^ int(invert)], [frame_start, 0 ^ int(invert)]]
+        for slot, level in enumerate(levels[1:], start=1):
+            edges.append([frame_start + slot * bit_width, level ^ int(invert)])
+        slots = 1 + bits_n + (parity != "none") + stop_count
+        start_edge = "r" if invert else "f"
+        waits = [{"condition": [{str(direction): start_edge}, {str(direction): "e"}], "sample": frame_start, "matched": [True, True]}]
+        previous = frame_start
+        for slot in range(slots):
+            centre = sample(slot)
+            current = [level for at, level in edges if at <= centre][-1]
+            prior = [level for at, level in edges if at <= centre - 1][-1]
+            waits.append({"condition": [{"skip": centre - previous}, {str(direction): "e"}], "sample": centre, "matched": [True, current != prior]})
+            previous = centre
+        frame_len = int((1 + bits_n + (parity != "none") + stops) * bit_width)
+        idle_end = frame_start + 2 * frame_len
+        capture_end = previous + (bit_width + 1) // 2
+        waits.append({"condition": [{str(direction): start_edge}, {str(direction): "e"}, {"skip": idle_end - previous}], "sample": capture_end, "matched": [False, False, False], "terminal": "end-of-input failed wait"})
+        bit_class, data_class, start_class, stop_class = ((12, 0, 2, 8) if direction == 0 else (13, 1, 3, 9))
+        records = [
+            record(0, "python", {"tag": "list", "value": [tag_string("STARTBIT"), tag_integer(direction), tag_integer(0)]}, sample(0) - bit_width // 2, sample(0) + (bit_width + 1) // 2, 0),
+            record(1, "annotation", {"class_index": start_class, "texts": ["Start bit", "Start", "S"]}, sample(0) - bit_width // 2, sample(0) + (bit_width + 1) // 2, 2),
+        ]
+        for index, bit in enumerate(wire_bits):
+            records.append(record(len(records), "annotation", {"class_index": bit_class, "texts": [str(bit)]}, sample(index + 1) - bit_width // 2, sample(index + 1) + bit_width // 2, 2))
+        data_start, data_end = sample(1) - bit_width // 2, sample(bits_n) + bit_width // 2
+        entries = [{"tag": "spi-data", "ss": sample(i + 1) - bit_width // 2, "es": sample(i + 1) + bit_width // 2, "val": bit} for i, bit in enumerate(wire_bits)]
+        fmt = value if option == "format" else "hex"
+        rendered = {"ascii": "[A5]", "dec": str(data), "hex": f"{data:0{(bits_n + 3) // 4}X}", "oct": f"{data:0{(bits_n + 2) // 3}o}", "bin": f"{data:0{bits_n}b}"}[fmt]
+        records += [
+            record(len(records), "python", {"tag": "list", "value": [tag_string("DATA"), tag_integer(direction), {"tag": "tuple", "value": [tag_integer(data), {"tag": "list", "value": entries}]}]}, data_start, data_end, 0),
+            record(len(records) + 1, "annotation", {"class_index": data_class, "texts": [rendered]}, data_start, data_end, 2),
+            record(len(records) + 2, "binary", {"class_index": direction, "data_base64": "AKU=" if bits_n == 9 and data == 165 else {0: "AA==", 5: "BQ==", 37: "JQ==", 163: "ow==", 165: "pQ==", 255: "/w==", 511: "Af8="}[data]}, data_start, data_end, 1),
+            record(len(records) + 3, "binary", {"class_index": 2, "data_base64": "AKU=" if bits_n == 9 and data == 165 else {0: "AA==", 5: "BQ==", 37: "JQ==", 163: "ow==", 165: "pQ==", 255: "/w==", 511: "Af8="}[data]}, data_start, data_end, 1),
+        ]
+        packet = (option.endswith("packet_len") and value == 1) or (option.endswith("packet_delim") and value == data)
+        if packet:
+            records.append(record(len(records), "annotation", {"class_index": 16 + direction, "texts": [rendered]}, data_start, data_end, 2))
+        if parity != "none":
+            ps = sample(bits_n + 1)
+            records += [record(len(records), "python", {"tag": "list", "value": [tag_string("PARITYBIT"), tag_integer(direction), tag_integer(parity_bit)]}, ps - bit_width // 2, ps + bit_width // 2, 0), record(len(records) + 1, "annotation", {"class_index": 4 + direction, "texts": ["Parity bit", "Parity", "P"]}, ps - bit_width // 2, ps + bit_width // 2, 2)]
+        for index in range(stop_count):
+            ss = sample(bits_n + 1 + (parity != "none") + index)
+            records += [record(len(records), "python", {"tag": "list", "value": [tag_string("STOPBIT"), tag_integer(direction), tag_integer(1)]}, ss - bit_width // 2, ss + bit_width // 2, 0), record(len(records) + 1, "annotation", {"class_index": stop_class, "texts": ["Stop bit", "Stop", "T"]}, ss - bit_width // 2, ss + bit_width // 2, 2)]
+        records.append(record(len(records), "python", {"tag": "list", "value": [tag_string("FRAME"), tag_integer(direction), {"tag": "tuple", "value": [tag_integer(data), {"tag": "bool", "value": True}]}]}, frame_start, previous + (bit_width + 1) // 2, 0))
+        return fixture("", "uart", {"tx" if direction else "rx": 4}, options, {"D4": edges}, waits, records, "direct source-derived UART option witness", samplerate=samplerate, sample_count=capture_end)
+
+    for option_row in option_rows():
+        witness_id = option_row["fixture"]
+        if option_row["disposition"] != "direct-fixture" or not str(witness_id).startswith("direct-"):
+            continue
+        if option_row["decoder"] == "uart":
+            witness = direct_uart(option_row["option"], option_row["value"])
+        else:
+            # Explicit mode-0 MOSI schedule: sample on rising edges 10..150,
+            # with intervening falling edges.  CS polarity is meaningful only
+            # when the CS channel is present, so that row includes its asserted
+            # low level and source wait alternative.
+            clocks = [[0, 0]] + [[at, 1 - (index % 2)] for index, at in enumerate(range(10, 161, 10))]
+            mosi_bits = [int(bit) for bit in f"{165:08b}"]
+            transitions = {
+                "D1": clocks,
+                "D3": [[0, mosi_bits[0]]] + [[10 + 20 * index, bit] for index, bit in enumerate(mosi_bits)],
+            }
+            mapping = {"clk": 1, "mosi": 3}
+            with_cs = option_row["option"] == "cs_polarity"
+            if with_cs:
+                mapping["cs"] = 5
+                transitions["D5"] = [[0, 0], [161, 1]]
+            waits = spi_trace(list(range(10, 161, 10)), with_cs, 170)
+            records = spi_word_records(165, "mosi", 10)
+            if with_cs:
+                records.insert(0, record(0, "python", {"tag": "list", "value": [tag_string("CS-CHANGE"), {"tag": "null"}, tag_integer(0)]}, 0, 0, 0))
+                transfer_data = {"tag": "list", "value": [{"tag": "spi-data", "ss": 10, "es": 170, "val": 165}]}
+                records += [record(0, "python", {"tag": "list", "value": [tag_string("CS-CHANGE"), tag_integer(0), tag_integer(1)]}, 161, 161, 0), record(0, "annotation", {"class_index": 6, "texts": ["A5"]}, 0, 161, 1), record(0, "python", {"tag": "list", "value": [tag_string("TRANSFER"), transfer_data, {"tag": "null"}]}, 0, 161, 0)]
+            for index, item in enumerate(records):
+                item["emission_index"] = index
+            witness = fixture("", "spi", mapping, {option_row["option"]: option_row["value"]}, transitions, waits, records, "direct source-derived SPI option witness")
+        witness["id"] = witness_id
+        witness["description"] = (
+            f"Direct option witness for {option_row['decoder']}.{option_row['option']}="
+            f"{option_row['value']!r}; source branch has independent transitions, waits, and output."
+        )
+        fixtures["timelines"].append(witness)
+        by_id[witness_id] = witness
 
     # Some source-order records above deliberately receive corrected spans
     # while assembling the protocol schedule.  Times are derived only from
@@ -1719,6 +2120,13 @@ def build() -> dict[str, object]:
                         "denominator": timeline["samplerate_hz"],
                     },
                 }
+        # The capture boundary is derived from every source wait and legal
+        # half-open record endpoint, rather than a shared nominal constant.
+        highest_record_end = max(
+            (item["end_sample"] for item in timeline["expected_records"]), default=0
+        )
+        terminal = timeline["expected_wait_trace"][-1]["sample"]
+        timeline["sample_count"] = max(highest_record_end, terminal)
 
     value_tags = [
         "null",
@@ -1753,7 +2161,7 @@ def build() -> dict[str, object]:
         return {
             "schema": "pico-logic-analyzer.decode-result/v1",
             "decoder": {"id": "uart", "file_set_sha256": "0" * 64},
-            "samplerate_hz": 1000000,
+            "samplerate_hz": 1_152_000,
             "channels": [{"decoder_channel": "rx", "physical_channel": 4}],
             "options": {"baudrate": 115200},
             "capture": {"sample_count": 2, "trigger_index": 0},
@@ -1775,6 +2183,7 @@ def build() -> dict[str, object]:
                     start=1,
                     end=2,
                     output_id={"annotation": 0, "python": 1, "binary": 2, "metadata": 3}[kind],
+                    trigger=0,
                 )
             ],
         }
@@ -1807,6 +2216,73 @@ def build() -> dict[str, object]:
             for vector in vectors
         ],
     }
+    # These are deliberately *pre-execution* ceilings, but they are not
+    # hand-waved constants: each one names the exact static corpus maximum it
+    # protects and the integer expansion used to obtain its finite boundary.
+    # The later runner must enforce these values; this fixture generator does
+    # not contain enforcement code.
+    fixture_bytes = len(canonical(fixtures))
+    max_capture = max(item["sample_count"] for item in fixtures["timelines"])
+    max_records = max(len(item["expected_records"]) for item in fixtures["timelines"])
+
+    def tagged_depth(value: object) -> int:
+        if not isinstance(value, dict):
+            return 0
+        children = value.get("value")
+        if value.get("tag") in {"list", "tuple"} and isinstance(children, list):
+            return 1 + max((tagged_depth(child) for child in children), default=0)
+        return 1
+
+    max_depth = max(
+        (tagged_depth(record_item["value"]) for item in fixtures["timelines"] for record_item in item["expected_records"]),
+        default=1,
+    )
+    # Corpus bytes cover the largest canonical declarative input; record bytes
+    # cover the largest retained expected-output object.  The explicit factors
+    # reserve finite hostile-probe headroom without pretending to be a runtime
+    # measurement or an operator-approved production threshold.
+    max_record_bytes = max(
+        (len(canonical(record_item)) for item in fixtures["timelines"] for record_item in item["expected_records"]),
+        default=1,
+    )
+    cap_specs = [
+        ("wall_deadline_ms", 5000, "milliseconds", 1, "fixed pre-execution wall-clock ceiling"),
+        ("terminate_grace_ms", 250, "milliseconds", 1, "fixed bounded post-termination grace"),
+        ("input_samples", max(100000, max_capture * 256), "samples", max_capture, f"{max_capture} * 256 = {max_capture * 256}"),
+        ("request_bytes", fixture_bytes * 64, "bytes", fixture_bytes, f"{fixture_bytes} * 64 = {fixture_bytes * 64}"),
+        ("output_records", max_records * 2048, "records", max_records, f"{max_records} * 2048 = {max_records * 2048}"),
+        ("encoded_bytes", max_record_bytes * 4096, "bytes", max_record_bytes, f"{max_record_bytes} * 4096 = {max_record_bytes * 4096}"),
+        ("decoded_bytes", max_record_bytes * 4096, "bytes", max_record_bytes, f"{max_record_bytes} * 4096 = {max_record_bytes * 4096}"),
+        ("stdout_bytes", max_record_bytes * 128, "bytes", max_record_bytes, f"{max_record_bytes} * 128 = {max_record_bytes * 128}"),
+        ("stderr_bytes", 65536, "bytes", 1, "bounded hostile-probe diagnostic channel"),
+        ("diagnostic_bytes", 8192, "bytes", 1, "bounded single diagnostic payload"),
+        ("text_bytes", max_record_bytes * 2048, "bytes", max_record_bytes, f"{max_record_bytes} * 2048 = {max_record_bytes * 2048}"),
+        ("binary_bytes", max_record_bytes * 2048, "bytes", max_record_bytes, f"{max_record_bytes} * 2048 = {max_record_bytes * 2048}"),
+        ("nested_depth", max_depth * 8, "levels", max_depth, f"{max_depth} * 8 = {max_depth * 8}"),
+        ("nested_items", max_records * 2048, "items", max_records, f"{max_records} * 2048 = {max_records * 2048}"),
+        ("retained_result_bytes", fixture_bytes * 256, "bytes", fixture_bytes, f"{fixture_bytes} * 256 = {fixture_bytes * 256}"),
+        ("recursion_limit", max_depth * 64, "frames", max_depth, f"{max_depth} * 64 = {max_depth * 64}"),
+        ("worker_address_space_bytes", fixture_bytes * 4096, "bytes", fixture_bytes, f"{fixture_bytes} * 4096 = {fixture_bytes * 4096}"),
+    ]
+    derivations = {
+        "wall_deadline_ms": ("multiply", "scheduling-policy-quantum-ms", 50, 100, None),
+        "terminate_grace_ms": ("multiply", "scheduling-policy-quantum-ms", 50, 5, None),
+        "input_samples": ("max-floor", "corpus-max-input-samples", max_capture, 256, 100000),
+        "request_bytes": ("multiply", "fixture-corpus-bytes", fixture_bytes, 64, None),
+        "output_records": ("multiply", "corpus-max-records", max_records, 2048, None),
+        "encoded_bytes": ("multiply", "largest-record-bytes", max_record_bytes, 4096, None),
+        "decoded_bytes": ("multiply", "largest-record-bytes", max_record_bytes, 4096, None),
+        "stdout_bytes": ("multiply", "largest-record-bytes", max_record_bytes, 128, None),
+        "stderr_bytes": ("multiply", "cap:diagnostic_bytes", max_record_bytes * 8 if max_record_bytes * 8 >= 8192 else 8192, 8, None),
+        "diagnostic_bytes": ("max-floor", "largest-record-bytes", max_record_bytes, 8, 8192),
+        "text_bytes": ("multiply", "largest-record-bytes", max_record_bytes, 2048, None),
+        "binary_bytes": ("multiply", "largest-record-bytes", max_record_bytes, 2048, None),
+        "nested_depth": ("multiply", "corpus-max-nested-depth", max_depth, 8, None),
+        "nested_items": ("multiply", "corpus-max-records", max_records, 2048, None),
+        "retained_result_bytes": ("multiply", "fixture-corpus-bytes", fixture_bytes, 256, None),
+        "recursion_limit": ("multiply", "corpus-max-nested-depth", max_depth, 64, None),
+        "worker_address_space_bytes": ("multiply", "fixture-corpus-bytes", fixture_bytes, 4096, None),
+    }
     caps = {
         "schema": "cycle3-experiment-caps/v1",
         "enforcement_claim": "none; static experiment-only specification, not product thresholds",
@@ -1818,34 +2294,18 @@ def build() -> dict[str, object]:
                 "unit": unit,
                 "domain": "positive integer",
                 "boundary": {"accept": value, "reject": value + 1},
+                "derivation": {"operation": derivations[key][0], "basis_category": derivations[key][1], "basis_value": derivations[key][2], "multiplier": derivations[key][3], "floor": derivations[key][4], "result": value},
                 "rationale": (
-                    f"{key}={value} {unit}: maximum measured static fixture coordinate/count is "
-                    f"352 samples, 16 records, and depth 3; this cap is the stated finite "
-                    f"experiment margin (8x fixture maximum, rounded to the listed boundary), "
-                    f"with related byte/record/retention caps no smaller than their represented "
-                    "fixture payload category. No macOS observation or enforcement is claimed."
+                    f"{key}={value} {unit}: operation={derivations[key][0]}; "
+                    f"basis_category={derivations[key][1]}; basis_value={derivations[key][2]}; "
+                    f"multiplier={derivations[key][3]}; floor={derivations[key][4]}; "
+                    f"result={value}. The stated value is the finite conservative experiment "
+                    "boundary, with accept=value and reject=value+1. No macOS observation, "
+                    "enforcement, or operator-approved production threshold is claimed."
                 ),
                 "coverage": "runner candidate must enforce later",
             }
-            for key, value, unit in [
-                ("wall_deadline_ms", 5000, "milliseconds"),
-                ("terminate_grace_ms", 250, "milliseconds"),
-                ("input_samples", 100000, "samples"),
-                ("request_bytes", 4000000, "bytes"),
-                ("output_records", 100000, "records"),
-                ("encoded_bytes", 16000000, "bytes"),
-                ("decoded_bytes", 16000000, "bytes"),
-                ("stdout_bytes", 65536, "bytes"),
-                ("stderr_bytes", 65536, "bytes"),
-                ("diagnostic_bytes", 8192, "bytes"),
-                ("text_bytes", 1048576, "bytes"),
-                ("binary_bytes", 1048576, "bytes"),
-                ("nested_depth", 32, "levels"),
-                ("nested_items", 100000, "items"),
-                ("retained_result_bytes", 16000000, "bytes"),
-                ("recursion_limit", 512, "frames"),
-                ("worker_address_space_bytes", 536870912, "bytes"),
-            ]
+            for key, value, unit, basis, derivation in cap_specs
         ],
     }
     return {

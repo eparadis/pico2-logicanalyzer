@@ -2264,3 +2264,27 @@ unchanged.
   candidate quiet scope, exclusions, cleanup, and readiness for atomic
   manifest assembly. Static inspection only; no internal pass transfers, no
   manifest may be created before acceptance, and no B2 work is authorized.
+
+### Final B1 acceptance pass and atomic manifest assignment
+
+- Recorded: `2026-08-27T17:19:10Z`. Fresh acceptance identity/verdict:
+  `c3-b1-pre-execution-runner-acceptance-1` / `pass`; immutable record
+  committed at `72e7bc0d34cc613b5d98798f963c942390a44b8f`. Record SHA-256 is
+  `69cea8402993198bfadb88ed2a00710e8c21ba2754c18b681739587038cf7b8f`.
+- Acceptance independently closed exact corrected candidate `1f87932`,
+  FV001 correction ordering, complete role histories and separation, all 32
+  live digests, five evidence groups, 29 operator-approved boundaries, final
+  verification, accumulated validation, applicability, exclusions, and
+  cleanup. No finding remains open and no internal pass transferred.
+- Root is now assigned atomic assembly of exactly
+  `testdata/evidence/c3-b1.json`. The manifest must bind accepted candidate
+  commit/tree `1f8793210a3298ed190ff30f97c84b6f9feb9b29` /
+  `cbe33ca272ba1b452f6d87fb5e702134a471f702`, name planned independent
+  identity `c3-b1-manifest-verifier-1`, contain only already-existing evidence,
+  and predict no verifier verdict, manifest digest, or verification record.
+- After assembly, distinct manifest verification must independently recompute
+  every referenced digest, validate the unchanged manifest against the frozen
+  schema and strict validator, and create only
+  `docs/reviews/c3-b1-manifest-verification-round-1.md`. The manifest and pass
+  record are committed together; the checkpoint is appended only afterward.
+  No B2 work, checkpoint, publication, or other expanded authority exists yet.

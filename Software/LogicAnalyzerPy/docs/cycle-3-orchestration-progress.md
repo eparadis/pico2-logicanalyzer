@@ -1191,3 +1191,38 @@ unchanged.
   or prohibited runtime, and make no runner-enforcement/characterization/
   threshold/manifest/checkpoint claim. Only a fresh `pass` may resume the
   quarantined distinct runner implementation.
+
+### Corrected fixture acceptance pass and runner implementation resumption
+
+- Recorded: `2026-08-27T03:25:21Z`.
+- Acceptance identity/verdict: `c3-b1-semantic-fixture-acceptance-1` / `pass`;
+  immutable round-2 record committed at `0074c67` in
+  `docs/reviews/c3-b1-semantic-fixture-acceptance-round-2.md`, SHA-256
+  `9b0a9fcabed2b1a3636bb1c32df8ecf3aca590732e728ee6aacb004c85b018af`.
+  No discrepancy remains. Authority is limited to resuming the distinct
+  pre-execution-runner candidate and transfers to no changed fixture.
+- Active runner owner remains
+  `c3-b1-pre-execution-runner-implementor-replacement-1`
+  (`/root/c3_b1_runner_impl_r2`), distinct from all fixture, verifier,
+  acceptance, manifest, and orchestration identities. Its original three path
+  families and every prohibition remain unchanged.
+- The quarantined uncommitted prototype may be restored only as non-evidence
+  implementation input. No old cap digest, test result, feasibility failure,
+  binding, or partial RI001-RI010 disposition transfers. The replacement must
+  bind corrected candidate `7c57a347bbe575e3f451383ea498f56abc362f26`, cap SHA
+  `63cde36892a15a390be0c27c50eac18431d7a4b11381b0e4b82c0fe64f808cd8`,
+  fixture manifest SHA
+  `0f5f1d9a01fc807dd0f4078ac84b20158f515a76ae4f1f83cc74651c4797413a`,
+  and exact accepted 64-GiB absolute address-space ceiling.
+- Correction objective remains the complete immutable runner candidate:
+  maintainable closed binding/launch/request paths, separate bounded protocol/
+  stdout/stderr/diagnostic streams, concrete enforcement and exact boundaries
+  for all 17 production caps, internal small-profile proof without production
+  weakening, macOS `RLIMIT_AS`/recursion, termination/kill/close/exact reap,
+  hostile failure recovery, and a real hard-disabled characterization path.
+  Every RI001-RI010 finding must be closed with strong focused assertions.
+- Only inert/hostile non-decoder probes may execute. No decoder/helper/product
+  runtime, raw characterization, package placement, hardware, network install,
+  excluded action, or Cycle 4 work is authorized. Root will commit a candidate
+  and assign its distinct verifier only after complete integration review finds
+  no open requirement.

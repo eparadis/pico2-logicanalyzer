@@ -52,7 +52,7 @@ def test_wait_pin_vectors_match_declared_transitions() -> None:
 
 
 def test_spi_records_follow_the_static_putdata_branch() -> None:
-    """The checked-in SPI putdata() branch emits binary, BITS, DATA, then annotations."""
+    """No-CS notice precedes SPI putdata's binary, BITS, DATA, then annotations."""
     timelines = {
         timeline["id"]: timeline
         for timeline in load("semantic-fixtures.json")["timelines"]
@@ -60,13 +60,13 @@ def test_spi_records_follow_the_static_putdata_branch() -> None:
     for fixture_id in ("spi-mosi-mode0-word8", "spi-miso-mode3-word8"):
         records = timelines[fixture_id]["expected_records"]
         kinds = [record["kind"] for record in records]
-        assert kinds[:3] == ["binary", "python", "python"]
+        assert kinds[:4] == ["python", "binary", "python", "python"]
         python_commands = [
             record["value"]["value"][0]["value"]
             for record in records
             if record["kind"] == "python"
         ]
-        assert python_commands[:2] == ["BITS", "DATA"]
+        assert python_commands[:3] == ["CS-CHANGE", "BITS", "DATA"]
         assert sum(record["kind"] == "annotation" for record in records) >= 9
 
 
@@ -82,7 +82,13 @@ def test_named_uart_packet_and_i2c_repeated_start_branches_are_present() -> None
         ]["expected_records"]
         if record["kind"] == "python"
     }
-    assert "PACKET" in uart_commands
+    assert "PACKET" not in uart_commands
+    assert any(
+        record["kind"] == "annotation" and record["value"].get("class_index") == 16
+        for record in timelines[
+            "uart-parity-invalid-stop-break-idle-packet"
+        ]["expected_records"]
+    )
 
     i2c_commands = [
         record["value"]["value"][0]["value"]

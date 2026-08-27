@@ -1132,3 +1132,30 @@ unchanged.
   `docs/reviews/c3-b1-semantic-fixture-verification-round-9.md`, may repair
   nothing, and must end exactly `pass` or `changes_required`. No decoder or
   prohibited runtime may execute and no prior verifier result transfers.
+
+### Semantic-fixture verification round 9 and accumulated-gate reassignment
+
+- Recorded: `2026-08-27T03:11:46Z`.
+- Tested candidate/tree: `7c57a347bbe575e3f451383ea498f56abc362f26` /
+  `02a408895dd834e6e6885218cb7323f46439e880`.
+- Verifier/verdict: `c3-b1-semantic-fixture-verifier-1` / `pass`; immutable
+  round-9 record committed at `8b08f7d` in
+  `docs/reviews/c3-b1-semantic-fixture-verification-round-9.md`, SHA-256
+  `3e2f507332fdfc82e8e49df016b66db223508144677cc5166d8a4e090d0378c6`.
+  Complete fresh semantic/provenance/option/vector/cap/scope audit passed with
+  no discrepancy: 63 timelines, 1,058 waits, 1,049 records, 165 option rows,
+  12 v1 roots/goldens, 17 caps, and nine source files. Managed-CPython inert
+  feasibility independently proved VSZ `35113566208`, exact old-cap failure,
+  and exact corrected 64-GiB `RLIMIT_AS` set/readback. No decoder ran.
+- Root accumulated validation is reassigned to this exact candidate. All
+  mandatory clean Python, fixture, Cycle 1/2 evidence, frontend/browser/
+  performance regression, dependency/import/process/scope, candidate-path,
+  and clean/qualified worktree gates from round 1 must run freshly; no old
+  result transfers merely because only cap-owned bytes changed.
+- Root result path is fixed as
+  `docs/reviews/c3-b1-semantic-fixture-accumulated-validation-round-2.md`.
+  It must bind the new cap/manifest/generator/test/document digests, prove exact
+  64-GiB setrlimit feasibility without executing a decoder, record every
+  command/result and old-pass invalidation, and issue only `pass` or failure.
+  Fixture acceptance is assigned only after this immutable accumulated result
+  passes and is committed.

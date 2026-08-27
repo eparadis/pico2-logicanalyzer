@@ -2288,3 +2288,24 @@ unchanged.
   `docs/reviews/c3-b1-manifest-verification-round-1.md`. The manifest and pass
   record are committed together; the checkpoint is appended only afterward.
   No B2 work, checkpoint, publication, or other expanded authority exists yet.
+
+### Manifest preflight separation finding
+
+- Recorded: `2026-08-27T17:19:10Z`. Finding `C3B1-MP001`:
+  manifest preflight found that the final verification and final acceptance
+  records reused internal runner identities
+  `c3-b1-pre-execution-runner-verifier-1` and
+  `c3-b1-pre-execution-runner-acceptance-1`.
+- Frozen `cycle3-schema.json` requires all six C3-B1 internal identities to be
+  distinct from the primary verification, acceptance, and manifest-verifier
+  identities. The governing review likewise fixes the final B1 verifier and
+  acceptance identities as separate from all six internal identities. A
+  truthful manifest naming the actual reused identities therefore cannot pass
+  the frozen validator; substituting planned identities that did not perform
+  the reviews would be false evidence.
+- Atomic manifest assembly is paused before creating `c3-b1.json`. The
+  corrected ordering requires a fresh final verifier identity, a fresh complete
+  accumulated gate, a fresh final acceptance identity, and then a third fresh
+  manifest-verifier identity. Candidate `1f87932` and all prior records remain
+  immutable; no B2 or checkpoint authority transfers from the invalid role
+  separation.

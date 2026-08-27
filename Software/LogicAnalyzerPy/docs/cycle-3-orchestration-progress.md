@@ -717,3 +717,28 @@ unchanged.
   `docs/reviews/c3-b1-semantic-fixture-verification-round-7.md`; candidate and
   verifier-test paths are immutable. The record must bind the exact commit/tree
   and issue exactly `pass` or `changes_required`. No prior pass transfers.
+
+### Semantic-fixture verification round 7
+
+- Tested candidate/tree: `6dfe8afae6b121902ce3fde4fe81d335581e6292` /
+  `fc020d74e24646fc022f342dda8dafc72c929890`.
+- Verifier/verdict: `c3-b1-semantic-fixture-verifier-1` /
+  `changes_required`; immutable record committed at `8659bab` in
+  `docs/reviews/c3-b1-semantic-fixture-verification-round-7.md`, record SHA-256
+  `e5dfa663264e1eae5885686982a7d2a0aa8525cb4d0e9f7746c1406c2568c3c5`.
+- Fresh passing evidence: the exact import graph including helper `.mod`; all
+  63 finite timelines and 165 contextual matrix rows; provenance/notices/file
+  sets; sentinels; deterministic rebuild; all 17 rebuilt caps; no-oracle,
+  prohibited-runtime, and scope audits. None transfers to a changed candidate.
+- Exact remaining defect: checked-in UART annotation declarations say
+  `RX parity error bit` and `TX parity error bit`, while the generator omits
+  ` bit`. The mismatch propagates to declarations in all 54 UART timelines and
+  all 10 UART-bound v1 objects/canonical goldens. IDs, indices, rows, and
+  record classes are otherwise correct.
+- Correction owner remains
+  `c3-b1-semantic-fixture-implementor-replacement-6`, limited to the two exact
+  declaration strings, all deterministically dependent fixture/v1/cap/digest
+  outputs, and source-bound strong assertions within original fixture paths.
+  It may not edit immutable review/verifier/governance or runner/product paths.
+  No decoder runs and no pass transfers; a new candidate and full fresh
+  verification are required.

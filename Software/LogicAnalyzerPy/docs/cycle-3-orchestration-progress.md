@@ -2145,3 +2145,33 @@ unchanged.
   runtime, package build/publication, B2 work, or Cycle 4 action may run. No
   internal pass transfers; accumulated validation waits for this exact fresh
   verdict.
+
+### Final B1 verification round-1 finding and correction assignment
+
+- Recorded: `2026-08-27T16:59:26Z`. Fresh verifier verdict is
+  `changes_required`; immutable test/record committed at
+  `a9627e6248cf7cd2642e558429dfbddd484d3f24`. Test SHA-256 is
+  `789262b47d54265244ac757b77d06a463e1069432ef1341dca554d32bf66ff08`;
+  record SHA-256 is
+  `5140be9f7e724c6ffa0d010c6d708ed76eb77112c1844ec8e25a13720f916219`.
+- Finding `C3B1-FV001` is exact and singular: the binder has all six final role
+  identities but uses `history_is_preserved: true` instead of enumerating the
+  complete ordered implementation histories. The progress log is not itself
+  digest-bound, so the boolean cannot prove which identities it preserves.
+  All other assigned areas passed, including two-path scope, 32 digests,
+  commit/tree reachability, 29 approved values/boundaries, operator approval,
+  ordering, command/applicability matrices, findings, exclusions, and no-B2
+  authority. Round 1 remains immutable and transfers no pass.
+- Root is assigned corrected round-2 binders at exactly
+  `testdata/decoders/cycle3/b1-final-candidate-round-2.json` and
+  `docs/reviews/c3-b1-final-candidate-round-2.md`. It must explicitly enumerate
+  fixture identities in order: original `c3-b1-semantic-fixture-implementor-1`
+  then replacements 1 through 6; and runner identities in order: original
+  `c3-b1-pre-execution-runner-implementor-1` then replacements 1 through 3.
+- The only authorized semantic correction is replacing each implementation
+  history boolean with the exact ordered identity array and making the
+  rationale enumerate the same arrays. Round/provenance metadata must bind the
+  superseded candidate, failed verification assignment/commit, and this
+  correction assignment. Every evidence value, digest, command, environment,
+  status, finding, applicability rule, exclusion, and authority boundary must
+  otherwise remain unchanged. Fresh verification is mandatory after commit.

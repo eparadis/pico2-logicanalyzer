@@ -1909,3 +1909,48 @@ unchanged.
   will the exact committed values be presented to the operator for explicit
   approval or amendment. An amendment creates a new proposal candidate and
   repeats all three proposal gates.
+
+### Immutable threshold-proposal candidate and verification assignment
+
+- Recorded: `2026-08-27T06:47:52Z`. Proposal candidate commit/tree:
+  `e3a1d7c28a88a037e694d81c8c3406589fba040e` /
+  `38eda7b580d505d3966f765bcffaf7297cb539f4`. It adds exactly the assigned
+  machine-readable proposal and rationale; status is explicitly
+  `proposal-not-approved`. No approved-limit, product, fixture, raw, runner,
+  snapshot, cap, governing, manifest, or operator-decision byte exists or
+  changed.
+- Proposal JSON SHA-256 is
+  `61d1273114d98bf6652b5401bf146e8d44fd6a51242c317a502719dfb036e080`;
+  rationale SHA-256 is
+  `112d5606b7912cce2e99bc16189d1783829eb79733b72d1d469d0beab1ca42b0`.
+  Root's independent pre-candidate audit passed 29 unique limits, every
+  inclusive/exclusive boundary, all raw maxima, experiment-cap relationships,
+  formulas, evidence/environment identities, and digest closure.
+- The proposal names hard enforcement for 65,536 samples, 4-MiB requests,
+  5,000-ms deadline, 250-ms grace, 64-GiB address space, 320 recursion frames,
+  bounded outputs/nesting/retention, and SPI maximum 8; separate observed
+  regression ceilings cover 128-MiB worker RSS, 16-MiB parent retained growth,
+  successful/phase/cleanup timings, and reap latency. These are candidate
+  values only and carry no operator approval.
+- Fresh proposal verification is assigned to the existing verifier-role
+  identity `c3-b1-pre-execution-runner-verifier-1`
+  (`/root/c3_b1_runner_verify`), distinct from proposal authorship and all
+  acceptance identities. It may create only
+  `tests/verification/test_c3_b1_threshold_proposal.py` and
+  `docs/reviews/c3-b1-threshold-proposal-verification-round-1.md`; it may repair
+  nothing and must report exactly `pass` or `changes_required`.
+- Verification must independently recompute all 29 required categories from
+  accepted raw/hostile/request/environment/cap evidence; validate the proposal
+  schema, unique closed IDs, positive integer types, units, exact accept/value
+  and reject/value+1 boundaries, formulas, rationale, digests, commits, and
+  macOS qualification; prove every hard ceiling is equal to or stricter than
+  the experiment cap; and audit cross-limit feasibility for maximum samples,
+  request framing, retained output, deadline/grace/cleanup, address space/RSS,
+  and SPI evidence.
+- Independent negative tests must reject missing/extra/duplicate entries,
+  booleans/non-integers/non-positive values, altered raw maxima or formulas,
+  weakened experiment boundaries, inconsistent units/bounds, performance
+  ceilings that contradict deadline/cleanup policy, an SPI maximum above
+  characterized evidence, status changed to approved, and any evidence/digest
+  substitution. Static inspection only: no snapshot, decoder, hostile probe,
+  product host, hardware, network, or excluded action is authorized.

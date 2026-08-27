@@ -1257,3 +1257,34 @@ unchanged.
   run; no raw observation or future gate is authorized. Root will assign no
   verifier until a complete independent integration review finds no open
   requirement.
+
+### Pre-candidate runner implementor replacement 3
+
+- Recorded: `2026-08-27T04:12:48Z`. No immutable runner candidate, verifier,
+  accumulated result, acceptance, or decoder execution exists. Replacement-2
+  materially completed the 17-cap accounting/process boundary, dedicated
+  protocol, termination/kill/close/reap evidence, hostile binding/import
+  preflight, fixed launch environment, and static fixed-snapshot loader
+  foundation, but repeated bounded turns did not finish the required actual
+  characterization host or even its mechanically consistent launch binding.
+- C3B1-RI012: root integration rejected the apparent 117-test completion
+  because `characterize()` unconditionally failed and the worker accepted only
+  inert probes. Such bytes cannot be the contract's exact unchanged runner that
+  executes the approved snapshots after its non-decoder gate. The correction
+  must contain the real fixed UART/SPI/I2C post-gate snapshot path before any
+  candidate is committed; static request-builder or label-only tests do not
+  close this finding.
+- New identity:
+  `c3-b1-pre-execution-runner-implementor-replacement-3`
+  (`/root/c3_b1_runner_impl_r4`), implementor lane, `gpt-5.6-terra`, low. It
+  inherits only the same runner/method/launch/probe/test path families and may
+  freely replace the uncommitted pre-candidate work. Replacement-2 remains
+  immutable correction history and transfers no pass.
+- Immediate objective: finish and statically verify the exact nine-file pinned
+  loader, fixed module graph, compatibility lifecycle/wait/register/put host,
+  canonical raw observations/counts, closed non-probe characterization request,
+  unchanged post-acceptance execution entrypoint, truthful measurement method,
+  launch/inventory/binding consistency, and every still-open RI001-RI012
+  assertion. It may inspect snapshot bytes only as inert text and may execute
+  only inert/hostile non-decoder probes; it must not execute a decoder, expected
+  fixture generator, helper/product runtime, hardware, or excluded capability.

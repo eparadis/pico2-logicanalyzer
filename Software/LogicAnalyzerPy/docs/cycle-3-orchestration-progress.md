@@ -1226,3 +1226,34 @@ unchanged.
   excluded action, or Cycle 4 work is authorized. Root will commit a candidate
   and assign its distinct verifier only after complete integration review finds
   no open requirement.
+
+### Pre-candidate runner implementor replacement 2
+
+- Recorded: `2026-08-27T03:30:02Z`. No immutable runner candidate or verdict
+  exists. Replacement-1 correctly kept all work uncommitted and made material
+  progress on the corrected-cap binding, dedicated protocol path, worker
+  limits, and typed accounting, but exhausted repeated implementation turns
+  before completing the proof surface.
+- New identity:
+  `c3-b1-pre-execution-runner-implementor-replacement-2`
+  (`/root/c3_b1_runner_impl_r3`), implementor lane, `gpt-5.6-terra`, low. It is
+  distinct from both prior runner implementors and every fixture,
+  verification, acceptance, manifest, and orchestration identity. Prior
+  implementors remain immutable correction history.
+- Replacement-2 inherits only the original three runner path families and may
+  freely replace the uncommitted pre-candidate work. It must bind the corrected
+  accepted fixture/cap identities and close every RI001-RI010 finding. The
+  current accounting module/production wiring, separate protocol stream,
+  exact 64-GiB limit, and hard-disabled characterization request are leads,
+  not accepted evidence or transferred tests.
+- Immediate unfinished surface: complete closed binding/launch allowlists for
+  every owned source; finish private derived small-profile execution while
+  keeping characterization production-only; normal-format the implementation
+  test; add exact value/+1 accounting tests for every cap; finish bounded
+  process, termination/kill/descriptor/reap/recovery and hostile root/import/
+  resource matrices; update truthful method; and pass focused pytest, Ruff,
+  mypy, binding, scope, process, and no-decoder audits without suppression.
+- All original prohibitions remain. Only inert/hostile non-decoder probes may
+  run; no raw observation or future gate is authorized. Root will assign no
+  verifier until a complete independent integration review finds no open
+  requirement.

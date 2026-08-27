@@ -742,3 +742,27 @@ unchanged.
   It may not edit immutable review/verifier/governance or runner/product paths.
   No decoder runs and no pass transfers; a new candidate and full fresh
   verification are required.
+
+### Source-bound semantic-fixture candidate and verification round 8
+
+- Candidate commit/tree: `c1420ad9b4309fc7417acbc228085b68237c24d0` /
+  `26ef344bfb76bec4a8e68be06a411b4d27d20de1`; worktree clean immediately
+  after commit. Candidate owner remains the fixture-only replacement-6
+  identity and all earlier candidates/verdicts remain immutable.
+- Exact correction: generator declarations now transcribe source-exact
+  `RX parity error bit` and `TX parity error bit`. All 54 UART timeline
+  declarations and 10 UART-bound v1 roots/canonical bytes were regenerated.
+  An AST-only implementation assertion reads the checked-in source as inert
+  data and binds its indices 6/7 to every generated declaration. The updated
+  724292-byte corpus deterministically rebuilds its three byte-derived cap
+  values and manifest digests.
+- Root focused result: generator/check; 18 implementation plus immutable
+  corrected-verifier tests; Ruff; diff and exact six-path scope; source AST,
+  timeline/v1 declaration, canonical-byte, digest, and cap arithmetic checks
+  passed. No decoder or prohibited runtime executed.
+- Verification identity: reuse only
+  `c3-b1-semantic-fixture-verifier-1` for a complete fresh audit of this exact
+  candidate. It may create only
+  `docs/reviews/c3-b1-semantic-fixture-verification-round-8.md`, may repair
+  nothing, and must bind the exact commit/tree with verdict exactly `pass` or
+  `changes_required`. No prior pass transfers.

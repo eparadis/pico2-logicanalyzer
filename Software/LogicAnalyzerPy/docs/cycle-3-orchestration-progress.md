@@ -555,3 +555,23 @@ unchanged.
   It may correct the generator, generated fixture artifacts, fixture docs, and
   focused implementation tests only. No decoder may execute and no pass
   transfers; immutable verifier records/tests and contracts remain untouched.
+
+### Sixth semantic-fixture implementor replacement
+
+- Prior identity: `c3-b1-semantic-fixture-implementor-replacement-5`
+  (`/root/c3_b1_fixture_impl_r5`). After authoring candidate `f53c340` and
+  consuming the complete round-4 findings, it classified the correction as a
+  broad fixture-model rebuild and returned without editing. It reported no
+  external blocker. Its committed authorship and failed candidate remain
+  immutable; no pass transfers.
+- New identity: `c3-b1-semantic-fixture-implementor-replacement-6`, same
+  implementor lane, `gpt-5.6-terra`, low. Its bounded outcome is the complete
+  round-4 correction: earliest-event UART/I2C/SPI traces, ordinary nested value
+  tags, exact preserved/emitted records, decoder-bound v1 identities and
+  declarations, dependent fixture/cap rebuild, and focused source-simulation
+  tests. It must explicitly prove the disputed SPI recurrence and I2C bitrate
+  from checked-in source rather than copying either prior conclusion.
+- Ownership/separation remains unchanged. The new identity may edit only the
+  fixture generator, generated Cycle 3 fixture artifacts, fixture documentation,
+  and implementation fixture tests; it remains barred from runner/product work,
+  verification, acceptance, immutable history, contracts, and Cycle 4.

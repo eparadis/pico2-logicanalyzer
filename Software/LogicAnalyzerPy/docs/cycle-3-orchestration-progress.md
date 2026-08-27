@@ -690,3 +690,30 @@ unchanged.
   progress/contracts, runner/product paths, or immutable history. No decoder
   or prohibited runtime may execute. A new candidate and complete fresh
   verification are mandatory; no pass transfers.
+
+### Complete semantic-fixture candidate and verification round 7
+
+- Candidate commit/tree: `6dfe8afae6b121902ce3fde4fe81d335581e6292` /
+  `fc020d74e24646fc022f342dda8dafc72c929890`; worktree clean immediately
+  after commit. Candidate owner remains
+  `c3-b1-semantic-fixture-implementor-replacement-6`; immutable candidate and
+  review history is preserved.
+- Correction: the closed import inventory now explicitly records
+  `common.srdhelper.mod (relative package import .mod)`. UART RX/TX delimiter
+  maxima 31/63/127/255/511 now have real option keys, explicit selected
+  `data_bits` 5-9 contexts, and ten source-derived direct witnesses; all
+  contextual max-plus-one/type/sentinel rejections use the same real keys and
+  contexts, with no synthetic width option. Dependent fixtures, cap bases and
+  finite values, digests, prose, and strong assertions were rebuilt.
+- Corpus/root focused result: 63 unique finite timelines, 165 unique matrix
+  rows (62 direct, 103 unsupported), 40 contextual delimiter rows, all 17 cap
+  derivations, deterministic generator/check, 17 implementation plus immutable
+  corrected-verifier tests, Ruff, diff check, exact eight-path scope, and
+  direct RX/TX scalar/bit/binary/packet-output inspection passed. No decoder or
+  prohibited runtime executed.
+- Verification identity: reuse only
+  `c3-b1-semantic-fixture-verifier-1` in its verifier role for a complete fresh
+  audit of this exact candidate. It may create only
+  `docs/reviews/c3-b1-semantic-fixture-verification-round-7.md`; candidate and
+  verifier-test paths are immutable. The record must bind the exact commit/tree
+  and issue exactly `pass` or `changes_required`. No prior pass transfers.

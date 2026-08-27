@@ -2324,3 +2324,23 @@ unchanged.
 - No prior final-verifier pass transfers. Root will rerun the complete
   accumulated gate only after this immutable fresh verdict is committed; the
   fresh acceptance and manifest-verifier identities remain ordered later.
+
+### C3B1-MP001 fresh final-verification pass and accumulated assignment
+
+- Recorded: `2026-08-27T19:09:17Z`. Fresh verifier identity/verdict:
+  `c3-b1-final-verifier-2` / `pass`; immutable record committed at
+  `a5fb09315064c49772d453ab5c1ba9d3a0200ba5`. Record SHA-256 is
+  `4f043b102e4d3b16c3475b6622535983ac2443d4d86bc7caa914b065a2a6dee8`.
+- The fresh pass independently repeated the complete final static scope:
+  exact candidate/tree/two-path scope, six internal roles and full histories,
+  correction-only equivalence, all 32 evidence digests and reachability, 29
+  approved boundaries, operator decision, 21 commands and applicability,
+  project/legal limitations, exclusions, 17 non-vacuous mutation families,
+  and cleanup. It is distinct from every internal identity.
+- Root is assigned a new complete accumulated validation against unchanged
+  candidate `1f87932`, including the unfiltered inventory first and all 21
+  frozen command records under repository-local Python 3.12 and exact local
+  Node 22. Result path is fixed as
+  `docs/reviews/c3-b1-final-accumulated-validation-round-2.md`. No previous
+  accumulated result transfers; fresh acceptance waits for this record's
+  immutable pass.

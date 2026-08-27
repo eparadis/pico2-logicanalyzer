@@ -766,3 +766,34 @@ unchanged.
   `docs/reviews/c3-b1-semantic-fixture-verification-round-8.md`, may repair
   nothing, and must bind the exact commit/tree with verdict exactly `pass` or
   `changes_required`. No prior pass transfers.
+
+### Semantic-fixture verification round 8 and accumulated-gate assignment
+
+- Tested candidate/tree: `c1420ad9b4309fc7417acbc228085b68237c24d0` /
+  `26ef344bfb76bec4a8e68be06a411b4d27d20de1`.
+- Verifier/verdict: `c3-b1-semantic-fixture-verifier-1` / `pass`; immutable
+  record committed at `fa85b83` in
+  `docs/reviews/c3-b1-semantic-fixture-verification-round-8.md`, record SHA-256
+  `9e1ad275730f30ff1ccbaf3c8e0a59e06c98463d332f249e46b4242be2d18bd5`.
+  All eight fresh audit areas passed with no discrepancy; no decoder ran.
+- Accumulated subject remains exact candidate/tree above. Descendant review
+  and progress commits may add evidence only; every candidate/fixture/test path
+  must remain byte-identical. Root-owned result path is fixed as
+  `docs/reviews/c3-b1-semantic-fixture-accumulated-validation-round-1.md`.
+- Clean environment: managed CPython 3.12.13 creates/clears stable
+  `/private/tmp/cycle3-clean-python`; install `requirements-dev.lock` with
+  `--require-hashes`, then editable product with `--no-build-isolation
+  --no-deps`. Dependency installation is a root-brokered approval class.
+- Mandatory commands: clean bootstrap and `pip check`; full `ruff check .`;
+  strict `mypy src`; all `pytest -m "not hardware"`; installed module help;
+  deterministic Cycle 3 fixture rebuild plus focused implementation/verifier
+  suite; all six accepted Cycle 2 evidence-validator invocations; accepted
+  Cycle 1 manifest JSON/identity preservation; exact decoder/helper digests and
+  closed AST imports; scoped dependency/import/command and active-process
+  exclusion audit; candidate-path quiet diff, full repository diff check, and
+  clean/qualified state.
+- This gate tests no executable cap enforcement and runs no decoder, runner,
+  reference runtime, hardware, browser, network service, or excluded action.
+  A failure remains at the fixture accumulated gate; acceptance is assigned
+  only after every mandatory result passes and the immutable result is
+  committed.

@@ -30,8 +30,9 @@ def test_static_spi_bit_span_recurrence_and_i2c_bitrate_arithmetic() -> None:
     spi.handle_bit() inserts newest-first, estimates ``es`` from the prior
     newest start, then closes the prior newest entry at the current sample.
     Thus sampling at 10..150 has final newest [150, 170], not [150, 290].
-    I2C increments pdu_bits in handle_address_or_data only: two octets are
-    16 increments; ACK/NACK use get_ack and do not increment it.
+    I2C increments pdu_bits in handle_address_or_data only: its two octets
+    plus the post-NACK partial bit at SCL 370 are 17 increments; ACK/NACK
+    use get_ack and do not increment it.
     """
     bits: list[list[int]] = []
     for sample in range(10, 151, 20):
@@ -40,7 +41,7 @@ def test_static_spi_bit_span_recurrence_and_i2c_bitrate_arithmetic() -> None:
         if len(bits) > 1:
             bits[1][2] = sample
     assert bits[0] == [1, 150, 170]
-    assert int(1_152_000 * 16 / 371) == 49_681
+    assert int(1_152_000 * 17 / 371) == 52_787
 
 
 def test_uart_i2c_use_ordinary_bit_lists_and_v1_binds_real_decoder_sets() -> None:
@@ -568,7 +569,7 @@ def test_static_wait_predicates_and_source_order_are_truthful() -> None:
         (190, 350),
     ]
     assert full_i2c["expected_records"][-2]["kind"] == "python"
-    assert full_i2c["expected_records"][-3]["value"]["value"] == 49681
+    assert full_i2c["expected_records"][-3]["value"]["value"] == 52787
     # Continue the matrix/vector coverage audit with local data, keeping this
     # predicate test independent of test ordering.
     rows = load("option-matrix.json")["rows"]
@@ -603,6 +604,13 @@ def test_static_wait_predicates_and_source_order_are_truthful() -> None:
     assert [
         item["value"]["value"][0]["value"] for item in break_records if item["kind"] == "python"
     ][-1] == "BREAK"
+    break_data = next(
+        item
+        for item in break_records
+        if item["kind"] == "python" and item["value"]["value"][0]["value"] == "DATA"
+    )
+    break_triples = break_data["value"]["value"][2]["value"][1]["value"]
+    assert [triple["value"][0]["value"] for triple in break_triples] == [0] * 8
     idle_records = timelines["uart-idle-after-valid-frame"]["expected_records"]
     assert idle_records[-1]["value"]["value"][0]["value"] == "IDLE"
     assert (idle_records[-1]["start_sample"], idle_records[-1]["end_sample"]) == (101, 201)

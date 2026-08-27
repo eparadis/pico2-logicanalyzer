@@ -1935,9 +1935,10 @@ def build() -> dict[str, object]:
     i2c_records += [
         record(0, "python", {"tag": "list", "value": [tag_string("NACK"), {"tag": "null"}]}, 350, 370, 0),
         record(1, "annotation", {"class_index": 4, "texts": ["NACK", "N"]}, 350, 370, 1),
-        # i2c.handle_stop(): elapsed = es - pdu_start + 1 = 371, while
-        # pdu_bits counts only the two octets (16), not ACK/NACK slots.
-        record(2, "metadata", {"value_type": "integer", "value": 49681}, 1, 371, 3),
+        # i2c.handle_stop(): elapsed = es - pdu_start + 1 = 371. The
+        # post-NACK SCL rise at 370 enters handle_address_or_data too, so
+        # pdu_bits is 17 (two octets plus the retained partial data bit).
+        record(2, "metadata", {"value_type": "integer", "value": 52787}, 1, 371, 3),
         record(3, "python", {"tag": "list", "value": [tag_string("STOP"), {"tag": "null"}]}, 371, 371, 0),
         record(4, "annotation", {"class_index": 2, "texts": ["Stop", "P"]}, 371, 371, 1),
     ]
@@ -2062,6 +2063,10 @@ def build() -> dict[str, object]:
     for item in break_frame[2:10]:
         item["value"]["texts"] = ["0"]
     break_frame[10]["value"]["value"][2]["value"][0] = tag_integer(0)
+    break_frame[10]["value"]["value"][2]["value"][1]["value"] = [
+        {"tag": "spi-data", "ss": 11 + 10 * index, "es": 21 + 10 * index, "val": 0}
+        for index in range(8)
+    ]
     break_frame[11]["value"]["texts"] = ["00"]
     break_frame[12]["value"]["data_base64"] = "AA=="
     break_frame[13]["value"]["data_base64"] = "AA=="

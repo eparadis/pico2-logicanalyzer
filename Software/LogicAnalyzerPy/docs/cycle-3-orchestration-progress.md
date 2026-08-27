@@ -1542,3 +1542,40 @@ unchanged.
   drift, and a valid probe follows. It must explicitly preserve the three
   historical authorized UART warm-ups, execute no fourth snapshot, and end
   exactly `pass` or `changes_required`.
+
+### Corrected runner verification pass and accumulated-gate assignment
+
+- Recorded: `2026-08-27T05:29:21Z`.
+- Exact subject remains corrected candidate/tree
+  `48d139f86aabcfa3e34567473c05ade13340107f` /
+  `fc36f73089ee6d1c86e3bd6c922c44dffe15477b`; every candidate-owned byte is
+  unchanged in the verifier descendant.
+- Independent verifier/verdict:
+  `c3-b1-pre-execution-runner-verifier-1` / `pass`; fresh round-2 record and
+  23-test matrix committed at `8bcd7ba19795633a9e0e215c1d9f2cc47a893b03`.
+  Record SHA-256 is
+  `0fc07aea133702352d0dee74d18e4287f707481b598773481d7c9d37501942dc`;
+  verifier-test SHA-256 is
+  `c6cec19e2e97a833315270d2ae9dbf1cd9b19433122cf545b1f5d2512204bf5b`.
+- The complete fresh cap, binding/import, framing/accounting, resource,
+  termination/kill/close/reap, recovery, fixed-route, option, and API-v3 matrix
+  passed. Independent RI013 proof showed environment-only suppression is false
+  under `-I`, both frozen launch identities contain explicit `-B`, consecutive
+  real inert sibling-import workers remain cache-free, and a valid recovery
+  follows. Fresh results were 23 independent and 190 combined focused passes;
+  Ruff, mypy, binding, candidate equality, diff, inventory, and process checks
+  passed. No fourth snapshot execution occurred.
+- Root accumulated validation is now assigned freshly to this corrected
+  candidate. No round-1 accumulated result transfers. It must rerun the exact
+  clean hash-locked Python 3.12 bootstrap/install/check/Ruff/mypy/non-hardware
+  pytest/help gate, all corrected focused suites, deterministic fixture rebuild,
+  Cycle 1/2 evidence and quiet-scope checks, decoder/import/dependency/package/
+  process/prohibited-runtime audits, exact 64-GiB resource feasibility, and the
+  unchanged exact-Node-22 frontend/unit/build/browser/performance regressions.
+- The immutable result path is fixed as
+  `docs/reviews/c3-b1-preexecution-runner-accumulated-validation-round-2.md`.
+  It must bind RI013, corrected candidate/verifier identities and digests,
+  superseded round-1 passes, the three historical UART warm-ups, clean inventory
+  repeatability, every corrected command/result, and issue only `pass` or a
+  failure. Acceptance round 2 is assigned only after that result passes and is
+  committed; no decoder/snapshot route may run during accumulation.

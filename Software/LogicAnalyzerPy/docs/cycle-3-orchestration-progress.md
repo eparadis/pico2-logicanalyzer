@@ -1823,3 +1823,48 @@ unchanged.
   acceptance is assigned only after this accumulated record passes and is
   committed. No proposal, threshold decision, or product-host work is yet
   authorized.
+
+### Raw-baseline accumulated pass and acceptance assignment
+
+- Recorded: `2026-08-27T06:36:28Z`. Exact raw candidate/tree remains
+  `397981adf0f89115647203e749db1b1e5b3384cf` /
+  `e4baf918c3de4b7df94ad51340bf5b5bfc8f16d2`; every raw, runner, method,
+  fixture, snapshot, and cap byte remains unchanged.
+- Root accumulated validation/verdict: `pass`, committed at
+  `b49bd4932c4c091529b6c93f45de1f3f807e83f2` in
+  `docs/reviews/c3-b1-raw-baseline-accumulated-validation-round-1.md`, SHA-256
+  `839bc5aae57a179007acbf405c7f1ce5c6484c51a7d997650e01e1cbcba879ee`.
+- A freshly cleared, hash-locked Python 3.12.13 environment passed Ruff, both
+  strict mypy scopes, deterministic fixtures, binding, 596 unrestricted
+  non-hardware tests with no skip, installed help, 18 fixture and 190 runner
+  focused tests, all six Cycle 2 validators, accepted Cycle 1 hashes, exact
+  64-GiB resource feasibility, dependency/import/package/scope/cache audits,
+  and the full raw reproduction again. Exact Node 22 passed clean install,
+  lint, type, five unit tests, 29-module build/assets, four browser tests, and
+  one B6 performance/threshold test.
+- The independent timing/RSS discrepancy classification remains explicit and
+  unchanged; no cap, raw value, or threshold was edited or inferred. An
+  orchestration-only wrong asset-checker path was discarded and the governed
+  Python checker passed. Generated browser results were moved intact to
+  `/private/tmp/cycle3-raw-accumulated-web-20260827T0632`.
+- During this gate the operator separately directed a repository instruction
+  improvement. Commit `c936403` changes only root `AGENTS.md` to require one
+  narrow reusable privileged command class per approval and prohibit repeated
+  heterogeneous approval requests. It is not Cycle 3 candidate evidence,
+  changes no scoped product/raw/governing byte, and must remain an explicit
+  user-directed unrelated descendant rather than being silently absorbed.
+- Fresh raw acceptance is assigned to the existing distinct acceptance-role
+  identity `c3-b1-pre-execution-runner-acceptance-1`
+  (`/root/c3_b1_runner_accept`). It may create only
+  `docs/reviews/c3-b1-raw-baseline-acceptance-round-1.md`, may repair nothing,
+  and must report exactly `pass` or `changes_required`.
+- Acceptance must audit candidate immutability; raw authorship and verifier/
+  acceptance separation; exact method/environment/digest/count/summary
+  completeness; independent 63-case and hostile reproduction; every timing/
+  RSS discrepancy; accumulated bootstrap/regression/resource/scope evidence;
+  cleanup/cache/process state; governing ordering; the unrelated `AGENTS.md`
+  instruction commit; and absence of expected-output oracle, threshold,
+  product, hardware, external runtime, publication, or Cycle 4 work. It may use
+  static inspection and existing immutable evidence only and must not execute a
+  snapshot or hostile probe. A pass authorizes only threshold-proposal
+  preparation; it does not approve any numeric value.

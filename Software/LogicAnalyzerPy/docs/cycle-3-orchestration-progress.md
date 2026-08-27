@@ -1868,3 +1868,44 @@ unchanged.
   static inspection and existing immutable evidence only and must not execute a
   snapshot or hostile probe. A pass authorizes only threshold-proposal
   preparation; it does not approve any numeric value.
+
+### Raw-baseline acceptance pass and threshold-proposal assignment
+
+- Recorded: `2026-08-27T06:40:52Z`. Acceptance identity/verdict:
+  `c3-b1-pre-execution-runner-acceptance-1` / `pass`; immutable record committed
+  at `7baa53bf8efe3de66722220ce20b0042f27f3cab` in
+  `docs/reviews/c3-b1-raw-baseline-acceptance-round-1.md`, SHA-256
+  `87df517169c83c2c22a199fafcd9dec69e8197e5ee8e4d1f21fa9f6170056396`.
+  It found no open issue in candidate immutability, role separation, method,
+  environment, digest/count/summary completeness, 63-case and hostile
+  reproduction, timing/RSS discrepancies, accumulated evidence, cleanup,
+  scope, ordering, or the unrelated operator-directed `AGENTS.md` commit. It
+  executed no snapshot or probe.
+- All three raw-baseline gates now pass for exact candidate/tree
+  `397981adf0f89115647203e749db1b1e5b3384cf` /
+  `e4baf918c3de4b7df94ad51340bf5b5bfc8f16d2`. This authorizes only proposal
+  preparation; no numeric value is approved and no B2 product work may begin.
+- Root owns the immutable proposal candidate under exactly
+  `testdata/decoders/cycle3/threshold-proposal-round-1.json` and
+  `docs/reviews/c3-b1-threshold-proposal-rationale-round-1.md`. Neither path is
+  an approved-limits file, operator record, product configuration, enforcement
+  implementation, or future manifest.
+- The proposal must bind the accepted fixture, corrected runner, raw candidate,
+  verifier, accumulated, and acceptance commits/digests and exact characterized
+  macOS/Python environment. It must independently recompute raw maxima and name
+  every required exact ceiling: input samples, request bytes, wall deadline,
+  cancellation grace, worker address space/memory, recursion, output records,
+  encoded/decoded/text/binary/nested-item/nested-depth/diagnostic/retained-result
+  bytes, parent retained memory, performance timings, and maximum SPI word size.
+- Every value must show unit, accepted maximum observation or static boundary,
+  arithmetic/rationale, inclusive accept and exclusive reject boundary, and
+  relationship to the unchanged experiment cap. Timing/RSS discrepancies and
+  missing/unreliable observations remain explicit. No raw value may be edited;
+  no experiment cap may be weakened to obtain data; no convenient default may
+  be presented as approval.
+- After root commits the exact proposal candidate, the existing verifier-role
+  identity receives a fresh proposal-specific assignment and verdict, followed
+  by complete accumulated proposal validation and fresh acceptance. Only then
+  will the exact committed values be presented to the operator for explicit
+  approval or amendment. An amendment creates a new proposal candidate and
+  repeats all three proposal gates.

@@ -1159,3 +1159,35 @@ unchanged.
   command/result and old-pass invalidation, and issue only `pass` or failure.
   Fixture acceptance is assigned only after this immutable accumulated result
   passes and is committed.
+
+### Corrected fixture accumulated pass and acceptance round 2 assignment
+
+- Recorded: `2026-08-27T03:21:13Z`.
+- Exact subject remains candidate/tree
+  `7c57a347bbe575e3f451383ea498f56abc362f26` /
+  `02a408895dd834e6e6885218cb7323f46439e880`; candidate-owned paths are
+  unchanged in every descendant.
+- Fresh root accumulated validation passed and is committed at `bdd5e5a` in
+  `docs/reviews/c3-b1-semantic-fixture-accumulated-validation-round-2.md`,
+  SHA-256
+  `196b07bf214adddb70b094c30402d706415f183f4451beb82e6bf0ee2d6162ac`.
+  A cleared hash-locked Python 3.12.13 environment produced 403/403 non-
+  hardware passes with no skip, Ruff, strict mypy, installed help,
+  deterministic fixtures and 18 focused passes; all Cycle 1/2 evidence,
+  Node 22 lint/type/unit/build/browser/performance, exact 64-GiB setrlimit,
+  dependency/import/process/scope, candidate-path, diff, and clean-state gates
+  passed. No decoder or prohibited runtime executed.
+- Reassigned acceptance identity is the same independent
+  `c3-b1-semantic-fixture-acceptance-1` (`/root/c3_b1_fixture_accept`) for a
+  complete fresh audit. It must bind the corrected candidate, round-9
+  verification, accumulated round 2, RI011 discovery/correction, invalidation
+  ordering, immutable prior history, project/license input, and runner-phase
+  readiness. No old acceptance finding/pass transfers.
+- The acceptance identity may create only
+  `docs/reviews/c3-b1-semantic-fixture-acceptance-round-2.md`, may repair
+  nothing, and must end exactly `pass` or `changes_required`. It must
+  independently audit the 64-GiB absolute-address-space derivation/feasibility/
+  qualification and all original fixture acceptance areas, execute no decoder
+  or prohibited runtime, and make no runner-enforcement/characterization/
+  threshold/manifest/checkpoint claim. Only a fresh `pass` may resume the
+  quarantined distinct runner implementation.

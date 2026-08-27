@@ -2200,3 +2200,33 @@ unchanged.
   history order/completeness and correction-only normalized equivalence, and
   bind the new candidate/tree/digests. All static-only prohibitions and the
   ban on accumulated validation or B2 before this verdict remain unchanged.
+
+### Corrected final B1 verification pass and accumulated assignment
+
+- Recorded: `2026-08-27T17:06:16Z`. Fresh verifier/verdict:
+  `c3-b1-pre-execution-runner-verifier-1` / `pass`; immutable updated test and
+  round-2 record committed at `42b6a185f183fe701e0037cbc6b4636196c96f34`.
+  Test SHA-256 is
+  `6f931ad8acbff9078e1f6ea125954c4861d4278aa5c0531b81b60ddd8fcb88d2`;
+  record SHA-256 is
+  `a1cadd1a09836680721418ff606af771b5a9b85f497b27c03d0f8cca64950eaf`.
+- All 20 tests passed: exact two-path candidate/tree/digests, complete ordered
+  histories and tails, correction provenance/equivalence, six roles, all 32
+  evidence bindings, all 29 approved boundaries, all 21 frozen commands,
+  applicability, exclusions, reachability, and a 17-family non-vacuous
+  mutation matrix. Ruff, diff, quiet-scope, and centralized reusable process
+  cleanup checks passed. No internal pass transferred.
+- Root complete accumulated validation is now assigned against exact candidate
+  `1f87932`. Result path is fixed as
+  `docs/reviews/c3-b1-final-accumulated-validation-round-1.md`. It must execute
+  all 21 frozen command records under the bound local Python 3.12 and exact
+  Node 22 environment, validate all Cycle 1/2 evidence and current candidate
+  digests/ordering/scope, retain the explicit three-node historical
+  applicability classification, audit dependencies/imports/processes and all
+  exclusions, and report only `pass` or a failure.
+- The complete unfiltered test inventory must run first so every historical
+  result remains visible; the applicable accumulated run may deselect only the
+  exact three already reviewed historical nodes. No source or historical test
+  may be edited to manufacture a pass. Fresh final B1 acceptance is assigned
+  only after the immutable accumulated result passes and is committed. No B1
+  manifest/checkpoint or B2 work is yet authorized.

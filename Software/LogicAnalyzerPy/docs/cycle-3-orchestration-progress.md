@@ -1397,3 +1397,52 @@ unchanged.
   helper, generator, product host, hardware, network install, or excluded
   capability. A `pass` authorizes only the exact unchanged runner to enter the
   separately ordered raw-baseline execution phase; no other authority transfers.
+
+### Pre-execution runner acceptance pass and raw-baseline assignment
+
+- Recorded: `2026-08-27T05:11:27Z`.
+- Acceptance identity/verdict:
+  `c3-b1-pre-execution-runner-acceptance-1` / `pass`; immutable round-1 record
+  committed at `fdb3262202fbc8dca5d5115345ddaecdedd150b0` in
+  `docs/reviews/c3-b1-preexecution-runner-acceptance-round-1.md`, SHA-256
+  `85d6fa54fe9e07c9ed990361dbc1e0536ac1ef3cf5597b36e60e137fb41c3a74`.
+  It found no discrepancy, independently reran 21 inert/hostile verifier tests,
+  and confirmed exact candidate and fixture byte equality, complete 17-cap and
+  cleanup proof, immutable ordering, scope, method truth, and no prior decoder
+  or approved-snapshot execution.
+- This pass authorizes only exact runner candidate/tree
+  `11a8ade5d828830347095bf2580766c149cb8aef` /
+  `61fa5ba18f3620188ee61dac7e3622803591aad9`, with its accepted method,
+  launch/import configuration, binding, caps, cleanup, snapshot bytes, and
+  Python 3.12 environment class unchanged, to enter raw characterization. Any
+  change to those inputs reopens the pre-execution gate and invalidates every
+  dependent observation. No product limit or public-host authority transfers.
+- Raw-baseline collection is assigned to the final runner owner
+  `c3-b1-pre-execution-runner-implementor-replacement-3`
+  (`/root/c3_b1_runner_impl_r4`). It may create only data beneath
+  `testdata/decoders/cycle3-raw/`; it may not modify the accepted runner,
+  method, fixture, expected records, snapshot, product, test, review, progress,
+  governance, lock, workflow, or evidence surface. No executable collector is
+  added to the repository.
+- The raw candidate must retain machine model, macOS build/version, CPU
+  architecture, exact Python executable/build, resource-observation mechanisms,
+  all accepted fixture/method/runner/cap/source digests, one explicitly
+  unrecorded warm-up followed by five independent recorded repetitions, every
+  canonical raw result, and min/median/max timing without averaging away a
+  failure. It must derive requests only from timeline transitions, mapping,
+  samplerate, options, and accepted provenance file sets; expected calls and
+  records are forbidden as execution inputs or an output oracle.
+- Coverage is all 63 approved UART/SPI/I2C semantic and stress timelines plus
+  separately labelled production-cap hostile cases covering malformed framing,
+  dense/output-cap behavior, deadline cancellation, graceful terminate, forced
+  kill, descriptor close, exact-child reap, and post-failure recovery. The
+  artifacts must retain deterministic input/request/output/encoded/decoded/
+  text/binary/depth/item/diagnostic/retained counts, parent launch/reap/total
+  time, child load/import/decode time, parent retained memory, child peak
+  memory/address-space and recursion results, and cleanup latencies wherever
+  applicable. A cap termination remains a raw failure observation and no cap
+  may be weakened or rerun under a different profile to obtain passing data.
+- Root will integration-audit the data, candidate scope and unchanged bindings
+  before committing an immutable raw-baseline candidate. Only then may a fresh
+  independent raw-baseline verifier be assigned; no pre-execution verifier or
+  acceptance pass transfers.

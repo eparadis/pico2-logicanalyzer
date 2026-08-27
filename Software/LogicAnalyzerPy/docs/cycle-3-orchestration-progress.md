@@ -2511,3 +2511,85 @@ unchanged.
 - Next batch: C3-B2, after its bounded active-batch prerequisite/authority
   preflight and role assignment.
 - Blocked: no.
+
+## C3-B2: isolated compatibility host and containment
+
+- State: Ready.
+- Objective: implement one private native host that accepts only validated
+  inert requests, executes exactly one hash-pinned focused decoder in one fresh
+  single-use Python worker, returns the frozen typed result, and enforces every
+  approved parent/worker containment and cleanup rule without exposing a public
+  library or CLI surface.
+- Prerequisites: C3-B1 checkpoint `06ca562558014dc0a32588493b8d92d55359ae74`
+  and manifest/verification commit
+  `c34a2517472a443e9d8ad7b41be800b272db9833`; manifest SHA-256
+  `580bd6ac8603602f43f9f2ca04bed552073f3de2e43df4ac35df81c1e720743b`;
+  all 29 exact operator-approved ceilings; accepted immutable fixture, runner,
+  method, raw, proposal, role, and correction evidence. Present and rechecked.
+- Governing commit/tree: `ea83a403bb6f644d33069d3bebd41d5f1e0a60c0` /
+  `d9fb09345ab85580cd8c877745262d1b481e366f`.
+- Starting commit/tree: `06ca562558014dc0a32588493b8d92d55359ae74` /
+  `ef9f31bae92cca56e3b295033b2e2b1a180a9fc3`.
+- Implementation agent: `c3-b2-private-host-implementor-1`
+  (`/root/c3_b1_runner_impl_r4`), continuing only its implementation lane. It
+  did not author B1 authoritative expected fixtures.
+- Verification agent: `c3-b2-private-host-verifier-1`
+  (`/root/c3_b1_final_verify_fresh`), continuing only its verification lane.
+- Acceptance agent: `c3-b2-private-host-acceptance-1`
+  (`/root/c3_b1_final_accept_fresh`), continuing only its acceptance lane.
+- Manifest verifier: `c3-b2-manifest-verifier-1`
+  (`/root/c3_b1_manifest_verify_fresh`), continuing only its manifest lane.
+  All four canonical agents and stable B2 identities are distinct; root remains
+  the separate orchestrator/assembler.
+- B1 internal identity map: not applicable to B2. The implementation identity
+  is a former runner implementor, never a semantic-fixture author; all B1
+  expected fixture paths remain read-only.
+- In scope: R6-R12 and R22; continuing R9, R21, R23-R25 audits; stopping
+  conditions 4-8. Closed decoder/file/import tables; immutable private request,
+  result, declaration, record, value, time, limit, and failure models; exact
+  pre-spawn validation; frozen API-v3 primitives; one fresh worker; versioned
+  streaming length-framed IPC; output normalization/counters; approved limits;
+  deadline/cancellation; typed failures; deterministic kill/close/reap.
+- Out of scope: decoder-specific B3 conformance/adapters; public
+  `pico_logic_analyzer.decode` exports or `decode_capture`; installed `pico-la
+  decode`; replay/CSV integration; browser/API/frontend; serial/live capture;
+  hardware/firmware; dynamic discovery/paths/stacking/`.lac`; package build or
+  publication; non-macOS claim; external/reference runtime; Cycle 4.
+- Owned paths: implementation may add only
+  `src/pico_logic_analyzer/_decode/`,
+  `tests/implementation/test_c3_b2_private_host.py`, and
+  `docs/reviews/c3-b2-implementation-round-1.md`. Any need for package metadata,
+  locks, existing product modules, shared fixtures, or a different path returns
+  to root before editing. Verification later owns only
+  `tests/verification/test_c3_b2_private_host.py` and its immutable review;
+  acceptance and manifest verification own only their fixed review records.
+- Authoritative evidence: Step 5 frozen contract; accepted B1 manifest/binder;
+  semantic fixture manifest and literal typed/JSON goldens; option matrix;
+  experiment caps and 29 approved product ceilings; runner enforcement lessons
+  but no transferred pass or implementation byte.
+- Focused evidence: implementation-first failure; private host unit/contract
+  tests; B1 API-edge fixtures; exact schema/canonical-byte repeats; digest,
+  import-root, symlink/shadowing and inert-data negatives; hostile framed IPC;
+  every limit boundary/overrun; cancellation/terminate/kill/close/reap; process
+  and descriptor cleanup; successful valid request after every failure class.
+- Accumulated evidence: complete B1 manifest/fixture/limit identity; all B2
+  focused checks; frozen 21-command non-hardware matrix; Cycle 1/2 evidence and
+  regression gates; dependency/import/process/scope audits.
+- Authority notes: exact B1-approved snapshots may now execute only through the
+  accepted closed host path. Use repository-local Python 3.12. No dependency or
+  network operation is expected. Process inspection is root-brokered through
+  the existing reusable `rtk ps` class; any new external capability must return
+  `APPROVAL_NEEDED` under the broker policy.
+- Prohibited runtime audit: active source/metadata/locks/imports/commands plus
+  centralized process inspection must prove no C#/.NET/pythonnet/
+  libsigrokdecode/`sigrok-cli` or external/reference runtime use. Preserved C#
+  content remains inert read-only history.
+- Risks and unknowns: worker resource controls and streaming IPC must implement
+  the exact approved values without reusing characterization-only plumbing as a
+  product shortcut; package-owned module launch must not create the B4 public
+  API early; macOS containment is deliberately narrow and must not be presented
+  as an OS sandbox.
+- Preflight: clean branch at the exact starting commit/tree; strict B1 manifest
+  validation, deterministic fixture rebuild, runner binding check, final
+  20-test static verifier, and the manifest/approval/fixture/proposal digest
+  checks all passed. No prerequisite byte changed.

@@ -2010,3 +2010,45 @@ unchanged.
   and complete provenance, and transfer no earlier pass. Static inspection
   only; no snapshot, decoder, hostile probe, product host, hardware, network,
   install, external runtime, or excluded action is authorized.
+
+### Threshold-proposal round-2 verification and accumulated pass
+
+- Recorded: `2026-08-27T13:51:58Z`. Fresh verifier identity/verdict:
+  `c3-b1-pre-execution-runner-verifier-1` / `pass`; immutable evidence
+  committed at `1cdedcae57e6233010410172196b23f6167ee675`. Verifier-test
+  SHA-256 is
+  `f146f0d58a65116825f6ee6b2e04e4fcf495fca89de9565bf70e26b662509c79`;
+  record SHA-256 is
+  `c160cc75238ab48479fb3cfe4d0c4d0c86ee052102a4fd2715050b285d4e50a0`.
+  All 22 tests passed, including corrected formula/boundaries, all 29 limits,
+  exact correction scope/provenance, feasibility, and the full fresh negative
+  matrix. No earlier pass transferred and status remains unapproved.
+- Root accumulated validation/verdict: `pass`, committed at
+  `0d00fe4b88a1192b893afbf8e32c39bd6493b2fd` in
+  `docs/reviews/c3-b1-threshold-proposal-accumulated-validation-round-2.md`,
+  SHA-256
+  `b3a1455aefb3044d1048d6e2253885ba9908a09e7bc5e24c287bb63b21723b4b`.
+  Repository-local Python 3.12 and Node 22 tooling passed Ruff, strict mypy,
+  deterministic fixture/binding checks, 637 applicable non-hardware tests,
+  all six Cycle 2 validators, frontend lint/type/unit/build/assets, four browser
+  tests, and offline performance plus the unchanged accepted-threshold checker.
+- The accumulated record preserves an explicit three-node historical
+  applicability classification: the pre-proposal fixture namespace assertion,
+  raw evidence's former `/private/tmp` executable identity, and the immutable
+  failed round-1 exact-formula assertion. Their current replacements passed;
+  no historical test or evidence byte was edited. Local tooling resides only
+  under ignored repository `.venv`, and one reusable loopback npm-script rule
+  replaced per-process authorization.
+- Fresh proposal acceptance is assigned to existing distinct acceptance-role
+  identity `c3-b1-pre-execution-runner-acceptance-1`
+  (`/root/c3_b1_runner_accept`). It may create only
+  `docs/reviews/c3-b1-threshold-proposal-acceptance-round-2.md`, may repair
+  nothing, and must report exactly `pass` or `changes_required`.
+- Acceptance must statically audit immutable proposal `395646f`, fresh
+  verification and accumulated evidence, formula arithmetic, all 29 values and
+  boundaries, raw/cap/digest/environment/provenance closure, correction scope,
+  the three transparent applicability classifications, local-tooling and
+  authorization disposition, quiet candidate scope, ordering, and continued
+  unapproved status. It must transfer no pass, execute no snapshot/decoder/
+  probe, and make no operator decision. A pass authorizes only presentation of
+  the exact committed values for explicit operator approval or amendment.

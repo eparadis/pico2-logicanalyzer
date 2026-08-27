@@ -39,7 +39,11 @@ It never manufactures a one-edge stimulus merely to claim option coverage.
 
 `typed-vectors.json` is independently literal v1 object data plus canonical
 UTF-8 JSON bytes, including every Python value tag and all four record kinds.
-Its declaration arrays retain source order.  `experiment-caps.json` is only a
+Its declaration arrays retain source order.  Each vector binds the applicable
+decoder's real, fully materialized declarations/default options and a static
+file-set SHA-256. The provenance freezes the ordered UTF-8 `path + NUL +
+lowercase-source-SHA256 + LF` input for each decoder file set; these are source
+identity bytes, never an imported decoder/runtime result. `experiment-caps.json` is only a
 positive finite experiment envelope: deadline/grace, input/request, output
 and encoded/decoded/text/binary/stdout/stderr/diagnostic sizes, nesting/items,
 retention, recursion, and address space all state accept/reject boundaries and

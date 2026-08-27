@@ -506,6 +506,11 @@ def build() -> dict[str, object]:
             }
             for path, digest in FILES
         ],
+        "file_set_algorithm": (
+            "For each decoder, order its declared UTF-8 repository paths; append "
+            "each path bytes, one NUL byte, that file's lowercase SHA-256 ASCII "
+            "bytes, and one LF byte; SHA-256 the resulting byte stream."
+        ),
         "permitted_imports": [
             "i2c.pd (relative package import .pd)",
             "spi.pd (relative package import .pd)",
@@ -535,6 +540,41 @@ def build() -> dict[str, object]:
             "distribution": "no wheel, sdist, build, or publication authorized",
         },
     }
+    file_hash = dict(FILES)
+    decoder_file_paths = {
+        "uart": [
+            "Software/decoders/sigrokdecode.py",
+            "Software/decoders/uart/__init__.py",
+            "Software/decoders/uart/pd.py",
+            "Software/decoders/common/srdhelper/__init__.py",
+            "Software/decoders/common/srdhelper/mod.py",
+        ],
+        "spi": [
+            "Software/decoders/sigrokdecode.py",
+            "Software/decoders/spi/__init__.py",
+            "Software/decoders/spi/pd.py",
+        ],
+        "i2c": [
+            "Software/decoders/sigrokdecode.py",
+            "Software/decoders/i2c/__init__.py",
+            "Software/decoders/i2c/pd.py",
+            "Software/decoders/common/srdhelper/__init__.py",
+            "Software/decoders/common/srdhelper/mod.py",
+        ],
+    }
+    decoder_file_sets = {
+        decoder: hashlib.sha256(
+            b"".join(
+                path.encode("utf-8") + b"\0" + file_hash[path].lower().encode("ascii") + b"\n"
+                for path in paths
+            )
+        ).hexdigest()
+        for decoder, paths in decoder_file_paths.items()
+    }
+    provenance["decoder_file_sets"] = [
+        {"decoder": decoder, "paths": paths, "sha256": decoder_file_sets[decoder]}
+        for decoder, paths in decoder_file_paths.items()
+    ]
     # These records are transcribed from the source's put() calls.  The edge
     # lists are deliberately legible clocks/levels, not generated stimulus.
     uart_rx = [
@@ -1459,24 +1499,61 @@ def build() -> dict[str, object]:
                 for channel in order
             ]
 
-    def uart_trace(index: str, data_samples: list[int], terminal: int) -> list[dict[str, object]]:
-        # WAIT FOR START: data falling edge and generic edge both match.  All
-        # following data samples are get_wait_cond() skip alternatives plus
-        # the contemporaneous generic edge condition.
+    def uart_trace(
+        index: str,
+        data_samples: list[int],
+        terminal: int,
+        edge_samples: list[int] | None = None,
+        idle_due: int | None = None,
+        incomplete: bool = False,
+    ) -> list[dict[str, object]]:
+        """Transcribe UART's *successive* earliest wait returns.
+
+        A generic edge is not elided just because the scheduled centre comes
+        later: it returns first, runs inspect_edge(), then get_wait_cond()
+        recomputes the shorter skip from that edge.  ``edge_samples`` contains
+        only genuine level changes (same-level timeline entries are not edges).
+        """
         trace = [{"condition": [{index: "f"}, {index: "e"}], "sample": 1, "matched": [True, True]}]
-        trace += [
-            {
-                "condition": [{"skip": 5 if i == 0 else 10}, {index: "e"}],
-                "sample": sample,
-                "matched": [True, False],
-            }
-            for i, sample in enumerate(data_samples)
-        ]
+        previous = 1
+        edge_samples = edge_samples or []
+        for centre in data_samples:
+            for edge in [at for at in edge_samples if previous < at < centre]:
+                trace.append(
+                    {
+                        "condition": [{"skip": centre - previous}, {index: "e"}],
+                        "sample": edge,
+                        "matched": [False, True],
+                    }
+                )
+                previous = edge
+            trace.append(
+                {
+                    "condition": [{"skip": centre - previous}, {index: "e"}],
+                    "sample": centre,
+                    "matched": [True, False],
+                }
+            )
+            previous = centre
+        for edge in [at for at in edge_samples if previous < at < terminal]:
+            trace.append(
+                {
+                    "condition": [{index: "f"}, {index: "e"}, {"skip": terminal - previous}],
+                    "sample": edge,
+                    "matched": [False, True, False],
+                }
+            )
+            previous = edge
+        terminal_condition = (
+            [{"skip": data_samples[-1] + 10 - previous}, {index: "e"}]
+            if incomplete
+            else [{index: "f"}, {index: "e"}, {"skip": (idle_due or terminal) - previous}]
+        )
         trace.append(
             {
-                "condition": [{index: "f"}, {index: "e"}, {"skip": 10}],
+                "condition": terminal_condition,
                 "sample": terminal,
-                "matched": [False, False, False],
+                "matched": [False] * len(terminal_condition),
                 "terminal": "end-of-input failed wait",
             }
         )
@@ -1508,7 +1585,7 @@ def build() -> dict[str, object]:
             values = [1, 0, 1, 0, 0]
         elif ident == "uart-parity-invalid-stop-break-idle-packet":
             # A5, bad even parity=1, and invalid stop=0.
-            values = [1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0]
+            values = [1, 0, 1, 0, 0, 1, 0, 1, 1, 0]
         timeline["transitions"][f"D{physical}"] = [[0, 1], [1, 0]] + [
             [11 + 10 * i, value] for i, value in enumerate(values[:count])
         ]
@@ -1516,9 +1593,24 @@ def build() -> dict[str, object]:
             terminal = 56
         else:
             terminal = 106 if ident != "uart-parity-invalid-stop-break-idle-packet" else 116
+        declared = timeline["transitions"][f"D{physical}"]
+        real_edges = [at for (at, level), (_, prior) in zip(declared[1:], declared) if level != prior]
         timeline["expected_wait_trace"] = uart_trace(
-            "0" if channel == "rx" else "1", [6 + 10 * i for i in range(count)], terminal
+            "0" if channel == "rx" else "1",
+            [6 + 10 * i for i in range(count)],
+            terminal,
+            real_edges,
+            idle_due=(
+                1
+                + 2
+                * (110 if ident == "uart-parity-invalid-stop-break-idle-packet" else 100)
+            ),
+            incomplete=ident.endswith("incomplete"),
         )
+        for wait in timeline["expected_wait_trace"]:
+            if isinstance(wait["condition"], list) and len(wait["condition"]) == 3 and not wait.get("terminal"):
+                level = [value for at, value in declared if at <= wait["sample"]][-1]
+                wait["matched"][0] = level == 0
         timeline["sample_count"] = terminal
         timeline["samplerate_hz"] = 1_152_000
         repin(timeline)
@@ -1790,6 +1882,11 @@ def build() -> dict[str, object]:
         + [
             {
                 "condition": [{"0": "r"}, {"0": "h", "1": "f"}, {"0": "h", "1": "r"}],
+                "sample": 370,
+                "matched": [True, False, False],
+            },
+            {
+                "condition": [{"0": "r"}, {"0": "h", "1": "f"}, {"0": "h", "1": "r"}],
                 "sample": 371,
                 "matched": [False, False, True],
             },
@@ -1838,7 +1935,9 @@ def build() -> dict[str, object]:
     i2c_records += [
         record(0, "python", {"tag": "list", "value": [tag_string("NACK"), {"tag": "null"}]}, 350, 370, 0),
         record(1, "annotation", {"class_index": 4, "texts": ["NACK", "N"]}, 350, 370, 1),
-        record(2, "metadata", {"value_type": "integer", "value": 49676}, 1, 371, 3),
+        # i2c.handle_stop(): elapsed = es - pdu_start + 1 = 371, while
+        # pdu_bits counts only the two octets (16), not ACK/NACK slots.
+        record(2, "metadata", {"value_type": "integer", "value": 49681}, 1, 371, 3),
         record(3, "python", {"tag": "list", "value": [tag_string("STOP"), {"tag": "null"}]}, 371, 371, 0),
         record(4, "annotation", {"class_index": 2, "texts": ["Stop", "P"]}, 371, 371, 1),
     ]
@@ -1849,7 +1948,11 @@ def build() -> dict[str, object]:
     repeat = by_id["i2c-unshifted-repeated-start"]
     repeat["transitions"] = {
         "D2": [[0, 1]]
-        + [entry for i in range(9) for entry in ([10 + 20 * i, 0], [20 + 20 * i, 1])],
+        + [entry for i in range(9) for entry in ([10 + 20 * i, 0], [20 + 20 * i, 1])]
+        # SDA may rise while SCL is low without a STOP.  A subsequent SCL
+        # rise is the first partial data-bit return; only then does SDA fall
+        # while SCL is high and become a repeated START.
+        + [[190, 0], [210, 1]],
         "D5": [[0, 1], [1, 0]]
         + [[15 + 20 * i, bit] for i, bit in enumerate([1, 0, 1, 0, 0, 0, 0, 0, 0])]
         + [[205, 1], [216, 0]],
@@ -1858,6 +1961,11 @@ def build() -> dict[str, object]:
         [{"condition": {"0": "h", "1": "f"}, "sample": 1, "matched": [True]}]
         + [{"condition": {"0": "r"}, "sample": 20 + 20 * i, "matched": [True]} for i in range(9)]
         + [
+            {
+                "condition": [{"0": "r"}, {"0": "h", "1": "f"}, {"0": "h", "1": "r"}],
+                "sample": 210,
+                "matched": [True, False, False],
+            },
             {
                 "condition": [{"0": "r"}, {"0": "h", "1": "f"}, {"0": "h", "1": "r"}],
                 "sample": 216,
@@ -1922,15 +2030,15 @@ def build() -> dict[str, object]:
     # the corpus rather than fabricated extra emissions here.
     uart_error_records = uart_default_records(0)[:14]
     uart_error_records += [
-        record(14, "python", {"tag": "list", "value": [tag_string("PACKET"), tag_integer(0), {"tag": "list", "value": [tag_integer(165)]}]}, 11, 91, 0),
-        record(15, "annotation", {"class_index": 16, "texts": ["A5"]}, 11, 91, 2),
-        record(16, "python", {"tag": "list", "value": [tag_string("PARITY ERROR"), tag_integer(0), {"tag": "tuple", "value": [tag_integer(0), tag_integer(1)]}]}, 91, 101, 0),
-        record(17, "annotation", {"class_index": 6, "texts": ["Parity error", "Parity err", "PE"]}, 91, 101, 2),
-        record(18, "python", {"tag": "list", "value": [tag_string("INVALID STOPBIT"), tag_integer(0), tag_integer(0)]}, 101, 111, 0),
-        record(19, "annotation", {"class_index": 10, "texts": ["Frame error", "Frame err", "FE"]}, 101, 111, 2),
-        record(20, "python", {"tag": "list", "value": [tag_string("STOPBIT"), tag_integer(0), tag_integer(0)]}, 101, 111, 0),
-        record(21, "annotation", {"class_index": 8, "texts": ["Stop bit", "Stop", "T"]}, 101, 111, 2),
-        record(22, "python", {"tag": "list", "value": [tag_string("FRAME"), tag_integer(0), {"tag": "tuple", "value": [tag_integer(165), {"tag": "bool", "value": False}]}]}, 1, 111, 0),
+        # handle_packet() calls putx_packet(), which is annotation-only.
+        record(14, "annotation", {"class_index": 16, "texts": ["A5"]}, 11, 91, 2),
+        record(15, "python", {"tag": "list", "value": [tag_string("PARITY ERROR"), tag_integer(0), {"tag": "tuple", "value": [tag_integer(0), tag_integer(1)]}]}, 91, 101, 0),
+        record(16, "annotation", {"class_index": 6, "texts": ["Parity error", "Parity err", "PE"]}, 91, 101, 2),
+        record(17, "python", {"tag": "list", "value": [tag_string("INVALID STOPBIT"), tag_integer(0), tag_integer(0)]}, 101, 111, 0),
+        record(18, "annotation", {"class_index": 10, "texts": ["Frame error", "Frame err", "FE"]}, 101, 111, 2),
+        record(19, "python", {"tag": "list", "value": [tag_string("STOPBIT"), tag_integer(0), tag_integer(0)]}, 101, 111, 0),
+        record(20, "annotation", {"class_index": 8, "texts": ["Stop bit", "Stop", "T"]}, 101, 111, 2),
+        record(21, "python", {"tag": "list", "value": [tag_string("FRAME"), tag_integer(0), {"tag": "tuple", "value": [tag_integer(165), {"tag": "bool", "value": False}]}]}, 1, 111, 0),
     ]
     for index, item in enumerate(uart_error_records):
         item["emission_index"] = index
@@ -1947,33 +2055,50 @@ def build() -> dict[str, object]:
     uart_break = copy.deepcopy(by_id["uart-rx-valid-default"])
     uart_break["id"] = "uart-break-low-interval"
     uart_break["transitions"] = {"D4": [[0, 1], [1, 0], [111, 1]]}
-    uart_break["expected_wait_trace"] = uart_trace("0", [6 + 10 * i for i in range(10)], 112)
-    uart_break["expected_wait_trace"].insert(
-        -1,
-        {
-            "condition": [{"0": "f"}, {"0": "e"}],
-            "sample": 111,
-            "matched": [False, True],
-        },
+    uart_break["expected_wait_trace"] = uart_trace(
+        "0", [6 + 10 * i for i in range(10)], 112, [111], idle_due=201
     )
-    uart_break["expected_records"] = [
-        record(0, "python", {"tag": "list", "value": [tag_string("BREAK"), tag_integer(0), tag_integer(0)]}, 1, 111, 0),
-        record(1, "annotation", {"class_index": 14, "texts": ["Break condition", "Break", "Brk", "B"]}, 1, 111, 2),
+    break_frame = copy.deepcopy(uart_default_records(0))
+    for item in break_frame[2:10]:
+        item["value"]["texts"] = ["0"]
+    break_frame[10]["value"]["value"][2]["value"][0] = tag_integer(0)
+    break_frame[11]["value"]["texts"] = ["00"]
+    break_frame[12]["value"]["data_base64"] = "AA=="
+    break_frame[13]["value"]["data_base64"] = "AA=="
+    break_frame[14:] = [
+        record(14, "python", {"tag": "list", "value": [tag_string("INVALID STOPBIT"), tag_integer(0), tag_integer(0)]}, 91, 101, 0),
+        record(15, "annotation", {"class_index": 10, "texts": ["Frame error", "Frame err", "FE"]}, 91, 101, 2),
+        record(16, "python", {"tag": "list", "value": [tag_string("STOPBIT"), tag_integer(0), tag_integer(0)]}, 91, 101, 0),
+        record(17, "annotation", {"class_index": 8, "texts": ["Stop bit", "Stop", "T"]}, 91, 101, 2),
+        record(18, "python", {"tag": "list", "value": [tag_string("FRAME"), tag_integer(0), {"tag": "tuple", "value": [tag_integer(0), {"tag": "bool", "value": False}]}]}, 1, 101, 0),
     ]
-    uart_break["description"] = "RX low interval of one complete 8N1 frame, then rise: BREAK only."
+    uart_break["expected_records"] = break_frame + [
+        record(19, "python", {"tag": "list", "value": [tag_string("BREAK"), tag_integer(0), tag_integer(0)]}, 1, 111, 0),
+        record(20, "annotation", {"class_index": 14, "texts": ["Break condition", "Break", "Brk", "B"]}, 1, 111, 2),
+    ]
+    for index, item in enumerate(uart_break["expected_records"]):
+        item["emission_index"] = index
+    uart_break["description"] = "RX all-zero complete frame retains its source emissions before the later BREAK edge."
     fixtures["timelines"].append(uart_break)
     by_id[uart_break["id"]] = uart_break
 
     # After a valid frame, advance_state() seeds idle_start with frame end 101.
-    # The first idle skip reaches that boundary; the second reaches 201 and
-    # emits the distinct 100-sample IDLE interval.
+    # get_idle_cond() therefore requests 201 directly (not an event at 101).
+    # At 201 inspect_idle emits IDLE [101,201) and then seeds the next due 301.
     uart_idle = copy.deepcopy(by_id["uart-rx-valid-default"])
     uart_idle["id"] = "uart-idle-after-valid-frame"
-    uart_idle["expected_wait_trace"] = uart_trace("0", [6 + 10 * i for i in range(10)], 202)
-    uart_idle["expected_wait_trace"][-1:-1] = [
-        {"condition": [{"0": "f"}, {"0": "e"}, {"skip": 5}], "sample": 101, "matched": [False, False, True]},
-        {"condition": [{"0": "f"}, {"0": "e"}, {"skip": 100}], "sample": 201, "matched": [False, False, True]},
+    idle_edges = [
+        at
+        for (at, level), (_, prior) in zip(uart_idle["transitions"]["D4"][1:], uart_idle["transitions"]["D4"])
+        if level != prior
     ]
+    uart_idle["expected_wait_trace"] = uart_trace(
+        "0", [6 + 10 * i for i in range(10)], 202, idle_edges, idle_due=201
+    )
+    uart_idle["expected_wait_trace"][-1:-1] = [
+        {"condition": [{"0": "f"}, {"0": "e"}, {"skip": 105}], "sample": 201, "matched": [False, False, True]},
+    ]
+    uart_idle["expected_wait_trace"][-1]["condition"][2]["skip"] = 100
     uart_idle["expected_records"] = uart_default_records(0) + [
         record(17, "python", {"tag": "list", "value": [tag_string("IDLE"), tag_integer(0), tag_integer(0)]}, 101, 201, 0)
     ]
@@ -2026,8 +2151,16 @@ def build() -> dict[str, object]:
         start_edge = "r" if invert else "f"
         waits = [{"condition": [{str(direction): start_edge}, {str(direction): "e"}], "sample": frame_start, "matched": [True, True]}]
         previous = frame_start
+        # ``wait([skip, edge])`` returns the earliest alternative.  Retain
+        # every physical level change before a centre and then recompute the
+        # remaining skip from that edge; an equal-value schedule entry is not
+        # a generic-edge match.
+        real_edges = [at for (at, level), (_, prior) in zip(edges[1:], edges) if level != prior]
         for slot in range(slots):
             centre = sample(slot)
+            for edge in [at for at in real_edges if previous < at < centre]:
+                waits.append({"condition": [{"skip": centre - previous}, {str(direction): "e"}], "sample": edge, "matched": [False, True]})
+                previous = edge
             current = [level for at, level in edges if at <= centre][-1]
             prior = [level for at, level in edges if at <= centre - 1][-1]
             waits.append({"condition": [{"skip": centre - previous}, {str(direction): "e"}], "sample": centre, "matched": [True, current != prior]})
@@ -2090,6 +2223,14 @@ def build() -> dict[str, object]:
             waits = spi_trace(list(range(10, 161, 10)), with_cs, 170)
             records = spi_word_records(165, "mosi", 10)
             if with_cs:
+                waits.insert(
+                    -1,
+                    {
+                        "condition": [{"0": "e"}, {"3": "e"}],
+                        "sample": 161,
+                        "matched": [False, True],
+                    },
+                )
                 records.insert(0, record(0, "python", {"tag": "list", "value": [tag_string("CS-CHANGE"), {"tag": "null"}, tag_integer(0)]}, 0, 0, 0))
                 transfer_data = {"tag": "list", "value": [{"tag": "spi-data", "ss": 10, "es": 170, "val": 165}]}
                 records += [record(0, "python", {"tag": "list", "value": [tag_string("CS-CHANGE"), tag_integer(0), tag_integer(1)]}, 161, 161, 0), record(0, "annotation", {"class_index": 6, "texts": ["A5"]}, 0, 161, 1), record(0, "python", {"tag": "list", "value": [tag_string("TRANSFER"), transfer_data, {"tag": "null"}]}, 0, 161, 0)]
@@ -2103,6 +2244,50 @@ def build() -> dict[str, object]:
         )
         fixtures["timelines"].append(witness)
         by_id[witness_id] = witness
+
+    # spi.decode() announces a missing CS channel before its first ``wait({})``.
+    # Preserve that source-order record for every no-CS corpus case, including
+    # incomplete and direct option witnesses.
+    for timeline in fixtures["timelines"]:
+        if timeline["decoder"] == "spi" and "cs" not in timeline["mapping"]:
+            records = timeline["expected_records"]
+            if not records or records[0]["value"].get("value", [{}])[0].get("value") != "CS-CHANGE":
+                records.insert(
+                    0,
+                    record(
+                        0,
+                        "python",
+                        {"tag": "list", "value": [tag_string("CS-CHANGE"), {"tag": "null"}, {"tag": "null"}]},
+                        0,
+                        0,
+                        0,
+                    ),
+                )
+            for index, item in enumerate(records):
+                item["emission_index"] = index
+
+    # UART and I2C carry ordinary Python ``[value, ss, es]`` lists.  Data is a
+    # namedtuple only in spi/pd.py, so ``spi-data`` is reserved for SPI output.
+    def ordinary_bit_triples(value: object) -> object:
+        if isinstance(value, list):
+            return [ordinary_bit_triples(item) for item in value]
+        if not isinstance(value, dict):
+            return value
+        if value.get("tag") == "spi-data":
+            return {
+                "tag": "list",
+                "value": [
+                    {"tag": "integer", "value": value["val"]},
+                    {"tag": "integer", "value": value["ss"]},
+                    {"tag": "integer", "value": value["es"]},
+                ],
+            }
+        return {key: ordinary_bit_triples(item) for key, item in value.items()}
+
+    for timeline in fixtures["timelines"]:
+        if timeline["decoder"] != "spi":
+            for item in timeline["expected_records"]:
+                item["value"] = ordinary_bit_triples(item["value"])
 
     # Some source-order records above deliberately receive corrected spans
     # while assembling the protocol schedule.  Times are derived only from
@@ -2152,6 +2337,26 @@ def build() -> dict[str, object]:
     ]
 
     def root_for(value: dict[str, object], kind: str) -> dict[str, object]:
+        # SPI alone owns the namedtuple tag and metadata output.  All roots
+        # carry the real registration/declaration surface for their decoder.
+        decoder = "spi" if value.get("tag") == "spi-data" or kind == "metadata" else "uart"
+        defaults_by_decoder = {
+            "uart": {
+                "baudrate": 115200, "data_bits": 8, "parity": "none", "stop_bits": 1.0,
+                "bit_order": "lsb-first", "format": "hex", "invert_rx": "no", "invert_tx": "no",
+                "sample_point": 50, "rx_packet_delim": -1, "tx_packet_delim": -1,
+                "rx_packet_len": -1, "tx_packet_len": -1,
+            },
+            "spi": {"cs_polarity": "active-low", "cpol": 0, "cpha": 0, "bitorder": "msb-first", "wordsize": 8},
+        }
+        channels = (
+            [{"decoder_channel": "clk", "physical_channel": 1}, {"decoder_channel": "mosi", "physical_channel": 3}]
+            if decoder == "spi" else [{"decoder_channel": "rx", "physical_channel": 4}]
+        )
+        output_ids = (
+            {"annotation": 1, "python": 0, "binary": 2, "metadata": 3}
+            if decoder == "spi" else {"annotation": 2, "python": 0, "binary": 1}
+        )
         typed_value = {
             "annotation": {"class_index": 0, "texts": ["A"]},
             "python": value,
@@ -2160,21 +2365,12 @@ def build() -> dict[str, object]:
         }[kind]
         return {
             "schema": "pico-logic-analyzer.decode-result/v1",
-            "decoder": {"id": "uart", "file_set_sha256": "0" * 64},
+            "decoder": {"id": decoder, "file_set_sha256": decoder_file_sets[decoder]},
             "samplerate_hz": 1_152_000,
-            "channels": [{"decoder_channel": "rx", "physical_channel": 4}],
-            "options": {"baudrate": 115200},
+            "channels": channels,
+            "options": defaults_by_decoder[decoder],
             "capture": {"sample_count": 2, "trigger_index": 0},
-            "declarations": {
-                "annotations": [{"index": 0, "id": "a", "description": "A"}],
-                "annotation_rows": [
-                    {"index": 0, "id": "r", "description": "R", "annotation_indices": [0]}
-                ],
-                "binary": [{"index": 0, "id": "b", "description": "B"}],
-                "metadata": [
-                    {"output_id": 3, "value_type": "integer", "name": "M", "description": "M"}
-                ],
-            },
+            "declarations": declarations(decoder),
             "records": [
                 record(
                     0,
@@ -2182,7 +2378,7 @@ def build() -> dict[str, object]:
                     typed_value,
                     start=1,
                     end=2,
-                    output_id={"annotation": 0, "python": 1, "binary": 2, "metadata": 3}[kind],
+                    output_id=output_ids[kind],
                     trigger=0,
                 )
             ],
@@ -2245,6 +2441,8 @@ def build() -> dict[str, object]:
         (len(canonical(record_item)) for item in fixtures["timelines"] for record_item in item["expected_records"]),
         default=1,
     )
+    diagnostic_bytes = max(max_record_bytes * 8, 8192)
+    stderr_bytes = diagnostic_bytes * 8
     cap_specs = [
         ("wall_deadline_ms", 5000, "milliseconds", 1, "fixed pre-execution wall-clock ceiling"),
         ("terminate_grace_ms", 250, "milliseconds", 1, "fixed bounded post-termination grace"),
@@ -2254,8 +2452,20 @@ def build() -> dict[str, object]:
         ("encoded_bytes", max_record_bytes * 4096, "bytes", max_record_bytes, f"{max_record_bytes} * 4096 = {max_record_bytes * 4096}"),
         ("decoded_bytes", max_record_bytes * 4096, "bytes", max_record_bytes, f"{max_record_bytes} * 4096 = {max_record_bytes * 4096}"),
         ("stdout_bytes", max_record_bytes * 128, "bytes", max_record_bytes, f"{max_record_bytes} * 128 = {max_record_bytes * 128}"),
-        ("stderr_bytes", 65536, "bytes", 1, "bounded hostile-probe diagnostic channel"),
-        ("diagnostic_bytes", 8192, "bytes", 1, "bounded single diagnostic payload"),
+        (
+            "stderr_bytes",
+            stderr_bytes,
+            "bytes",
+            max_record_bytes,
+            "eight diagnostic envelopes",
+        ),
+        (
+            "diagnostic_bytes",
+            diagnostic_bytes,
+            "bytes",
+            max_record_bytes,
+            "one finite diagnostic envelope",
+        ),
         ("text_bytes", max_record_bytes * 2048, "bytes", max_record_bytes, f"{max_record_bytes} * 2048 = {max_record_bytes * 2048}"),
         ("binary_bytes", max_record_bytes * 2048, "bytes", max_record_bytes, f"{max_record_bytes} * 2048 = {max_record_bytes * 2048}"),
         ("nested_depth", max_depth * 8, "levels", max_depth, f"{max_depth} * 8 = {max_depth * 8}"),
@@ -2273,7 +2483,7 @@ def build() -> dict[str, object]:
         "encoded_bytes": ("multiply", "largest-record-bytes", max_record_bytes, 4096, None),
         "decoded_bytes": ("multiply", "largest-record-bytes", max_record_bytes, 4096, None),
         "stdout_bytes": ("multiply", "largest-record-bytes", max_record_bytes, 128, None),
-        "stderr_bytes": ("multiply", "cap:diagnostic_bytes", max_record_bytes * 8 if max_record_bytes * 8 >= 8192 else 8192, 8, None),
+        "stderr_bytes": ("multiply", "cap:diagnostic_bytes", diagnostic_bytes, 8, None),
         "diagnostic_bytes": ("max-floor", "largest-record-bytes", max_record_bytes, 8, 8192),
         "text_bytes": ("multiply", "largest-record-bytes", max_record_bytes, 2048, None),
         "binary_bytes": ("multiply", "largest-record-bytes", max_record_bytes, 2048, None),

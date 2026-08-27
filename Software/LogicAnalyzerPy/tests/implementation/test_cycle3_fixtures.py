@@ -24,6 +24,65 @@ def level_at(transitions: list[list[int]], sample: int) -> int:
     return [level for at, level in transitions if at <= sample][-1]
 
 
+def test_static_spi_bit_span_recurrence_and_i2c_bitrate_arithmetic() -> None:
+    """Keep two source recurrences reviewable without invoking a decoder.
+
+    spi.handle_bit() inserts newest-first, estimates ``es`` from the prior
+    newest start, then closes the prior newest entry at the current sample.
+    Thus sampling at 10..150 has final newest [150, 170], not [150, 290].
+    I2C increments pdu_bits in handle_address_or_data only: two octets are
+    16 increments; ACK/NACK use get_ack and do not increment it.
+    """
+    bits: list[list[int]] = []
+    for sample in range(10, 151, 20):
+        end = sample if not bits else sample + sample - bits[0][1]
+        bits.insert(0, [1, sample, end])
+        if len(bits) > 1:
+            bits[1][2] = sample
+    assert bits[0] == [1, 150, 170]
+    assert int(1_152_000 * 16 / 371) == 49_681
+
+
+def test_uart_i2c_use_ordinary_bit_lists_and_v1_binds_real_decoder_sets() -> None:
+    fixtures = load("semantic-fixtures.json")
+
+    def tags(value: object) -> set[str]:
+        if isinstance(value, list):
+            return set().union(*(tags(item) for item in value)) if value else set()
+        if not isinstance(value, dict):
+            return set()
+        return ({value["tag"]} if "tag" in value else set()) | set().union(
+            *(tags(item) for item in value.values())
+        )
+
+    for timeline in fixtures["timelines"]:
+        observed = tags(timeline["expected_records"])
+        if timeline["decoder"] == "spi":
+            continue
+        assert "spi-data" not in observed
+    provenance = load("provenance.json")
+    sets = {entry["decoder"]: entry for entry in provenance["decoder_file_sets"]}
+    assert set(sets) == {"uart", "spi", "i2c"}
+    assert all(len(entry["sha256"]) == 64 and entry["paths"] for entry in sets.values())
+    vectors = load("typed-vectors.json")["vectors"]
+    for vector in vectors:
+        root = vector["object"]
+        decoder = root["decoder"]["id"]
+        assert root["decoder"]["file_set_sha256"] == sets[decoder]["sha256"]
+        assert root["declarations"]
+        assert root["options"]
+    error = next(
+        item
+        for item in fixtures["timelines"]
+        if item["id"] == "uart-parity-invalid-stop-break-idle-packet"
+    )
+    assert "PACKET" not in [
+        record["value"]["value"][0]["value"]
+        for record in error["expected_records"]
+        if record["kind"] == "python"
+    ]
+
+
 def test_cycle3_fixture_surface_is_present_and_rebuildable() -> None:
     """This initially failed because B1 had no static fixture generator or corpus."""
     assert GENERATOR.is_file()
@@ -253,9 +312,12 @@ def test_direct_option_witnesses_bind_value_to_stimulus_wait_and_output() -> Non
             bits_n = int(timeline["options"].get("data_bits", 8))
             frame_start = timeline["transitions"]["D4"][1][0]
             point = int(timeline["options"].get("sample_point", 50))
+            stop_bits = float(timeline["options"].get("stop_bits", 1.0))
+            slots = 1 + bits_n + int(timeline["options"].get("parity", "none") != "none")
+            slots += 0 if stop_bits == 0 else int(stop_bits) + int(stop_bits != int(stop_bits))
             centres = [
                 frame_start + ((width - 1) * point + 99) // 100 + slot * width
-                for slot in range(len(timeline["expected_wait_trace"]) - 2)
+                for slot in range(slots)
             ]
             waits = timeline["expected_wait_trace"]
             raw_start = (
@@ -267,19 +329,19 @@ def test_direct_option_witnesses_bind_value_to_stimulus_wait_and_output() -> Non
             assert (
                 waits[0]["condition"][0]["0" if "rx" in timeline["mapping"] else "1"] == raw_start
             )
-            previous = frame_start
-            for wait, centre in zip(waits[1:-1], centres):
-                assert wait["sample"] == centre
-                assert wait["condition"][0]["skip"] == centre - previous
-                previous = centre
-            stop_bits = float(timeline["options"].get("stop_bits", 1.0))
+            centre_waits = [
+                wait
+                for wait in waits[1:-1]
+                if wait["matched"][0] and "skip" in wait["condition"][0]
+            ]
+            assert [wait["sample"] for wait in centre_waits] == centres
             frame_len = int(
                 (1 + bits_n + (timeline["options"].get("parity", "none") != "none") + stop_bits)
                 * width
             )
             terminal = waits[-1]
             assert len(terminal["condition"]) == 3
-            assert terminal["condition"][2]["skip"] == frame_start + 2 * frame_len - previous
+            assert terminal["condition"][2]["skip"] == frame_start + 2 * frame_len - centres[-1]
             half_floor, half_ceil = width // 2, (width + 1) // 2
             start = records[0]
             assert (start["start_sample"], start["end_sample"]) == (
@@ -386,9 +448,11 @@ def test_static_wait_predicates_and_source_order_are_truthful() -> None:
         "i2c": ("scl", "sda"),
     }
 
-    def matches(timeline: dict[str, object], condition: dict[str, object], sample: int) -> bool:
+    def matches(
+        timeline: dict[str, object], condition: dict[str, object], sample: int, previous: int
+    ) -> bool:
         if "skip" in condition:
-            return True
+            return sample - previous == condition["skip"]
         for index, wanted in condition.items():
             channel = channel_order[timeline["decoder"]][int(index)]
             if channel not in timeline["mapping"]:
@@ -409,39 +473,76 @@ def test_static_wait_predicates_and_source_order_are_truthful() -> None:
         return True
 
     for timeline in timelines:
-        for wait in timeline["expected_wait_trace"]:
+        previous = 0
+        for wait_index, wait in enumerate(timeline["expected_wait_trace"]):
             alternatives = (
                 wait["condition"] if isinstance(wait["condition"], list) else [wait["condition"]]
             )
             actual = (
                 [False] * len(alternatives)
                 if wait.get("terminal") == "end-of-input failed wait"
-                else [matches(timeline, item, wait["sample"]) for item in alternatives]
+                else [matches(timeline, item, wait["sample"], previous) for item in alternatives]
             )
             assert wait["matched"] == actual, (timeline["id"], wait, actual)
+            if wait.get("terminal") != "end-of-input failed wait":
+                # A wait must return the first sample at or after the prior
+                # return where *any* alternative can match. This catches a
+                # tempting but false trace that jumps straight to a scheduled
+                # UART centre while a generic edge is earlier.
+                first = previous if wait_index == 0 else previous + 1
+                earliest = next(
+                    sample
+                    for sample in range(first, wait["sample"] + 1)
+                    if any(matches(timeline, item, sample, previous) for item in alternatives)
+                )
+                assert earliest == wait["sample"], (timeline["id"], previous, wait, earliest)
             assert 0 <= wait["sample"] <= timeline["sample_count"]
+            previous = wait["sample"]
         assert timeline["expected_wait_trace"][-1].get("terminal") == "end-of-input failed wait"
         assert not any(timeline["expected_wait_trace"][-1]["matched"])
 
     by_id = {timeline["id"]: timeline for timeline in timelines}
+    for ident in (
+        "uart-rx-valid-default",
+        "uart-tx-valid-default",
+        "uart-parity-invalid-stop-break-idle-packet",
+        "uart-break-low-interval",
+        "uart-idle-after-valid-frame",
+    ):
+        timeline = by_id[ident]
+        terminal = timeline["expected_wait_trace"][-1]
+        prior = timeline["expected_wait_trace"][-2]["sample"]
+        assert len(terminal["condition"]) == 3
+        assert prior + terminal["condition"][2]["skip"] >= timeline["sample_count"]
+    incomplete_uart = by_id["uart-msb-9bit-boundary-incomplete"]
+    incomplete_terminal = incomplete_uart["expected_wait_trace"][-1]
+    assert len(incomplete_terminal["condition"]) == 2
+    assert "skip" in incomplete_terminal["condition"][0]
+    assert incomplete_terminal["condition"][1] == {"0": "e"}
+    idle_returns = [
+        wait["sample"]
+        for wait in by_id["uart-idle-after-valid-frame"]["expected_wait_trace"]
+        if len(wait["condition"]) == 3 and wait["matched"] == [False, False, True]
+    ]
+    assert idle_returns == [201]
     for ident in ("spi-mosi-mode0-word8", "spi-miso-mode3-word8"):
         records = by_id[ident]["expected_records"]
-        assert [record["kind"] for record in records[:3]] == ["binary", "python", "python"]
-        bits = records[1]["value"]["value"]
+        assert [record["kind"] for record in records[:4]] == [
+            "python",
+            "binary",
+            "python",
+            "python",
+        ]
+        assert records[0]["value"]["value"][0]["value"] == "CS-CHANGE"
+        bits = records[2]["value"]["value"]
         assert bits[0]["value"] == "BITS"
         present = bits[1] if ident.startswith("spi-mosi") else bits[2]
         assert len(present["value"]) == 8
-        assert [record["kind"] for record in records[3:12]] == ["annotation"] * 9
+        assert [record["kind"] for record in records[4:13]] == ["annotation"] * 9
     uart = by_id["uart-parity-invalid-stop-break-idle-packet"]["expected_records"]
-    packet_index = next(
-        i
-        for i, item in enumerate(uart)
-        if item["kind"] == "python" and item["value"]["value"][0]["value"] == "PACKET"
-    )
-    assert packet_index < next(
-        i
-        for i, item in enumerate(uart)
-        if item["kind"] == "python" and item["value"]["value"][0]["value"] == "PARITY ERROR"
+    assert not any(
+        item["kind"] == "python" and item["value"]["value"][0]["value"] == "PACKET"
+        for item in uart
     )
     repeated = by_id["i2c-unshifted-repeated-start"]
     assert any(
@@ -455,7 +556,8 @@ def test_static_wait_predicates_and_source_order_are_truthful() -> None:
         if item["kind"] == "python" and item["value"]["value"][0]["value"] == "BITS"
     ]
     bit_values = [
-        [entry["val"] for entry in item["value"]["value"][1]["value"]] for item in i2c_bits
+        [entry["value"][0]["value"] for entry in item["value"]["value"][1]["value"]]
+        for item in i2c_bits
     ]
     assert bit_values == [
         [0, 0, 0, 0, 0, 1, 0, 1],
@@ -466,7 +568,7 @@ def test_static_wait_predicates_and_source_order_are_truthful() -> None:
         (190, 350),
     ]
     assert full_i2c["expected_records"][-2]["kind"] == "python"
-    assert full_i2c["expected_records"][-3]["value"]["value"] == 49676
+    assert full_i2c["expected_records"][-3]["value"]["value"] == 49681
     # Continue the matrix/vector coverage audit with local data, keeping this
     # predicate test independent of test ordering.
     rows = load("option-matrix.json")["rows"]
@@ -500,7 +602,7 @@ def test_static_wait_predicates_and_source_order_are_truthful() -> None:
     break_records = timelines["uart-break-low-interval"]["expected_records"]
     assert [
         item["value"]["value"][0]["value"] for item in break_records if item["kind"] == "python"
-    ] == ["BREAK"]
+    ][-1] == "BREAK"
     idle_records = timelines["uart-idle-after-valid-frame"]["expected_records"]
     assert idle_records[-1]["value"]["value"][0]["value"] == "IDLE"
     assert (idle_records[-1]["start_sample"], idle_records[-1]["end_sample"]) == (101, 201)

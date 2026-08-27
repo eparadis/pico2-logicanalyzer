@@ -1288,3 +1288,64 @@ unchanged.
   assertion. It may inspect snapshot bytes only as inert text and may execute
   only inert/hostile non-decoder probes; it must not execute a decoder, expected
   fixture generator, helper/product runtime, hardware, or excluded capability.
+
+### Immutable pre-execution runner candidate and verification assignment
+
+- Recorded: `2026-08-27T04:51:38Z`.
+- Candidate commit/tree: `11a8ade5d828830347095bf2580766c149cb8aef` /
+  `61fa5ba18f3620188ee61dac7e3622803591aad9`; the candidate worktree was clean
+  immediately after commit and contains only the 11 assigned runner/method/test
+  paths. Accepted fixture candidate/tree
+  `7c57a347bbe575e3f451383ea498f56abc362f26` /
+  `02a408895dd834e6e6885218cb7323f46439e880` and every governing byte remain
+  unchanged.
+- Candidate authorship is the ordered runner-only implementation history
+  `c3-b1-pre-execution-runner-implementor-1`, replacements 1 and 2, and final
+  owner `c3-b1-pre-execution-runner-implementor-replacement-3`
+  (`/root/c3_b1_runner_impl_r4`). Replacement-3 performed the final ownership
+  audit and adopted the integrated bytes with no additional edit. No runner
+  identity authored accepted expected fixtures.
+- RI001-RI012 are closed in the candidate: explicit accepted fixture/cap
+  identity, closed non-self binding and launch/source/stdlib inventories,
+  exact nine-byte/ordered-set verification, fixed Python 3.12 isolated worker,
+  separate bounded protocol/stdout/stderr, all 17 immutable cap paths and
+  derived non-weakenable test profiles, exact address-space/recursion limits,
+  parent deadline/terminate/kill/close/reap evidence, closed pre-spawn request
+  validation, mixed skip/edge API-v3 behavior, deterministic result/count and
+  timing evidence, and the real fixed snapshot route reachable only through
+  the private post-gate entrypoint. Public `characterize` remains disabled.
+- Root and final-implementor focused results: 166 inert/hostile tests passed;
+  focused Ruff, strict mypy over seven tool modules, binding regeneration/check,
+  source/import/option/wait/scope audits, and repository diff check passed.
+  No decoder, snapshot route, helper, fixture generator, product runtime,
+  hardware, network, or excluded action executed; no worker remained active.
+- Key SHA-256 identities: binding
+  `0b9fc2a02eef194c48392db2903c6296e764c0fe9a8368d51c2551c83ed60682`,
+  launch `c6cf91ebc42d3770ffc239b531424a128a2cf06c5aa97ed99b980bc48a86c9f8`,
+  runner `cd70e895794ace146be5830aeb5fff99a3aaf009c0049eb730e69ab53e5a9d32`,
+  worker `69e8eaccad236c6ec746aa5fd2ca11c26ae47f4b7306323c9710e2603ed65be5`,
+  snapshot host
+  `0da598c3facd1af89d34d6a82996a09a24b0cc4d691eb5c79f0ac576e051ab67`,
+  accounting
+  `924f563067bb23fc838b9b63b05b7e209f656fab68ee9859df4839f270bbd2d5`,
+  probes `be0da3bdc27e0a228b946a339ca278b55466c48d24170552ee8eac3150942f2e`,
+  method `eb4349d60aad922381a64579e1584271ec035dfa80d52f16881709b5260e2837`,
+  and focused test
+  `c97cd9a66b1a5fff6ec72565ca41008bc8874f9a929d01e84b2e582a379a9f4d`.
+- Verification is assigned to fresh identity
+  `c3-b1-pre-execution-runner-verifier-1`
+  (`/root/c3_b1_runner_verify`), verifier lane, `gpt-5.6-sol`, low, distinct
+  from every fixture/runner implementor, fixture verifier/acceptance identity,
+  project/legal reviewer, primary orchestrator, and later runner acceptance or
+  manifest identity. It may add only
+  `tests/verification/test_c3_b1_preexecution_runner_candidate.py` and
+  `docs/reviews/c3-b1-preexecution-runner-verification-round-1.md`.
+- The verifier must independently audit and exercise this exact unchanged
+  candidate using only inert/hostile non-decoder probes: every cap at accepted
+  and rejected boundaries; digest/import/root/file/symlink/shadow/environment/
+  CWD boundaries; framing and result accounting; graceful termination, forced
+  kill, every success/failure descriptor close and exact-child reap; recovery
+  after each failure; fixed post-gate route structure; accepted option and
+  API-v3 semantics; source/method truth; and candidate/scope identity. It may
+  repair nothing and must end exactly `pass` or `changes_required`, explicitly
+  stating that no decoder or approved snapshot ran. No prior pass transfers.

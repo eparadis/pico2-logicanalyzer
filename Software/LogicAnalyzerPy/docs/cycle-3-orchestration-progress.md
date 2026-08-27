@@ -662,3 +662,31 @@ unchanged.
   record must bind the exact candidate commit/tree and issue exactly `pass` or
   `changes_required`. No earlier pass or finding transfers without fresh
   proof.
+
+### Semantic-fixture verification round 6
+
+- Tested candidate/tree: `9f0fe7e45cde49f69b22d266c36932407c3d4845` /
+  `01c352da8e6d6807941e5a37434f02b53b973f20`.
+- Verifier/verdict: `c3-b1-semantic-fixture-verifier-1` /
+  `changes_required`; immutable record committed at `4193539` in
+  `docs/reviews/c3-b1-semantic-fixture-verification-round-6.md`, record SHA-256
+  `d7a4538b838e0467e4b6ca77b1d02878c058c5a9f2638308a192e5aa0695a42a`.
+- Fresh passing evidence: both round-5 corrections; all 57 complete protocol
+  timelines and waits; generator and every digest/file-set recomputation; all
+  declarations, sentinels, v1 vectors and literal bytes; all 17 static cap
+  derivations; five edge decisions; independence and exclusions. None
+  transfers to a changed candidate.
+- Required correction: add the exact helper-initializer relative `.mod` edge
+  to the closed import inventory. Complete the UART delimiter matrix with
+  accepted RX/TX maxima 31, 63, and 127 for selected widths 5, 6, and 7, and
+  represent every width-dependent accepted/rejected boundary under the real
+  checked-in option key with explicit selected-width context rather than a
+  synthetic option name. Every accepted row needs its contract-valid named
+  direct witness or source-justified static equivalence; rebuild all dependent
+  fixtures, caps, digests, prose, and strong assertions.
+- Correction owner remains
+  `c3-b1-semantic-fixture-implementor-replacement-6`, confined to its original
+  fixture-owned paths. It may not edit verification records/artifacts,
+  progress/contracts, runner/product paths, or immutable history. No decoder
+  or prohibited runtime may execute. A new candidate and complete fresh
+  verification are mandatory; no pass transfers.

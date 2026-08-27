@@ -1703,3 +1703,21 @@ unchanged.
   `Software/...` paths. A new single monitored run must restart every warm-up
   and repetition from zero and pass all pre-write assertions before any raw
   candidate may exist.
+
+### Second serialized raw run discarded at environment probe
+
+- Recorded: `2026-08-27T05:58:50Z`. A second single monitored run again
+  completed all 378 snapshot-route and 100 inert/hostile/recovery calls, then
+  reached the write-at-end environment probe. Sandbox policy denied
+  `sysctl -n hw.model`; the collector raised before assertions or any file
+  write, so every measurement is again discarded and no raw candidate exists.
+- Root independently obtained only the non-sensitive model identifier
+  `Macmini8,1` through the read-only hardware profiler and explicitly excluded
+  its serial, UUID, and provisioning fields. Accepted `sw_vers` values remain
+  macOS 15.7.7 build 24G720. No sensitive hardware identifier is retained in
+  repository evidence.
+- All static identity/digest/environment construction and provenance assertions
+  now execute before the first warm-up; the temporary collector contains no
+  post-collection external command. A third serialized run must still restart
+  all warm-ups and repetitions from zero. No prior timing, count, output, or
+  resource value transfers.

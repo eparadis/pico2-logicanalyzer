@@ -1783,3 +1783,43 @@ unchanged.
   not compare runtime output to expected fixture records or use expected output
   to generate/correct/accept raw results. It must report exactly `pass` or
   `changes_required`; no threshold proposal or product-host work is authorized.
+
+### Raw-baseline reproduction pass and accumulated-gate assignment
+
+- Recorded: `2026-08-27T06:24:05Z`. Exact raw candidate/tree remains
+  `397981adf0f89115647203e749db1b1e5b3384cf` /
+  `e4baf918c3de4b7df94ad51340bf5b5bfc8f16d2`; raw, runner, method, fixture,
+  snapshot, and cap bytes are unchanged in every descendant.
+- Independent verifier/verdict:
+  `c3-b1-pre-execution-runner-verifier-1` / `pass`; the verifier-only test and
+  immutable record are committed at
+  `9ac10d77cf1e8c492e7b5dae564baa43b09ebf71`. Test SHA-256 is
+  `08687a9bcc7fed1cfb55dbb6ec9b3c31f2ea486cfd389857916d6039b33567ca`;
+  record SHA-256 is
+  `c9c08720039de278c12c54501e09c71634f084408330af849011004a666441c2`.
+- The final uninterrupted reproduction independently derived all 63 requests,
+  then passed one fresh warm-up plus five repetitions per snapshot and the
+  complete ten-case hostile warm-up/five-repetition/recovery matrix. Exact
+  semantics and stable counts reproduced; every terminate/kill/descriptor-
+  close/exact-reap/recovery path passed; focused runner tests, Ruff, binding,
+  digest, summary, scope, cache, and process audits passed. No expected output
+  was used as a runtime oracle and no worker remained.
+- The discrepancy record is explicit: 61/63 fresh total-time ranges were lower
+  and non-overlapping while two overlapped; child RSS overlapped for 58 cases
+  and was lower for five, with none higher and non-overlapping. These remain
+  observations and supply no threshold conclusion.
+- Root accumulated validation is now assigned against this unchanged raw
+  candidate. It must include the full clean hash-locked Python 3.12 bootstrap
+  state, complete raw verifier/reproduction suite, corrected runner and fixture
+  focused suites, Ruff, strict mypy, binding and deterministic fixture checks,
+  all non-hardware tests without mandatory skips, installed help, Cycle 1/2
+  evidence validators, exact resource feasibility, prohibited dependency/
+  import/process/cache and quiet-scope audits, and unchanged exact-Node-22
+  frontend/unit/build/browser/performance regressions.
+- The accumulated result path is fixed as
+  `docs/reviews/c3-b1-raw-baseline-accumulated-validation-round-1.md`. It must
+  bind the raw/verifier candidate identities and all commands/results, preserve
+  the timing/RSS discrepancies, and report only `pass` or a failure. Raw
+  acceptance is assigned only after this accumulated record passes and is
+  committed. No proposal, threshold decision, or product-host work is yet
+  authorized.

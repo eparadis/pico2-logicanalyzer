@@ -2104,3 +2104,44 @@ unchanged.
   runner, method, raw, proposal, approval, product, lock, workflow, governing,
   prior review/test, or Cycle 1/2 evidence byte. Root will commit it before
   assigning fresh final B1 verification; no internal pass transfers.
+
+### Immutable final B1 integration candidate and verification assignment
+
+- Recorded: `2026-08-27T16:55:13Z`. Final candidate commit/tree:
+  `72e7b35bb3bb8412846caef5302892f9de209c3b` /
+  `b30bd5837b7c9b320624b819c54cb11455f200c2`. It adds exactly
+  `testdata/decoders/cycle3/b1-final-candidate.json` and
+  `docs/reviews/c3-b1-final-candidate.md`; every bound earlier candidate,
+  evidence, approval, product, governing, lock, workflow, and manifest path is
+  unchanged.
+- Binder JSON SHA-256 is
+  `1c2cbaa7d99c247b9779b3f7f3654358fcc6e5219ddb030dfb5904faaa9aa29a`;
+  rationale SHA-256 is
+  `4203c2b2ea079d13a72cac3474299cf93d9f3d8b4f4ae6480fdb289674b3d30b`.
+  Root pre-candidate checks passed JSON structure, six-role map, five evidence
+  groups, 32 live artifact digest bindings, 21 frozen commands, 29 approved
+  limits by exact proposal/approval identity, candidate status, scope, and
+  repository diff. No product/runtime action occurred.
+- Fresh final B1 verification is assigned to existing independent verifier-role
+  identity `c3-b1-pre-execution-runner-verifier-1`
+  (`/root/c3_b1_runner_verify`), reused only in its verifier role and distinct
+  from root assembly, all implementors, acceptance, and later manifest
+  verification. It may create only
+  `tests/verification/test_c3_b1_final_candidate.py` and
+  `docs/reviews/c3-b1-final-verification-round-1.md`; it may repair nothing and
+  must report exactly `pass` or `changes_required`.
+- Verification must independently prove the exact candidate commit/tree and
+  two-path scope; schema/status/environment; complete six-role separation and
+  implementation history; all commits/trees and 32 artifact digests; exact
+  project/license disposition; corrected fixture/runner/raw/proposal gate
+  ordering; 29 approved values and boundaries; operator-decision identity;
+  closed findings and preserved invalidations; 21 executable command records,
+  three-node applicability classification, exclusions, and no B2 authority.
+  A non-vacuous mutation matrix must reject altered/missing/extra evidence,
+  roles, digests, commits, status, environment, commands, limit count,
+  approval, findings, applicability, or exclusions.
+- Static inspection only is authorized. No snapshot, decoder, runner, hostile
+  probe, product host, browser server, hardware, network, install, external
+  runtime, package build/publication, B2 work, or Cycle 4 action may run. No
+  internal pass transfers; accumulated validation waits for this exact fresh
+  verdict.

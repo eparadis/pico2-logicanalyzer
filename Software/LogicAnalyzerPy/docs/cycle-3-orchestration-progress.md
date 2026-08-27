@@ -1721,3 +1721,65 @@ unchanged.
   post-collection external command. A third serialized run must still restart
   all warm-ups and repetitions from zero. No prior timing, count, output, or
   resource value transfers.
+
+### Immutable raw-baseline candidate and reproduction assignment
+
+- Recorded: `2026-08-27T06:12:13Z`. The third serialized run began only after
+  every environment, digest, and request-derivation preflight passed, used the
+  exact corrected runner candidate/tree
+  `48d139f86aabcfa3e34567473c05ade13340107f` /
+  `fc36f73089ee6d1c86e3bd6c922c44dffe15477b`, and completed alone. Its
+  write-at-end assertions passed before any raw file was created.
+- Raw candidate commit/tree:
+  `397981adf0f89115647203e749db1b1e5b3384cf` /
+  `e4baf918c3de4b7df94ad51340bf5b5bfc8f16d2`. It adds exactly five canonical,
+  non-executable JSON files beneath `testdata/decoders/cycle3-raw/`; no runner,
+  method, fixture, snapshot, expected output, cap, product, or governing byte
+  changed. The worktree was clean immediately after commit.
+- Candidate SHA-256 values are environment
+  `14da4608cf882286a8f62f0e59f596d91753244b619046d14d7f445a89012a4f`,
+  hostile observations
+  `c956be536fc1fd5c23ebfd33b6bb51377e0f806ace57dfc02fc8888521f801ad`,
+  manifest
+  `0706b84a0965a36e5b5d20c35c6d4ba9ab774f3bb7532e29f322dcd5a76d0efa`,
+  observations
+  `a282ccd92ffa27ceda4624d6138de61d48314a0b352f004e3d0770c8b3bc2f03`,
+  and requests
+  `fe5b345270eced91298250032411b6a85112c55baf46d3b71afb424ef385f94c`.
+- Root independently recomputed canonical JSON and manifest hash closure,
+  environment/source/collector identities, and all requests directly from the
+  accepted transition/mapping/sample-count/samplerate/option/provenance inputs.
+  The candidate contains 63 ordered timelines, one status-only unrecorded
+  warm-up and five successful recorded repetitions each, stable canonical
+  records and semantic diagnostics, complete count/resource/timing fields and
+  exact min/median/max summaries. It also contains the ten production-profile
+  hostile cases with five repetitions each: two expected successes and eight
+  expected failures, with exact descriptor-close/reap evidence and a successful
+  valid recovery after every recorded failure. `hang` terminated and reaped;
+  `ignore_term` exhausted the 250-ms grace then killed and reaped. No worker or
+  bytecode cache remained.
+- Independent reproduction is assigned to the existing distinct verifier-role
+  identity `c3-b1-pre-execution-runner-verifier-1`
+  (`/root/c3_b1_runner_verify`). The runner implementor authored the raw data;
+  the verifier authored neither raw request nor observation and remains
+  distinct from fixture authors, runner implementors, acceptance, final B1,
+  manifest, and orchestration identities. No earlier runner-gate verdict is a
+  raw-baseline verdict or transfers to this candidate.
+- The verifier may create only
+  `tests/verification/test_c3_b1_raw_baseline_candidate.py` and
+  `docs/reviews/c3-b1-raw-baseline-verification-round-1.md`; it may not repair
+  or rewrite the candidate. It must independently derive all 63 requests from
+  authoritative fixture inputs without consuming raw requests as an oracle,
+  execute the unchanged private fixed-snapshot route in the exact recorded
+  Python 3.12 environment with a fresh unrecorded warm-up plus five repetitions
+  per case, and independently repeat all ten production-profile hostile cases
+  with the same warm-up/repetition/recovery method.
+- Verification must prove candidate/digest/environment equality, exact
+  canonical record and stable semantic-count reproduction, every finite cap,
+  complete timing/resource/count fields and summary arithmetic, expected
+  hostile classifications, deadline/terminate/kill/close/exact-reap paths,
+  recovery after every failure, cache/process cleanup, and a transparent
+  per-case discrepancy report for non-deterministic timings and memory. It must
+  not compare runtime output to expected fixture records or use expected output
+  to generate/correct/accept raw results. It must report exactly `pass` or
+  `changes_required`; no threshold proposal or product-host work is authorized.

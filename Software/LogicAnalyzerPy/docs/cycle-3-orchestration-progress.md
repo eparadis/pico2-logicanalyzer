@@ -1494,3 +1494,51 @@ unchanged.
   non-decoder gate, and acceptance are mandatory before any fourth snapshot
   execution or raw-baseline retry. No prior pass or provisional observation
   transfers.
+
+### Repeatable pre-execution runner candidate and verification round 2 assignment
+
+- Recorded: `2026-08-27T05:25:32Z`.
+- Corrected candidate commit/tree:
+  `48d139f86aabcfa3e34567473c05ade13340107f` /
+  `fc36f73089ee6d1c86e3bd6c922c44dffe15477b`; the worktree was clean
+  immediately after the seven-path runner-owned commit. Accepted fixture/cap,
+  expected-output, decoder snapshot, product, governing, and excluded-scope
+  bytes are unchanged.
+- RI013 correction is explicit and closed in candidate design: launch config,
+  validation, and `Popen` arguments are exactly Python 3.12
+  `-I -B worker.py`; the method records that identity; and a closed inert
+  `bytecode` probe imports and exact-path-verifies only the bound runner probe
+  sibling, reports `sys.dont_write_bytecode`, and cannot select a caller path.
+  The focused regression makes two consecutive real shared worker launches,
+  requires both diagnostics to report bytecode disabled, and rechecks the
+  exact cache-free inventory after the second success.
+- Root and final implementor non-decoder checks passed: 167 focused tests,
+  focused Ruff, strict mypy over seven tool modules, binding regeneration and
+  check, exact two-literal dynamic-import audit, candidate scope, repository
+  diff, inventory, and process cleanup. No private snapshot route,
+  `execute_snapshot`, decoder/helper/generator/product runtime, fourth snapshot
+  execution, hardware, network, excluded action, or Cycle 4 work occurred.
+- Corrected SHA-256 identities: binding
+  `1d36da4a8e06707c5fad8830c7037fd5aa601fdc8854dc4f33b9aec4b2d992eb`,
+  launch `3df74d88a1f013a7aa9f09c81d76a653159de09e9b42270137fb0f3956efbf27`,
+  probes `dc0d5ba2e5c1ec1f3e805f9a41a92b29e5edce8a4bb6172ef6fc82dbf8848b2a`,
+  runner `2f0d32ec2d2fea047cb5f78e6b3d32753e6d69d3f9d0f398bd589691011ef942`,
+  worker `76124299334fc4fb5a7ea5d28750afff9b19f59b4fda0618dd0be215f59f890c`,
+  method `8ef7bdac50554fb42ec97d3c5d685d3f6b55074c82478c750e4e62ff3d318325`,
+  and implementation test
+  `74e5c8d823f1f58ffc84e57bbae7264ee80c67586dec1e3e816e8ccce8f341c1`.
+- Complete fresh verification is reassigned to the independent existing
+  `c3-b1-pre-execution-runner-verifier-1`
+  (`/root/c3_b1_runner_verify`) with no round-1 pass transfer. It may update
+  only its verification test and create immutable
+  `docs/reviews/c3-b1-preexecution-runner-verification-round-2.md`; it may
+  repair no candidate byte.
+- Round 2 must repeat the complete 17-cap, binding/import/root/file/symlink/
+  shadow/environment/CWD, framing/accounting, termination/kill/close/reap,
+  recovery, fixed-route, option, and API-v3 non-decoder matrix, and add an
+  independent RI013 proof that isolated mode ignores the environment-only
+  setting, explicit `-B` is present in both launch identities, two or more
+  consecutive real inert sibling-import workers leave no cache or inventory
+  drift, and a valid probe follows. It must explicitly preserve the three
+  historical authorized UART warm-ups, execute no fourth snapshot, and end
+  exactly `pass` or `changes_required`.

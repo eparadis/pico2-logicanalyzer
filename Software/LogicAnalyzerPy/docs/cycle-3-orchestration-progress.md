@@ -2175,3 +2175,28 @@ unchanged.
   correction assignment. Every evidence value, digest, command, environment,
   status, finding, applicability rule, exclusion, and authority boundary must
   otherwise remain unchanged. Fresh verification is mandatory after commit.
+
+### Corrected final B1 candidate and verification round-2 assignment
+
+- Recorded: `2026-08-27T17:01:19Z`. Corrected candidate commit/tree:
+  `1f8793210a3298ed190ff30f97c84b6f9feb9b29` /
+  `cbe33ca272ba1b452f6d87fb5e702134a471f702`. Binder SHA-256 is
+  `55983bbe9613c0deb0fe7f05a2e88b680b9cfed352f4cccfae9cdd01ca744adf`;
+  rationale SHA-256 is
+  `9577c4b268af5a4a8c6b7f59f934e8ba689a23d4bda66aa0e8662533acd82396`.
+- Root proved the fixture array contains exactly original identity then
+  replacements 1-6, the runner array contains exactly original identity then
+  replacements 1-3, final identities equal each array's last entry, correction
+  provenance is complete, and normalized round-2 equality with round 1 holds
+  after reversing only those histories and allowed metadata. All 32 digest
+  bindings and every other candidate meaning remain unchanged.
+- Fresh verification round 2 is reassigned to the same independent verifier
+  identity and original complete scope, with no round-1 pass transfer. It may
+  update only `tests/verification/test_c3_b1_final_candidate.py` for the exact
+  round-2 subject and create only
+  `docs/reviews/c3-b1-final-verification-round-2.md`; it may repair nothing and
+  must report exactly `pass` or `changes_required`.
+- The verifier must repeat every round-1 audit and mutation family, prove exact
+  history order/completeness and correction-only normalized equivalence, and
+  bind the new candidate/tree/digests. All static-only prohibitions and the
+  ban on accumulated validation or B2 before this verdict remain unchanged.

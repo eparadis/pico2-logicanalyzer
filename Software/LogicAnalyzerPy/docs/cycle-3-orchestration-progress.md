@@ -2073,3 +2073,34 @@ unchanged.
   checkpoint, or B2 product work is authorized before that decision. Any
   amendment creates a new immutable proposal candidate and repeats proposal
   verification, accumulated validation, and acceptance.
+
+### Operator threshold approval and final B1 candidate assignment
+
+- Recorded: `2026-08-27T16:48:28Z`. The operator explicitly stated
+  `I approve the exact round-2 threshold value` in direct response to the
+  request to approve the complete exact round-2 threshold values. This is an
+  approval of all 29 committed entries, not a selection or amendment of one.
+- The immutable decision record is committed at
+  `b6d904064ab7b9e195eedded1c55efc306eeb925` in
+  `docs/reviews/c3-b1-threshold-approval.md`, SHA-256
+  `24665a2d63713275c9fc0a82243ee53852834cb36adbf8f6252221804d8b37bc`.
+  It binds exact proposal `395646f`, its proposal/rationale digests, all three
+  fresh proposal gates, every inclusive/first-rejected boundary, environment
+  qualification, amendment procedure, and authority limitations.
+- Numeric thresholds and maximum SPI word size are now frozen. No value may be
+  silently increased, weakened, rebased, or reinterpreted. The approval is an
+  input to final B1 assembly and later enforcement; it does not itself accept
+  a final B1 candidate or authorize B2.
+- Root is assigned the final B1 integration candidate at exactly
+  `testdata/decoders/cycle3/b1-final-candidate.json` and
+  `docs/reviews/c3-b1-final-candidate.md`. It must bind governing identities,
+  the complete corrected semantic-fixture and pre-execution-runner identity
+  histories and final six-role map, project/license disposition, raw candidate
+  and three gates, proposal correction and three gates, operator approval,
+  exact artifact digests, platform/environment limits, historical finding
+  dispositions, exclusions, and exact frozen accumulated commands.
+- The candidate may add only those two binder artifacts and must remain
+  `candidate-not-accepted`. It may change no fixture, cap, generator, snapshot,
+  runner, method, raw, proposal, approval, product, lock, workflow, governing,
+  prior review/test, or Cycle 1/2 evidence byte. Root will commit it before
+  assigning fresh final B1 verification; no internal pass transfers.

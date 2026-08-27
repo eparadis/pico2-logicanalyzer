@@ -1615,3 +1615,40 @@ unchanged.
   non-decoder probes; no fourth snapshot execution or raw retry is authorized.
   A `pass` authorizes only the exact unchanged corrected runner to resume the
   separately ordered raw-baseline phase.
+
+### Corrected runner acceptance pass and raw-baseline resumption
+
+- Recorded: `2026-08-27T05:40:36Z`.
+- Acceptance identity/verdict:
+  `c3-b1-pre-execution-runner-acceptance-1` / `pass`; fresh round-2 record
+  committed at `896c1bf050896c48cc6541bb7ad429ce4b6e74e0` in
+  `docs/reviews/c3-b1-preexecution-runner-acceptance-round-2.md`, SHA-256
+  `ce1baa3c102e933fb9b8c5ffa8fe8f199e125ef17d82e662aec880f095793aef`.
+  It found no discrepancy in RI013 history/invalidation, corrected ownership,
+  candidate equality, fresh verification/accumulation, explicit isolated-child
+  bytecode semantics, repeatability, 17-cap/cleanup evidence, method,
+  provenance, scope, or ordering. No fourth snapshot execution occurred.
+- The complete corrected runner gate now authorizes only exact candidate/tree
+  `48d139f86aabcfa3e34567473c05ade13340107f` /
+  `fc36f73089ee6d1c86e3bd6c922c44dffe15477b` to resume the original raw-data
+  assignment. Any change to its runner, method, launch/import, binding, caps,
+  cleanup, snapshot, or environment class invalidates this authority.
+- Raw collection returns to final runner owner
+  `c3-b1-pre-execution-runner-implementor-replacement-3`
+  (`/root/c3_b1_runner_impl_r4`) under the exact original data-only scope and
+  method. It may create only non-executable JSON beneath
+  `testdata/decoders/cycle3-raw/`; no provisional artifact or historical
+  warm-up result transfers. Collection restarts with a new unrecorded warm-up
+  and five recorded repetitions for every one of the 63 timelines and each
+  selected production-profile hostile case.
+- Requests remain derived only from transitions, mapping, sample count,
+  samplerate, options, and accepted provenance source sets; expected calls,
+  waits, records, and typed goldens remain forbidden inputs/oracles. The raw
+  candidate must preserve every required deterministic count, timing, resource,
+  cleanup, raw-result, environment, digest, mechanism, coverage, failure, and
+  min/median/max field fixed in the original assignment. Caps remain unchanged;
+  a termination remains an observation, not a passing baseline.
+- Root will audit complete success/failure coverage, raw immutability, exact
+  candidate equality, cache-free repeated execution, and process cleanup before
+  committing the raw candidate and assigning independent reproduction. No
+  threshold proposal or product-host work is authorized yet.

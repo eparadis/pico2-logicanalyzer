@@ -962,3 +962,30 @@ unchanged.
   scope audits. The corrected work remains pre-candidate and may run only
   non-decoder probes. No verifier is assigned until root integration finds no
   open requirement.
+
+### B1 project/license disposition review result
+
+- Recorded: `2026-08-27T02:32:32Z`.
+- Reviewer/verdict: `c3-b1-project-license-reviewer-1` / `pass`; immutable
+  record committed at `538a4aa669a782919dafefb26a81d7346ed45f5c` in
+  `docs/reviews/c3-b1-project-license-review-round-1.md`, SHA-256
+  `b7afc4df18ba9bf5e40ee5a795e4544e54a59be27b1fea9a8617681ea82919cf`.
+- The engineering disposition binds all nine exact source digests, import
+  commit/prior gitlink, observed notices, current MIT metadata, and repository
+  GPLv3 text. Authoritative GNU/FSF, SPDX, and PyPA sources support a future
+  private commit-pinned snapshot-data root; retained source headers; exact
+  attribution manifest; GPLv2/GPLv3/MIT component texts; distribution-level
+  `GPL-3.0-only` metadata; bounded package-data patterns; and clean artifact/
+  install verification before any installed exposure.
+- No source/package/metadata change, editable snapshot exposure, build, wheel,
+  sdist, upload, publication, or decoder execution is authorized or claimed by
+  the record. The shim's missing in-file notice and present MIT authority must
+  receive rights-holder or qualified-counsel confirmation before conveyance;
+  absent or negative confirmation keeps build/distribution prohibited. This is
+  an explicit engineering compliance disposition and limitation, not a legal
+  guarantee.
+- The record is an accepted ordered B1 input. Its prescribed source-side
+  placement/metadata changes and static validation belong to the later owning
+  product/package gate before snapshots can enter an installed distribution;
+  they do not alter or unblock the current non-installed, non-decoder runner
+  probe gate.

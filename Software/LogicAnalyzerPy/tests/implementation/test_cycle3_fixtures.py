@@ -815,8 +815,12 @@ def test_static_wait_predicates_and_source_order_are_truthful() -> None:
     assert all(
         item["boundary"] == {"accept": item["value"], "reject": item["value"] + 1}
         and "basis_category=" in item["rationale"]
-        and "No macOS observation" in item["rationale"]
         for item in caps["caps"]
+    )
+    assert all(
+        "No macOS observation" in item["rationale"]
+        for item in caps["caps"]
+        if item["id"] != "worker_address_space_bytes"
     )
     for item in caps["caps"]:
         derivation = item["derivation"]
@@ -839,6 +843,42 @@ def test_static_wait_predicates_and_source_order_are_truthful() -> None:
     by_cap = {item["id"]: item for item in caps["caps"]}
     assert (
         by_cap["stderr_bytes"]["derivation"]["basis_value"] == by_cap["diagnostic_bytes"]["value"]
+    )
+    address_space = by_cap["worker_address_space_bytes"]
+    address_derivation = address_space["derivation"]
+    expected_floor = 64 * 1024 * 1024 * 1024
+    old_impossible_value = 2_966_700_032
+    fixture_bytes = len(
+        json.dumps(
+            load("semantic-fixtures.json"),
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        ).encode("utf-8")
+        + b"\n"
+    )
+    assert address_derivation == {
+        "operation": "max-floor",
+        "basis_category": "fixture-corpus-bytes",
+        "basis_value": fixture_bytes,
+        "multiplier": 4096,
+        "floor": expected_floor,
+        "result": expected_floor,
+    }
+    assert address_space["value"] == expected_floor > old_impossible_value
+    assert address_space["boundary"] == {"accept": expected_floor, "reject": expected_floor + 1}
+    rationale = address_space["rationale"]
+    assert str(old_impossible_value) not in rationale
+    assert (
+        "64 GiB floor is a conservative static macOS-x86_64 managed-CPython RLIMIT_AS"
+        in rationale
+    )
+    assert "pre-execution feasibility evidence" in rationale
+    assert "absolute address-space ceiling, not RSS, data, or growth" in rationale
+    assert (
+        "runner input, not a runtime baseline, product threshold, or enforcement claim"
+        in rationale
     )
     assert {item["id"] for item in caps["caps"]} == {
         "wall_deadline_ms",

@@ -2469,6 +2469,13 @@ def build() -> dict[str, object]:
     )
     diagnostic_bytes = max(max_record_bytes * 8, 8192)
     stderr_bytes = diagnostic_bytes * 8
+    # Managed CPython 3.12 macOS x86_64 needs a finite RLIMIT_AS floor above
+    # its inert virtual-address baseline.  64 GiB is a static experiment-only
+    # compatibility floor; it is neither RSS/data/growth nor a product limit.
+    macos_x86_64_address_space_floor = 64 * 1024 * 1024 * 1024
+    worker_address_space_bytes = max(
+        fixture_bytes * 4096, macos_x86_64_address_space_floor
+    )
     cap_specs = [
         ("wall_deadline_ms", 5000, "milliseconds", 1, "fixed pre-execution wall-clock ceiling"),
         ("terminate_grace_ms", 250, "milliseconds", 1, "fixed bounded post-termination grace"),
@@ -2498,7 +2505,13 @@ def build() -> dict[str, object]:
         ("nested_items", max_records * 2048, "items", max_records, f"{max_records} * 2048 = {max_records * 2048}"),
         ("retained_result_bytes", fixture_bytes * 256, "bytes", fixture_bytes, f"{fixture_bytes} * 256 = {fixture_bytes * 256}"),
         ("recursion_limit", max_depth * 64, "frames", max_depth, f"{max_depth} * 64 = {max_depth * 64}"),
-        ("worker_address_space_bytes", fixture_bytes * 4096, "bytes", fixture_bytes, f"{fixture_bytes} * 4096 = {fixture_bytes * 4096}"),
+        (
+            "worker_address_space_bytes",
+            worker_address_space_bytes,
+            "bytes",
+            fixture_bytes,
+            "fixture corpus expansion with macOS-x86_64 RLIMIT_AS floor",
+        ),
     ]
     derivations = {
         "wall_deadline_ms": ("multiply", "scheduling-policy-quantum-ms", 50, 100, None),
@@ -2517,7 +2530,13 @@ def build() -> dict[str, object]:
         "nested_items": ("multiply", "corpus-max-records", max_records, 2048, None),
         "retained_result_bytes": ("multiply", "fixture-corpus-bytes", fixture_bytes, 256, None),
         "recursion_limit": ("multiply", "corpus-max-nested-depth", max_depth, 64, None),
-        "worker_address_space_bytes": ("multiply", "fixture-corpus-bytes", fixture_bytes, 4096, None),
+        "worker_address_space_bytes": (
+            "max-floor",
+            "fixture-corpus-bytes",
+            fixture_bytes,
+            4096,
+            macos_x86_64_address_space_floor,
+        ),
     }
     caps = {
         "schema": "cycle3-experiment-caps/v1",
@@ -2532,6 +2551,19 @@ def build() -> dict[str, object]:
                 "boundary": {"accept": value, "reject": value + 1},
                 "derivation": {"operation": derivations[key][0], "basis_category": derivations[key][1], "basis_value": derivations[key][2], "multiplier": derivations[key][3], "floor": derivations[key][4], "result": value},
                 "rationale": (
+                    (
+                        f"{key}={value} {unit}: operation={derivations[key][0]}; "
+                        f"basis_category={derivations[key][1]}; basis_value={derivations[key][2]}; "
+                        f"multiplier={derivations[key][3]}; floor={derivations[key][4]}; "
+                        f"result={value}. The 64 GiB floor is a conservative static macOS-x86_64 "
+                        "managed-CPython RLIMIT_AS compatibility floor informed by pre-execution "
+                        "feasibility evidence. It is an absolute address-space ceiling, not RSS, "
+                        "data, or growth. Exact setrlimit feasibility is runner input, not a runtime "
+                        "baseline, product threshold, or enforcement claim; accept=value and "
+                        "reject=value+1."
+                    )
+                    if key == "worker_address_space_bytes"
+                    else
                     f"{key}={value} {unit}: operation={derivations[key][0]}; "
                     f"basis_category={derivations[key][1]}; basis_value={derivations[key][2]}; "
                     f"multiplier={derivations[key][3]}; floor={derivations[key][4]}; "

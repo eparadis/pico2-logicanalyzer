@@ -69,6 +69,12 @@ the 50ms scheduling-policy wall/grace bounds, input and diagnostic corpus
 floors, and stderr's reference to the diagnostic result without interpreting
 prose.
 
+`worker_address_space_bytes` additionally uses a 64 GiB macOS-x86_64
+experiment-only `RLIMIT_AS` compatibility floor through a transparent
+max-floor derivation over the fixture-derived expansion. It remains an address
+space cap—not RSS, data, or growth—and is neither a runtime observation claim
+nor a product threshold.
+
 Rebuild with:
 
 ```text

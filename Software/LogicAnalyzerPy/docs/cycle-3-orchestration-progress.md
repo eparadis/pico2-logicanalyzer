@@ -1954,3 +1954,34 @@ unchanged.
   characterized evidence, status changed to approved, and any evidence/digest
   substitution. Static inspection only: no snapshot, decoder, hostile probe,
   product host, hardware, network, or excluded action is authorized.
+
+### Threshold-proposal round-1 finding and round-2 correction assignment
+
+- Recorded: `2026-08-27T13:32:10Z`. Fresh verifier identity/verdict:
+  `c3-b1-pre-execution-runner-verifier-1` / `changes_required`; immutable
+  evidence committed at `e47dc308ff3a7e22679d0bf1e9730f753eb29f47` in
+  `tests/verification/test_c3_b1_threshold_proposal.py`, SHA-256
+  `183803d54768c484d2dd8334795521f6eacea59f1bec1321577ede83ab259bd6`,
+  and `docs/reviews/c3-b1-threshold-proposal-verification-round-1.md`,
+  SHA-256
+  `0ab6a4e897147b73fb4249eeecbadb08ec4cdd18a92ffc2ba713b6f9525a47ab`.
+- Finding `C3B1-TPV001` is exact and singular: raw maximum
+  `105,815,301 ns` multiplied by eight is `846,522,408 ns`, whose ceiling to
+  a `100,000,000 ns` quantum is `900,000,000 ns`, not the proposed
+  `1,000,000,000 ns`. The other 28 limits, all 29 raw maxima, evidence
+  identities, experiment-cap relationships, feasibility checks, and negative
+  tests passed. Round 1 remains immutable and transfers no pass or approval.
+- Root is assigned a new immutable round-2 proposal at exactly
+  `testdata/decoders/cycle3/threshold-proposal-round-2.json` and
+  `docs/reviews/c3-b1-threshold-proposal-rationale-round-2.md`. The only
+  numeric correction authorized is `successful_parent_total_ns`: value and
+  inclusive accept become `900,000,000`, exclusive reject becomes
+  `900,000,001`, and the stated `ceil_to_100ms(raw_max * 8)` derivation remains
+  unchanged. Its prose ratio must become approximately `8.51 times`.
+- Round 2 must identify the failed round-1 candidate, its assignment, the
+  failed verification commit, and this correction assignment. No other value,
+  raw observation, cap, fixture, runner, product, approved-limit, governing,
+  manifest, or operator-decision byte may change. After root commits the new
+  candidate, the existing verifier role receives a fresh round-2 assignment;
+  accumulated validation and fresh acceptance remain forbidden until that
+  new verdict passes.

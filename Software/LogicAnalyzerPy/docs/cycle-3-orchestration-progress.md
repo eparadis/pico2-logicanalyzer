@@ -1093,3 +1093,42 @@ unchanged.
   later adaptation; the repository is clean. It is not evidence, a candidate,
   or an accepted implementation, and none of its old-cap digests/results may
   transfer.
+
+### Enforceable semantic-fixture cap candidate and verification round 9
+
+- Recorded: `2026-08-27T03:02:17Z`.
+- New immutable candidate commit/tree:
+  `7c57a347bbe575e3f451383ea498f56abc362f26` /
+  `02a408895dd834e6e6885218cb7323f46439e880`; worktree clean immediately after
+  commit. Owner remains fixture-only implementor replacement-6. All earlier
+  candidate/verdict history is preserved and no old pass transfers.
+- Exact correction: `worker_address_space_bytes` is now `68719476736` bytes
+  (64 GiB), derived as `max(724292 * 4096, 68719476736)`. Its JSON and prose
+  identify an absolute macOS-x86_64 managed-CPython `RLIMIT_AS` compatibility
+  ceiling, not RSS/data/growth, runtime baseline, product threshold, or
+  enforcement claim; boundary remains accept=value/reject=value+1. Exact
+  64-GiB setrlimit feasibility passed on the governed managed Python while the
+  old value is a strong rejected regression.
+- Only semantic-fixture prose, generator, cap artifact, fixture manifest, and
+  implementation assertions differ from candidate `c1420ad`; all semantic
+  timelines, expected records, option matrix, typed vectors/goldens,
+  provenance/file sets/notices, and immutable verifier tests are byte-identical.
+  Updated SHA-256: generator
+  `6fc5289ba1076413283942be0374bd97def08b284bf7a7cef4e7b6105636be63`, cap
+  `63cde36892a15a390be0c27c50eac18431d7a4b11381b0e4b82c0fe64f808cd8`,
+  fixture manifest
+  `0f5f1d9a01fc807dd0f4078ac84b20158f515a76ae4f1f83cc74651c4797413a`.
+- Root focused results: deterministic generator check; 18 implementation plus
+  immutable verifier tests; focused Ruff; exact five-path scope; and repository
+  diff check passed. Only inert Python/RLIMIT feasibility and static fixture
+  processing ran; no decoder, runner candidate, helper/product/prohibited
+  runtime, raw characterization, hardware, or excluded action executed.
+- Verification assignment: reuse only
+  `c3-b1-semantic-fixture-verifier-1` (`/root/c3_b1_fixture_verify`) for a
+  complete fresh audit of this exact candidate. It must independently re-audit
+  every prior semantic/provenance/coverage/determinism area plus RI011's
+  platform-floor derivation, exact setrlimit feasibility, absolute address-space
+  semantics, boundary, and non-claim wording. It may create only
+  `docs/reviews/c3-b1-semantic-fixture-verification-round-9.md`, may repair
+  nothing, and must end exactly `pass` or `changes_required`. No decoder or
+  prohibited runtime may execute and no prior verifier result transfers.

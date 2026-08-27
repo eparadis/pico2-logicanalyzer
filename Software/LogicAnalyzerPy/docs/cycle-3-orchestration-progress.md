@@ -497,3 +497,31 @@ unchanged.
   value-specific source proof is valid, then complete the full fixture audit.
   No pass or correctness claim transfers.
 - Ownership/separation remains unchanged for all fixture authorship identities.
+
+### Complete semantic-fixture candidate and verification round 4
+
+- Candidate commit/tree: `f53c340f5896a768e4b67fd866030be9370db723` /
+  `218a80a21c769cf8e11f37903b2c91df254e107c`; worktree clean immediately
+  after commit. Candidate owner: completing replacement
+  `c3-b1-semantic-fixture-implementor-replacement-5`, with all earlier fixture
+  authors preserved in immutable history and barred from later product work.
+- Correction: rebuilt every behavior-changing accepted UART/SPI option as a
+  literal direct witness with source-derived waveform, waits, record order,
+  values, and coordinates; separated UART error/BREAK/IDLE cases; rebuilt
+  SPI/I2C records; corrected v1 rational times and bounds; and added all 17
+  finite experiment caps with machine-readable exact derivations and boundary
+  cases. The SPI bit recurrence follows the checked-in source's newest-first
+  `insert(0)` behavior, correcting the contrary round-3 prose rather than
+  transferring it as authority.
+- Root focused gate: deterministic generator check, 15 implementation plus
+  immutable-verification tests, Ruff, diff check, exact eight-path scope,
+  record/capture bounds, terminal/capture equality, 57-timeline/159-option-row
+  closure, and static prohibited-runtime scan passed. No decoder or prohibited
+  runtime executed; no cap enforcement is present or claimed.
+- Verification identity: reuse only
+  `c3-b1-semantic-fixture-verifier-1` (`/root/c3_b1_fixture_verify`) in its
+  original verifier role for a complete fresh audit of this exact candidate.
+  It may create only
+  `docs/reviews/c3-b1-semantic-fixture-verification-round-4.md`, cannot repair
+  candidate/history, and must issue exactly `pass` or `changes_required`.
+  No earlier verdict or finding transfers without fresh proof.

@@ -2387,3 +2387,22 @@ unchanged.
   `docs/reviews/c3-b1-manifest-verification-round-1.md`. Both uncommitted files
   are committed together only after its independent digest/schema pass; the
   checkpoint remains later. No B2 authority exists yet.
+
+### C3-B1 manifest verification round-1 findings and correction assignment
+
+- Recorded: `2026-08-27T19:35:02Z`. Distinct manifest verifier
+  `c3-b1-manifest-verifier-2` returned `changes_required`; immutable round-1
+  record committed at `96d80b61781640eab36430e94de44a3d345f3e11`, SHA-256
+  `d0cb35ed59b9674645ce7f5036d4c7e803c9f5ee21d6d9cdbe384d0424220a78`.
+- `C3B1-MV001`: the goal, schema, and validator artifact rows use governing
+  revision `ea83a403` even though their declared current bytes belong to
+  commits `6a2d09a444797bb0b73c94b259b1cbd826084129` (goal) and
+  `39e74a27638541b36b2845a8c6f1079bc0a3ae61` (schema and validator).
+- `C3B1-MV002`: `python_applicable_nonhardware.command` paraphrases the three
+  deselections instead of preserving the exact frozen command vector.
+- Root is assigned correction of only those four manifest fields. Every other
+  manifest byte and meaning remains fixed. Round 1 transfers no pass; the same
+  distinct manifest-verifier identity must independently verify the corrected
+  unchanged manifest and create only
+  `docs/reviews/c3-b1-manifest-verification-round-2.md`. No manifest commit,
+  checkpoint, or B2 authority exists before that fresh pass.

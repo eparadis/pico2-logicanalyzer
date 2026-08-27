@@ -2230,3 +2230,37 @@ unchanged.
   may be edited to manufacture a pass. Fresh final B1 acceptance is assigned
   only after the immutable accumulated result passes and is committed. No B1
   manifest/checkpoint or B2 work is yet authorized.
+
+### Final B1 accumulated pass and acceptance assignment
+
+- Recorded: `2026-08-27T17:14:41Z`. Root accumulated verdict: `pass`, committed
+  at `e9e75a722e76f7469f2708c56237243999b9169b` in
+  `docs/reviews/c3-b1-final-accumulated-validation-round-1.md`, SHA-256
+  `5f7bec8d92d99cd365a4588479ecf646b8c57bc0ed5c8eb6a0ef0c39b78e1c7b`.
+- All 21 frozen command records passed under repository-local Python 3.12 and
+  exact local Node 22: dependency, Ruff, both strict mypy scopes, deterministic
+  fixture/binding, CLI, six Cycle 2 validators, 657 applicable non-hardware
+  tests, lint/type/five unit/build/assets, four browser tests, and accepted-
+  threshold performance. The complete 660-test inventory first reproduced
+  exactly 657 passes plus the three transparent immutable historical failures.
+- Candidate/digest/evidence/import/dependency/license/scope/exclusion/process
+  audits passed. The accepted performance report records exact Node/browser/
+  automation/method identities and SHA-256
+  `315649da912bb92a012cab2c766935ce79c8af4a11245683dbb6aeed280935fa`;
+  generated results are retained under ignored local `.venv/artifacts`. No
+  package, product host, hardware, external runtime, B2, or prohibited process
+  occurred or remains.
+- Fresh final B1 acceptance is assigned to existing independent acceptance-role
+  identity `c3-b1-pre-execution-runner-acceptance-1`
+  (`/root/c3_b1_runner_accept`), distinct from root assembly/accumulation, all
+  implementation identities, final verifier, and later manifest verification.
+  It may create only `docs/reviews/c3-b1-final-acceptance-round-1.md`, may
+  repair nothing, and must report exactly `pass` or `changes_required`.
+- Acceptance must audit exact corrected candidate `1f87932`, round-1 failure
+  and FV001 correction ordering, complete role histories/separation, all 32
+  evidence digests, corrected fixture/runner/raw/proposal gates, operator
+  approval and all 29 boundaries, final verifier and accumulated results,
+  frozen command/applicability evidence, project/license limitations,
+  candidate quiet scope, exclusions, cleanup, and readiness for atomic
+  manifest assembly. Static inspection only; no internal pass transfers, no
+  manifest may be created before acceptance, and no B2 work is authorized.

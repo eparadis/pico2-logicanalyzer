@@ -2309,3 +2309,18 @@ unchanged.
   manifest-verifier identity. Candidate `1f87932` and all prior records remain
   immutable; no B2 or checkpoint authority transfers from the invalid role
   separation.
+
+### C3B1-MP001 fresh final-verification assignment
+
+- Recorded: `2026-08-27T19:05:24Z`. The operator authorized three fresh
+  subagents for corrected final verification, final acceptance, and manifest
+  verification. Fresh final verification is assigned first to identity
+  `c3-b1-final-verifier-2` (`/root/c3_b1_final_verify_fresh`).
+- The immutable subject remains candidate commit/tree `1f8793210a3298ed190ff30f97c84b6f9feb9b29`
+  / `cbe33ca272ba1b452f6d87fb5e702134a471f702`. The verifier may create only
+  `docs/reviews/c3-b1-final-verification-round-3.md`, may repair nothing, and
+  must independently repeat the complete final static verification scope and
+  return exactly `pass` or `changes_required`.
+- No prior final-verifier pass transfers. Root will rerun the complete
+  accumulated gate only after this immutable fresh verdict is committed; the
+  fresh acceptance and manifest-verifier identities remain ordered later.

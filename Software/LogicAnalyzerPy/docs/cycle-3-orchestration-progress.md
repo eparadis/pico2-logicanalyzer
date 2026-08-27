@@ -2406,3 +2406,108 @@ unchanged.
   unchanged manifest and create only
   `docs/reviews/c3-b1-manifest-verification-round-2.md`. No manifest commit,
   checkpoint, or B2 authority exists before that fresh pass.
+
+### Checkpoint C3-B1 — provenance, semantic fixtures, and approved limits
+
+- State: Complete.
+- Completed at: `2026-08-27T19:39:02Z`.
+- Tested candidate commit: `1f8793210a3298ed190ff30f97c84b6f9feb9b29`.
+- Tested candidate tree: `cbe33ca272ba1b452f6d87fb5e702134a471f702`.
+- Candidate worktree state: exact two-path candidate committed and clean;
+  immutable review/evidence descendants followed without changing its tree.
+- Candidate creation commit: `1f8793210a3298ed190ff30f97c84b6f9feb9b29`.
+- Implementation agent: primary Cycle 3 orchestrator; internal owners below.
+- Verification agent and verdict: `c3-b1-final-verifier-2`; `pass`; record
+  `docs/reviews/c3-b1-final-verification-round-3.md`, SHA-256
+  `4f043b102e4d3b16c3475b6622535983ac2443d4d86bc7caa914b065a2a6dee8`.
+- Accumulated-validation owner/result: primary orchestrator; fresh `pass`;
+  record `docs/reviews/c3-b1-final-accumulated-validation-round-2.md`, SHA-256
+  `f33c24102a8bd02927424744f44df4c486071cf5be4fe6208c8631611ff6b28a`.
+- Acceptance agent and verdict: `c3-b1-final-acceptance-2`; `pass`; record
+  `docs/reviews/c3-b1-final-acceptance-round-2.md`, SHA-256
+  `3eaa4dfdfe0b5a3ab002eb10c2a06cfb65433521674a18d839fa153fdf361724`.
+- Manifest verifier and verdict: `c3-b1-manifest-verifier-2`; fresh round-2
+  `pass`; record SHA-256
+  `de2beb2b416b455ed13644b6fa843737c512970f3e310890b659032a4d728853`.
+- B1 internal candidate identities: semantic fixture implementation
+  `c3-b1-semantic-fixture-implementor-replacement-6`, verification
+  `c3-b1-semantic-fixture-verifier-1`, acceptance
+  `c3-b1-semantic-fixture-acceptance-1`; runner implementation
+  `c3-b1-pre-execution-runner-implementor-replacement-3`, verification
+  `c3-b1-pre-execution-runner-verifier-1`, acceptance
+  `c3-b1-pre-execution-runner-acceptance-1`. Complete ordered implementation
+  histories remain bound in the final candidate.
+- Completion-closure state: not applicable.
+- Governing contract/goal identities: commit/tree
+  `ea83a403bb6f644d33069d3bebd41d5f1e0a60c0` /
+  `d9fb09345ab85580cd8c877745262d1b481e366f`; approved goal bytes are bound in
+  the manifest to byte-owning revision `6a2d09a444797bb0b73c94b259b1cbd826084129`.
+- Prior checkpoint/manifest identity: accepted C2-B6 manifest
+  `testdata/evidence/c2-b6.json`, commit
+  `354c299903ec73633e5762a2b65adaae1d44e8d7`, SHA-256
+  `ed8036ef48654efd98a5c3a852fb1f1dba847a34e12bf1c5dec253a2b9a83ffb`.
+- Environment: macOS 15.7.7 build 24G720, x86_64, Macmini8,1, CPython
+  3.12.13, Node 22.14.0, Chromium 133.0.6943.16, Playwright 1.50.1.
+- Dependency identity: development/web locks
+  `6f78ec8f0219b919c44ed9b9f1d30c2337fcce7c911b8d3dc4c13edb707a6575`;
+  npm lock `d388a2668b3f65edeb62ee99da3ad37ffc56ab1ca3439b6d418a6bbe92e838d9`;
+  `pip check` passed.
+- Decoder/fixture identity: exact accepted fixture manifest SHA-256
+  `0f5f1d9a01fc807dd0f4078ac84b20158f515a76ae4f1f83cc74651c4797413a`;
+  exact project/legal, generator, caps, runner, method, raw, proposal, and
+  review-chain digests are bound in the evidence manifest.
+- Approved-limit identity: `docs/reviews/c3-b1-threshold-approval.md`, commit
+  `b6d904064ab7b9e195eedded1c55efc306eeb925`, SHA-256
+  `24665a2d63713275c9fc0a82243ee53852834cb36adbf8f6252221804d8b37bc`;
+  all 29 exact round-2 values approved, including 900 ms successful-parent
+  total and eight-bit maximum SPI word size.
+- Objective evidence: independently derived deterministic semantic fixtures;
+  non-decoder runner enforcement; immutable reproduced raw observations;
+  reviewed/accepted/operator-approved limits; fresh final verification,
+  complete accumulation, fresh acceptance, and manifest verification.
+- R identifiers and stopping conditions: R1-R5, R9, R21, and R23-R25 mapped;
+  stopping conditions 1-3 passed. B1 begins continuous evidence for later
+  conditions without claiming final C3-B5 ownership.
+- Files changed: authoritative fixture/generator/caps; characterization-only
+  runner/method/binding; immutable raw observations; threshold proposal and
+  operator decision; tests/reviews; final binder; schema-valid B1 manifest.
+- Focused commands: fixture rebuild/binding, internal verification matrices,
+  raw reproduction, threshold boundaries, final 20-test/17-mutation static
+  verification, and independent 43-path/39-revision manifest audit passed.
+- Accumulated commands: all 21 frozen command classes passed; unfiltered 660
+  tests exposed only three reviewed historical failures, applicable 657 passed;
+  exact Node 22 lint/type/five unit/build/assets/four browser/performance passed.
+- CI evidence: not applicable to C3-B1; exact-candidate hosted macOS CI begins
+  at its approved later owner.
+- Resource/performance evidence: accepted raw characterization and thresholds;
+  fresh retained performance report SHA-256
+  `b676ca953d3c989dbbc06e2ea68b3e63f0e117fab6929b5c6bd1693e065dd2a9`.
+- Project/license evidence:
+  `docs/reviews/c3-b1-project-license-review-round-1.md`, SHA-256
+  `b7afc4df18ba9bf5e40ee5a795e4544e54a59be27b1fea9a8617681ea82919cf`;
+  recorded rights-holder/qualified-counsel limitation remains controlling.
+- Prohibited dependency/runtime/process audit: complete active-source,
+  dependency, import, command, evidence, and centralized process audits passed;
+  no prohibited process remained.
+- Evidence manifest: `testdata/evidence/c3-b1.json`, joint manifest/verification
+  commit `c34a2517472a443e9d8ad7b41be800b272db9833`, SHA-256
+  `580bd6ac8603602f43f9f2ca04bed552073f3de2e43df4ac35df81c1e720743b`;
+  frozen strict validator passed. Manifest-verification record is in the same
+  commit.
+- Findings and dispositions: C3B1-RI011, C3B1-RI013, C3B1-TPV001,
+  C3B1-FV001, C3B1-MP001, C3B1-MV001, and C3B1-MV002 are closed with immutable
+  history. Manifest round-1 `changes_required` record remains at commit
+  `96d80b61781640eab36430e94de44a3d345f3e11`.
+- Decisions/discrepancies: all 29 values are exact inclusive maxima;
+  unsuccessful or malformed invocations never transfer evidence; artifact
+  revisions identify byte-owning commits separately from governing identity.
+- Deferred findings: none; later approved work remains ordinary deferred scope.
+- Known limitations: macOS-only; non-installed characterization runner only;
+  no package build, conveyance, or distribution pending the recorded legal
+  confirmation; B2-B5 final proof remains outstanding.
+- Repository state: joint manifest commit tree
+  `7a5a19ded862304313c16fb2c671e049da254f7b`; checkpoint appends only this
+  orchestration record after that clean committed state.
+- Next batch: C3-B2, after its bounded active-batch prerequisite/authority
+  preflight and role assignment.
+- Blocked: no.

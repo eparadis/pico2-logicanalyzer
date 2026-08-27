@@ -797,3 +797,40 @@ unchanged.
   A failure remains at the fixture accumulated gate; acceptance is assigned
   only after every mandatory result passes and the immutable result is
   committed.
+
+### Semantic-fixture accumulated pass and acceptance assignment
+
+- Recorded: `2026-08-27T02:19:17Z`.
+- Exact fixture candidate/tree remains
+  `c1420ad9b4309fc7417acbc228085b68237c24d0` /
+  `26ef344bfb76bec4a8e68be06a411b4d27d20de1`; every candidate-owned path is
+  unchanged in its review/progress descendants.
+- Root accumulated validation passed with no failed or mandatory skipped gate.
+  Its immutable record is committed at `ef43dc7` in
+  `docs/reviews/c3-b1-semantic-fixture-accumulated-validation-round-1.md`,
+  SHA-256
+  `c4aec32157039cdcc3680d1bb430c2bc4d407a571c7e335f856f1f7c633241e6`.
+  The clean hash-locked Python gate proves all 403 collected non-hardware
+  tests; Ruff, strict mypy, installed help, deterministic fixture rebuild,
+  focused fixture/verifier tests, Cycle 1/2 evidence validation, digest/import/
+  dependency/process/scope audits, and unchanged frontend/browser/performance
+  regressions all passed. No decoder or prohibited runtime executed.
+- Assigned acceptance identity:
+  `c3-b1-semantic-fixture-acceptance-1` (`/root/c3_b1_fixture_accept`), distinct
+  from both fixture and runner implementors, the fixture verifier, the primary
+  orchestrator, and every later manifest verifier. Lane/model/reasoning:
+  acceptance, `gpt-5.6-sol`, low.
+- The acceptance subject is only the exact fixture candidate/tree above, its
+  immutable round-8 verification, accumulated-validation record, correction
+  history, scope, provenance/notices, cap-specification completeness and finite
+  values, evidence ordering, and readiness to begin the distinct runner
+  candidate. Executable cap enforcement is explicitly outside this fixture
+  review and remains unclaimed.
+- The acceptance identity may create only
+  `docs/reviews/c3-b1-semantic-fixture-acceptance-round-1.md`, may repair
+  nothing, must not edit candidate/tests/progress/contracts, and must report
+  exactly `pass` or `changes_required`. It must not run a decoder, runner,
+  C#/.NET/pythonnet/libsigrokdecode/sigrok runtime, hardware, network install,
+  or any excluded action. A `pass` authorizes only the next ordered internal
+  B1 runner candidate; it does not authorize decoder execution, create a B1
+  manifest/checkpoint, or transfer to a changed fixture candidate.

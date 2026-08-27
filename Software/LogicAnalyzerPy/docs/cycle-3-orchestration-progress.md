@@ -1349,3 +1349,51 @@ unchanged.
   API-v3 semantics; source/method truth; and candidate/scope identity. It may
   repair nothing and must end exactly `pass` or `changes_required`, explicitly
   stating that no decoder or approved snapshot ran. No prior pass transfers.
+
+### Pre-execution runner verification and accumulated pass; acceptance assignment
+
+- Recorded: `2026-08-27T05:05:10Z`.
+- Exact runner candidate/tree remains
+  `11a8ade5d828830347095bf2580766c149cb8aef` /
+  `61fa5ba18f3620188ee61dac7e3622803591aad9`; every candidate-owned path is
+  byte-identical in all descendants.
+- Independent verifier/verdict:
+  `c3-b1-pre-execution-runner-verifier-1` / `pass`; immutable record and 21-test
+  independent matrix committed at `8464a049c0809c9f0338c1cf7ad7ac90d1ec19eb`.
+  Record SHA-256 is
+  `a1ca9a6c75b6bdca682ef00c07a4bb72e48c69d18cc493d05ba812a5bb241024`;
+  verifier-test SHA-256 is
+  `6dc7f48c7312a318f370c4e98de57aed72cec270e378339ccc44f05bbc15bf7a`.
+  The verifier independently exercised the complete inert/hostile cap,
+  binding/import, framing/accounting, resource, terminate/kill/close/reap,
+  recovery, fixed-route, option, and API-v3 matrix. No decoder or snapshot ran.
+- Root accumulated validation/verdict: `pass`, committed at
+  `68529f97108f81d352d7a081068ec425719ee7bf` in
+  `docs/reviews/c3-b1-preexecution-runner-accumulated-validation-round-1.md`,
+  SHA-256
+  `2d2fb0281dcf51ffae8c87e4989ca2eb4a9cdf3da91cad220ac836a33af2289d`.
+  A fresh hash-locked Python 3.12.13 environment produced 590/590 non-hardware
+  passes with no skip, 187 focused passes, Ruff, both mypy scopes, installed
+  help, deterministic fixture rebuild, exact 64-GiB set/readback, all Cycle 1/2
+  evidence, exact Node 22 lint/type/unit/build/browser/performance, dependency/
+  package/import/process/scope, candidate-path, diff, and clean-state passes.
+  No decoder, snapshot route, raw characterization, hardware, or prohibited
+  runtime executed.
+- Acceptance is assigned to fresh identity
+  `c3-b1-pre-execution-runner-acceptance-1`
+  (`/root/c3_b1_runner_accept`), acceptance lane, `gpt-5.6-sol`, low, distinct
+  from every fixture/runner implementor, both fixture and runner verifiers,
+  fixture acceptance, project/legal reviewer, primary orchestrator, and later
+  manifest identity.
+- The acceptance identity may create only
+  `docs/reviews/c3-b1-preexecution-runner-acceptance-round-1.md`, may repair
+  nothing, and must audit the exact candidate, implementation identity history,
+  RI001-RI012 dispositions, verifier and accumulated records/tests, immutable
+  ordering, candidate-path equality, complete 17-cap and cleanup proof, fixed
+  post-gate route, method truth, accepted fixture/provenance binding, scope, and
+  no-decoder claims. It must end exactly `pass` or `changes_required`.
+- Acceptance may use only static inspection and inert/hostile non-decoder probes.
+  It must not call the private post-gate route or execute a decoder, snapshot,
+  helper, generator, product host, hardware, network install, or excluded
+  capability. A `pass` authorizes only the exact unchanged runner to enter the
+  separately ordered raw-baseline execution phase; no other authority transfers.

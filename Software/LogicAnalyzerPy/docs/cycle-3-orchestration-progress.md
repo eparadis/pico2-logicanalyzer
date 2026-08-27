@@ -525,3 +525,33 @@ unchanged.
   `docs/reviews/c3-b1-semantic-fixture-verification-round-4.md`, cannot repair
   candidate/history, and must issue exactly `pass` or `changes_required`.
   No earlier verdict or finding transfers without fresh proof.
+
+### Semantic-fixture verification round 4
+
+- Tested candidate/tree: `f53c340f5896a768e4b67fd866030be9370db723` /
+  `218a80a21c769cf8e11f37903b2c91df254e107c`.
+- Verifier/verdict: `c3-b1-semantic-fixture-verifier-1` /
+  `changes_required`; immutable record committed at `84c8327` in
+  `docs/reviews/c3-b1-semantic-fixture-verification-round-4.md`.
+- Passing evidence: exact provenance/import/notices/digests, declarations,
+  integer absent-pin sentinels, deterministic rebuild/no-oracle, all 17 cap
+  schemas/arithmetic/boundaries, and standalone five-edge-decision statements.
+  These passes do not transfer to a corrected candidate.
+- Required correction: include every earliest UART edge-alternative return;
+  encode UART/I2C nested ordinary lists rather than SPI namedtuples; preserve
+  pre-BREAK emissions and remove invented Python PACKET; add SPI no-CS output
+  and active-CS waits; include intervening I2C data/STOP events and reconstruct
+  a genuine repeated START; replace placeholder v1 file-set/output/declaration
+  identities with exact decoder-bound objects; rebuild dependent caps/digests.
+- Recorded discrepancy for fresh static resolution: round 4 repeats the prior
+  claim that SPI's newest-first `insert(0)` extrapolates the final bit to
+  290/300 and counts 18 I2C bitrate bits. Direct source inspection instead
+  indicates a one-edge SPI extrapolation to 170/180 and `pdu_bits` increments
+  only for 16 address/data bits, yielding 49676. The correction owner must
+  preserve an explicit source-recurrence proof; no conversational conclusion
+  or prior finding is authority, and the next verifier must adjudicate afresh.
+- Correction owner remains
+  `c3-b1-semantic-fixture-implementor-replacement-5` in the fixture-only lane.
+  It may correct the generator, generated fixture artifacts, fixture docs, and
+  focused implementation tests only. No decoder may execute and no pass
+  transfers; immutable verifier records/tests and contracts remain untouched.

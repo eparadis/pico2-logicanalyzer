@@ -6,6 +6,8 @@ import ast
 import hashlib
 import json
 import os
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -22,8 +24,10 @@ from tools.cycle3_characterize.runner import (
     FIXTURE_CANDIDATE_COMMIT,
     FIXTURE_CANDIDATE_TREE,
     RunnerFailure,
+    _popen_spec,
     _private_last_evidence,
     _safe_file,
+    _verify_tool_inventory,
     binding_payload,
     characterize,
     load_caps,
@@ -41,8 +45,8 @@ from tools.cycle3_characterize.snapshot_host import (
 ROOT = Path(__file__).resolve().parents[2]
 TOOL = ROOT / "tools" / "cycle3_characterize"
 REPOSITORY = ROOT.parents[1]
-SUBJECT_COMMIT = "11a8ade5d828830347095bf2580766c149cb8aef"
-SUBJECT_TREE = "61fa5ba18f3620188ee61dac7e3622803591aad9"
+SUBJECT_COMMIT = "48d139f86aabcfa3e34567473c05ade13340107f"
+SUBJECT_TREE = "fc36f73089ee6d1c86e3bd6c922c44dffe15477b"
 
 
 def _sha(path: Path) -> str:
@@ -63,8 +67,8 @@ def _valid_request(decoder: str = "uart") -> dict[str, object]:
 
 
 def test_exact_candidate_fixture_binding_and_all_seventeen_caps() -> None:
-    assert SUBJECT_COMMIT == "11a8ade5d828830347095bf2580766c149cb8aef"
-    assert SUBJECT_TREE == "61fa5ba18f3620188ee61dac7e3622803591aad9"
+    assert SUBJECT_COMMIT == "48d139f86aabcfa3e34567473c05ade13340107f"
+    assert SUBJECT_TREE == "fc36f73089ee6d1c86e3bd6c922c44dffe15477b"
     assert FIXTURE_CANDIDATE_COMMIT == "7c57a347bbe575e3f451383ea498f56abc362f26"
     assert FIXTURE_CANDIDATE_TREE == "02a408895dd834e6e6885218cb7323f46439e880"
     caps_file = ROOT / "testdata/decoders/cycle3/experiment-caps.json"
@@ -95,7 +99,7 @@ def test_file_symlink_shadow_environment_and_cwd_boundaries(tmp_path: Path) -> N
     assert not _safe_file(link, tmp_path)
     assert not _safe_file(Path("/etc/passwd"), tmp_path)
     launch = json.loads((TOOL / "launch.json").read_text())
-    assert launch["arguments"] == ["-I", "worker.py"]
+    assert launch["arguments"] == ["-I", "-B", "worker.py"]
     assert launch["working_directory"] == "tools/cycle3_characterize"
     assert launch["import_roots"] == ["tools/cycle3_characterize"]
     assert launch["environment"] == {
@@ -103,6 +107,33 @@ def test_file_symlink_shadow_environment_and_cwd_boundaries(tmp_path: Path) -> N
     }
     assert launch["characterization_probe_mode"] == "disabled"
     assert not (TOOL / "json.py").exists()
+
+
+def test_ri013_isolated_environment_is_insufficient_but_frozen_launch_is_explicit() -> None:
+    environment = {"PATH": os.defpath, "PYTHONDONTWRITEBYTECODE": "1"}
+    isolated = subprocess.run(
+        [sys.executable, "-I", "-c", "import sys; print(sys.dont_write_bytecode)"],
+        check=True,
+        capture_output=True,
+        text=True,
+        env=environment,
+    )
+    assert isolated.stdout.strip() == "False"
+    caps = CapProfile(load_caps())
+    assert _popen_spec(23, caps, "token")["args"] == [sys.executable, "-I", "-B", "worker.py"]
+
+
+def test_ri013_consecutive_sibling_import_workers_leave_inventory_unchanged() -> None:
+    before = {path.name for path in TOOL.iterdir()}
+    assert "__pycache__" not in before
+    for _ in range(2):
+        result = run_internal_probe("bytecode")
+        assert json.loads(result.diagnostics) == {"dont_write_bytecode": True, "probes": True}
+        assert {path.name for path in TOOL.iterdir()} == before
+        assert not (TOOL / "__pycache__").exists()
+        _verify_tool_inventory()
+    assert run_internal_probe("valid").value["version"] == 1
+    assert {path.name for path in TOOL.iterdir()} == before
 
 
 def test_framing_nonfinite_depth_items_text_binary_and_retained_accounting() -> None:

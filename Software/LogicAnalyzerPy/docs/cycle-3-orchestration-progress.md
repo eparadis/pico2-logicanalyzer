@@ -476,3 +476,24 @@ unchanged.
 - Ownership/separation remains identical. Every fixture authorship identity is
   barred from runner/method/probes and B2-B4 product work; verifier,
   acceptance, and runner identities remain distinct.
+
+### Fifth semantic-fixture implementor replacement
+
+- Prior identity: `c3-b1-semantic-fixture-implementor-replacement-4`
+  (`/root/c3_b1_fixture_impl_r4`). It added distinct coherent UART BREAK and
+  IDLE timelines, reduced the combined error case to parity/invalid-stop/packet,
+  replaced generic cap margins with category-specific corpus-max arithmetic and
+  exact boundaries, and materialized option values in named direct rows. Its
+  generator check, 14 focused tests, Ruff, and diff checks pass.
+- The prior identity correctly withheld readiness because 40 new direct option
+  witnesses still inherit baseline expected-output shapes instead of deriving
+  value-specific source behavior. The partial fixture-only changes are
+  preserved uncommitted and are not a candidate or accepted evidence; no
+  decoder or prohibited runtime executed.
+- New identity: `c3-b1-semantic-fixture-implementor-replacement-5`, same
+  implementor lane, `gpt-5.6-terra`, low. Its bounded outcome is to replace
+  every name-only direct witness with source-derived per-value transitions,
+  waits, records, and assertions, retaining static equivalence only where a
+  value-specific source proof is valid, then complete the full fixture audit.
+  No pass or correctness claim transfers.
+- Ownership/separation remains unchanged for all fixture authorship identities.

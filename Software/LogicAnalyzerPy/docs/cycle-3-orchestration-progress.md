@@ -924,3 +924,41 @@ unchanged.
   dependency install, hardware, package build/publication, or Cycle 4 action is
   authorized. This static review can proceed in parallel with the non-decoder
   runner implementation; neither result transfers to the other.
+
+### Pre-candidate runner integration review round 1
+
+- Recorded: `2026-08-27T02:30:55Z`. State: `changes_required`; no immutable
+  pre-execution-runner candidate, verifier, accumulated, or acceptance result
+  exists, and no fixture pass transfers to runner enforcement.
+- Initial bounded implementation stayed within the three assigned path
+  families and executed only inert probes. Focused pytest reported 11 passes;
+  focused Ruff and diff check passed. No decoder or prohibited runtime ran.
+- C3B1-RI001: `FIXTURE_MANIFEST_SHA256` is empty and launch validates only the
+  cap artifact. It does not pre-launch validate the accepted fixture manifest,
+  nine exact decoder/helper files and ordered file sets, runner, worker,
+  method, launch configuration, or probe-inventory digests.
+- C3B1-RI002: `launch.json` does not bind the exact executable/`-I` arguments,
+  worker, closed file/import root and allowlist, accepted artifact identities,
+  digest map, probe-source identities, or characterization-disabled probe
+  state. Root/symlink/traversal/shadow/namespace/bytecode/environment/CWD
+  rejection is absent.
+- C3B1-RI003: only framing, record count, text/binary string bytes, process
+  deadline/grace, and post-capture stdout/stderr checks are partial. Input
+  samples, decoded bytes, diagnostic accounting, nesting/items, recursion,
+  retained result, worker address space, and concrete output/value categories
+  lack enforcement. `communicate()` accumulates output before size checks, so
+  stdout/stderr and related memory caps do not contain a hostile worker.
+- C3B1-RI004: the inert/hostile matrix has nine probes and no exact accept/
+  reject boundary for every cap, digest/import/file/root/environment/CWD case,
+  malformed request/result family, resource path, descriptor path, graceful
+  versus forced termination proof, exact-child reap proof, or retained-state
+  recovery assertion. The method overstates all-17-cap enforcement while
+  acknowledging five categories as merely reserved.
+- Disposition: return to the same runner implementor because no candidate has
+  been committed and role ownership remains intact. Complete the exact
+  candidate binding and bounded streaming/resource enforcement; strengthen
+  focused assertions so each required invariant fails independently; correct
+  method claims; rerun the full focused matrix and static no-decoder/process/
+  scope audits. The corrected work remains pre-candidate and may run only
+  non-decoder probes. No verifier is assigned until root integration finds no
+  open requirement.

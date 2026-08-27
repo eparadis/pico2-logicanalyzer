@@ -1579,3 +1579,39 @@ unchanged.
   repeatability, every corrected command/result, and issue only `pass` or a
   failure. Acceptance round 2 is assigned only after that result passes and is
   committed; no decoder/snapshot route may run during accumulation.
+
+### Corrected runner accumulated pass and acceptance round 2 assignment
+
+- Recorded: `2026-08-27T05:37:48Z`.
+- Exact corrected candidate/tree remains
+  `48d139f86aabcfa3e34567473c05ade13340107f` /
+  `fc36f73089ee6d1c86e3bd6c922c44dffe15477b`; candidate-owned bytes are
+  unchanged in every descendant.
+- Fresh root accumulated validation passed and is committed at
+  `d307c3059a4e35c6389304f4782b3d06776fae2b` in
+  `docs/reviews/c3-b1-preexecution-runner-accumulated-validation-round-2.md`,
+  SHA-256
+  `4656a53c49f7abc93d5b68faa0e2689537c69221499193830c0c13882999d645`.
+- A cleared hash-locked Python 3.12.13 environment produced 593/593
+  non-hardware passes with no skip, 190 corrected focused passes, Ruff, both
+  strict mypy scopes, installed help, deterministic fixtures, exact 64-GiB
+  set/readback, all Cycle 1/2 evidence, package/import/process/scope and
+  cache-free repeatability checks. Exact Node 22 produced clean install,
+  lint/type/unit/build/assets, four browser, and one performance pass. No
+  snapshot route, fourth decoder execution, hardware, or prohibited runtime ran.
+- Fresh acceptance is reassigned to the same independent acceptance-role
+  identity `c3-b1-pre-execution-runner-acceptance-1`
+  (`/root/c3_b1_runner_accept`) with no round-1 pass transfer. It may create
+  only immutable
+  `docs/reviews/c3-b1-preexecution-runner-acceptance-round-2.md`, may repair
+  nothing, and must end exactly `pass` or `changes_required`.
+- Acceptance round 2 must audit the corrected candidate, RI013 discovery and
+  three historical authorized UART warm-ups, old-pass and provisional-data
+  invalidation, final implementor ownership, round-2 verifier record/test,
+  accumulated round-2 completeness and corrected reruns, exact path equality,
+  explicit isolated-child `-B` semantics, consecutive cache-free sibling-import
+  proof, full 17-cap/cleanup/fixed-route/method/scope/provenance evidence, and
+  immutable ordering. It may use only static inspection and inert/hostile
+  non-decoder probes; no fourth snapshot execution or raw retry is authorized.
+  A `pass` authorizes only the exact unchanged corrected runner to resume the
+  separately ordered raw-baseline phase.

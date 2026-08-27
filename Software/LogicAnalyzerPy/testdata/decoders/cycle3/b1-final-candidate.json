@@ -1,0 +1,263 @@
+{
+  "schema": "cycle3-b1-final-candidate/v1",
+  "batch": "C3-B1",
+  "status": "candidate-not-accepted",
+  "support_scope": "macOS-only",
+  "governing": {
+    "commit": "ea83a403bb6f644d33069d3bebd41d5f1e0a60c0",
+    "tree": "d9fb09345ab85580cd8c877745262d1b481e366f",
+    "assignment_commit": "13ac545db13a12c1854aa3e799ed885d6a9150be"
+  },
+  "environment": {
+    "os": "macOS 15.7.7 build 24G720",
+    "architecture": "x86_64",
+    "machine_model": "Macmini8,1",
+    "python": "3.12.13",
+    "node": "22.14.0",
+    "browser": "Chromium 133.0.6943.16",
+    "automation": "Playwright 1.50.1"
+  },
+  "internal_role_map": {
+    "semantic_fixture_implementation": {
+      "final_identity": "c3-b1-semantic-fixture-implementor-replacement-6",
+      "history_is_preserved": true
+    },
+    "semantic_fixture_verification": {
+      "identity": "c3-b1-semantic-fixture-verifier-1"
+    },
+    "semantic_fixture_acceptance": {
+      "identity": "c3-b1-semantic-fixture-acceptance-1"
+    },
+    "preexecution_runner_implementation": {
+      "final_identity": "c3-b1-pre-execution-runner-implementor-replacement-3",
+      "history_is_preserved": true
+    },
+    "preexecution_runner_verification": {
+      "identity": "c3-b1-pre-execution-runner-verifier-1"
+    },
+    "preexecution_runner_acceptance": {
+      "identity": "c3-b1-pre-execution-runner-acceptance-1"
+    }
+  },
+  "evidence": {
+    "project_license": {
+      "commit": "538a4aa669a782919dafefb26a81d7346ed45f5c",
+      "path": "docs/reviews/c3-b1-project-license-review-round-1.md",
+      "sha256": "b7afc4df18ba9bf5e40ee5a795e4544e54a59be27b1fea9a8617681ea82919cf",
+      "verdict": "pass"
+    },
+    "semantic_fixture": {
+      "candidate_commit": "7c57a347bbe575e3f451383ea498f56abc362f26",
+      "candidate_tree": "02a408895dd834e6e6885218cb7323f46439e880",
+      "generator_sha256": "6fc5289ba1076413283942be0374bd97def08b284bf7a7cef4e7b6105636be63",
+      "manifest_sha256": "0f5f1d9a01fc807dd0f4078ac84b20158f515a76ae4f1f83cc74651c4797413a",
+      "experiment_caps_sha256": "63cde36892a15a390be0c27c50eac18431d7a4b11381b0e4b82c0fe64f808cd8",
+      "verification_commit": "8b08f7d72bc67f4bb8753190e2e0d70402a13675",
+      "verification_record_sha256": "3e2f507332fdfc82e8e49df016b66db223508144677cc5166d8a4e090d0378c6",
+      "accumulated_commit": "bdd5e5a1bd953ff06e0a17b6f5f3fcc227ddf4ae",
+      "accumulated_record_sha256": "196b07bf214adddb70b094c30402d706415f183f4451beb82e6bf0ee2d6162ac",
+      "acceptance_commit": "0074c67c6461720f955219df22a49f0aa2efd3cc",
+      "acceptance_record_sha256": "9b0a9fcabed2b1a3636bb1c32df8ecf3aca590732e728ee6aacb004c85b018af"
+    },
+    "preexecution_runner": {
+      "candidate_commit": "48d139f86aabcfa3e34567473c05ade13340107f",
+      "candidate_tree": "fc36f73089ee6d1c86e3bd6c922c44dffe15477b",
+      "binding_sha256": "1d36da4a8e06707c5fad8830c7037fd5aa601fdc8854dc4f33b9aec4b2d992eb",
+      "launch_sha256": "3df74d88a1f013a7aa9f09c81d76a653159de09e9b42270137fb0f3956efbf27",
+      "runner_sha256": "2f0d32ec2d2fea047cb5f78e6b3d32753e6d69d3f9d0f398bd589691011ef942",
+      "worker_sha256": "76124299334fc4fb5a7ea5d28750afff9b19f59b4fda0618dd0be215f59f890c",
+      "method_sha256": "8ef7bdac50554fb42ec97d3c5d685d3f6b55074c82478c750e4e62ff3d318325",
+      "verification_commit": "8bcd7ba19795633a9e0e215c1d9f2cc47a893b03",
+      "verification_test_sha256": "c6cec19e2e97a833315270d2ae9dbf1cd9b19433122cf545b1f5d2512204bf5b",
+      "verification_record_sha256": "0fc07aea133702352d0dee74d18e4287f707481b598773481d7c9d37501942dc",
+      "accumulated_commit": "d307c3059a4e35c6389304f4782b3d06776fae2b",
+      "accumulated_record_sha256": "4656a53c49f7abc93d5b68faa0e2689537c69221499193830c0c13882999d645",
+      "acceptance_commit": "896c1bf050896c48cc6541bb7ad429ce4b6e74e0",
+      "acceptance_record_sha256": "ce1baa3c102e933fb9b8c5ffa8fe8f199e125ef17d82e662aec880f095793aef"
+    },
+    "raw_baseline": {
+      "candidate_commit": "397981adf0f89115647203e749db1b1e5b3384cf",
+      "candidate_tree": "e4baf918c3de4b7df94ad51340bf5b5bfc8f16d2",
+      "environment_sha256": "14da4608cf882286a8f62f0e59f596d91753244b619046d14d7f445a89012a4f",
+      "hostile_observations_sha256": "c956be536fc1fd5c23ebfd33b6bb51377e0f806ace57dfc02fc8888521f801ad",
+      "manifest_sha256": "0706b84a0965a36e5b5d20c35c6d4ba9ab774f3bb7532e29f322dcd5a76d0efa",
+      "observations_sha256": "a282ccd92ffa27ceda4624d6138de61d48314a0b352f004e3d0770c8b3bc2f03",
+      "requests_sha256": "fe5b345270eced91298250032411b6a85112c55baf46d3b71afb424ef385f94c",
+      "verification_commit": "9ac10d77cf1e8c492e7b5dae564baa43b09ebf71",
+      "verification_test_sha256": "08687a9bcc7fed1cfb55dbb6ec9b3c31f2ea486cfd389857916d6039b33567ca",
+      "verification_record_sha256": "c9c08720039de278c12c54501e09c71634f084408330af849011004a666441c2",
+      "accumulated_commit": "b49bd4932c4c091529b6c93f45de1f3f807e83f2",
+      "accumulated_record_sha256": "839bc5aae57a179007acbf405c7f1ce5c6484c51a7d997650e01e1cbcba879ee",
+      "acceptance_commit": "7baa53bf8efe3de66722220ce20b0042f27f3cab",
+      "acceptance_record_sha256": "87df517169c83c2c22a199fafcd9dec69e8197e5ee8e4d1f21fa9f6170056396"
+    },
+    "approved_thresholds": {
+      "proposal_commit": "395646fa1172382928581d7266723f5b044cf8f2",
+      "proposal_tree": "6857f9a67ff70220e6d6b2a11f9ca450005c8321",
+      "proposal_sha256": "94882b710f2d569c0ea0535366a0c1c3df3514aa20a18e4cd35f652177458ec2",
+      "rationale_sha256": "18a6b58a2b05f7dd7aa302a6e1bb4d074621440648a2e735a1d16d9708b209b0",
+      "verification_commit": "1cdedcae57e6233010410172196b23f6167ee675",
+      "verification_test_sha256": "f146f0d58a65116825f6ee6b2e04e4fcf495fca89de9565bf70e26b662509c79",
+      "verification_record_sha256": "c160cc75238ab48479fb3cfe4d0c4d0c86ee052102a4fd2715050b285d4e50a0",
+      "accumulated_commit": "0d00fe4b88a1192b893afbf8e32c39bd6493b2fd",
+      "accumulated_record_sha256": "b3a1455aefb3044d1048d6e2253885ba9908a09e7bc5e24c287bb63b21723b4b",
+      "acceptance_commit": "91de257667fa819dd1c183d4ec112f106ed6742a",
+      "acceptance_record_sha256": "f507f0225b9326cf1fd15cbcfe61415c2554ca44bcc491bf7b0f9250e058f102",
+      "operator_approval_commit": "b6d904064ab7b9e195eedded1c55efc306eeb925",
+      "operator_approval_sha256": "24665a2d63713275c9fc0a82243ee53852834cb36adbf8f6252221804d8b37bc",
+      "limit_count": 29
+    }
+  },
+  "closed_findings": [
+    "C3B1-RI011",
+    "C3B1-RI013",
+    "C3B1-TPV001"
+  ],
+  "historical_invalidations_preserved": [
+    "superseded semantic-fixture candidates and transferred-pass prohibition",
+    "superseded preexecution runner and three UART warm-up history",
+    "discarded concurrent and pre-write raw collection attempts",
+    "failed threshold proposal round 1"
+  ],
+  "frozen_commands": [
+    {
+      "id": "python_dependency_check",
+      "cwd": "Software/LogicAnalyzerPy",
+      "argv": [".venv/bin/python", "-m", "pip", "check"]
+    },
+    {
+      "id": "python_ruff",
+      "cwd": "Software/LogicAnalyzerPy",
+      "argv": [".venv/bin/ruff", "check", "."]
+    },
+    {
+      "id": "python_mypy_product",
+      "cwd": "Software/LogicAnalyzerPy",
+      "argv": [".venv/bin/mypy", "src"]
+    },
+    {
+      "id": "python_mypy_characterization",
+      "cwd": "Software/LogicAnalyzerPy",
+      "argv": [".venv/bin/mypy", "--strict", "tools/cycle3_characterize"]
+    },
+    {
+      "id": "fixture_determinism",
+      "cwd": "Software/LogicAnalyzerPy",
+      "argv": [".venv/bin/python", "scripts/generate_cycle3_fixtures.py", "--check"]
+    },
+    {
+      "id": "runner_binding",
+      "cwd": "Software/LogicAnalyzerPy",
+      "argv": [".venv/bin/python", "-m", "tools.cycle3_characterize.binding", "--check"]
+    },
+    {
+      "id": "installed_cli_help",
+      "cwd": "Software/LogicAnalyzerPy",
+      "argv": [".venv/bin/python", "-m", "pico_logic_analyzer", "--help"]
+    },
+    {
+      "id": "cycle2_evidence_b1",
+      "cwd": "Software/LogicAnalyzerPy",
+      "argv": [".venv/bin/python", "scripts/validate_cycle2_evidence.py", "docs/evidence-manifest/cycle2-schema.json", "testdata/evidence/c2-b1.json"]
+    },
+    {
+      "id": "cycle2_evidence_b2",
+      "cwd": "Software/LogicAnalyzerPy",
+      "argv": [".venv/bin/python", "scripts/validate_cycle2_evidence.py", "docs/evidence-manifest/cycle2-schema.json", "testdata/evidence/c2-b2.json"]
+    },
+    {
+      "id": "cycle2_evidence_b3",
+      "cwd": "Software/LogicAnalyzerPy",
+      "argv": [".venv/bin/python", "scripts/validate_cycle2_evidence.py", "docs/evidence-manifest/cycle2-schema.json", "testdata/evidence/c2-b3.json"]
+    },
+    {
+      "id": "cycle2_evidence_b4",
+      "cwd": "Software/LogicAnalyzerPy",
+      "argv": [".venv/bin/python", "scripts/validate_cycle2_evidence.py", "docs/evidence-manifest/cycle2-schema.json", "testdata/evidence/c2-b4.json"]
+    },
+    {
+      "id": "cycle2_evidence_b5",
+      "cwd": "Software/LogicAnalyzerPy",
+      "argv": [".venv/bin/python", "scripts/validate_cycle2_evidence.py", "docs/evidence-manifest/cycle2-schema.json", "testdata/evidence/c2-b5.json"]
+    },
+    {
+      "id": "cycle2_evidence_b6",
+      "cwd": "Software/LogicAnalyzerPy",
+      "argv": [".venv/bin/python", "scripts/validate_cycle2_evidence.py", "docs/evidence-manifest/cycle2-schema.json", "testdata/evidence/c2-b6.json"]
+    },
+    {
+      "id": "python_applicable_nonhardware",
+      "cwd": "Software/LogicAnalyzerPy",
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-m",
+        "not hardware",
+        "--deselect",
+        "tests/implementation/test_cycle3_fixtures.py::test_cycle3_fixture_surface_is_present_and_rebuildable",
+        "--deselect",
+        "tests/verification/test_c3_b1_raw_baseline_candidate.py::test_candidate_identity_digest_environment_schema_and_summary_arithmetic",
+        "--deselect",
+        "tests/verification/test_c3_b1_threshold_proposal.py::test_exact_candidate_hashes_evidence_environment_formulas_and_feasibility"
+      ]
+    },
+    {
+      "id": "frontend_lint",
+      "cwd": "Software/LogicAnalyzerPy/web",
+      "argv": ["npm", "run", "lint"],
+      "required_node": "v22.14.0"
+    },
+    {
+      "id": "frontend_typecheck",
+      "cwd": "Software/LogicAnalyzerPy/web",
+      "argv": ["npm", "run", "typecheck"],
+      "required_node": "v22.14.0"
+    },
+    {
+      "id": "frontend_unit",
+      "cwd": "Software/LogicAnalyzerPy/web",
+      "argv": ["npm", "test", "--", "--run"],
+      "required_node": "v22.14.0"
+    },
+    {
+      "id": "frontend_build",
+      "cwd": "Software/LogicAnalyzerPy/web",
+      "argv": ["npm", "run", "build"],
+      "required_node": "v22.14.0"
+    },
+    {
+      "id": "frontend_assets",
+      "cwd": "Software/LogicAnalyzerPy",
+      "argv": [".venv/bin/python", "scripts/check_web_assets.py"]
+    },
+    {
+      "id": "frontend_browser",
+      "cwd": "Software/LogicAnalyzerPy/web",
+      "argv": ["npm", "run", "test:browser"],
+      "required_node": "v22.14.0",
+      "requires_loopback_capability": true
+    },
+    {
+      "id": "frontend_performance",
+      "cwd": "Software/LogicAnalyzerPy/web",
+      "argv": ["npm", "run", "benchmark:b6"],
+      "required_node": "v22.14.0",
+      "requires_loopback_capability": true
+    }
+  ],
+  "pytest_applicability": {
+    "selected": 637,
+    "deselected_historical": 3,
+    "classification_record": "docs/reviews/c3-b1-threshold-proposal-accumulated-validation-round-2.md"
+  },
+  "exclusions": [
+    "product decoder host or public decode API before the B1 checkpoint",
+    "C#/.NET/pythonnet/libsigrokdecode/sigrok-cli or external decoder runtime",
+    "hardware, USB, serial, firmware, or physical decode evidence",
+    "wheel, sdist, upload, publication, or distribution",
+    "non-macOS support claim",
+    "Cycle 4"
+  ],
+  "next_gate": "fresh final C3-B1 verification"
+}

@@ -2344,3 +2344,23 @@ unchanged.
   `docs/reviews/c3-b1-final-accumulated-validation-round-2.md`. No previous
   accumulated result transfers; fresh acceptance waits for this record's
   immutable pass.
+
+### C3B1-MP001 fresh accumulated pass and acceptance assignment
+
+- Recorded: `2026-08-27T19:17:40Z`. Fresh complete accumulated verdict:
+  `pass`, committed at `421519d3f0a95a68ab8ee173083cf90006913244` in
+  `docs/reviews/c3-b1-final-accumulated-validation-round-2.md`, SHA-256
+  `f33c24102a8bd02927424744f44df4c486071cf5be4fe6208c8631611ff6b28a`.
+- The unfiltered inventory reproduced exactly 657 passes and the three
+  reviewed historical failures; the applicable run passed 657 with only those
+  three deselections. All 21 frozen command classes passed under local Python
+  3.12 and exact Node 22, including browser and accepted-threshold performance.
+  The rejected malformed npm option placement is transparently recorded and
+  no result from it transfers.
+- Fresh final acceptance is assigned to identity `c3-b1-final-acceptance-2`
+  (`/root/c3_b1_final_accept_fresh`), distinct from root, all six internal
+  identities, fresh final verifier, and later manifest verifier. It may create
+  only `docs/reviews/c3-b1-final-acceptance-round-2.md`, may repair nothing,
+  and must return exactly `pass` or `changes_required` after auditing the exact
+  candidate, C3B1-MP001 correction, fresh verification, complete accumulated
+  evidence, scope, findings, exclusions, cleanup, and manifest readiness.

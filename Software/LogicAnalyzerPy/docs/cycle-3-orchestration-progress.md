@@ -633,3 +633,32 @@ unchanged.
   fixture defects and dependent generator/artifact/cap/test/doc rebuild. No
   decoder runs, no immutable verification artifact is edited, and no pass
   transfers. A new candidate and complete fresh verification are required.
+
+### Corrected semantic-fixture candidate and verification round 6
+
+- Candidate commit/tree: `9f0fe7e45cde49f69b22d266c36932407c3d4845` /
+  `01c352da8e6d6807941e5a37434f02b53b973f20`; worktree clean immediately
+  after commit. Candidate owner remains
+  `c3-b1-semantic-fixture-implementor-replacement-6`; all prior candidates,
+  verdicts, and the corrected round-5 verifier artifact remain immutable.
+- Exact correction: the BREAK fixture's nested ordinary-list bit triples now
+  encode eight zero values consistently with its scalar, annotation, and
+  binary outputs. The full I2C fixture now includes the source-required
+  post-NACK partial data bit in `pdu_bits`, yielding
+  `int(1152000 * 17 / 371) = 52787`. Generator source, generated semantic
+  fixture, manifest digests, and focused implementation assertions were
+  updated; the cap artifact was deterministically unchanged.
+- Root focused result: deterministic generator check, 17 implementation plus
+  corrected-verifier tests, Ruff, diff check, exact four-path scope, direct
+  generated-value inspection, and checked-in I2C source recurrence passed.
+  No decoder, host/helper runtime, reference runtime, network, hardware, or
+  prohibited dependency executed.
+- Verification identity: reuse only
+  `c3-b1-semantic-fixture-verifier-1` (`/root/c3_b1_fixture_verify`) in its
+  original verifier role for a complete fresh audit of this exact candidate.
+  It may create only
+  `docs/reviews/c3-b1-semantic-fixture-verification-round-6.md`; the corrected
+  verifier test is now immutable and candidate paths cannot be repaired. The
+  record must bind the exact candidate commit/tree and issue exactly `pass` or
+  `changes_required`. No earlier pass or finding transfers without fresh
+  proof.

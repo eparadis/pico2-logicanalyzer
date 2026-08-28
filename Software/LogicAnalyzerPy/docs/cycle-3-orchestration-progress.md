@@ -3113,3 +3113,34 @@ unchanged.
   converted into thresholds.
 - Threshold proposal, final B1, manifest/checkpoint, and B2 remain paused until
   fresh raw verification, root accumulation, and acceptance pass.
+
+### Corrected-fixture raw gate accepted; round-4 threshold proposal assigned
+
+- Recorded: `2026-08-28T18:08:28Z`. Raw candidate
+  `d0d9dbe87f7841f09f261556de0909475e048b95` passed fresh verification at
+  `17397360770f3aab7d79a479a53499b50a1245cd`, complete root accumulation at
+  `7295e4d`, and fresh independent acceptance at
+  `72168f4ca0f90e16e99a72537e159818a434dea1` / tree
+  `34c4ab2783cd62fc45ae0f8a582dcdab2ee4e34a`.
+- Raw acceptance record SHA-256 is
+  `f41b9a7236ab46b8bd7c40c5dde2d6d5247dab0f08aeaceea3effc0c557684ac`.
+  The exact five raw artifact, collection, verifier, and accumulated digests
+  remain those bound by the accepted records. The four discarded collection
+  attempts transfer nothing.
+- Root recomputed all 29 proposal formulas over every accepted retained raw
+  row. Relative to accepted-but-now-superseded round-3 proposal `b260d9e`, 26
+  numeric values remain unchanged and exactly three change: parent retained
+  growth rises from 16 MiB to 32 MiB for raw maximum 1,757,184 bytes;
+  successful parent total rises from 1,000,000,000 to 1,300,000,000 ns for raw
+  maximum 156,549,612 ns; and launch tightens from 100,000,000 to 50,000,000 ns
+  for raw maximum 6,008,633 ns. These are formula results, not approvals.
+- Fresh round-4 proposal preparation is assigned to distinct proposal-author
+  identity `c3-b1-threshold-proposer-replacement-1`. It may add only
+  `testdata/decoders/cycle3/threshold-proposal-round-4.json` and
+  `docs/reviews/c3-b1-threshold-proposal-rationale-round-4.md`. Status must be
+  `proposal-not-approved`; it must bind the exact new raw chain and supersede
+  proposal `b260d9e` plus operator record `63fdfee`.
+- Fresh proposal verification, root accumulation, independent acceptance, and
+  a new explicit operator decision on the exact committed round-4 values are
+  mandatory. The user's earlier exact round-3 approval does not transfer.
+  Final B1, manifest/checkpoint, and B2 remain paused.

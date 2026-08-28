@@ -3248,3 +3248,30 @@ unchanged.
 - Complete root accumulated validation and independent final acceptance remain
   paused until that verifier passes. B2 remains uninspected and supplies no
   input or evidence.
+
+### Replacement final-B1 verification and accumulation pass; acceptance assigned
+
+- Recorded: `2026-08-28T20:09:10Z`. Exact candidate `7246dcb` passed fresh
+  independent verification at `e1b87533d09d716634095ebb8d5748cf4b857c98`
+  / tree `a31ff03e22bc516f0d712c59fc8ab09aa6496464`. Verifier test/review
+  SHA-256 values are
+  `56a4892a9a25ace4a7cc6ec640ab12e1669ad56f7e345410c5e26eb9e9d8b32b`
+  and
+  `b3eb336c66ab35d1ef7981477bcc97267ad144f387b9b922547402fae7ad9378`;
+  22 focused tests and Ruff passed with no finding.
+- Complete root accumulated validation passed and is committed at `64a0468`.
+  Record SHA-256 is
+  `6cb1ea184e0a36151b25cb17b24ae797de5a52d5acbd8fb630d2db791680df6b`.
+  The accepted exact 42-module gate collected 630 tests and completed with 624
+  passed, six inherited classified skips, and 106 warnings. All frozen static,
+  type, fixture/binding, evidence, CLI, Node, browser, and performance gates
+  passed. A prior one-path superseded-raw-verifier selection was discarded as
+  non-evidence and is preserved transparently in the record.
+- Fresh independent final acceptance is assigned to distinct identity
+  `c3-b1-final-acceptance-replacement-1`. It may add only one new acceptance
+  review, may repair nothing, and must audit the exact candidate, verifier,
+  accumulated record/results, operator approval, role/finding order, scope,
+  cleanup, and readiness only for atomic replacement-manifest assembly.
+- Manifest assembly, distinct manifest verification, joint commit, and the
+  replacement B1 checkpoint remain mandatory later gates. B2 remains paused
+  and uninspected until that checkpoint.

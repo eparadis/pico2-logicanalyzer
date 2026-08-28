@@ -3316,3 +3316,57 @@ unchanged.
   `c3-b1-manifest-verifier-replacement-2`. The failed verdict transfers no
   result. The corrected manifest must repeat complete verification before any
   joint commit or checkpoint. B2 remains paused and uninspected.
+
+### Replacement checkpoint C3-B1 — unshifted-I2C correction and round-4 limits
+
+- State: Complete. This checkpoint supersedes invalidated replacement
+  checkpoint `23c0311` and every earlier C3-B1 checkpoint/manifest authority.
+  Their bytes and findings remain immutable history; their verdicts and B2
+  authority do not transfer.
+- Completed at: `2026-08-28T20:31:28Z`.
+- Governing contract commit/tree:
+  `ea83a403bb6f644d33069d3bebd41d5f1e0a60c0` /
+  `d9fb09345ab85580cd8c877745262d1b481e366f`.
+- Exact tested candidate/tree: `7246dcbe55a60ef7ee9196f4bf265c7c75141d55`
+  / `51e895a1e2c95580d04bc8a31ed8d58a85613e1a`; candidate JSON/review
+  SHA-256 values:
+  `a186af26805c804613271641e5f57b1393ae31d79fa800a29249e37efc0650fd`
+  and
+  `591459742b9453e94047438ec79a6e2bdd54ed3b6d0c71207bbae4c64b563d73`.
+- Current six internal identities are semantic-fixture implementation
+  replacement 8, correction verifier 2, correction acceptance 2, runner
+  implementation replacement 4, runner verifier 5, and runner acceptance 3.
+  Their complete ordered histories and the IF002/RA001/RV002/RV003
+  invalidations are bound in the candidate and manifest.
+- Fresh final verification: `c3-b1-final-verifier-replacement-1`; pass at
+  `e1b8753`; record SHA-256
+  `b3eb336c66ab35d1ef7981477bcc97267ad144f387b9b922547402fae7ad9378`;
+  22 focused tests.
+- Complete accumulated validation: primary orchestrator; pass at `64a0468`;
+  record SHA-256
+  `6cb1ea184e0a36151b25cb17b24ae797de5a52d5acbd8fb630d2db791680df6b`;
+  exact 42-path gate 624 passed with six inherited classified skips, followed
+  by all frozen static, type, evidence, CLI, Node, isolated browser, and
+  performance gates.
+- Fresh final acceptance: `c3-b1-final-acceptance-replacement-1`; pass at
+  `88cb142`; record SHA-256
+  `5628607c13e2e832be7bdd806ad27c914066138a601511b1064877e1da40685f`.
+- The initial proposed manifest audit by
+  `c3-b1-manifest-verifier-replacement-1` recorded `C3B1-MV003` and
+  `C3B1-MV004` at `e72f400`; no pass transferred. Root corrected only the six
+  provenance labels and one full revision identity.
+- Corrected manifest SHA-256:
+  `3710e7fde7523096b70607b3a7da217b1e71fdb46492b83b72861e3eaa48cfae`.
+  Fresh verifier `c3-b1-manifest-verifier-replacement-2` passed with no finding;
+  verifier-record SHA-256:
+  `4d83dbc8ebf64c8873fa9247d6f744931756e0e189e0490fc1675597270dea25`.
+  The unchanged manifest and verifier record were committed jointly at
+  `885be61` / tree `eebc3586b87227bc0021c3bdb56ad87767379288`.
+- All exact round-4 approved values are now checkpoint inputs, including parent
+  retained growth 33,554,432 bytes, successful parent total 1,300,000,000 ns,
+  launch 50,000,000 ns, and maximum SPI word size eight. No silent increase,
+  product enforcement, external runtime, hardware, distribution, non-macOS,
+  or Cycle 4 authority is implied.
+- Checkpoint verdict: `pass`. C3-B2 may now resume from the commit containing
+  this checkpoint, consuming only the corrected accepted identities and exact
+  round-4 limits. C3-B3 through C3-B5 remain ordered and paused.

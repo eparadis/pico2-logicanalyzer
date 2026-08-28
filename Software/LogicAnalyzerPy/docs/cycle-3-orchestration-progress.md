@@ -2963,3 +2963,29 @@ unchanged.
   bytes; a fresh verifier, new clean pre-acceptance-safe accumulation, and
   fresh acceptance must pass. Raw execution remains paused and nothing from
   the interrupted attempt transfers.
+
+### C3B1-RA001 replacement runner candidate and fresh assignments
+
+- Recorded: `2026-08-28T16:30:48Z`. Replacement runner candidate commit/tree:
+  `380d5dd77ae6c6f8648391e3c849c13c4b98fe8a` /
+  `aa55b4884c39981026ba233b48dc8f360d404c8a`.
+- The replacement adds only
+  `docs/reviews/c3-b1-preexecution-runner-fixture-rebinding-implementation-round-3.md`,
+  SHA-256
+  `bbf2cb087ec97790c2403b7406560656d84ebb4f600190a3a881c7143fa8bf0e`.
+  Method, runner, binding, implementation test, fixture, caps, launch, worker,
+  probes, snapshots, and all product bytes remain exactly those reviewed at
+  superseded candidate `55d2264`; no old verdict transfers.
+- The record defines an include-only pre-acceptance-safe test partition and
+  explicitly bars every raw, threshold, final, manifest/checkpoint, B2+,
+  superseded exact-candidate, snapshot-characterization, and decoder-execution
+  module. Root reran 177 inert implementation tests and binding check before
+  commit; no decoder or downstream module ran.
+- Fresh verification is assigned to new identity
+  `c3-b1-pre-execution-runner-rebinding-verifier-3`. It may add only a new
+  round-3 verifier test/review, may repair nothing, and must independently
+  validate the unchanged bytes, RA001 disposition, and include-only boundary.
+- After a verifier pass, root must use a third clean clone, audit collection
+  before execution, and run only the include-only pre-acceptance partition.
+  Fresh acceptance is reserved for distinct identity
+  `c3-b1-pre-execution-runner-rebinding-acceptance-3`. Raw remains paused.

@@ -2989,3 +2989,26 @@ unchanged.
   before execution, and run only the include-only pre-acceptance partition.
   Fresh acceptance is reserved for distinct identity
   `c3-b1-pre-execution-runner-rebinding-acceptance-3`. Raw remains paused.
+
+### C3B1-RV002 — non-portable replacement-runner verifier inventory
+
+- Recorded: `2026-08-28T16:37:22Z`. Verifier identity
+  `c3-b1-pre-execution-runner-rebinding-verifier-3` recorded `pass` at commit
+  `14c5bdc`, but root pre-accumulation inspection found its collection proof is
+  not reproducible in a clean clone.
+- The verifier requires exactly 53 repository test modules and asserts that
+  untracked preserved path `tests/implementation/test_c3_b2_private_host.py`
+  exists in the excluded set. A clean clone of the exact candidate lineage
+  correctly contains only 52 tracked modules; the B2 path is deliberately
+  absent. The verifier would therefore fail before its claimed 40-module safe
+  partition could run.
+- The untracked B2 path must remain excluded when present, but its presence may
+  not be a prerequisite or evidence input. Materializing or copying it into a
+  clean clone would violate the B1/B2 separation and is prohibited.
+- Disposition: verifier-3's record/test remain immutable history and its pass
+  transfers no authority. Candidate `380d5dd` and all runner bytes remain
+  unchanged. Fresh identity
+  `c3-b1-pre-execution-runner-rebinding-verifier-4` is assigned to create only
+  a new verifier test/review with portable exhaustive inventories for both the
+  clean tracked tree and the main worktree's optional preserved B2 path. Root
+  accumulation and acceptance remain paused; no decoder/raw module ran.

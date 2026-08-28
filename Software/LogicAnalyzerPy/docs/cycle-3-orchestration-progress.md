@@ -2907,3 +2907,35 @@ unchanged.
   It must refresh closed self/source digests without weakening fail-closed
   behavior. Fresh runner verification, root accumulation, and fresh acceptance
   remain mandatory before raw characterization can run.
+
+### C3B2-IF002 immutable runner-rebinding candidate and gate assignments
+
+- Recorded: `2026-08-28T14:40:24Z`. Immutable runner-rebinding candidate
+  commit/tree: `55d22640334ef05176568f275c3e4e7ec63c3336` /
+  `b96790c572f2fceda4445f55d8373b9a21e2cd9d`.
+- Exact five-path scope: characterization method, runner constants, canonical
+  binding, implementation assertions, and round-2 implementation record.
+  Method SHA-256 is
+  `f228f02892fc2ead00713606dc795850e14651baafc42a0974d1dbd48da86341`;
+  runner SHA-256
+  `0ba17a1357f8326a8116c79c16c300f4bb24bde6796c6d1c97ca692e332bcf80`;
+  binding SHA-256
+  `4b7230cca6a41002da52853dae41724da1e24d22ef94e2b0b644b7e0d237fde7`;
+  implementation-test SHA-256
+  `1511083a3254a44bd95f33f75d9cf5adb022162b20a9e0c274929f4f9325ad19`;
+  implementation-record SHA-256
+  `66373e950abff7dc152fd818ed753540ca1ace5fb93da2cf76271e8269a67101`.
+- Root pre-candidate rerun passed all 177 inert runner tests, canonical binding
+  check, scoped Ruff, strict mypy over seven runner modules, generator check,
+  exact scope, and diff check. All 17 caps and every worker/probe/launch/source
+  byte remain unchanged; no decoder ran. Candidate status is
+  `candidate-not-accepted` and no old runner verdict transfers.
+- Fresh runner verification is assigned to distinct identity
+  `c3-b1-pre-execution-runner-rebinding-verifier-2`. It may create only a new
+  round-2 verifier test and review, must independently exercise the complete
+  inert/hostile runner matrix, may repair nothing, and must report `pass` or
+  `changes_required`.
+- After a verifier pass, root owns complete accumulated runner validation.
+  Fresh runner acceptance is reserved for distinct identity
+  `c3-b1-pre-execution-runner-rebinding-acceptance-2`; it may act only after
+  accumulation. Raw characterization and all later gates remain paused.

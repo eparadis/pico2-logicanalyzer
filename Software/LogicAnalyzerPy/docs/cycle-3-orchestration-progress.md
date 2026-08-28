@@ -2783,3 +2783,49 @@ unchanged.
   round-3 ceilings. No B2 pass transfers; focused implementation evidence and
   all independent B2 gates must run fresh.
 - Blocked: no.
+
+### C3B2-IF002 — inconsistent unshifted-I2C binary oracle
+
+- State: Open; B2 is paused at its authoritative fixture prerequisite. The
+  replacement C3-B1 checkpoint remains immutable history but is reopened at
+  the semantic-fixture gate before B2 may consume the affected oracle again.
+- Discovery: the private B2 host expanded its fresh-worker comparison from the
+  earlier focused slice to all 63 corrected semantic timelines. Generic host
+  fixes resolved SPI nested-data projection and option-sensitive UART/SPI
+  normalization. The resulting corpus is 62 pass / 1 fail; no expected byte
+  was coerced or suppressed.
+- Affected fixture: `i2c-unshifted-repeated-start` supplies
+  `options: {"address_format": "unshifted"}`. Its Python address record is
+  integer `160` (`0xA0`) and its address annotation is `A0`, but the same
+  emission's binary record is base64 `UA==` (`0x50`). These three expected
+  representations are internally inconsistent.
+- Frozen-source proof: `Software/decoders/i2c/pd.py` assigns the collected
+  address byte to `d`, shifts `d` right only when `address_format ==
+  "shifted"`, then emits both Python `[cmd, d]` and binary `bytes([d])`.
+  Under the selected `unshifted` option, both values are therefore `0xA0`;
+  the private host emits base64 `oA==`. The same source bytes are present at
+  tested replacement candidate `4a7dc728048812cfb4cf46f010939c182ac948cf`.
+- Earliest owning generator defect: `scripts/generate_cycle3_fixtures.py`
+  constructs this record through an I2C helper whose binary branch maps input
+  `0xA0` to `UA==`, independently of the selected address-format option. That
+  mapping is appropriate only for the shifted case and created the
+  contradiction in the accepted literal fixture.
+- B2 evidence: the uncommitted B2 owned paths retain a generic closed host and
+  focused suite with all other 62 fresh-worker rows passing; scoped Ruff and
+  strict mypy pass. Full hostile/cancellation/resource/cleanup proof is still
+  unfinished, so no B2 candidate or pass exists. All B2 bytes remain preserved
+  and non-evidentiary while B1 is reopened.
+- Prohibited disposition: B2 must not invert the option, special-case the
+  fixture ID, rewrite `0xA0` to `0x50`, ignore binary output, or treat a raw
+  characterization result as the expected-output oracle.
+- Required disposition: assign a fresh semantic-fixture implementation
+  identity, barred from B2 host output as an oracle, to derive and apply the
+  smallest source-based generator/fixture correction; rebuild byte-stably and
+  refresh every affected digest/binding. Independent fixture verification and
+  acceptance must then pass, followed by every invalidated runner/raw/
+  threshold/final-B1/manifest/checkpoint gate in contract order. Only the new
+  replacement checkpoint may resume the preserved B2 work.
+- Authority state: no shell, network, dependency, hardware, or external
+  runtime capability is missing. A fresh independently owned fixture
+  implementation assignment is required; root and the B2 implementor cannot
+  author the authoritative expected correction.

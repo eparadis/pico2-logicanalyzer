@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import platform
 import resource
 import statistics
 import sys
@@ -47,6 +48,9 @@ HOSTILE = {
 }
 SUBJECT_COMMIT = "2ae1e4335c38a5cf717491c7936f857292f71498"
 SUBJECT_TREE = "772b13476c97a976eb3a304e9b87aec8011260ec"
+COLLECTION_EXECUTABLE = (
+    "/Users/ed/git/pico2-logicanalyzer/Software/LogicAnalyzerPy/.venv/bin/python"
+)
 EXPECTED_IDENTITY = {
     "binding_sha256": "144c08036cb3eca490586d8af33b223fc9abfe905182cec102248ccce2108f98",
     "caps_sha256": "6347a04f44f02179e73fd9178fce4daad227d06c9a7a4ac2c12e0b0669f60d3d",
@@ -282,9 +286,9 @@ def test_candidate_identity_digest_environment_schema_and_summary_arithmetic() -
     }
     assert environment["schema"] == "cycle3-raw-environment/v1"
     assert environment["identity"] == EXPECTED_IDENTITY
-    assert environment["python"]["executable"] == sys.executable
+    assert environment["python"]["executable"] == COLLECTION_EXECUTABLE
     assert environment["python"]["version"] == sys.version
-    assert environment["python"]["implementation"] == "CPython"
+    assert environment["python"]["implementation"] == platform.python_implementation() == "CPython"
     assert environment["caps"] == load_caps()
     assert environment["warmup_rule"] == (
         "one unrecorded status-only warm-up before five independent retained "

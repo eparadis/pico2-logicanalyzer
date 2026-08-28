@@ -3073,3 +3073,43 @@ unchanged.
   acceptance transfers. Fresh raw verification, complete root accumulation,
   and fresh acceptance remain mandatory before any threshold proposal. B2
   remains paused.
+
+### Immutable corrected-fixture raw candidate and verification assignment
+
+- Recorded: `2026-08-28T17:51:59Z`. One complete serialized fresh collection
+  passed after four write-at-end pre-candidate attempts were explicitly
+  discarded. Immutable raw candidate commit/tree:
+  `d0d9dbe87f7841f09f261556de0909475e048b95` /
+  `a749b4e192246afab34eb6f11438d64eaeaa4d0c`.
+- The candidate changes the environment, observations, hostile observations,
+  and raw manifest plus the replacement collection record. Frozen
+  `requests.json` remains byte-identical because independent derivation from
+  the corrected accepted fixtures produces the same 63 request inputs. The
+  closed five-artifact SHA-256 values are environment
+  `d0c038a17b09f8b66b81d07e42ccae9d36ca5fce08dc252ccea491c69e18aa6f`,
+  requests
+  `fe5b345270eced91298250032411b6a85112c55baf46d3b71afb424ef385f94c`,
+  observations
+  `ba2c7bd1c8a4ea832f6037d311a212c2abbecf9c9c9d67d40eb5a079110c29ee`,
+  hostile observations
+  `af86b3765cc32298003f140312b79640963d3ac7d61b9b259a871827b5522d91`,
+  and manifest
+  `5d08929c7af59840ecbb01232c17b3c730161f9b8478e53bfd51fe6b3ea761b8`.
+  Collection-record SHA-256 is
+  `75822b3dd81bba77701b57628126cc643b0b96595133d094208ecc152b386e01`.
+- The successful run contains 378 snapshot launches, 60 hostile launches, and
+  48 recovery launches: 486 total. Root independently validated canonical
+  encoding, identities, four-file manifest hash closure, independently derived
+  63 requests, every snapshot and hostile summary, all stable counts, cleanup,
+  descriptor close, and reap evidence. No process or bytecode cache survived.
+  The four discarded pre-write attempts transfer no observation, timing,
+  digest, or authority.
+- Fresh independent verification is assigned to distinct identity
+  `c3-b1-raw-baseline-verifier-replacement-1`. It may create only a new raw
+  replacement verifier test and round-4 verification record, may repair
+  nothing, and must independently reproduce all 63 snapshot cases plus the ten
+  hostile/recovery cases from the exact accepted runner and frozen inputs.
+  Timing and RSS discrepancies must be retained transparently and must not be
+  converted into thresholds.
+- Threshold proposal, final B1, manifest/checkpoint, and B2 remain paused until
+  fresh raw verification, root accumulation, and acceptance pass.

@@ -3039,3 +3039,37 @@ unchanged.
   B2 presence, while still failing closed when that path is present but not
   excluded. Root accumulation and acceptance remain paused; raw remains
   prohibited.
+
+### Replacement runner gate accepted; fresh raw characterization assigned
+
+- Recorded: `2026-08-28T17:34:01Z`. Immutable replacement runner candidate
+  `380d5dd77ae6c6f8648391e3c849c13c4b98fe8a` passed portable verifier-5 at
+  commit `e95706f10a8a5a2f955e29b23cda25e157bf373e`, complete safe root
+  accumulation at commit `e1e8bab06ce74cb051f92d8f399153d63824a56a`, and
+  fresh independent acceptance at commit
+  `01f059cb5f60e885c7d19e8bf5376bdb27dcca19` / tree
+  `1c15252a26e5a4af571228dbf37999e385026f87`.
+- Verifier test/review SHA-256 values are respectively
+  `f84f123e6f8bbc1c3bcb1063faa11d0177438012db8b6ec314248b8c1d0984b1`
+  and
+  `027d0109336f3f5160a0dc609d2c79cf37722b845d9a050406463d921e4b28c2`.
+  Accumulated record SHA-256 is
+  `aedc2782b3cdeab8334d6d970c5f847da8fe92c7c4595a7bd0b261352d8d5a93`;
+  acceptance record SHA-256 is
+  `f1963a6cfe7de8c62c2f3de150f0bbb7ffe0e3c93998d2dc352ffdbe4b3eb5bd`.
+- Runner gate verdict: accepted for the exact unchanged runner, binding,
+  method, corrected fixture identity, 24 sources, and 17 caps. This completes
+  the replacement sequence required by `C3B1-RA001`, `C3B1-RV002`, and
+  `C3B1-RV003`; invalid earlier passes and interrupted raw activity transfer no
+  result or authority.
+- Fresh raw characterization is now assigned to distinct identity
+  `c3-b1-raw-baseline-reproducer-replacement-1`. It must collect a new closed
+  raw evidence set from this exact accepted runner descendant, using the
+  frozen 63 requests, five retained repetitions, hostile/recovery matrix, and
+  immutable caps. It may replace only the five `cycle3-raw` artifacts and add
+  a new raw implementation/collection record. It may not change fixtures,
+  runner, thresholds, product, B2, contract, or later evidence.
+- No prior raw observation, timing, digest, reproduction, proposal, or
+  acceptance transfers. Fresh raw verification, complete root accumulation,
+  and fresh acceptance remain mandatory before any threshold proposal. B2
+  remains paused.

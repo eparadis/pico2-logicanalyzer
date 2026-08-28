@@ -3275,3 +3275,24 @@ unchanged.
 - Manifest assembly, distinct manifest verification, joint commit, and the
   replacement B1 checkpoint remain mandatory later gates. B2 remains paused
   and uninspected until that checkpoint.
+
+### Replacement final-B1 accepted; manifest verifier assigned
+
+- Recorded: `2026-08-28T20:13:59Z`. Fresh independent acceptance identity
+  `c3-b1-final-acceptance-replacement-1` accepted only exact candidate
+  `7246dcb` after verifier `e1b8753` and accumulation `64a0468`. Acceptance
+  commit/tree: `88cb14296c98bedd2121bf09080c688f704770a3` /
+  `ac41919cdd50b2911324ca7d5dfc624dfbe36a39`; record SHA-256:
+  `5628607c13e2e832be7bdd806ad27c914066138a601511b1064877e1da40685f`.
+  Its focused static rerun passed 22 tests; findings: none.
+- Root may now atomically replace only `testdata/evidence/c3-b1.json` with the
+  post-acceptance manifest. The already assigned distinct verifier identity is
+  `c3-b1-manifest-verifier-replacement-1`. The manifest may name that identity
+  but must contain no future verdict, verifier-record path/digest, checkpoint,
+  predictive pass, or self-dependent digest.
+- The manifest verifier may create only a new round-4 manifest-verification
+  record, may not repair the manifest, and must recompute schema, every live
+  digest/revision, exact roles, commands/results, mappings, scope, and the
+  absence of self-reference. Only a pass permits the unchanged manifest and
+  verifier record to be committed together, followed by a later checkpoint
+  commit. B2 remains paused and uninspected.

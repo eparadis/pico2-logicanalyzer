@@ -2625,3 +2625,43 @@ unchanged.
   The remaining authority need is one fresh semantic-fixture implementation
   identity; the assigned B2 implementor is permanently barred from authoring
   B1 expected output, and the primary orchestrator is not an evidence identity.
+
+### C3B2-IF001 renewed threshold approval and replacement final-B1 assignment
+
+- Recorded: `2026-08-28T12:57:17Z`. The operator explicitly stated
+  `I approve the exact committed round-3 threshold values in proposal b260d9e`.
+- The immutable decision record is committed at
+  `63fdfee87159251cdf525eb608340e6bc08ad010` in
+  `docs/reviews/c3-b1-threshold-approval-round-3.md`, SHA-256
+  `2a1f9cdb175115a1bf34983695ee382c228924f39aab1ffffb8a2480dbd29b60`.
+  It binds exact proposal `b260d9ecc0e74ed2502dda89beebb851ddfedb77`,
+  its rationale and proposal digests, fresh verification `92de4e6`, complete
+  accumulation `c3cc274`, fresh acceptance `d922ba3`, all 29 inclusive and
+  first-rejected boundaries, and the superseded-approval prohibition.
+- Exactly 28 values remain numerically unchanged from round 2. The only change
+  is `successful_parent_total_ns`, from 900,000,000 to 1,000,000,000 ns. The
+  eight-bit maximum SPI word size remains exact. No value may be silently
+  increased, weakened, rebased, or reinterpreted.
+- Root is assigned the replacement final B1 integration candidate at exactly
+  `testdata/decoders/cycle3/b1-final-candidate-round-3.json` and
+  `docs/reviews/c3-b1-final-candidate-round-3.md`. It must remain
+  `candidate-not-accepted` and bind the governing contract, the complete
+  ordered semantic-fixture history through implementor replacement 7, the
+  corrected fixture verifier/acceptance identities, the complete runner
+  history and fresh rebinding verifier/acceptance identities, project/license
+  disposition, corrected raw candidate and three fresh gates, round-3 proposal
+  and three fresh gates, renewed operator approval, exact artifact digests,
+  environment qualification, historical findings/dispositions, applicability,
+  exclusions, and exact frozen accumulated commands.
+- The candidate may add only those two binder artifacts. It may change no
+  fixture, cap, generator, snapshot, runner, method, raw, proposal, approval,
+  product, lock, workflow, governing contract, prior review/test, Cycle 1/2
+  evidence, or preserved untracked B2 byte. Root will commit the immutable
+  candidate before assigning fresh final B1 verification; no prior final-B1,
+  manifest, checkpoint, or B2 pass transfers.
+- Required downstream order is fresh final verification, a complete
+  accumulated gate against that exact candidate, fresh final acceptance,
+  atomic creation of only the replacement `testdata/evidence/c3-b1.json`,
+  distinct manifest verification, joint manifest/verification commit, and a
+  replacement B1 checkpoint. Only that replacement checkpoint may resume the
+  preserved B2 work. No Cycle 4 authority exists.

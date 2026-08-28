@@ -30,10 +30,11 @@ REPOSITORY = ROOT.parents[1]
 TOOL_ROOT = Path(__file__).resolve().parent
 DATA_ROOT = ROOT / "testdata" / "decoders" / "cycle3"
 BINDING = TOOL_ROOT / "candidate-binding.json"
-CAPS_SHA256 = "63cde36892a15a390be0c27c50eac18431d7a4b11381b0e4b82c0fe64f808cd8"
-FIXTURE_MANIFEST_SHA256 = "0f5f1d9a01fc807dd0f4078ac84b20158f515a76ae4f1f83cc74651c4797413a"
-FIXTURE_CANDIDATE_COMMIT = "7c57a347bbe575e3f451383ea498f56abc362f26"
-FIXTURE_CANDIDATE_TREE = "02a408895dd834e6e6885218cb7323f46439e880"
+CAPS_SHA256 = "6347a04f44f02179e73fd9178fce4daad227d06c9a7a4ac2c12e0b0669f60d3d"
+SEMANTIC_FIXTURE_SHA256 = "1d97cf3ff4fb560e7dd73b621da0e40d7f1fb310b60c2d43fcb59f3ebf91a329"
+FIXTURE_MANIFEST_SHA256 = "ce8eceb72480d042ef298cb6fe6944a4808fed0644e729c8c2de9fa1955ec37f"
+FIXTURE_CANDIDATE_COMMIT = "a98d328aab92f3dad66988fb70cc567946dc89d0"
+FIXTURE_CANDIDATE_TREE = "450aadcf26bd6c74860872bfbf0a0a1b32d94f3b"
 PROTOCOL_VERSION = 1
 STDLIB_ALLOWLIST = [
     "argparse",
@@ -176,6 +177,7 @@ def binding_payload() -> dict[str, object]:
             "candidate_commit": FIXTURE_CANDIDATE_COMMIT,
             "candidate_tree": FIXTURE_CANDIDATE_TREE,
             "caps_sha256": CAPS_SHA256,
+            "semantic_fixture_sha256": SEMANTIC_FIXTURE_SHA256,
             "manifest_sha256": FIXTURE_MANIFEST_SHA256,
         },
         "sources": sources,
@@ -256,6 +258,8 @@ def verify_launch_identity(
     launch = json.loads((TOOL_ROOT / "launch.json").read_text(encoding="utf-8"))
     _validate_launch_document(launch)
     load_caps()
+    if _digest(DATA_ROOT / "semantic-fixtures.json") != SEMANTIC_FIXTURE_SHA256:
+        raise RunnerFailure("accepted semantic fixture rejected")
     if _digest(DATA_ROOT / "manifest.json") != FIXTURE_MANIFEST_SHA256:
         raise RunnerFailure("accepted fixture manifest rejected")
     _verify_provenance()

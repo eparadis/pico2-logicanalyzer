@@ -23,6 +23,7 @@ from tools.cycle3_characterize.runner import (
     FIXTURE_CANDIDATE_COMMIT,
     FIXTURE_CANDIDATE_TREE,
     FIXTURE_MANIFEST_SHA256,
+    SEMANTIC_FIXTURE_SHA256,
     STDLIB_ALLOWLIST,
     RunnerFailure,
     _child_environment,
@@ -118,6 +119,11 @@ def test_accepted_profile_is_the_exact_immutable_seventeen_cap_input() -> None:
     caps_path = ROOT / "testdata" / "decoders" / "cycle3" / "experiment-caps.json"
     assert hashlib.sha256(caps_path.read_bytes()).hexdigest() == CAPS_SHA256
     assert set(load_caps()) == CAP_IDS
+
+
+def test_corrected_semantic_fixture_digest_is_immutable() -> None:
+    fixture_path = ROOT / "testdata" / "decoders" / "cycle3" / "semantic-fixtures.json"
+    assert hashlib.sha256(fixture_path.read_bytes()).hexdigest() == SEMANTIC_FIXTURE_SHA256
 
 
 CAP_BOUNDARY_MATRIX = (
@@ -327,6 +333,7 @@ def test_binding_covers_closed_source_set() -> None:
         "candidate_commit": FIXTURE_CANDIDATE_COMMIT,
         "candidate_tree": FIXTURE_CANDIDATE_TREE,
         "caps_sha256": CAPS_SHA256,
+        "semantic_fixture_sha256": SEMANTIC_FIXTURE_SHA256,
         "manifest_sha256": FIXTURE_MANIFEST_SHA256,
     }
 
@@ -338,6 +345,10 @@ def test_binding_covers_closed_source_set() -> None:
         "extra",
         "digest",
         "schema",
+        "fixture_candidate",
+        "fixture_caps",
+        "fixture_manifest",
+        "fixture_semantic",
         "traversal",
         "ordinary",
     ],
@@ -356,6 +367,14 @@ def test_hostile_binding_path_is_rejected_pre_spawn(
         sources[first] = "0" * 64
     elif variant == "schema":
         payload["schema"] = "bad"
+    elif variant == "fixture_candidate":
+        payload["accepted_fixture"]["candidate_commit"] = "0" * 40
+    elif variant == "fixture_caps":
+        payload["accepted_fixture"]["caps_sha256"] = "0" * 64
+    elif variant == "fixture_manifest":
+        payload["accepted_fixture"]["manifest_sha256"] = "0" * 64
+    elif variant == "fixture_semantic":
+        payload["accepted_fixture"]["semantic_fixture_sha256"] = "0" * 64
     elif variant == "traversal":
         sources["../escape.py"] = "0" * 64
     elif variant == "ordinary":

@@ -1,157 +1,1091 @@
 {
   "schema_version": 3,
   "checkpoint": "C3-B1",
-  "tested_commit": "1f8793210a3298ed190ff30f97c84b6f9feb9b29",
-  "tested_tree": "cbe33ca272ba1b452f6d87fb5e702134a471f702",
-  "timestamp_utc": "2026-08-27T19:24:20Z",
-  "worktree_state": "Exact candidate committed and clean; immutable fresh verification, accumulated-validation, and acceptance records were committed afterward. Manifest assembled atomically after acceptance.",
+  "tested_commit": "4a7dc728048812cfb4cf46f010939c182ac948cf",
+  "tested_tree": "5ee316695d3a4acf8f30e60da377ba6651844969",
+  "timestamp_utc": "2026-08-28T13:47:32Z",
+  "worktree_state": "Exact two-path replacement candidate committed and clean; immutable fresh verification, complete accumulated-validation, and acceptance records followed without changing its tree. Replacement manifest assembled atomically after acceptance. Two pre-existing untracked B2 paths were excluded and remain non-evidence.",
   "environment": {
     "os": "macOS 15.7.7 build 24G720",
     "architecture": "x86_64",
     "python": "3.12.13",
     "environment_class": "Macmini8,1; Node 22.14.0; Chromium 133.0.6943.16; Playwright 1.50.1",
-    "resource_observation": "Characterization and accepted-threshold performance records bind the unchanged local macOS environment class."
+    "resource_observation": "Fresh characterization and round-3 approved-threshold records bind the unchanged local macOS environment class."
   },
   "locks": [
-    {"name": "requirements-dev", "path": "Software/LogicAnalyzerPy/requirements-dev.lock", "sha256": "6f78ec8f0219b919c44ed9b9f1d30c2337fcce7c911b8d3dc4c13edb707a6575"},
-    {"name": "requirements-web", "path": "Software/LogicAnalyzerPy/requirements-web.lock", "sha256": "6f78ec8f0219b919c44ed9b9f1d30c2337fcce7c911b8d3dc4c13edb707a6575"},
-    {"name": "package-lock", "path": "Software/LogicAnalyzerPy/web/package-lock.json", "sha256": "d388a2668b3f65edeb62ee99da3ad37ffc56ab1ca3439b6d418a6bbe92e838d9"},
-    {"name": "production-assets", "path": "Software/LogicAnalyzerPy/web/production-assets.json", "sha256": "00d553697834509104a5751affc2abad48ec619bbd7f167ac2f8a1de0953d9d9"}
+    {
+      "name": "requirements-dev",
+      "path": "Software/LogicAnalyzerPy/requirements-dev.lock",
+      "sha256": "6f78ec8f0219b919c44ed9b9f1d30c2337fcce7c911b8d3dc4c13edb707a6575"
+    },
+    {
+      "name": "requirements-web",
+      "path": "Software/LogicAnalyzerPy/requirements-web.lock",
+      "sha256": "6f78ec8f0219b919c44ed9b9f1d30c2337fcce7c911b8d3dc4c13edb707a6575"
+    },
+    {
+      "name": "package-lock",
+      "path": "Software/LogicAnalyzerPy/web/package-lock.json",
+      "sha256": "d388a2668b3f65edeb62ee99da3ad37ffc56ab1ca3439b6d418a6bbe92e838d9"
+    },
+    {
+      "name": "production-assets",
+      "path": "Software/LogicAnalyzerPy/web/production-assets.json",
+      "sha256": "00d553697834509104a5751affc2abad48ec619bbd7f167ac2f8a1de0953d9d9"
+    }
   ],
   "roles": {
     "implementation": "cycle3-primary-orchestrator",
-    "verification": "c3-b1-final-verifier-2",
-    "acceptance": "c3-b1-final-acceptance-2",
-    "manifest_verifier": "c3-b1-manifest-verifier-2",
+    "verification": "c3-b1-final-verifier-3",
+    "acceptance": "c3-b1-final-acceptance-3",
+    "manifest_verifier": "c3-b1-manifest-verifier-3",
     "b1_internal": {
-      "semantic_fixture_implementation": "c3-b1-semantic-fixture-implementor-replacement-6",
-      "semantic_fixture_verification": "c3-b1-semantic-fixture-verifier-1",
-      "semantic_fixture_acceptance": "c3-b1-semantic-fixture-acceptance-1",
+      "semantic_fixture_implementation": "c3-b1-semantic-fixture-implementor-replacement-7",
+      "semantic_fixture_verification": "c3-b1-semantic-fixture-correction-verifier-1",
+      "semantic_fixture_acceptance": "c3-b1-semantic-fixture-correction-acceptance-1",
       "runner_implementation": "c3-b1-pre-execution-runner-implementor-replacement-3",
-      "runner_verification": "c3-b1-pre-execution-runner-verifier-1",
-      "runner_acceptance": "c3-b1-pre-execution-runner-acceptance-1"
+      "runner_verification": "c3-b1-pre-execution-runner-rebinding-verifier-1",
+      "runner_acceptance": "c3-b1-pre-execution-runner-rebinding-acceptance-1"
     }
   },
   "commands": [
-    {"name": "python_dependency_check", "command": ".venv/bin/python -m pip check", "exit_status": 0, "verifier": "cycle3-primary-orchestrator", "candidate_commit": "1f8793210a3298ed190ff30f97c84b6f9feb9b29", "result": "No broken requirements.", "skipped": false, "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-2.md", "sha256": "f33c24102a8bd02927424744f44df4c486071cf5be4fe6208c8631611ff6b28a"}]},
-    {"name": "python_ruff", "command": ".venv/bin/ruff check .", "exit_status": 0, "verifier": "cycle3-primary-orchestrator", "candidate_commit": "1f8793210a3298ed190ff30f97c84b6f9feb9b29", "result": "All checks passed.", "skipped": false},
-    {"name": "python_mypy_product", "command": ".venv/bin/mypy src", "exit_status": 0, "verifier": "cycle3-primary-orchestrator", "candidate_commit": "1f8793210a3298ed190ff30f97c84b6f9feb9b29", "result": "No issues in 21 source files.", "skipped": false},
-    {"name": "python_mypy_characterization", "command": ".venv/bin/mypy --strict tools/cycle3_characterize", "exit_status": 0, "verifier": "cycle3-primary-orchestrator", "candidate_commit": "1f8793210a3298ed190ff30f97c84b6f9feb9b29", "result": "No issues in seven files.", "skipped": false},
-    {"name": "fixture_determinism", "command": ".venv/bin/python scripts/generate_cycle3_fixtures.py --check", "exit_status": 0, "verifier": "cycle3-primary-orchestrator", "candidate_commit": "1f8793210a3298ed190ff30f97c84b6f9feb9b29", "result": "Byte-stable fixture check passed.", "skipped": false},
-    {"name": "runner_binding", "command": ".venv/bin/python -m tools.cycle3_characterize.binding --check", "exit_status": 0, "verifier": "cycle3-primary-orchestrator", "candidate_commit": "1f8793210a3298ed190ff30f97c84b6f9feb9b29", "result": "Runner binding check passed.", "skipped": false},
-    {"name": "installed_cli_help", "command": ".venv/bin/python -m pico_logic_analyzer --help", "exit_status": 0, "verifier": "cycle3-primary-orchestrator", "candidate_commit": "1f8793210a3298ed190ff30f97c84b6f9feb9b29", "result": "Installed CLI help passed.", "skipped": false},
-    {"name": "cycle2_evidence_b1", "command": ".venv/bin/python scripts/validate_cycle2_evidence.py docs/evidence-manifest/cycle2-schema.json testdata/evidence/c2-b1.json", "exit_status": 0, "verifier": "cycle3-primary-orchestrator", "candidate_commit": "1f8793210a3298ed190ff30f97c84b6f9feb9b29", "result": "C2-B1 manifest valid.", "skipped": false},
-    {"name": "cycle2_evidence_b2", "command": ".venv/bin/python scripts/validate_cycle2_evidence.py docs/evidence-manifest/cycle2-schema.json testdata/evidence/c2-b2.json", "exit_status": 0, "verifier": "cycle3-primary-orchestrator", "candidate_commit": "1f8793210a3298ed190ff30f97c84b6f9feb9b29", "result": "C2-B2 manifest valid.", "skipped": false},
-    {"name": "cycle2_evidence_b3", "command": ".venv/bin/python scripts/validate_cycle2_evidence.py docs/evidence-manifest/cycle2-schema.json testdata/evidence/c2-b3.json", "exit_status": 0, "verifier": "cycle3-primary-orchestrator", "candidate_commit": "1f8793210a3298ed190ff30f97c84b6f9feb9b29", "result": "C2-B3 manifest valid.", "skipped": false},
-    {"name": "cycle2_evidence_b4", "command": ".venv/bin/python scripts/validate_cycle2_evidence.py docs/evidence-manifest/cycle2-schema.json testdata/evidence/c2-b4.json", "exit_status": 0, "verifier": "cycle3-primary-orchestrator", "candidate_commit": "1f8793210a3298ed190ff30f97c84b6f9feb9b29", "result": "C2-B4 manifest valid.", "skipped": false},
-    {"name": "cycle2_evidence_b5", "command": ".venv/bin/python scripts/validate_cycle2_evidence.py docs/evidence-manifest/cycle2-schema.json testdata/evidence/c2-b5.json", "exit_status": 0, "verifier": "cycle3-primary-orchestrator", "candidate_commit": "1f8793210a3298ed190ff30f97c84b6f9feb9b29", "result": "C2-B5 manifest valid.", "skipped": false},
-    {"name": "cycle2_evidence_b6", "command": ".venv/bin/python scripts/validate_cycle2_evidence.py docs/evidence-manifest/cycle2-schema.json testdata/evidence/c2-b6.json", "exit_status": 0, "verifier": "cycle3-primary-orchestrator", "candidate_commit": "1f8793210a3298ed190ff30f97c84b6f9feb9b29", "result": "C2-B6 manifest valid.", "skipped": false},
-    {"name": "python_applicable_nonhardware", "command": ".venv/bin/python -m pytest -m 'not hardware' --deselect tests/implementation/test_cycle3_fixtures.py::test_cycle3_fixture_surface_is_present_and_rebuildable --deselect tests/verification/test_c3_b1_raw_baseline_candidate.py::test_candidate_identity_digest_environment_schema_and_summary_arithmetic --deselect tests/verification/test_c3_b1_threshold_proposal.py::test_exact_candidate_hashes_evidence_environment_formulas_and_feasibility", "exit_status": 0, "verifier": "cycle3-primary-orchestrator", "candidate_commit": "1f8793210a3298ed190ff30f97c84b6f9feb9b29", "result": "657 passed, three deselected, 149 warnings; unfiltered inventory first produced 657 passed and the exact three historical failures.", "skipped": false},
-    {"name": "frontend_lint", "command": "npm run lint", "exit_status": 0, "verifier": "cycle3-primary-orchestrator", "candidate_commit": "1f8793210a3298ed190ff30f97c84b6f9feb9b29", "result": "Exact Node 22 ESLint passed.", "skipped": false},
-    {"name": "frontend_typecheck", "command": "npm run typecheck", "exit_status": 0, "verifier": "cycle3-primary-orchestrator", "candidate_commit": "1f8793210a3298ed190ff30f97c84b6f9feb9b29", "result": "Exact Node 22 TypeScript passed.", "skipped": false},
-    {"name": "frontend_unit", "command": "npm test -- --run", "exit_status": 0, "verifier": "cycle3-primary-orchestrator", "candidate_commit": "1f8793210a3298ed190ff30f97c84b6f9feb9b29", "result": "Exact Node 22 Vitest passed three files and five tests after rejecting and correcting one malformed npm option placement.", "skipped": false},
-    {"name": "frontend_build", "command": "npm run build", "exit_status": 0, "verifier": "cycle3-primary-orchestrator", "candidate_commit": "1f8793210a3298ed190ff30f97c84b6f9feb9b29", "result": "Exact Node 22 Vite build passed with 29 modules.", "skipped": false},
-    {"name": "frontend_assets", "command": ".venv/bin/python scripts/check_web_assets.py", "exit_status": 0, "verifier": "cycle3-primary-orchestrator", "candidate_commit": "1f8793210a3298ed190ff30f97c84b6f9feb9b29", "result": "Generated assets match the governed manifest.", "skipped": false},
-    {"name": "frontend_browser", "command": "npm run test:browser", "exit_status": 0, "verifier": "cycle3-primary-orchestrator", "candidate_commit": "1f8793210a3298ed190ff30f97c84b6f9feb9b29", "result": "Exact Node 22 Playwright passed one plus three browser tests.", "skipped": false},
-    {"name": "frontend_performance", "command": "npm run benchmark:b6", "exit_status": 0, "verifier": "cycle3-primary-orchestrator", "candidate_commit": "1f8793210a3298ed190ff30f97c84b6f9feb9b29", "result": "Exact Node 22 Playwright performance test and accepted-threshold checker passed.", "skipped": false}
+    {
+      "name": "python_dependency_check",
+      "command": ".venv/bin/python -m pip check",
+      "exit_status": 0,
+      "verifier": "cycle3-primary-orchestrator",
+      "candidate_commit": "4a7dc728048812cfb4cf46f010939c182ac948cf",
+      "result": "No broken requirements.",
+      "skipped": false,
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-3.md",
+          "sha256": "467a8264736b761c26c6bfea676f5852801cad0ab2ed9d3dd63011a2b99d6b34"
+        }
+      ]
+    },
+    {
+      "name": "python_ruff",
+      "command": ".venv/bin/ruff check .",
+      "exit_status": 0,
+      "verifier": "cycle3-primary-orchestrator",
+      "candidate_commit": "4a7dc728048812cfb4cf46f010939c182ac948cf",
+      "result": "All checks passed.",
+      "skipped": false,
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-3.md",
+          "sha256": "467a8264736b761c26c6bfea676f5852801cad0ab2ed9d3dd63011a2b99d6b34"
+        }
+      ]
+    },
+    {
+      "name": "python_mypy_product",
+      "command": ".venv/bin/mypy src",
+      "exit_status": 0,
+      "verifier": "cycle3-primary-orchestrator",
+      "candidate_commit": "4a7dc728048812cfb4cf46f010939c182ac948cf",
+      "result": "No issues in 21 source files.",
+      "skipped": false,
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-3.md",
+          "sha256": "467a8264736b761c26c6bfea676f5852801cad0ab2ed9d3dd63011a2b99d6b34"
+        }
+      ]
+    },
+    {
+      "name": "python_mypy_characterization",
+      "command": ".venv/bin/mypy --strict tools/cycle3_characterize",
+      "exit_status": 0,
+      "verifier": "cycle3-primary-orchestrator",
+      "candidate_commit": "4a7dc728048812cfb4cf46f010939c182ac948cf",
+      "result": "No issues in seven files.",
+      "skipped": false,
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-3.md",
+          "sha256": "467a8264736b761c26c6bfea676f5852801cad0ab2ed9d3dd63011a2b99d6b34"
+        }
+      ]
+    },
+    {
+      "name": "fixture_determinism",
+      "command": ".venv/bin/python scripts/generate_cycle3_fixtures.py --check",
+      "exit_status": 0,
+      "verifier": "cycle3-primary-orchestrator",
+      "candidate_commit": "4a7dc728048812cfb4cf46f010939c182ac948cf",
+      "result": "Byte-stable fixture check passed.",
+      "skipped": false,
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-3.md",
+          "sha256": "467a8264736b761c26c6bfea676f5852801cad0ab2ed9d3dd63011a2b99d6b34"
+        }
+      ]
+    },
+    {
+      "name": "runner_binding",
+      "command": ".venv/bin/python -m tools.cycle3_characterize.binding --check",
+      "exit_status": 0,
+      "verifier": "cycle3-primary-orchestrator",
+      "candidate_commit": "4a7dc728048812cfb4cf46f010939c182ac948cf",
+      "result": "Runner binding check passed.",
+      "skipped": false,
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-3.md",
+          "sha256": "467a8264736b761c26c6bfea676f5852801cad0ab2ed9d3dd63011a2b99d6b34"
+        }
+      ]
+    },
+    {
+      "name": "installed_cli_help",
+      "command": ".venv/bin/python -m pico_logic_analyzer --help",
+      "exit_status": 0,
+      "verifier": "cycle3-primary-orchestrator",
+      "candidate_commit": "4a7dc728048812cfb4cf46f010939c182ac948cf",
+      "result": "Installed CLI help passed.",
+      "skipped": false,
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-3.md",
+          "sha256": "467a8264736b761c26c6bfea676f5852801cad0ab2ed9d3dd63011a2b99d6b34"
+        }
+      ]
+    },
+    {
+      "name": "cycle2_evidence_b1",
+      "command": ".venv/bin/python scripts/validate_cycle2_evidence.py docs/evidence-manifest/cycle2-schema.json testdata/evidence/c2-b1.json",
+      "exit_status": 0,
+      "verifier": "cycle3-primary-orchestrator",
+      "candidate_commit": "4a7dc728048812cfb4cf46f010939c182ac948cf",
+      "result": "C2-B1 manifest valid.",
+      "skipped": false,
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-3.md",
+          "sha256": "467a8264736b761c26c6bfea676f5852801cad0ab2ed9d3dd63011a2b99d6b34"
+        }
+      ]
+    },
+    {
+      "name": "cycle2_evidence_b2",
+      "command": ".venv/bin/python scripts/validate_cycle2_evidence.py docs/evidence-manifest/cycle2-schema.json testdata/evidence/c2-b2.json",
+      "exit_status": 0,
+      "verifier": "cycle3-primary-orchestrator",
+      "candidate_commit": "4a7dc728048812cfb4cf46f010939c182ac948cf",
+      "result": "C2-B2 manifest valid.",
+      "skipped": false,
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-3.md",
+          "sha256": "467a8264736b761c26c6bfea676f5852801cad0ab2ed9d3dd63011a2b99d6b34"
+        }
+      ]
+    },
+    {
+      "name": "cycle2_evidence_b3",
+      "command": ".venv/bin/python scripts/validate_cycle2_evidence.py docs/evidence-manifest/cycle2-schema.json testdata/evidence/c2-b3.json",
+      "exit_status": 0,
+      "verifier": "cycle3-primary-orchestrator",
+      "candidate_commit": "4a7dc728048812cfb4cf46f010939c182ac948cf",
+      "result": "C2-B3 manifest valid.",
+      "skipped": false,
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-3.md",
+          "sha256": "467a8264736b761c26c6bfea676f5852801cad0ab2ed9d3dd63011a2b99d6b34"
+        }
+      ]
+    },
+    {
+      "name": "cycle2_evidence_b4",
+      "command": ".venv/bin/python scripts/validate_cycle2_evidence.py docs/evidence-manifest/cycle2-schema.json testdata/evidence/c2-b4.json",
+      "exit_status": 0,
+      "verifier": "cycle3-primary-orchestrator",
+      "candidate_commit": "4a7dc728048812cfb4cf46f010939c182ac948cf",
+      "result": "C2-B4 manifest valid.",
+      "skipped": false,
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-3.md",
+          "sha256": "467a8264736b761c26c6bfea676f5852801cad0ab2ed9d3dd63011a2b99d6b34"
+        }
+      ]
+    },
+    {
+      "name": "cycle2_evidence_b5",
+      "command": ".venv/bin/python scripts/validate_cycle2_evidence.py docs/evidence-manifest/cycle2-schema.json testdata/evidence/c2-b5.json",
+      "exit_status": 0,
+      "verifier": "cycle3-primary-orchestrator",
+      "candidate_commit": "4a7dc728048812cfb4cf46f010939c182ac948cf",
+      "result": "C2-B5 manifest valid.",
+      "skipped": false,
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-3.md",
+          "sha256": "467a8264736b761c26c6bfea676f5852801cad0ab2ed9d3dd63011a2b99d6b34"
+        }
+      ]
+    },
+    {
+      "name": "cycle2_evidence_b6",
+      "command": ".venv/bin/python scripts/validate_cycle2_evidence.py docs/evidence-manifest/cycle2-schema.json testdata/evidence/c2-b6.json",
+      "exit_status": 0,
+      "verifier": "cycle3-primary-orchestrator",
+      "candidate_commit": "4a7dc728048812cfb4cf46f010939c182ac948cf",
+      "result": "C2-B6 manifest valid.",
+      "skipped": false,
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-3.md",
+          "sha256": "467a8264736b761c26c6bfea676f5852801cad0ab2ed9d3dd63011a2b99d6b34"
+        }
+      ]
+    },
+    {
+      "name": "python_applicable_nonhardware",
+      "command": ".venv/bin/python -m pytest -m 'not hardware' --deselect tests/implementation/test_cycle3_fixtures.py::test_cycle3_fixture_surface_is_present_and_rebuildable --deselect tests/verification/test_c3_b1_semantic_fixture_correction.py::test_historical_inventory_failure_and_broad_mypy_non_gate_are_not_weakened --ignore tests/verification/test_c3_b1_final_candidate.py --ignore tests/verification/test_c3_b1_preexecution_runner_candidate.py --ignore tests/verification/test_c3_b1_threshold_proposal.py --ignore tests/verification/test_c3_b1_threshold_proposal_round2.py",
+      "exit_status": 0,
+      "verifier": "cycle3-primary-orchestrator",
+      "candidate_commit": "4a7dc728048812cfb4cf46f010939c182ac948cf",
+      "result": "654 passed, four optional inherited C2-B3 physical-artifact skips, two historical deselections, 149 warnings; targeted invalidation audit was 44 failed and 45 passed.",
+      "skipped": false,
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-3.md",
+          "sha256": "467a8264736b761c26c6bfea676f5852801cad0ab2ed9d3dd63011a2b99d6b34"
+        }
+      ]
+    },
+    {
+      "name": "frontend_lint",
+      "command": "npm run lint",
+      "exit_status": 0,
+      "verifier": "cycle3-primary-orchestrator",
+      "candidate_commit": "4a7dc728048812cfb4cf46f010939c182ac948cf",
+      "result": "Exact Node 22 ESLint passed.",
+      "skipped": false,
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-3.md",
+          "sha256": "467a8264736b761c26c6bfea676f5852801cad0ab2ed9d3dd63011a2b99d6b34"
+        }
+      ]
+    },
+    {
+      "name": "frontend_typecheck",
+      "command": "npm run typecheck",
+      "exit_status": 0,
+      "verifier": "cycle3-primary-orchestrator",
+      "candidate_commit": "4a7dc728048812cfb4cf46f010939c182ac948cf",
+      "result": "Exact Node 22 TypeScript passed.",
+      "skipped": false,
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-3.md",
+          "sha256": "467a8264736b761c26c6bfea676f5852801cad0ab2ed9d3dd63011a2b99d6b34"
+        }
+      ]
+    },
+    {
+      "name": "frontend_unit",
+      "command": "npm test -- --run",
+      "exit_status": 0,
+      "verifier": "cycle3-primary-orchestrator",
+      "candidate_commit": "4a7dc728048812cfb4cf46f010939c182ac948cf",
+      "result": "Exact Node 22 Vitest passed three files and five tests.",
+      "skipped": false,
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-3.md",
+          "sha256": "467a8264736b761c26c6bfea676f5852801cad0ab2ed9d3dd63011a2b99d6b34"
+        }
+      ]
+    },
+    {
+      "name": "frontend_build",
+      "command": "npm run build",
+      "exit_status": 0,
+      "verifier": "cycle3-primary-orchestrator",
+      "candidate_commit": "4a7dc728048812cfb4cf46f010939c182ac948cf",
+      "result": "Exact Node 22 Vite build passed with 29 modules.",
+      "skipped": false,
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-3.md",
+          "sha256": "467a8264736b761c26c6bfea676f5852801cad0ab2ed9d3dd63011a2b99d6b34"
+        }
+      ]
+    },
+    {
+      "name": "frontend_assets",
+      "command": ".venv/bin/python scripts/check_web_assets.py",
+      "exit_status": 0,
+      "verifier": "cycle3-primary-orchestrator",
+      "candidate_commit": "4a7dc728048812cfb4cf46f010939c182ac948cf",
+      "result": "Generated assets match the governed manifest.",
+      "skipped": false,
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-3.md",
+          "sha256": "467a8264736b761c26c6bfea676f5852801cad0ab2ed9d3dd63011a2b99d6b34"
+        }
+      ]
+    },
+    {
+      "name": "frontend_browser",
+      "command": "npm run test:browser",
+      "exit_status": 0,
+      "verifier": "cycle3-primary-orchestrator",
+      "candidate_commit": "4a7dc728048812cfb4cf46f010939c182ac948cf",
+      "result": "Exact Node 22 Playwright passed one plus three browser tests after one classified pre-test environment-link failure supplied no evidence.",
+      "skipped": false,
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-3.md",
+          "sha256": "467a8264736b761c26c6bfea676f5852801cad0ab2ed9d3dd63011a2b99d6b34"
+        }
+      ]
+    },
+    {
+      "name": "frontend_performance",
+      "command": "npm run benchmark:b6",
+      "exit_status": 0,
+      "verifier": "cycle3-primary-orchestrator",
+      "candidate_commit": "4a7dc728048812cfb4cf46f010939c182ac948cf",
+      "result": "Exact Node 22 Playwright performance test and accepted-threshold checker passed; report SHA-256 ac9068e15313ecb9c5c8f19b79739881741d881263fa970240519c7534ab86c4.",
+      "skipped": false,
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-3.md",
+          "sha256": "467a8264736b761c26c6bfea676f5852801cad0ab2ed9d3dd63011a2b99d6b34"
+        }
+      ]
+    }
   ],
   "artifacts": [
-    {"category": "workflow", "provenance": "approved Cycle 3 goal", "revision": "6a2d09a444797bb0b73c94b259b1cbd826084129", "path": "CYCLE3_GOAL.md", "sha256": "4120b771ec36390a482671c8428d880bb2f60abe3fe154ef4e001efeaf3ddef7"},
-    {"category": "workflow", "provenance": "approved batch execution contract", "revision": "ea83a403bb6f644d33069d3bebd41d5f1e0a60c0", "path": "CYCLE3_BATCH_EXECUTION.md", "sha256": "74a4d043933b6248ffff1968f691f1653051b18e50e4d196b1be3f46cc79dd26"},
-    {"category": "test", "provenance": "frozen strict manifest validator", "revision": "39e74a27638541b36b2845a8c6f1079bc0a3ae61", "path": "Software/LogicAnalyzerPy/scripts/validate_cycle3_evidence.py", "sha256": "39dd55f204e66e9ae2ff7519f43a2bf4053e7017eb8ad294f00ec654ae9b4c21"},
-    {"category": "checkpoint", "provenance": "frozen Cycle 3 manifest schema", "revision": "39e74a27638541b36b2845a8c6f1079bc0a3ae61", "path": "Software/LogicAnalyzerPy/docs/evidence-manifest/cycle3-schema.json", "sha256": "779d313ee79fabe8e98e627f7d6e27f0e436873ee2b8e118c0a3cac89e6bf3a3"},
-    {"category": "project-legal", "provenance": "independent engineering disposition", "revision": "538a4aa669a782919dafefb26a81d7346ed45f5c", "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-project-license-review-round-1.md", "sha256": "b7afc4df18ba9bf5e40ee5a795e4544e54a59be27b1fea9a8617681ea82919cf"},
-    {"category": "fixture-source", "provenance": "accepted deterministic fixture generator", "revision": "7c57a347bbe575e3f451383ea498f56abc362f26", "path": "Software/LogicAnalyzerPy/scripts/generate_cycle3_fixtures.py", "sha256": "6fc5289ba1076413283942be0374bd97def08b284bf7a7cef4e7b6105636be63"},
-    {"category": "generated-fixture", "provenance": "accepted semantic fixture manifest", "revision": "7c57a347bbe575e3f451383ea498f56abc362f26", "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3/manifest.json", "sha256": "0f5f1d9a01fc807dd0f4078ac84b20158f515a76ae4f1f83cc74651c4797413a"},
-    {"category": "threshold", "provenance": "accepted experiment-only cap set", "revision": "7c57a347bbe575e3f451383ea498f56abc362f26", "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3/experiment-caps.json", "sha256": "63cde36892a15a390be0c27c50eac18431d7a4b11381b0e4b82c0fe64f808cd8"},
-    {"category": "review", "provenance": "semantic fixture accumulated pass", "revision": "bdd5e5a1bd953ff06e0a17b6f5f3fcc227ddf4ae", "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-semantic-fixture-accumulated-validation-round-2.md", "sha256": "196b07bf214adddb70b094c30402d706415f183f4451beb82e6bf0ee2d6162ac"},
-    {"category": "review", "provenance": "semantic fixture acceptance pass", "revision": "0074c67c6461720f955219df22a49f0aa2efd3cc", "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-semantic-fixture-acceptance-round-2.md", "sha256": "9b0a9fcabed2b1a3636bb1c32df8ecf3aca590732e728ee6aacb004c85b018af"},
-    {"category": "method", "provenance": "accepted runner binding", "revision": "48d139f86aabcfa3e34567473c05ade13340107f", "path": "Software/LogicAnalyzerPy/tools/cycle3_characterize/candidate-binding.json", "sha256": "1d36da4a8e06707c5fad8830c7037fd5aa601fdc8854dc4f33b9aec4b2d992eb"},
-    {"category": "method", "provenance": "accepted launch configuration", "revision": "48d139f86aabcfa3e34567473c05ade13340107f", "path": "Software/LogicAnalyzerPy/tools/cycle3_characterize/launch.json", "sha256": "3df74d88a1f013a7aa9f09c81d76a653159de09e9b42270137fb0f3956efbf27"},
-    {"category": "method", "provenance": "accepted characterization runner", "revision": "48d139f86aabcfa3e34567473c05ade13340107f", "path": "Software/LogicAnalyzerPy/tools/cycle3_characterize/runner.py", "sha256": "2f0d32ec2d2fea047cb5f78e6b3d32753e6d69d3f9d0f398bd589691011ef942"},
-    {"category": "method", "provenance": "accepted characterization worker", "revision": "48d139f86aabcfa3e34567473c05ade13340107f", "path": "Software/LogicAnalyzerPy/tools/cycle3_characterize/worker.py", "sha256": "76124299334fc4fb5a7ea5d28750afff9b19f59b4fda0618dd0be215f59f890c"},
-    {"category": "method", "provenance": "accepted characterization method", "revision": "48d139f86aabcfa3e34567473c05ade13340107f", "path": "Software/LogicAnalyzerPy/docs/cycle-3-characterization-method.md", "sha256": "8ef7bdac50554fb42ec97d3c5d685d3f6b55074c82478c750e4e62ff3d318325"},
-    {"category": "test", "provenance": "runner verification test", "revision": "8bcd7ba19795633a9e0e215c1d9f2cc47a893b03", "path": "Software/LogicAnalyzerPy/tests/verification/test_c3_b1_preexecution_runner_candidate.py", "sha256": "c6cec19e2e97a833315270d2ae9dbf1cd9b19433122cf545b1f5d2512204bf5b"},
-    {"category": "review", "provenance": "runner verification pass", "revision": "8bcd7ba19795633a9e0e215c1d9f2cc47a893b03", "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-preexecution-runner-verification-round-2.md", "sha256": "0fc07aea133702352d0dee74d18e4287f707481b598773481d7c9d37501942dc"},
-    {"category": "review", "provenance": "runner accumulated pass", "revision": "d307c3059a4e35c6389304f4782b3d06776fae2b", "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-preexecution-runner-accumulated-validation-round-2.md", "sha256": "4656a53c49f7abc93d5b68faa0e2689537c69221499193830c0c13882999d645"},
-    {"category": "review", "provenance": "runner acceptance pass", "revision": "896c1bf050896c48cc6541bb7ad429ce4b6e74e0", "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-preexecution-runner-acceptance-round-2.md", "sha256": "ce1baa3c102e933fb9b8c5ffa8fe8f199e125ef17d82e662aec880f095793aef"},
-    {"category": "raw-observation", "provenance": "immutable raw environment", "revision": "397981adf0f89115647203e749db1b1e5b3384cf", "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3-raw/environment.json", "sha256": "14da4608cf882286a8f62f0e59f596d91753244b619046d14d7f445a89012a4f"},
-    {"category": "raw-observation", "provenance": "immutable hostile observations", "revision": "397981adf0f89115647203e749db1b1e5b3384cf", "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3-raw/hostile-observations.json", "sha256": "c956be536fc1fd5c23ebfd33b6bb51377e0f806ace57dfc02fc8888521f801ad"},
-    {"category": "raw-observation", "provenance": "immutable raw manifest", "revision": "397981adf0f89115647203e749db1b1e5b3384cf", "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3-raw/manifest.json", "sha256": "0706b84a0965a36e5b5d20c35c6d4ba9ab774f3bb7532e29f322dcd5a76d0efa"},
-    {"category": "raw-observation", "provenance": "immutable observations", "revision": "397981adf0f89115647203e749db1b1e5b3384cf", "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3-raw/observations.json", "sha256": "a282ccd92ffa27ceda4624d6138de61d48314a0b352f004e3d0770c8b3bc2f03"},
-    {"category": "raw-observation", "provenance": "immutable characterization requests", "revision": "397981adf0f89115647203e749db1b1e5b3384cf", "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3-raw/requests.json", "sha256": "fe5b345270eced91298250032411b6a85112c55baf46d3b71afb424ef385f94c"},
-    {"category": "test", "provenance": "raw baseline verification test", "revision": "9ac10d77cf1e8c492e7b5dae564baa43b09ebf71", "path": "Software/LogicAnalyzerPy/tests/verification/test_c3_b1_raw_baseline_candidate.py", "sha256": "08687a9bcc7fed1cfb55dbb6ec9b3c31f2ea486cfd389857916d6039b33567ca"},
-    {"category": "review", "provenance": "raw baseline verification pass", "revision": "9ac10d77cf1e8c492e7b5dae564baa43b09ebf71", "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-raw-baseline-verification-round-1.md", "sha256": "c9c08720039de278c12c54501e09c71634f084408330af849011004a666441c2"},
-    {"category": "review", "provenance": "raw baseline accumulated pass", "revision": "b49bd4932c4c091529b6c93f45de1f3f807e83f2", "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-raw-baseline-accumulated-validation-round-1.md", "sha256": "839bc5aae57a179007acbf405c7f1ce5c6484c51a7d997650e01e1cbcba879ee"},
-    {"category": "review", "provenance": "raw baseline acceptance pass", "revision": "7baa53bf8efe3de66722220ce20b0042f27f3cab", "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-raw-baseline-acceptance-round-1.md", "sha256": "87df517169c83c2c22a199fafcd9dec69e8197e5ee8e4d1f21fa9f6170056396"},
-    {"category": "threshold", "provenance": "accepted round-2 threshold proposal", "revision": "395646fa1172382928581d7266723f5b044cf8f2", "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3/threshold-proposal-round-2.json", "sha256": "94882b710f2d569c0ea0535366a0c1c3df3514aa20a18e4cd35f652177458ec2", "counts": [{"name": "limits", "value": 29}]},
-    {"category": "review", "provenance": "round-2 threshold rationale", "revision": "395646fa1172382928581d7266723f5b044cf8f2", "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-threshold-proposal-rationale-round-2.md", "sha256": "18a6b58a2b05f7dd7aa302a6e1bb4d074621440648a2e735a1d16d9708b209b0"},
-    {"category": "test", "provenance": "round-2 threshold verification test", "revision": "1cdedcae57e6233010410172196b23f6167ee675", "path": "Software/LogicAnalyzerPy/tests/verification/test_c3_b1_threshold_proposal_round2.py", "sha256": "f146f0d58a65116825f6ee6b2e04e4fcf495fca89de9565bf70e26b662509c79"},
-    {"category": "review", "provenance": "round-2 threshold verification pass", "revision": "1cdedcae57e6233010410172196b23f6167ee675", "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-threshold-proposal-verification-round-2.md", "sha256": "c160cc75238ab48479fb3cfe4d0c4d0c86ee052102a4fd2715050b285d4e50a0"},
-    {"category": "review", "provenance": "round-2 threshold accumulated pass", "revision": "0d00fe4b88a1192b893afbf8e32c39bd6493b2fd", "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-threshold-proposal-accumulated-validation-round-2.md", "sha256": "b3a1455aefb3044d1048d6e2253885ba9908a09e7bc5e24c287bb63b21723b4b"},
-    {"category": "operator-decision", "provenance": "explicit operator approval of all round-2 values", "revision": "b6d904064ab7b9e195eedded1c55efc306eeb925", "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-threshold-approval.md", "sha256": "24665a2d63713275c9fc0a82243ee53852834cb36adbf8f6252221804d8b37bc"},
-    {"category": "checkpoint", "provenance": "corrected final B1 evidence binder", "revision": "1f8793210a3298ed190ff30f97c84b6f9feb9b29", "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3/b1-final-candidate-round-2.json", "sha256": "55983bbe9613c0deb0fe7f05a2e88b680b9cfed352f4cccfae9cdd01ca744adf"},
-    {"category": "review", "provenance": "corrected final B1 rationale", "revision": "1f8793210a3298ed190ff30f97c84b6f9feb9b29", "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-candidate-round-2.md", "sha256": "9577c4b268af5a4a8c6b7f59f934e8ba689a23d4bda66aa0e8662533acd82396"},
-    {"category": "review", "provenance": "fresh distinct final verification pass", "revision": "a5fb09315064c49772d453ab5c1ba9d3a0200ba5", "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-verification-round-3.md", "sha256": "4f043b102e4d3b16c3475b6622535983ac2443d4d86bc7caa914b065a2a6dee8"},
-    {"category": "review", "provenance": "fresh complete accumulated-validation pass", "revision": "421519d3f0a95a68ab8ee173083cf90006913244", "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-2.md", "sha256": "f33c24102a8bd02927424744f44df4c486071cf5be4fe6208c8631611ff6b28a"},
-    {"category": "review", "provenance": "fresh distinct final acceptance pass", "revision": "792fec42fef2c0b37aab80bcb48231dff9949e8b", "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-acceptance-round-2.md", "sha256": "3eaa4dfdfe0b5a3ab002eb10c2a06cfb65433521674a18d839fa153fdf361724"}
+    {
+      "category": "workflow",
+      "provenance": "approved Cycle 3 goal",
+      "revision": "6a2d09a444797bb0b73c94b259b1cbd826084129",
+      "path": "CYCLE3_GOAL.md",
+      "sha256": "4120b771ec36390a482671c8428d880bb2f60abe3fe154ef4e001efeaf3ddef7"
+    },
+    {
+      "category": "workflow",
+      "provenance": "approved batch execution contract",
+      "revision": "ea83a403bb6f644d33069d3bebd41d5f1e0a60c0",
+      "path": "CYCLE3_BATCH_EXECUTION.md",
+      "sha256": "74a4d043933b6248ffff1968f691f1653051b18e50e4d196b1be3f46cc79dd26"
+    },
+    {
+      "category": "test",
+      "provenance": "frozen strict manifest validator",
+      "revision": "39e74a27638541b36b2845a8c6f1079bc0a3ae61",
+      "path": "Software/LogicAnalyzerPy/scripts/validate_cycle3_evidence.py",
+      "sha256": "39dd55f204e66e9ae2ff7519f43a2bf4053e7017eb8ad294f00ec654ae9b4c21"
+    },
+    {
+      "category": "checkpoint",
+      "provenance": "frozen Cycle 3 manifest schema",
+      "revision": "39e74a27638541b36b2845a8c6f1079bc0a3ae61",
+      "path": "Software/LogicAnalyzerPy/docs/evidence-manifest/cycle3-schema.json",
+      "sha256": "779d313ee79fabe8e98e627f7d6e27f0e436873ee2b8e118c0a3cac89e6bf3a3"
+    },
+    {
+      "category": "project-legal",
+      "provenance": "independent engineering disposition",
+      "revision": "538a4aa669a782919dafefb26a81d7346ed45f5c",
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-project-license-review-round-1.md",
+      "sha256": "b7afc4df18ba9bf5e40ee5a795e4544e54a59be27b1fea9a8617681ea82919cf"
+    },
+    {
+      "category": "fixture-source",
+      "provenance": "corrected deterministic fixture generator",
+      "revision": "a98d328aab92f3dad66988fb70cc567946dc89d0",
+      "path": "Software/LogicAnalyzerPy/scripts/generate_cycle3_fixtures.py",
+      "sha256": "d872fe9f6c1cb3407a8d05d7b9e03e3bb34b10baee8fa47e55b57bb4b64574f6"
+    },
+    {
+      "category": "generated-fixture",
+      "provenance": "corrected semantic fixture corpus",
+      "revision": "a98d328aab92f3dad66988fb70cc567946dc89d0",
+      "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3/semantic-fixtures.json",
+      "sha256": "1d97cf3ff4fb560e7dd73b621da0e40d7f1fb310b60c2d43fcb59f3ebf91a329"
+    },
+    {
+      "category": "generated-fixture",
+      "provenance": "corrected semantic fixture manifest",
+      "revision": "a98d328aab92f3dad66988fb70cc567946dc89d0",
+      "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3/manifest.json",
+      "sha256": "ce8eceb72480d042ef298cb6fe6944a4808fed0644e729c8c2de9fa1955ec37f"
+    },
+    {
+      "category": "threshold",
+      "provenance": "corrected experiment-only cap set",
+      "revision": "a98d328aab92f3dad66988fb70cc567946dc89d0",
+      "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3/experiment-caps.json",
+      "sha256": "6347a04f44f02179e73fd9178fce4daad227d06c9a7a4ac2c12e0b0669f60d3d"
+    },
+    {
+      "category": "test",
+      "provenance": "fixture correction verification test",
+      "revision": "b708293ec7e2f4f938e6fb6c669304ee2dba8721",
+      "path": "Software/LogicAnalyzerPy/tests/verification/test_c3_b1_semantic_fixture_correction.py",
+      "sha256": "d5a6a3f69fcdaf2b5d86e334d0091c758f7bb67c33b1e9b6bca2c056efe9a75d"
+    },
+    {
+      "category": "review",
+      "provenance": "fixture correction verification pass",
+      "revision": "b708293ec7e2f4f938e6fb6c669304ee2dba8721",
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-semantic-fixture-correction-verification-round-1.md",
+      "sha256": "092dadbce88288a544b4c7c14253095a580765501cd60afc6ceaaa5cad3cf2e2"
+    },
+    {
+      "category": "review",
+      "provenance": "fixture correction accumulated pass",
+      "revision": "1054cf30aeb66248451ad5945fe89e8b2e92990c",
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-semantic-fixture-correction-accumulated-validation-round-1.md",
+      "sha256": "6e9a6db5e9c4d93c889e6514fa1fec694d41c11892f1f71240711cab32f0139a"
+    },
+    {
+      "category": "review",
+      "provenance": "fixture correction acceptance pass",
+      "revision": "d30012d87c4c47e4e162c7e06b366dc63d82d8ba",
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-semantic-fixture-correction-acceptance-round-1.md",
+      "sha256": "9cb9947a5e3dcba8d7ddf33be4d2119bd15711f26739e3193e8f02644f6df862"
+    },
+    {
+      "category": "method",
+      "provenance": "fixture-rebound runner binding",
+      "revision": "ca0ee7514c157c145bb3970fd2b884fbc8d9ea8a",
+      "path": "Software/LogicAnalyzerPy/tools/cycle3_characterize/candidate-binding.json",
+      "sha256": "144c08036cb3eca490586d8af33b223fc9abfe905182cec102248ccce2108f98"
+    },
+    {
+      "category": "method",
+      "provenance": "accepted launch configuration",
+      "revision": "ca0ee7514c157c145bb3970fd2b884fbc8d9ea8a",
+      "path": "Software/LogicAnalyzerPy/tools/cycle3_characterize/launch.json",
+      "sha256": "3df74d88a1f013a7aa9f09c81d76a653159de09e9b42270137fb0f3956efbf27"
+    },
+    {
+      "category": "method",
+      "provenance": "fixture-rebound characterization runner",
+      "revision": "ca0ee7514c157c145bb3970fd2b884fbc8d9ea8a",
+      "path": "Software/LogicAnalyzerPy/tools/cycle3_characterize/runner.py",
+      "sha256": "81a2e3dbba8b5fe17043d24f8818e4b539a28e5738d79847e11539954dd36acc"
+    },
+    {
+      "category": "method",
+      "provenance": "accepted characterization worker",
+      "revision": "ca0ee7514c157c145bb3970fd2b884fbc8d9ea8a",
+      "path": "Software/LogicAnalyzerPy/tools/cycle3_characterize/worker.py",
+      "sha256": "76124299334fc4fb5a7ea5d28750afff9b19f59b4fda0618dd0be215f59f890c"
+    },
+    {
+      "category": "method",
+      "provenance": "fixture-rebound characterization method",
+      "revision": "ca0ee7514c157c145bb3970fd2b884fbc8d9ea8a",
+      "path": "Software/LogicAnalyzerPy/docs/cycle-3-characterization-method.md",
+      "sha256": "d2ab24c1bd0b429b2ff268e948fb6129ba926075a6fae0c30faa50d0159f94ec"
+    },
+    {
+      "category": "test",
+      "provenance": "runner rebinding verification test",
+      "revision": "6a9f8a1451e7d887ba0dbe7fac1695ea0b55169c",
+      "path": "Software/LogicAnalyzerPy/tests/verification/test_c3_b1_runner_fixture_rebinding.py",
+      "sha256": "14793a958bdfa4bc92cb8a46115b413d70f8d0cd9e7fb28fb65ef0f8197f0562"
+    },
+    {
+      "category": "review",
+      "provenance": "runner rebinding verification pass",
+      "revision": "6a9f8a1451e7d887ba0dbe7fac1695ea0b55169c",
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-preexecution-runner-fixture-rebinding-verification-round-1.md",
+      "sha256": "59bed0b1b0aac89b686425bf98e7b63b106b80b31a71c0e48b9dc5e6204a9031"
+    },
+    {
+      "category": "review",
+      "provenance": "runner rebinding accumulated pass",
+      "revision": "a1f987f4d2651eeeebb4f61e16bd3499fbf142e3",
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-preexecution-runner-fixture-rebinding-accumulated-validation-round-1.md",
+      "sha256": "8b25ddb7cabed91b4fa85d95a650685023048e9a2037e9415271a0d9e261eb6c"
+    },
+    {
+      "category": "review",
+      "provenance": "runner rebinding acceptance pass",
+      "revision": "bf1fc5eaa232bf09e66df77bd1c4be3e1ae4ffbd",
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-preexecution-runner-fixture-rebinding-acceptance-round-1.md",
+      "sha256": "6dae8c73787dc7908e0ec311c84325251482d32073cc2fd6083147ead943e060"
+    },
+    {
+      "category": "raw-observation",
+      "provenance": "fresh immutable raw environment",
+      "revision": "2ae1e4335c38a5cf717491c7936f857292f71498",
+      "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3-raw/environment.json",
+      "sha256": "fd8b2cd798678d0b9c6cb6b1e71e02ec71738183a1e5b84ebd71fb90ee7c7b34"
+    },
+    {
+      "category": "raw-observation",
+      "provenance": "fresh immutable hostile observations",
+      "revision": "2ae1e4335c38a5cf717491c7936f857292f71498",
+      "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3-raw/hostile-observations.json",
+      "sha256": "d8ef77f4293ff1e49d5772b6bb44df61f3dc4cfa37ceda13dcb54a3cce74d080"
+    },
+    {
+      "category": "raw-observation",
+      "provenance": "fresh immutable raw manifest",
+      "revision": "2ae1e4335c38a5cf717491c7936f857292f71498",
+      "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3-raw/manifest.json",
+      "sha256": "7c964750841e80d0c4bad606d2b76da8575a330d65836aaca8a9284a0668608e"
+    },
+    {
+      "category": "raw-observation",
+      "provenance": "fresh immutable observations",
+      "revision": "2ae1e4335c38a5cf717491c7936f857292f71498",
+      "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3-raw/observations.json",
+      "sha256": "28e1b9a2276eda2ca1c4cc1e8740b774e29125521aca5e45c31f3e4b1e8791cd"
+    },
+    {
+      "category": "raw-observation",
+      "provenance": "immutable characterization requests",
+      "revision": "2ae1e4335c38a5cf717491c7936f857292f71498",
+      "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3-raw/requests.json",
+      "sha256": "fe5b345270eced91298250032411b6a85112c55baf46d3b71afb424ef385f94c"
+    },
+    {
+      "category": "test",
+      "provenance": "corrected raw baseline verification test",
+      "revision": "10a6a1f72fc4973c112bd1da0877ffdc2590f3f8",
+      "path": "Software/LogicAnalyzerPy/tests/verification/test_c3_b1_raw_baseline_candidate.py",
+      "sha256": "b29634ace872049ce275d93bc81274e0776236d688b6ef2cbbb243922b0db016"
+    },
+    {
+      "category": "review",
+      "provenance": "corrected raw baseline verification pass",
+      "revision": "10a6a1f72fc4973c112bd1da0877ffdc2590f3f8",
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-raw-baseline-verification-round-3.md",
+      "sha256": "8fdf25cd7da0b07deae21631709a1a5b76700f233af5590fae0cf1eee4f4c2eb"
+    },
+    {
+      "category": "review",
+      "provenance": "fresh raw baseline accumulated pass",
+      "revision": "68242a9b2a173432ad465b514dac9369821c3723",
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-raw-baseline-accumulated-validation-round-2.md",
+      "sha256": "dc7901f4ffe82a8f1ff261a565025ccc607bb48fec84f8fd361bff1ae8030c09"
+    },
+    {
+      "category": "review",
+      "provenance": "fresh raw baseline acceptance pass",
+      "revision": "115e2d022f26dbd211616dea05ed91bdb1a2cb62",
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-raw-baseline-acceptance-round-2.md",
+      "sha256": "3b0ecd1060fb2b609374a0394df9ac378bf5d0ade1ac99a19ffafacb3d9c0958"
+    },
+    {
+      "category": "threshold",
+      "provenance": "approved round-3 threshold proposal",
+      "revision": "b260d9ecc0e74ed2502dda89beebb851ddfedb77",
+      "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3/threshold-proposal-round-3.json",
+      "sha256": "7fb9e88aaa5888e1a3133ff2234253bdfbbc4bd7151fc3a3be3c387dd619f510",
+      "counts": [
+        {
+          "name": "limits",
+          "value": 29
+        }
+      ]
+    },
+    {
+      "category": "review",
+      "provenance": "round-3 threshold rationale",
+      "revision": "b260d9ecc0e74ed2502dda89beebb851ddfedb77",
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-threshold-proposal-rationale-round-3.md",
+      "sha256": "8ea67712009a8a730c6eba8834e063179b709f07dfcdc5ffd7e9a55f6a93c58b"
+    },
+    {
+      "category": "test",
+      "provenance": "round-3 threshold verification test",
+      "revision": "92de4e6c9c57ba258f2991c92c3e1569cf659ad4",
+      "path": "Software/LogicAnalyzerPy/tests/verification/test_c3_b1_threshold_proposal_round3.py",
+      "sha256": "60068a4cc155b9661a5a558c4ca07a0766b0b581ecd86dcc246eccc2c311953d"
+    },
+    {
+      "category": "review",
+      "provenance": "round-3 threshold verification pass",
+      "revision": "92de4e6c9c57ba258f2991c92c3e1569cf659ad4",
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-threshold-proposal-verification-round-3.md",
+      "sha256": "2209b61e8460e77a6118a9c934315d4bd89c150d46e5645436e52c9df304338c"
+    },
+    {
+      "category": "review",
+      "provenance": "round-3 threshold accumulated pass",
+      "revision": "c3cc27417fdf324723f6643deb863a4933b29537",
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-threshold-proposal-accumulated-validation-round-3.md",
+      "sha256": "d96ad923d95b2004e7a5e2d3b935bde9008f7afef9688d852f2ab3944e83c975"
+    },
+    {
+      "category": "operator-decision",
+      "provenance": "explicit operator approval of all round-3 values",
+      "revision": "63fdfee87159251cdf525eb608340e6bc08ad010",
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-threshold-approval-round-3.md",
+      "sha256": "2a1f9cdb175115a1bf34983695ee382c228924f39aab1ffffb8a2480dbd29b60"
+    },
+    {
+      "category": "checkpoint",
+      "provenance": "replacement final B1 evidence binder",
+      "revision": "4a7dc728048812cfb4cf46f010939c182ac948cf",
+      "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3/b1-final-candidate-round-3.json",
+      "sha256": "a46a7b3fc5a684a77990b8f4373f710002411901d2610d1fa30d275e5b07f57c"
+    },
+    {
+      "category": "review",
+      "provenance": "replacement final B1 rationale",
+      "revision": "4a7dc728048812cfb4cf46f010939c182ac948cf",
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-candidate-round-3.md",
+      "sha256": "eb570fe3498232a0a206dc168a5afa0f404eca9dd8d1a173a99e746b6a6af20b"
+    },
+    {
+      "category": "test",
+      "provenance": "fresh replacement final verification test",
+      "revision": "fdbbc120d8bfa4d57e10c5c0ebe3737b3b98a71f",
+      "path": "Software/LogicAnalyzerPy/tests/verification/test_c3_b1_final_candidate_round3.py",
+      "sha256": "3fc6503e2273bfd24c4f908ffb08f0235b498e86913eca33137725224dc6118f"
+    },
+    {
+      "category": "review",
+      "provenance": "fresh replacement final verification pass",
+      "revision": "fdbbc120d8bfa4d57e10c5c0ebe3737b3b98a71f",
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-verification-round-4.md",
+      "sha256": "caadb30ef321413329cc4f9b976ace41232c4cf90df4f891239b082347ce7355"
+    },
+    {
+      "category": "review",
+      "provenance": "fresh replacement complete accumulated pass",
+      "revision": "a888cddc1a995eceb9cc4380af67fe246d4a12af",
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-3.md",
+      "sha256": "467a8264736b761c26c6bfea676f5852801cad0ab2ed9d3dd63011a2b99d6b34"
+    },
+    {
+      "category": "review",
+      "provenance": "fresh replacement final acceptance pass",
+      "revision": "a795c721c6bddd46e79ffb27686b7f0e8d068d96",
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-acceptance-round-3.md",
+      "sha256": "5b3042c050ad8055ab02b6b80a15e1f5062875d5ca879164bcf440d32a85b790"
+    },
+    {
+      "category": "review",
+      "provenance": "historical runner acceptance owning C3B1-RI011 and C3B1-RI013",
+      "revision": "896c1bf050896c48cc6541bb7ad429ce4b6e74e0",
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-preexecution-runner-acceptance-round-2.md",
+      "sha256": "ce1baa3c102e933fb9b8c5ffa8fe8f199e125ef17d82e662aec880f095793aef"
+    },
+    {
+      "category": "operator-decision",
+      "provenance": "superseded round-2 operator decision preserved as history",
+      "revision": "b6d904064ab7b9e195eedded1c55efc306eeb925",
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-threshold-approval.md",
+      "sha256": "24665a2d63713275c9fc0a82243ee53852834cb36adbf8f6252221804d8b37bc"
+    },
+    {
+      "category": "review",
+      "provenance": "historical final acceptance owning C3B1-MP001",
+      "revision": "792fec42fef2c0b37aab80bcb48231dff9949e8b",
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-acceptance-round-2.md",
+      "sha256": "3eaa4dfdfe0b5a3ab002eb10c2a06cfb65433521674a18d839fa153fdf361724"
+    },
+    {
+      "category": "review",
+      "provenance": "historical manifest verification owning C3B1-MV001 and C3B1-MV002",
+      "revision": "c34a2517472a443e9d8ad7b41be800b272db9833",
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-manifest-verification-round-2.md",
+      "sha256": "de2beb2b416b455ed13644b6fa843737c512970f3e310890b659032a4d728853"
+    }
   ],
   "requirements": [
-    {"id": "R1", "status": "pass", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-project-license-review-round-1.md", "sha256": "b7afc4df18ba9bf5e40ee5a795e4544e54a59be27b1fea9a8617681ea82919cf"}]},
-    {"id": "R2", "status": "pass", "evidence": [{"path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3/manifest.json", "sha256": "0f5f1d9a01fc807dd0f4078ac84b20158f515a76ae4f1f83cc74651c4797413a"}]},
-    {"id": "R3", "status": "pass", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-semantic-fixture-acceptance-round-2.md", "sha256": "9b0a9fcabed2b1a3636bb1c32df8ecf3aca590732e728ee6aacb004c85b018af"}]},
-    {"id": "R4", "status": "pass", "evidence": [{"path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3-raw/manifest.json", "sha256": "0706b84a0965a36e5b5d20c35c6d4ba9ab774f3bb7532e29f322dcd5a76d0efa"}]},
-    {"id": "R5", "status": "pass", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-threshold-approval.md", "sha256": "24665a2d63713275c9fc0a82243ee53852834cb36adbf8f6252221804d8b37bc"}]},
-    {"id": "R9", "status": "pass", "evidence": [{"path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3/manifest.json", "sha256": "0f5f1d9a01fc807dd0f4078ac84b20158f515a76ae4f1f83cc74651c4797413a"}]},
-    {"id": "R21", "status": "pass", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-2.md", "sha256": "f33c24102a8bd02927424744f44df4c486071cf5be4fe6208c8631611ff6b28a"}]},
-    {"id": "R23", "status": "pass", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-2.md", "sha256": "f33c24102a8bd02927424744f44df4c486071cf5be4fe6208c8631611ff6b28a"}]},
-    {"id": "R24", "status": "pass", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-acceptance-round-2.md", "sha256": "3eaa4dfdfe0b5a3ab002eb10c2a06cfb65433521674a18d839fa153fdf361724"}]},
-    {"id": "R25", "status": "pass", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-acceptance-round-2.md", "sha256": "3eaa4dfdfe0b5a3ab002eb10c2a06cfb65433521674a18d839fa153fdf361724"}]}
+    {
+      "id": "R1",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-project-license-review-round-1.md",
+          "sha256": "b7afc4df18ba9bf5e40ee5a795e4544e54a59be27b1fea9a8617681ea82919cf"
+        }
+      ]
+    },
+    {
+      "id": "R2",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3/manifest.json",
+          "sha256": "ce8eceb72480d042ef298cb6fe6944a4808fed0644e729c8c2de9fa1955ec37f"
+        }
+      ]
+    },
+    {
+      "id": "R3",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-semantic-fixture-correction-acceptance-round-1.md",
+          "sha256": "9cb9947a5e3dcba8d7ddf33be4d2119bd15711f26739e3193e8f02644f6df862"
+        }
+      ]
+    },
+    {
+      "id": "R4",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3-raw/manifest.json",
+          "sha256": "7c964750841e80d0c4bad606d2b76da8575a330d65836aaca8a9284a0668608e"
+        }
+      ]
+    },
+    {
+      "id": "R5",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-threshold-approval-round-3.md",
+          "sha256": "2a1f9cdb175115a1bf34983695ee382c228924f39aab1ffffb8a2480dbd29b60"
+        }
+      ]
+    },
+    {
+      "id": "R9",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3/manifest.json",
+          "sha256": "ce8eceb72480d042ef298cb6fe6944a4808fed0644e729c8c2de9fa1955ec37f"
+        }
+      ]
+    },
+    {
+      "id": "R21",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-3.md",
+          "sha256": "467a8264736b761c26c6bfea676f5852801cad0ab2ed9d3dd63011a2b99d6b34"
+        }
+      ]
+    },
+    {
+      "id": "R23",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-3.md",
+          "sha256": "467a8264736b761c26c6bfea676f5852801cad0ab2ed9d3dd63011a2b99d6b34"
+        }
+      ]
+    },
+    {
+      "id": "R24",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-acceptance-round-3.md",
+          "sha256": "5b3042c050ad8055ab02b6b80a15e1f5062875d5ca879164bcf440d32a85b790"
+        }
+      ]
+    },
+    {
+      "id": "R25",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-acceptance-round-3.md",
+          "sha256": "5b3042c050ad8055ab02b6b80a15e1f5062875d5ca879164bcf440d32a85b790"
+        }
+      ]
+    }
   ],
   "stopping_conditions": [
-    {"id": 1, "status": "pass", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-project-license-review-round-1.md", "sha256": "b7afc4df18ba9bf5e40ee5a795e4544e54a59be27b1fea9a8617681ea82919cf"}]},
-    {"id": 2, "status": "pass", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-semantic-fixture-acceptance-round-2.md", "sha256": "9b0a9fcabed2b1a3636bb1c32df8ecf3aca590732e728ee6aacb004c85b018af"}]},
-    {"id": 3, "status": "pass", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-threshold-approval.md", "sha256": "24665a2d63713275c9fc0a82243ee53852834cb36adbf8f6252221804d8b37bc"}]}
+    {
+      "id": 1,
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-project-license-review-round-1.md",
+          "sha256": "b7afc4df18ba9bf5e40ee5a795e4544e54a59be27b1fea9a8617681ea82919cf"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-semantic-fixture-correction-acceptance-round-1.md",
+          "sha256": "9cb9947a5e3dcba8d7ddf33be4d2119bd15711f26739e3193e8f02644f6df862"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-threshold-approval-round-3.md",
+          "sha256": "2a1f9cdb175115a1bf34983695ee382c228924f39aab1ffffb8a2480dbd29b60"
+        }
+      ]
+    }
   ],
   "findings": [
-    {"id": "C3B1-RI011", "status": "closed", "disposition": "Runner import and cache isolation corrected before accepted execution.", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-preexecution-runner-acceptance-round-2.md", "sha256": "ce1baa3c102e933fb9b8c5ffa8fe8f199e125ef17d82e662aec880f095793aef"}]},
-    {"id": "C3B1-RI013", "status": "closed", "disposition": "Runner cleanup and exact-child ownership corrected and accepted.", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-preexecution-runner-acceptance-round-2.md", "sha256": "ce1baa3c102e933fb9b8c5ffa8fe8f199e125ef17d82e662aec880f095793aef"}]},
-    {"id": "C3B1-TPV001", "status": "closed", "disposition": "Round-1 performance ceiling corrected through a new complete proposal and operator approval.", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-threshold-approval.md", "sha256": "24665a2d63713275c9fc0a82243ee53852834cb36adbf8f6252221804d8b37bc"}]},
-    {"id": "C3B1-FV001", "status": "closed", "disposition": "Final binder explicitly enumerates both complete ordered implementation histories.", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-verification-round-3.md", "sha256": "4f043b102e4d3b16c3475b6622535983ac2443d4d86bc7caa914b065a2a6dee8"}]},
-    {"id": "C3B1-MP001", "status": "closed", "disposition": "Fresh primary verification and acceptance identities replaced invalid internal-role reuse, with a fresh complete accumulated gate between them.", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-acceptance-round-2.md", "sha256": "3eaa4dfdfe0b5a3ab002eb10c2a06cfb65433521674a18d839fa153fdf361724"}]}
+    {
+      "id": "C3B1-RI011",
+      "status": "closed",
+      "disposition": "Runner import and cache isolation were corrected before accepted execution.",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-preexecution-runner-acceptance-round-2.md",
+          "sha256": "ce1baa3c102e933fb9b8c5ffa8fe8f199e125ef17d82e662aec880f095793aef"
+        }
+      ]
+    },
+    {
+      "id": "C3B1-RI013",
+      "status": "closed",
+      "disposition": "Runner cleanup and exact-child ownership were corrected and accepted.",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-preexecution-runner-acceptance-round-2.md",
+          "sha256": "ce1baa3c102e933fb9b8c5ffa8fe8f199e125ef17d82e662aec880f095793aef"
+        }
+      ]
+    },
+    {
+      "id": "C3B1-TPV001",
+      "status": "closed",
+      "disposition": "The failed round-1 ceiling remains closed; its round-2 approval is now superseded by the complete round-3 proposal and renewed decision.",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-threshold-approval-round-3.md",
+          "sha256": "2a1f9cdb175115a1bf34983695ee382c228924f39aab1ffffb8a2480dbd29b60"
+        }
+      ]
+    },
+    {
+      "id": "C3B1-FV001",
+      "status": "closed",
+      "disposition": "The replacement binder preserves both complete ordered implementation histories.",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-verification-round-4.md",
+          "sha256": "caadb30ef321413329cc4f9b976ace41232c4cf90df4f891239b082347ce7355"
+        }
+      ]
+    },
+    {
+      "id": "C3B1-MP001",
+      "status": "closed",
+      "disposition": "Fresh primary replacement verification and acceptance identities remain distinct from every internal role.",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-acceptance-round-3.md",
+          "sha256": "5b3042c050ad8055ab02b6b80a15e1f5062875d5ca879164bcf440d32a85b790"
+        }
+      ]
+    },
+    {
+      "id": "C3B1-MV001",
+      "status": "closed",
+      "disposition": "Historical artifact-revision correction remains closed and preserved in the former manifest verification.",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-manifest-verification-round-2.md",
+          "sha256": "de2beb2b416b455ed13644b6fa843737c512970f3e310890b659032a4d728853"
+        }
+      ]
+    },
+    {
+      "id": "C3B1-MV002",
+      "status": "closed",
+      "disposition": "Historical frozen-command-vector correction remains closed and preserved in the former manifest verification.",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-manifest-verification-round-2.md",
+          "sha256": "de2beb2b416b455ed13644b6fa843737c512970f3e310890b659032a4d728853"
+        }
+      ]
+    },
+    {
+      "id": "C3B2-IF001",
+      "status": "closed",
+      "disposition": "The incomplete UART fixture was independently corrected and all dependent B1 gates were rebuilt in order.",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-semantic-fixture-correction-acceptance-round-1.md",
+          "sha256": "9cb9947a5e3dcba8d7ddf33be4d2119bd15711f26739e3193e8f02644f6df862"
+        }
+      ]
+    },
+    {
+      "id": "C3B1-RV001",
+      "status": "closed",
+      "disposition": "The raw verifier path-provenance defect was corrected without changing the fresh raw candidate.",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-raw-baseline-verification-round-3.md",
+          "sha256": "8fdf25cd7da0b07deae21631709a1a5b76700f233af5590fae0cf1eee4f4c2eb"
+        }
+      ]
+    }
   ],
   "decisions": [
-    {"authority": "operator", "decision": "Approved all 29 exact round-2 threshold values, including 900000000 ns successful parent total and eight-bit maximum SPI word size.", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-threshold-approval.md", "sha256": "24665a2d63713275c9fc0a82243ee53852834cb36adbf8f6252221804d8b37bc"}]},
-    {"authority": "independent project and license review", "decision": "Private engineering use is conditionally acceptable; conveyance remains prohibited without the recorded rights-holder or qualified-counsel confirmation.", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-project-license-review-round-1.md", "sha256": "b7afc4df18ba9bf5e40ee5a795e4544e54a59be27b1fea9a8617681ea82919cf"}]}
+    {
+      "authority": "operator",
+      "decision": "Approved all 29 exact round-3 threshold values, including 1000000000 ns successful parent total and eight-bit maximum SPI word size; the round-2 decision transfers no authority.",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-threshold-approval-round-3.md",
+          "sha256": "2a1f9cdb175115a1bf34983695ee382c228924f39aab1ffffb8a2480dbd29b60"
+        }
+      ]
+    },
+    {
+      "authority": "independent project and license review",
+      "decision": "Private engineering use is conditionally acceptable; conveyance remains prohibited without the recorded rights-holder or qualified-counsel confirmation.",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-project-license-review-round-1.md",
+          "sha256": "b7afc4df18ba9bf5e40ee5a795e4544e54a59be27b1fea9a8617681ea82919cf"
+        }
+      ]
+    }
   ],
   "limitations": [
     "Cycle 3 support is macOS-only.",
     "The project/license record is an engineering disposition, not legal advice; package build, conveyance, and distribution remain prohibited pending the recorded confirmation.",
     "C3-B1 proves only its earliest-owned requirements and stopping conditions; final proof remains C3-B5-owned.",
-    "The characterization runner is non-installed evidence tooling and is not a product decoder host or public API."
+    "The characterization runner is non-installed evidence tooling and is not a product decoder host or public API.",
+    "Four inherited optional C2-B3 machine-local physical-artifact tests skipped because their external artifact directory was empty; mandatory checked-in sanitized evidence remained covered."
   ],
   "deferred_work": [
-    "C3-B2 through C3-B5 remain unstarted and retain their approved scopes.",
-    "Product host containment and approved-limit enforcement begin only after the committed C3-B1 checkpoint.",
+    "Preserved C3-B2 implementation work remains paused and non-evidentiary until the replacement B1 checkpoint is committed.",
+    "C3-B3 through C3-B5 retain their approved scopes and ordering.",
     "Public library and installed decode CLI remain deferred to C3-B4.",
     "Final exact-candidate CI, measurements, completion closure, and terminal seal remain deferred to C3-B5."
   ],
   "audits": [
-    {"category": "prohibited-runtime", "verdict": "pass", "scope": "All active Cycle 3 source, test, evidence, command, dependency, and process paths.", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-2.md", "sha256": "f33c24102a8bd02927424744f44df4c486071cf5be4fe6208c8631611ff6b28a"}]},
-    {"category": "dependency", "verdict": "pass", "scope": "Python development/web locks, npm lock, installed dependency health, and prohibited dependency absence.", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-2.md", "sha256": "f33c24102a8bd02927424744f44df4c486071cf5be4fe6208c8631611ff6b28a"}]},
-    {"category": "process", "verdict": "pass", "scope": "Post-gate centralized process audit and exact-child cleanup evidence.", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-2.md", "sha256": "f33c24102a8bd02927424744f44df4c486071cf5be4fe6208c8631611ff6b28a"}]},
-    {"category": "import", "verdict": "pass", "scope": "Closed snapshot imports, accepted runner binding, and product import boundaries.", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-preexecution-runner-verification-round-2.md", "sha256": "0fc07aea133702352d0dee74d18e4287f707481b598773481d7c9d37501942dc"}]},
-    {"category": "scope", "verdict": "pass", "scope": "No B2, browser decoder, hardware, publication, unsupported-platform, or Cycle 4 work.", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-acceptance-round-2.md", "sha256": "3eaa4dfdfe0b5a3ab002eb10c2a06cfb65433521674a18d839fa153fdf361724"}]},
-    {"category": "license", "verdict": "pass", "scope": "Exact decoder/helper provenance, notices, planned placement, and conditional non-conveyance disposition.", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-project-license-review-round-1.md", "sha256": "b7afc4df18ba9bf5e40ee5a795e4544e54a59be27b1fea9a8617681ea82919cf"}]},
-    {"category": "rollback", "verdict": "pass", "scope": "Accepted Cycle 1/2 evidence and rollback paths remain unchanged.", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-2.md", "sha256": "f33c24102a8bd02927424744f44df4c486071cf5be4fe6208c8631611ff6b28a"}]},
-    {"category": "repository", "verdict": "pass", "scope": "Exact candidate tree, two-path candidate scope, bound digests, clean tracked state, and immutable correction ordering.", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-verification-round-3.md", "sha256": "4f043b102e4d3b16c3475b6622535983ac2443d4d86bc7caa914b065a2a6dee8"}]}
+    {
+      "category": "prohibited-runtime",
+      "verdict": "pass",
+      "scope": "All active Cycle 3 source, test, evidence, command, dependency, and process paths.",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-3.md",
+          "sha256": "467a8264736b761c26c6bfea676f5852801cad0ab2ed9d3dd63011a2b99d6b34"
+        }
+      ]
+    },
+    {
+      "category": "dependency",
+      "verdict": "pass",
+      "scope": "Python development/web locks, npm lock, installed dependency health, and prohibited dependency absence.",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-3.md",
+          "sha256": "467a8264736b761c26c6bfea676f5852801cad0ab2ed9d3dd63011a2b99d6b34"
+        }
+      ]
+    },
+    {
+      "category": "process",
+      "verdict": "pass",
+      "scope": "Post-gate centralized process audit and exact-child cleanup evidence.",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-3.md",
+          "sha256": "467a8264736b761c26c6bfea676f5852801cad0ab2ed9d3dd63011a2b99d6b34"
+        }
+      ]
+    },
+    {
+      "category": "import",
+      "verdict": "pass",
+      "scope": "Closed snapshot imports, corrected runner binding, and product import boundaries.",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-preexecution-runner-fixture-rebinding-verification-round-1.md",
+          "sha256": "59bed0b1b0aac89b686425bf98e7b63b106b80b31a71c0e48b9dc5e6204a9031"
+        }
+      ]
+    },
+    {
+      "category": "scope",
+      "verdict": "pass",
+      "scope": "No B2 execution, browser decoder, hardware, publication, unsupported-platform, or Cycle 4 work.",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-acceptance-round-3.md",
+          "sha256": "5b3042c050ad8055ab02b6b80a15e1f5062875d5ca879164bcf440d32a85b790"
+        }
+      ]
+    },
+    {
+      "category": "license",
+      "verdict": "pass",
+      "scope": "Exact decoder/helper provenance, notices, planned placement, and conditional non-conveyance disposition.",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-project-license-review-round-1.md",
+          "sha256": "b7afc4df18ba9bf5e40ee5a795e4544e54a59be27b1fea9a8617681ea82919cf"
+        }
+      ]
+    },
+    {
+      "category": "rollback",
+      "verdict": "pass",
+      "scope": "Accepted Cycle 1/2 evidence and rollback paths remain unchanged.",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-accumulated-validation-round-3.md",
+          "sha256": "467a8264736b761c26c6bfea676f5852801cad0ab2ed9d3dd63011a2b99d6b34"
+        }
+      ]
+    },
+    {
+      "category": "repository",
+      "verdict": "pass",
+      "scope": "Exact replacement candidate tree, two-path scope, live digests, corrected ordering, and qualified worktree state.",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-final-verification-round-4.md",
+          "sha256": "caadb30ef321413329cc4f9b976ace41232c4cf90df4f891239b082347ce7355"
+        }
+      ]
+    }
   ],
   "b1_evidence": {
-    "fixture_candidate": {"path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3/manifest.json", "sha256": "0f5f1d9a01fc807dd0f4078ac84b20158f515a76ae4f1f83cc74651c4797413a"},
-    "runner_candidate": {"path": "Software/LogicAnalyzerPy/tools/cycle3_characterize/candidate-binding.json", "sha256": "1d36da4a8e06707c5fad8830c7037fd5aa601fdc8854dc4f33b9aec4b2d992eb"},
-    "raw_candidate": {"path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3-raw/manifest.json", "sha256": "0706b84a0965a36e5b5d20c35c6d4ba9ab774f3bb7532e29f322dcd5a76d0efa"},
-    "threshold_candidate": {"path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3/threshold-proposal-round-2.json", "sha256": "94882b710f2d569c0ea0535366a0c1c3df3514aa20a18e4cd35f652177458ec2"},
-    "project_legal": {"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-project-license-review-round-1.md", "sha256": "b7afc4df18ba9bf5e40ee5a795e4544e54a59be27b1fea9a8617681ea82919cf"},
-    "operator_decision": {"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-threshold-approval.md", "sha256": "24665a2d63713275c9fc0a82243ee53852834cb36adbf8f6252221804d8b37bc"}
+    "fixture_candidate": {
+      "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3/manifest.json",
+      "sha256": "ce8eceb72480d042ef298cb6fe6944a4808fed0644e729c8c2de9fa1955ec37f"
+    },
+    "runner_candidate": {
+      "path": "Software/LogicAnalyzerPy/tools/cycle3_characterize/candidate-binding.json",
+      "sha256": "144c08036cb3eca490586d8af33b223fc9abfe905182cec102248ccce2108f98"
+    },
+    "raw_candidate": {
+      "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3-raw/manifest.json",
+      "sha256": "7c964750841e80d0c4bad606d2b76da8575a330d65836aaca8a9284a0668608e"
+    },
+    "threshold_candidate": {
+      "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3/threshold-proposal-round-3.json",
+      "sha256": "7fb9e88aaa5888e1a3133ff2234253bdfbbc4bd7151fc3a3be3c387dd619f510"
+    },
+    "project_legal": {
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-project-license-review-round-1.md",
+      "sha256": "b7afc4df18ba9bf5e40ee5a795e4544e54a59be27b1fea9a8617681ea82919cf"
+    },
+    "operator_decision": {
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-threshold-approval-round-3.md",
+      "sha256": "2a1f9cdb175115a1bf34983695ee382c228924f39aab1ffffb8a2480dbd29b60"
+    }
   }
 }

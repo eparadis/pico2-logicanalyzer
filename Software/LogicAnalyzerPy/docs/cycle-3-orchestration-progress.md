@@ -3223,3 +3223,28 @@ unchanged.
   later distinct gates. B2 stays paused and uninspected until that checkpoint;
   no product enforcement, distribution, non-macOS, hardware, or Cycle 4
   authority is granted.
+
+### Immutable round-4 final-B1 candidate; fresh verification assigned
+
+- Recorded: `2026-08-28T19:02:08Z`. Fresh integration identity
+  `c3-b1-final-integration-implementor-replacement-1` committed exact candidate
+  `7246dcbe55a60ef7ee9196f4bf265c7c75141d55` / tree
+  `51e895a1e2c95580d04bc8a31ed8d58a85613e1a` with status
+  `candidate-not-accepted`.
+- Candidate JSON/review SHA-256 values are respectively
+  `a186af26805c804613271641e5f57b1393ae31d79fa800a29249e37efc0650fd`
+  and
+  `591459742b9453e94047438ec79a6e2bdd54ed3b6d0c71207bbae4c64b563d73`.
+  Its commit adds only those two round-4 binder paths and binds the complete
+  corrected fixture, replacement runner, fresh raw, round-4 threshold, and
+  exact approval chains. Static implementor checks found no issue.
+- Fresh independent verification is assigned to distinct identity
+  `c3-b1-final-verifier-replacement-1`. It may add only one new round-4 final
+  verifier test and one new verification review, may repair nothing, and must
+  independently validate the exact immutable candidate/tree, current bytes and
+  digests, ancestry, all role histories, finding/invalidation ordering, all 29
+  approved values/boundaries, frozen commands/applicability, exclusions, and
+  the mandated next-gate order using non-vacuous negative mutations.
+- Complete root accumulated validation and independent final acceptance remain
+  paused until that verifier passes. B2 remains uninspected and supplies no
+  input or evidence.

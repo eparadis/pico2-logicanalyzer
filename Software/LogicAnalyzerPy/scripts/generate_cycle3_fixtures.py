@@ -1221,7 +1221,7 @@ def build() -> dict[str, object]:
                 {"D4": [[0, 1], [1, 0], [10, 1], [20, 0], [30, 1], [40, 0], [50, 1]]},
                 edge_trace({"0": "f"}, [1, 10, 20, 30, 40, 50], [0, 255]),
                 uart_rx[:2],
-                "9-bit MSB first boundary; end suppresses incomplete frame",
+                "9-bit MSB first boundary; end preserves already-emitted bit annotations",
             ),
             fixture(
                 "spi-mosi-mode0-word8",
@@ -1607,6 +1607,10 @@ def build() -> dict[str, object]:
             [11 + 10 * i, value] for i, value in enumerate(values[:count])
         ]
         if ident.endswith("incomplete"):
+            # get_sample_point() uses ceil(frame_start + (bit_width - 1) * 0.99
+            # + bitnum * bit_width): with frame_start=1 and width=10 this is
+            # 10 for the start bit and 20..50 before the declared capture
+            # ends at 56.  The next scheduled centre would be 60, beyond it.
             terminal = 56
         else:
             terminal = 106 if ident != "uart-parity-invalid-stop-break-idle-packet" else 116
@@ -1614,7 +1618,7 @@ def build() -> dict[str, object]:
         real_edges = [at for (at, level), (_, prior) in zip(declared[1:], declared) if level != prior]
         timeline["expected_wait_trace"] = uart_trace(
             "0" if channel == "rx" else "1",
-            [6 + 10 * i for i in range(count)],
+            ([10 + 10 * i for i in range(count)] if ident.endswith("incomplete") else [6 + 10 * i for i in range(count)]),
             terminal,
             real_edges,
             idle_due=(
@@ -1628,6 +1632,15 @@ def build() -> dict[str, object]:
             if isinstance(wait["condition"], list) and len(wait["condition"]) == 3 and not wait.get("terminal"):
                 level = [value for at, value in declared if at <= wait["sample"]][-1]
                 wait["matched"][0] = level == 0
+        if ident.endswith("incomplete"):
+            # A rising generic-edge return calls inspect_idle(), which starts
+            # an idle candidate.  The next data/edge wait therefore includes
+            # the source's third idle skip alternative until the falling edge
+            # clears it.  The same sequence repeats for the 31..41 interval.
+            for sample, idle_skip in ((20, 110), (21, 101), (40, 110), (41, 101)):
+                wait = next(item for item in timeline["expected_wait_trace"] if item["sample"] == sample)
+                wait["condition"].append({"skip": idle_skip})
+                wait["matched"].append(False)
         timeline["sample_count"] = terminal
         timeline["samplerate_hz"] = 1_152_000
         repin(timeline)
@@ -1658,6 +1671,31 @@ def build() -> dict[str, object]:
 
     by_id["uart-rx-valid-default"]["expected_records"] = uart_default_records(0)
     by_id["uart-tx-valid-default"]["expected_records"] = uart_default_records(1)
+    # Source-order transcription for the partial 9-bit MSB-first frame.  Once
+    # get_data_bits() has sampled each available bit, it immediately emits its
+    # annotation.  End-of-input aborts the next wait; it does not retract them.
+    incomplete_bits = [1, 0, 1, 0]
+    by_id["uart-msb-9bit-boundary-incomplete"]["expected_records"] = [
+        record(
+            0,
+            "python",
+            {"tag": "list", "value": [tag_string("STARTBIT"), tag_integer(0), tag_integer(0)]},
+            5,
+            15,
+            0,
+        ),
+        record(
+            1,
+            "annotation",
+            {"class_index": 2, "texts": ["Start bit", "Start", "S"]},
+            5,
+            15,
+            2,
+        ),
+    ] + [
+        record(2 + index, "annotation", {"class_index": 12, "texts": [str(value)]}, 15 + 10 * index, 25 + 10 * index, 2)
+        for index, value in enumerate(incomplete_bits)
+    ]
 
     def spi_trace(samples: list[int], with_cs: bool, terminal: int) -> list[dict[str, object]]:
         trace = [{"condition": {}, "sample": 0, "matched": [True]}]

@@ -294,6 +294,59 @@ def test_hand_authored_protocol_cases_have_real_trace_declarations_and_times() -
     assert decisions["simultaneous-alternatives"]["expected_calls"][0]["matched"] == [True, True]
 
 
+def test_uart_msb_9bit_incomplete_uses_99_percent_timing_and_keeps_emissions() -> None:
+    """Bind C3B2-IF001 to static source arithmetic, not decoder output."""
+    timeline = next(
+        item
+        for item in load("semantic-fixtures.json")["timelines"]
+        if item["id"] == "uart-msb-9bit-boundary-incomplete"
+    )
+    assert timeline["options"] == {"data_bits": 9, "bit_order": "msb-first", "sample_point": 99}
+    waits = timeline["expected_wait_trace"]
+    assert [wait["sample"] for wait in waits] == [1, 10, 11, 20, 21, 30, 31, 40, 41, 50, 56]
+    assert [wait["matched"] for wait in waits] == [
+        [True, True], [True, False], [False, True], [True, False, False], [False, True, False],
+        [True, False], [False, True], [True, False, False], [False, True, False], [True, False],
+        [False, False],
+    ]
+    assert [wait["pins"] for wait in waits] == [
+        [0, 255], [0, 255], [1, 255], [1, 255], [0, 255], [0, 255],
+        [1, 255], [1, 255], [0, 255], [0, 255], [0, 255],
+    ]
+    assert [wait["condition"] for wait in waits] == [
+        [{"0": "f"}, {"0": "e"}],
+        [{"skip": 9}, {"0": "e"}],
+        [{"skip": 10}, {"0": "e"}],
+        [{"skip": 9}, {"0": "e"}, {"skip": 110}],
+        [{"skip": 10}, {"0": "e"}, {"skip": 101}],
+        [{"skip": 9}, {"0": "e"}],
+        [{"skip": 10}, {"0": "e"}],
+        [{"skip": 9}, {"0": "e"}, {"skip": 110}],
+        [{"skip": 10}, {"0": "e"}, {"skip": 101}],
+        [{"skip": 9}, {"0": "e"}],
+        [{"skip": 10}, {"0": "e"}],
+    ]
+    assert waits[-1] == {
+        "condition": [{"skip": 10}, {"0": "e"}],
+        "sample": 56,
+        "matched": [False, False],
+        "pins": [0, 255],
+        "terminal": "end-of-input failed wait",
+    }
+    records = timeline["expected_records"]
+    assert [record["emission_index"] for record in records] == list(range(6))
+    assert [(record["kind"], record["output_id"]) for record in records] == [
+        ("python", 0), ("annotation", 2), *( ("annotation", 2),) * 4
+    ]
+    assert [(record["start_sample"], record["end_sample"]) for record in records] == [
+        (5, 15), (5, 15), (15, 25), (25, 35), (35, 45), (45, 55)
+    ]
+    assert [record["value"]["texts"] for record in records[2:]] == [["1"], ["0"], ["1"], ["0"]]
+    for record in records:
+        assert record["start_time"]["absolute"]["numerator"] == record["start_sample"]
+        assert record["end_time"]["absolute"]["numerator"] == record["end_sample"]
+
+
 def test_matrix_equivalence_is_named_source_specific_and_caps_cover_all_categories() -> None:
     rows = load("option-matrix.json")["rows"]
     assert len({row["id"] for row in rows}) == len(rows)
@@ -525,6 +578,12 @@ def test_direct_option_witnesses_bind_value_to_stimulus_wait_and_output() -> Non
         if item["kind"] == "python" and item["value"]["value"][0]["value"] == "DATA"
     )
     assert msb_data["value"]["value"][2]["value"][0]["value"] == 163
+    sample_point_99 = next(
+        row
+        for row in rows
+        if row["id"] == "uart-sample_point-99" and row["disposition"] == "direct-fixture"
+    )
+    assert sample_point_99["fixture"] == "direct-uart-sample_point-99"
     p99 = timelines["direct-uart-sample_point-99"]
     assert p99["expected_wait_trace"][1]["sample"] == 19
     even = timelines["direct-uart-parity-even"]

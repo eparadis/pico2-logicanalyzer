@@ -3197,3 +3197,29 @@ unchanged.
   Status remains `proposal-not-approved` until that decision is committed.
 - No earlier approval transfers. Final B1, manifest/checkpoint, and B2 remain
   paused.
+
+### Exact round-4 thresholds approved; replacement final-B1 candidate assigned
+
+- Recorded: `2026-08-28T18:53:33Z`. The operator explicitly approved the
+  complete exact 29-value round-4 proposal `b680aa5` with the statement
+  `I approve the exact committed round-4 threshold values in proposal b680aa5.`
+  Root bound that decision in immutable approval commit `afd4585`; approval
+  record SHA-256 is
+  `ff1ba9665174b0912adea9eb4682d1a9e6839c6ec9b5efce073a9b055303aba6`.
+- The decision binds only proposal commit/tree
+  `b680aa59fba4a18da2aeaacc8cbd7ad3a68784e0` /
+  `e8661f094ba0423ca08055ea785bbfcde8554d71`, its accepted evidence chain,
+  and its exact inclusive boundaries. The superseded round-3 approval at
+  `63fdfee` transfers no authority.
+- Fresh replacement final-B1 integration is assigned to distinct identity
+  `c3-b1-final-integration-implementor-replacement-1`. It may add only a new
+  round-4 final-candidate JSON binder and rationale. It must bind the accepted
+  corrected fixture `3af6b9f`, accepted replacement runner `380d5dd`, fresh
+  raw candidate `d0d9db`, round-4 proposal `b680aa5`, and operator approval
+  `afd4585`, while preserving all ordered invalidations and role separation.
+- Fresh final verification, complete root accumulated validation, and fresh
+  independent final acceptance remain mandatory before replacement manifest
+  assembly. Manifest verification and the replacement B1 checkpoint remain
+  later distinct gates. B2 stays paused and uninspected until that checkpoint;
+  no product enforcement, distribution, non-macOS, hardware, or Cycle 4
+  authority is granted.

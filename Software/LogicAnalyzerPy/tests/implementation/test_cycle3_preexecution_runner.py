@@ -126,6 +126,25 @@ def test_corrected_semantic_fixture_digest_is_immutable() -> None:
     assert hashlib.sha256(fixture_path.read_bytes()).hexdigest() == SEMANTIC_FIXTURE_SHA256
 
 
+def test_c3b2_if002_fixture_rebinding_identities_are_exact_and_supersede_old() -> None:
+    assert FIXTURE_CANDIDATE_COMMIT == "3af6b9f80dd52611e14acca407707d1da7b8d9ac"
+    assert FIXTURE_CANDIDATE_TREE == "14c010153ea5542617e601e4126047c561a48483"
+    assert SEMANTIC_FIXTURE_SHA256 == (
+        "34d2a114b653dc1a5d2fc9f253457e11e6b1acd4bc10d38ffa98d84bdd93d094"
+    )
+    assert FIXTURE_MANIFEST_SHA256 == (
+        "71c64b2c80142cf5d535e03f93f9d3ce66ada120582115fbf403f3621f97c5b9"
+    )
+    assert FIXTURE_CANDIDATE_COMMIT != "a98d328aab92f3dad66988fb70cc567946dc89d0"
+    assert FIXTURE_CANDIDATE_TREE != "450aadcf26bd6c74860872bfbf0a0a1b32d94f3b"
+    assert SEMANTIC_FIXTURE_SHA256 != (
+        "1d97cf3ff4fb560e7dd73b621da0e40d7f1fb310b60c2d43fcb59f3ebf91a329"
+    )
+    assert FIXTURE_MANIFEST_SHA256 != (
+        "ce8eceb72480d042ef298cb6fe6944a4808fed0644e729c8c2de9fa1955ec37f"
+    )
+
+
 CAP_BOUNDARY_MATRIX = (
     "wall_deadline_ms",
     "terminate_grace_ms",
@@ -349,6 +368,10 @@ def test_binding_covers_closed_source_set() -> None:
         "fixture_caps",
         "fixture_manifest",
         "fixture_semantic",
+        "old_fixture_candidate",
+        "old_fixture_tree",
+        "old_fixture_manifest",
+        "old_fixture_semantic",
         "traversal",
         "ordinary",
     ],
@@ -375,6 +398,22 @@ def test_hostile_binding_path_is_rejected_pre_spawn(
         payload["accepted_fixture"]["manifest_sha256"] = "0" * 64
     elif variant == "fixture_semantic":
         payload["accepted_fixture"]["semantic_fixture_sha256"] = "0" * 64
+    elif variant == "old_fixture_candidate":
+        payload["accepted_fixture"]["candidate_commit"] = (
+            "a98d328aab92f3dad66988fb70cc567946dc89d0"
+        )
+    elif variant == "old_fixture_tree":
+        payload["accepted_fixture"]["candidate_tree"] = (
+            "450aadcf26bd6c74860872bfbf0a0a1b32d94f3b"
+        )
+    elif variant == "old_fixture_manifest":
+        payload["accepted_fixture"]["manifest_sha256"] = (
+            "ce8eceb72480d042ef298cb6fe6944a4808fed0644e729c8c2de9fa1955ec37f"
+        )
+    elif variant == "old_fixture_semantic":
+        payload["accepted_fixture"]["semantic_fixture_sha256"] = (
+            "1d97cf3ff4fb560e7dd73b621da0e40d7f1fb310b60c2d43fcb59f3ebf91a329"
+        )
     elif variant == "traversal":
         sources["../escape.py"] = "0" * 64
     elif variant == "ordinary":

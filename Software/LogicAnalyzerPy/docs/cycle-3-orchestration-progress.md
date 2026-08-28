@@ -2873,3 +2873,37 @@ unchanged.
   act only after accumulation and may create only its review record. All later
   runner/raw/threshold/final/manifest gates remain invalidated and may not act
   early.
+
+### C3B2-IF002 fixture gate complete and runner rebinding assignment
+
+- Recorded: `2026-08-28T14:35:47Z`. Exact fixture candidate
+  `3af6b9f80dd52611e14acca407707d1da7b8d9ac` passed fresh independent
+  verification at commit `3a29e4684af6a4c8e53aa4f83f9692ddebab5670`, complete root accumulation at
+  commit `efcc7759f4af89eb438b2b8611e250d0962fc8c6`, and fresh independent
+  acceptance at commit `972322116b737d2fcad37e46d23116b031841359`.
+- Verifier test/review SHA-256 values are respectively
+  `9f750b51294b2078e82373adbbdd81ac287de669603f82bf59e65cc8e001a10a`
+  and
+  `e3402ea64e9dde2417c0aefbfd257e6a44db13947dae774ed33bcb6866645f23`.
+  Accumulated record SHA-256 is
+  `a3b8efddf3f6423e6a4cdde048a178a627ab7f9175c93a3084141f1940c6fc6e`;
+  acceptance record SHA-256 is
+  `6f62da04444d877519652c0f0573cd7f349587b259820555e9e86c5d85272844`.
+- Fixture gate verdict: accepted for the exact corrected semantic SHA-256
+  `34d2a114b653dc1a5d2fc9f253457e11e6b1acd4bc10d38ffa98d84bdd93d094`
+  and manifest SHA-256
+  `71c64b2c80142cf5d535e03f93f9d3ce66ada120582115fbf403f3621f97c5b9`.
+  This closes `C3B2-IF002` at its earliest owner only; it does not transfer any
+  downstream verdict or authorize B2.
+- Fresh runner-rebinding implementation is assigned to distinct identity
+  `c3-b1-pre-execution-runner-implementor-replacement-4`. It may change only
+  the characterization method's fixture identity, runner fixture constants,
+  closed candidate binding, implementation assertions, and a new round-2
+  rebinding implementation record. It must not execute a decoder or modify
+  fixture, raw, threshold, product, B2, contract, or later evidence bytes.
+- The rebinding must preserve every runner behavior, cap, source snapshot,
+  launch rule, worker/probe byte, and characterization method statement except
+  the exact accepted fixture candidate/tree and two corrected fixture digests.
+  It must refresh closed self/source digests without weakening fail-closed
+  behavior. Fresh runner verification, root accumulation, and fresh acceptance
+  remain mandatory before raw characterization can run.

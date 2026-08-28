@@ -3296,3 +3296,23 @@ unchanged.
   absence of self-reference. Only a pass permits the unchanged manifest and
   verifier record to be committed together, followed by a later checkpoint
   commit. B2 remains paused and uninspected.
+
+### C3B1-MV003 / C3B1-MV004 — replacement manifest metadata corrections
+
+- Recorded: `2026-08-28T20:25:27Z`. Manifest verifier
+  `c3-b1-manifest-verifier-replacement-1` returned `changes_required` for
+  proposed manifest SHA-256
+  `d1a9c7fee237bc4bcf7773c9cdebdaa2035c827ef5b3499ea2b4b5d61852dcad`.
+  Its immutable finding record is committed at `e72f400`; record SHA-256 is
+  `4b686cac97e47558a83c9c1557476071946d15c44d1a8b8736ecd833bc5c02df`.
+- `C3B1-MV003`: six live round-4 threshold artifacts retained stale round-3
+  provenance labels. Their paths, revisions, and SHA-256 values were correct;
+  only the descriptive provenance strings require round-4 correction.
+- `C3B1-MV004`: the final accumulated-validation artifact used abbreviated
+  revision `64a0468`; it must bind full commit
+  `64a0468ef0e04d21e758730b18bd7d87ee599c3b`.
+- Root may correct only those manifest metadata fields and bind both closed
+  findings. Fresh manifest verification is assigned to distinct identity
+  `c3-b1-manifest-verifier-replacement-2`. The failed verdict transfers no
+  result. The corrected manifest must repeat complete verification before any
+  joint commit or checkpoint. B2 remains paused and uninspected.

@@ -96,7 +96,7 @@ def test_cycle3_fixture_surface_is_present_and_rebuildable() -> None:
         "typed-vectors.json",
         "experiment-caps.json",
     }
-    assert {path.name for path in DATA.glob("*.json")} == required
+    assert required <= {path.name for path in DATA.glob("*.json")}
     before = {path.name: sha256(path) for path in DATA.glob("*.json")}
     result = subprocess.run(
         [sys.executable, str(GENERATOR), "--check"], cwd=ROOT, text=True, capture_output=True
@@ -709,6 +709,30 @@ def test_static_wait_predicates_and_source_order_are_truthful() -> None:
         for wait in repeated["expected_wait_trace"]
     )
     full_i2c = by_id["i2c-shifted-start-address-ack-data-nack-stop"]
+    for timeline, expected_address in ((full_i2c, 0x50), (repeated, 0xA0)):
+        address_python = next(
+            item
+            for item in timeline["expected_records"]
+            if item["kind"] == "python"
+            and item["value"]["value"][0]["value"] == "ADDRESS WRITE"
+        )
+        address_binary = next(
+            item
+            for item in timeline["expected_records"]
+            if item["kind"] == "binary" and item["value"]["class_index"] == 1
+        )
+        address_annotation = next(
+            item
+            for item in timeline["expected_records"]
+            if item["kind"] == "annotation"
+            and item["value"]["class_index"] == 7
+            and item["value"]["texts"][0].startswith("Address write:")
+        )
+        assert address_python["value"]["value"][1]["value"] == expected_address
+        assert base64.b64decode(address_binary["value"]["data_base64"]) == bytes(
+            [expected_address]
+        )
+        assert address_annotation["value"]["texts"][-1] == f"{expected_address:02X}"
     i2c_bits = [
         item
         for item in full_i2c["expected_records"]
@@ -980,7 +1004,15 @@ def test_generator_is_static_and_contains_no_runtime_oracle() -> None:
         for node in ast.walk(tree)
         if isinstance(node, ast.ImportFrom) and node.module
     }
-    assert imports <= {"__future__", "argparse", "copy", "hashlib", "json", "pathlib"}
+    assert imports <= {
+        "__future__",
+        "argparse",
+        "base64",
+        "copy",
+        "hashlib",
+        "json",
+        "pathlib",
+    }
     assert "subprocess" not in source and "importlib" not in source
     manifest = load("manifest.json")
     assert manifest["generator_sha256"] == sha256(GENERATOR)

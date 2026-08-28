@@ -8,6 +8,7 @@ This is deliberately stdlib-only and never imports/executes a host or decoder.
 from __future__ import annotations
 
 import argparse
+import base64
 import copy
 import hashlib
 import json
@@ -1954,25 +1955,32 @@ def build() -> dict[str, object]:
         ]
     )
     full["sample_count"] = 372
-    def i2c_byte(value: int, ss: int, command: str, binary_class: int, address: bool) -> list[dict[str, object]]:
+    def i2c_byte(
+        value: int,
+        ss: int,
+        command: str,
+        binary_class: int,
+        address: bool,
+        address_format: str = "shifted",
+    ) -> list[dict[str, object]]:
         """Exact handle_address_or_data() emission order for an eight-bit byte."""
         bits = [int(bit) for bit in f"{value:08b}"]
         forward = [{"tag": "spi-data", "ss": ss + 20 * i, "es": ss + 20 * (i + 1), "val": bit} for i, bit in enumerate(bits)]
         # The source reverses the accumulated MSB-first list before putp/putg.
         lsb = list(reversed(forward))
-        shown = value >> 1 if address else value
+        emitted = value >> 1 if address and address_format == "shifted" else value
         tag = "ADDRESS WRITE" if address else command
         text = "Address write" if address else "Data write"
         cls = 7 if address else 9
         result = [
             record(0, "python", {"tag": "list", "value": [tag_string("BITS"), {"tag": "list", "value": lsb}]}, ss, ss + 160, 0),
-            record(1, "python", {"tag": "list", "value": [tag_string(tag), tag_integer(shown)]}, ss, ss + 160, 0),
-            record(2, "binary", {"class_index": binary_class, "data_base64": "UA==" if value == 0xA0 else "Mw=="}, ss, ss + 160, 2),
+            record(1, "python", {"tag": "list", "value": [tag_string(tag), tag_integer(emitted)]}, ss, ss + 160, 0),
+            record(2, "binary", {"class_index": binary_class, "data_base64": base64.b64encode(bytes([emitted])).decode("ascii")}, ss, ss + 160, 2),
         ]
         result += [record(3 + i, "annotation", {"class_index": 5, "texts": [str(item["val"])]}, item["ss"], item["es"], 1) for i, item in enumerate(lsb)]
         if address:
             result.append(record(11, "annotation", {"class_index": 7, "texts": ["Write", "Wr", "W"]}, ss + 140, ss + 160, 1))
-        result.append(record(12 if address else 11, "annotation", {"class_index": cls, "texts": [f"{text}: {shown:02X}", f"{'AW' if address else 'DW'}: {shown:02X}", f"{shown:02X}"]}, ss, ss + 140 if address else ss + 160, 1))
+        result.append(record(12 if address else 11, "annotation", {"class_index": cls, "texts": [f"{text}: {emitted:02X}", f"{'AW' if address else 'DW'}: {emitted:02X}", f"{emitted:02X}"]}, ss, ss + 140 if address else ss + 160, 1))
         return result
 
     # START; address byte A0 -> shifted display 50; ACK; data byte 33;
@@ -2042,11 +2050,7 @@ def build() -> dict[str, object]:
         record(0, "python", {"tag": "list", "value": [tag_string("START"), {"tag": "null"}]}, 1, 1, 0),
         record(1, "annotation", {"class_index": 0, "texts": ["Start", "S"]}, 1, 1, 1),
     ]
-    # i2c_byte's display shift is source-option dependent; transcribe the
-    # unshifted address variant rather than claim equivalence.
-    repeated_byte = i2c_byte(0xA0, 20, "ADDRESS WRITE", 1, True)
-    repeated_byte[1]["value"]["value"][1] = tag_integer(0xA0)
-    repeated_byte[-1]["value"]["texts"] = ["Address write: A0", "AW: A0", "A0"]
+    repeated_byte = i2c_byte(0xA0, 20, "ADDRESS WRITE", 1, True, "unshifted")
     repeat_records += repeated_byte
     repeat_records += [
         record(0, "python", {"tag": "list", "value": [tag_string("ACK"), {"tag": "null"}]}, 180, 200, 0),

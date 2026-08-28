@@ -2939,3 +2939,27 @@ unchanged.
   Fresh runner acceptance is reserved for distinct identity
   `c3-b1-pre-execution-runner-rebinding-acceptance-2`; it may act only after
   accumulation. Raw characterization and all later gates remain paused.
+
+### C3B1-RA001 — runner accumulated-order violation
+
+- Recorded: `2026-08-28T16:26:58Z`. Runner candidate `55d2264` passed fresh
+  verification at `570cfe8`, but its root accumulated gate is
+  `changes_required`.
+- Root mistakenly started the unfiltered non-hardware suite after binding was
+  valid. It progressed into the downstream raw-baseline verifier before root
+  interrupted it. Because snapshot execution cannot be disproved, the event is
+  conservatively classified as a pre-acceptance decoder launch, contrary to
+  the required runner-acceptance ordering.
+- The interrupted command supplied no exit result, raw artifact, digest,
+  timing, count, or pass evidence. Immediate and final process audits found no
+  survivor; repository and candidate bytes remained unchanged. Later safe
+  diagnostic reruns were green but do not transfer a verdict or repair the
+  sequence.
+- Immutable accumulated record:
+  `docs/reviews/c3-b1-preexecution-runner-fixture-rebinding-accumulated-validation-round-2.md`.
+  Candidate `55d2264` must not receive acceptance or later authority.
+- Required correction: the existing runner implementation lane creates a
+  fresh replacement candidate record around the unchanged reviewed runner
+  bytes; a fresh verifier, new clean pre-acceptance-safe accumulation, and
+  fresh acceptance must pass. Raw execution remains paused and nothing from
+  the interrupted attempt transfers.

@@ -2700,3 +2700,86 @@ unchanged.
   internal evidence identities and cannot be reused for any of these three
   primary roles. No decoder, browser, B2, manifest, checkpoint, or Cycle 4
   action is authorized by this assignment.
+
+### Replacement checkpoint C3-B1 — corrected fixture and renewed limits
+
+- State: Complete; this checkpoint supersedes the earlier C3-B1 checkpoint
+  `06ca562558014dc0a32588493b8d92d55359ae74` and manifest commit
+  `c34a2517472a443e9d8ad7b41be800b272db9833` after disposition of
+  `C3B2-IF001`. Their bytes remain immutable historical evidence, but their
+  verdicts and authority do not transfer.
+- Completed at: `2026-08-28T13:55:52Z`.
+- Governing contract/goal commit/tree:
+  `ea83a403bb6f644d33069d3bebd41d5f1e0a60c0` /
+  `d9fb09345ab85580cd8c877745262d1b481e366f`.
+- Tested replacement candidate commit/tree:
+  `4a7dc728048812cfb4cf46f010939c182ac948cf` /
+  `5ee316695d3a4acf8f30e60da377ba6651844969`.
+  Candidate binder and review SHA-256 values are respectively
+  `a46a7b3fc5a684a77990b8f4373f710002411901d2610d1fa30d275e5b07f57c`
+  and
+  `eb570fe3498232a0a206dc168a5afa0f404eca9dd8d1a173a99e746b6a6af20b`.
+- Implementation owner: primary Cycle 3 orchestrator. Current internal owners
+  are semantic-fixture implementation replacement 7 with independent
+  correction verifier/acceptance 1, and runner implementation replacement 3
+  with independent rebinding verifier/acceptance 1. Their complete ordered
+  histories and distinct identities are bound in the candidate and manifest.
+- Final verification: `c3-b1-final-verifier-3`; `pass`; commit
+  `fdbbc120d8bfa4d57e10c5c0ebe3737b3b98a71f`; record
+  `docs/reviews/c3-b1-final-verification-round-4.md`, SHA-256
+  `caadb30ef321413329cc4f9b976ace41232c4cf90df4f891239b082347ce7355`;
+  fresh static suite `23 passed`.
+- Accumulated validation: primary orchestrator; `pass`; commit
+  `a888cddc1a995eceb9cc4380af67fe246d4a12af`; record
+  `docs/reviews/c3-b1-final-accumulated-validation-round-3.md`, SHA-256
+  `467a8264736b761c26c6bfea676f5852801cad0ab2ed9d3dd63011a2b99d6b34`.
+  All 21 frozen command classes passed against the exact candidate: Python
+  dependency, Ruff, mypy, fixture/binding, CLI, six Cycle 2 validators, 654
+  applicable pytest passes with four classified optional inherited
+  physical-artifact skips and two historical deselections, exact 44-failure /
+  45-pass invalidation behavior, and Node 22 lint, type, five unit suites,
+  build/assets, four browser suites, and performance evidence.
+- Final acceptance: `c3-b1-final-acceptance-3`; `pass`; commit
+  `a795c721c6bddd46e79ffb27686b7f0e8d068d96`; record
+  `docs/reviews/c3-b1-final-acceptance-round-3.md`, SHA-256
+  `5b3042c050ad8055ab02b6b80a15e1f5062875d5ca879164bcf440d32a85b790`.
+- Corrected authoritative identities: semantic fixture manifest SHA-256
+  `ce8eceb72480d042ef298cb6fe6944a4808fed0644e729c8c2de9fa1955ec37f`;
+  runner binding SHA-256
+  `144c08036cb3eca490586d8af33b223fc9abfe905182cec102248ccce2108f98`;
+  raw manifest SHA-256
+  `7c964750841e80d0c4bad606d2b76da8575a330d65836aaca8a9284a0668608e`;
+  round-3 proposal SHA-256
+  `7fb9e88aaa5888e1a3133ff2234253bdfbbc4bd7151fc3a3be3c387dd619f510`.
+- Approved-limit authority: explicit operator decision commit
+  `63fdfee87159251cdf525eb608340e6bc08ad010`, SHA-256
+  `2a1f9cdb175115a1bf34983695ee382c228924f39aab1ffffb8a2480dbd29b60`.
+  All 29 round-3 inclusive maxima and exact value-plus-one rejections bind;
+  `successful_parent_total_ns` is exactly 1,000,000,000 ns and
+  `spi_max_word_size_bits` is exactly 8. No superseded decision transfers.
+- Evidence manifest: `testdata/evidence/c3-b1.json`, SHA-256
+  `30ad07f2878342473d78f45079511e51164ea513e1c5293b9b974182c9a0a077`;
+  manifest verifier `c3-b1-manifest-verifier-3`; `pass`; verifier-record
+  SHA-256
+  `8d1bafc1c4a1de3a23546d64153147a1aa46e20342d35d3ad01471a1d5287c72`.
+  The unchanged manifest and verifier record are committed jointly at
+  `3d61ba6334f1462d5a77fdb54fe48ff2a641cbd8`, tree
+  `f76daa9166451febd91891d4e66c8d11350d9113`; strict validation, 63 current
+  digest references, 47 revision/path/digest triples, lineage, and all 21
+  frozen command vectors passed without self-evidence or predictive claims.
+- Requirements and stopping conditions: R1-R5, R9, R21, and R23-R25 mapped;
+  stopping conditions 1-3 passed. Findings C3B1-RI011, C3B1-RI013,
+  C3B1-TPV001, C3B1-FV001, C3B1-MP001, C3B1-MV001, C3B1-MV002,
+  C3B2-IF001, and C3B1-RV001 are closed with immutable history.
+- Limitations remain controlling: macOS only; no package conveyance or
+  distribution pending recorded legal confirmation; no external/reference
+  runtime, hardware claim, public decode API/CLI, Cycle 4, or final B5 claim.
+- Repository state: the joint manifest commit was clean except for the two
+  deliberately preserved, untracked B2 owned paths. They were excluded from
+  all B1 evidence and were neither inspected nor changed during replacement
+  B1. This checkpoint appends only the orchestration record.
+- Next batch: resume the already assigned C3-B2 private-host implementation
+  from its preserved owned paths under the corrected manifest and exact
+  round-3 ceilings. No B2 pass transfers; focused implementation evidence and
+  all independent B2 gates must run fresh.
+- Blocked: no.

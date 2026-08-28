@@ -3370,3 +3370,31 @@ unchanged.
 - Checkpoint verdict: `pass`. C3-B2 may now resume from the commit containing
   this checkpoint, consuming only the corrected accepted identities and exact
   round-4 limits. C3-B3 through C3-B5 remain ordered and paused.
+
+### C3-B2 resumed preflight after corrected B1 checkpoint
+
+- Recorded: `2026-08-28T20:33:29Z`. C3-B2 now starts from checkpoint commit
+  `d4f984d`; its authoritative manifest is the corrected `c3-b1.json` committed
+  jointly with verification at `885be61`, SHA-256
+  `3710e7fde7523096b70607b3a7da217b1e71fdb46492b83b72861e3eaa48cfae`.
+- Root inspected the three preserved B2-owned paths for the first time since
+  IF002 repair. The unchanged focused suite passes 110 tests in 10.54 seconds,
+  including all 63 corrected semantic timelines through fresh private workers.
+  No B2 byte was changed by this preflight.
+- The preserved work remains pre-candidate and cannot be accepted as-is. It
+  still binds superseded checkpoint `23c0311`, round-3 fixture/runner/manifest
+  identities, `threshold-proposal-round-3.json`, and the old three changed
+  regression literals. It must rebind to corrected fixture `3af6b9f`, runner
+  `380d5dd`, round-4 proposal/approval, manifest `885be61`, and exact values
+  33,554,432 bytes / 1,300,000,000 ns / 50,000,000 ns.
+- The existing review also correctly retains implementation-owned containment
+  gaps: complete streaming cancellation/output-limit/malformed-extra-frame/
+  process-exit/memory/recursion handling, timing and RSS enforcement/readback,
+  deterministic terminate/kill/close/reap evidence, and a fresh-worker success
+  after every failure class. Passing the current focused suite does not waive
+  those missing R6-R12/R22 proofs.
+- The next implementation gate requires a fresh B2 implementation identity to
+  continue only the three owned paths, add failing focused checks for these
+  gaps, implement the smallest complete private-host containment surface, and
+  create a new immutable B2 candidate. Verification, accumulation, acceptance,
+  manifest, and checkpoint remain prohibited until that candidate exists.

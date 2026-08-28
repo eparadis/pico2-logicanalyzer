@@ -1,0 +1,271 @@
+{
+  "schema": "cycle3-b1-final-candidate/v1",
+  "round": 4,
+  "batch": "C3-B1",
+  "status": "candidate-not-accepted",
+  "support_scope": "macOS-only",
+  "governing": {
+    "commit": "ea83a403bb6f644d33069d3bebd41d5f1e0a60c0",
+    "tree": "d9fb09345ab85580cd8c877745262d1b481e366f",
+    "assignment_commit": "212fc3327715bd31a3bc3cd59b10d746ec4c7108"
+  },
+  "correction": {
+    "findings": [
+      "C3B2-IF001",
+      "C3B2-IF002",
+      "C3B1-RA001",
+      "C3B1-RV002",
+      "C3B1-RV003"
+    ],
+    "superseded_round_3_final_candidate_commit": "4a7dc728048812cfb4cf46f010939c182ac948cf",
+    "superseded_round_3_verification_commit": "fdbbc120d8bfa4d57e10c5c0ebe3737b3b98a71f",
+    "superseded_round_3_accumulation_commit": "a888cddc1a995eceb9cc4380af67fe246d4a12af",
+    "superseded_round_3_acceptance_commit": "a795c721c6bddd46e79ffb27686b7f0e8d068d96",
+    "superseded_manifest_commit": "c34a2517472a443e9d8ad7b41be800b272db9833",
+    "superseded_checkpoint_commit": "06ca562558014dc0a32588493b8d92d55359ae74",
+    "scope": "rebind complete C3-B1 evidence after the independently derived unshifted-I2C binary-oracle correction and replacement runner, raw, and threshold chains",
+    "preserved_prior_final_binder_correction": {
+      "finding": "C3B1-FV001",
+      "superseded_candidate_commit": "72e7b35bb3bb8412846caef5302892f9de209c3b",
+      "failed_verification_commit": "a9627e6248cf7cd2642e558429dfbddd484d3f24",
+      "scope": "enumerate complete ordered fixture and runner implementation histories"
+    }
+  },
+  "environment": {
+    "os": "macOS 15.7.7 build 24G720",
+    "architecture": "x86_64",
+    "machine_model": "Macmini8,1",
+    "python": "3.12.13",
+    "node": "22.14.0",
+    "browser": "Chromium 133.0.6943.16",
+    "automation": "Playwright 1.50.1"
+  },
+  "internal_role_map": {
+    "semantic_fixture_implementation": {
+      "final_identity": "c3-b1-semantic-fixture-implementor-replacement-8",
+      "ordered_history": [
+        "c3-b1-semantic-fixture-implementor-1",
+        "c3-b1-semantic-fixture-implementor-replacement-1",
+        "c3-b1-semantic-fixture-implementor-replacement-2",
+        "c3-b1-semantic-fixture-implementor-replacement-3",
+        "c3-b1-semantic-fixture-implementor-replacement-4",
+        "c3-b1-semantic-fixture-implementor-replacement-5",
+        "c3-b1-semantic-fixture-implementor-replacement-6",
+        "c3-b1-semantic-fixture-implementor-replacement-7",
+        "c3-b1-semantic-fixture-implementor-replacement-8"
+      ]
+    },
+    "semantic_fixture_verification": {
+      "identity": "c3-b1-semantic-fixture-correction-verifier-2"
+    },
+    "semantic_fixture_acceptance": {
+      "identity": "c3-b1-semantic-fixture-correction-acceptance-2"
+    },
+    "preexecution_runner_implementation": {
+      "final_identity": "c3-b1-pre-execution-runner-implementor-replacement-4",
+      "ordered_history": [
+        "c3-b1-pre-execution-runner-implementor-1",
+        "c3-b1-pre-execution-runner-implementor-replacement-1",
+        "c3-b1-pre-execution-runner-implementor-replacement-2",
+        "c3-b1-pre-execution-runner-implementor-replacement-3",
+        "c3-b1-pre-execution-runner-implementor-replacement-4"
+      ]
+    },
+    "preexecution_runner_verification": {
+      "identity": "c3-b1-pre-execution-runner-rebinding-verifier-5",
+      "superseded_verifiers": [
+        "c3-b1-pre-execution-runner-rebinding-verifier-3",
+        "c3-b1-pre-execution-runner-rebinding-verifier-4"
+      ]
+    },
+    "preexecution_runner_acceptance": {
+      "identity": "c3-b1-pre-execution-runner-rebinding-acceptance-3"
+    }
+  },
+  "evidence": {
+    "project_license": {
+      "commit": "538a4aa669a782919dafefb26a81d7346ed45f5c",
+      "path": "docs/reviews/c3-b1-project-license-review-round-1.md",
+      "sha256": "b7afc4df18ba9bf5e40ee5a795e4544e54a59be27b1fea9a8617681ea82919cf",
+      "verdict": "pass"
+    },
+    "semantic_fixture": {
+      "candidate_commit": "3af6b9f80dd52611e14acca407707d1da7b8d9ac",
+      "candidate_tree": "14c010153ea5542617e601e4126047c561a48483",
+      "generator_sha256": "a101ae13cba938aa4d574fd1df3e4cc09dc845b2a643088cfee4a79313c3266f",
+      "semantic_fixture_sha256": "34d2a114b653dc1a5d2fc9f253457e11e6b1acd4bc10d38ffa98d84bdd93d094",
+      "manifest_sha256": "71c64b2c80142cf5d535e03f93f9d3ce66ada120582115fbf403f3621f97c5b9",
+      "experiment_caps_sha256": "6347a04f44f02179e73fd9178fce4daad227d06c9a7a4ac2c12e0b0669f60d3d",
+      "verification_commit": "3a29e4684af6a4c8e53aa4f83f9692ddebab5670",
+      "verification_test_sha256": "9f750b51294b2078e82373adbbdd81ac287de669603f82bf59e65cc8e001a10a",
+      "verification_record_sha256": "e3402ea64e9dde2417c0aefbfd257e6a44db13947dae774ed33bcb6866645f23",
+      "accumulated_commit": "efcc7759f4af89eb438b2b8611e250d0962fc8c6",
+      "accumulated_record_sha256": "a3b8efddf3f6423e6a4cdde048a178a627ab7f9175c93a3084141f1940c6fc6e",
+      "acceptance_commit": "972322116b737d2fcad37e46d23116b031841359",
+      "acceptance_record_sha256": "6f62da04444d877519652c0f0573cd7f349587b259820555e9e86c5d85272844"
+    },
+    "preexecution_runner": {
+      "candidate_commit": "380d5dd77ae6c6f8648391e3c849c13c4b98fe8a",
+      "candidate_tree": "aa55b4884c39981026ba233b48dc8f360d404c8a",
+      "accepted_fixture_commit": "3af6b9f80dd52611e14acca407707d1da7b8d9ac",
+      "accepted_fixture_tree": "14c010153ea5542617e601e4126047c561a48483",
+      "binding_sha256": "4b7230cca6a41002da52853dae41724da1e24d22ef94e2b0b644b7e0d237fde7",
+      "launch_sha256": "3df74d88a1f013a7aa9f09c81d76a653159de09e9b42270137fb0f3956efbf27",
+      "runner_sha256": "0ba17a1357f8326a8116c79c16c300f4bb24bde6796c6d1c97ca692e332bcf80",
+      "worker_sha256": "76124299334fc4fb5a7ea5d28750afff9b19f59b4fda0618dd0be215f59f890c",
+      "method_sha256": "f228f02892fc2ead00713606dc795850e14651baafc42a0974d1dbd48da86341",
+      "verification_commit": "e95706f10a8a5a2f955e29b23cda25e157bf373e",
+      "verification_test_sha256": "f84f123e6f8bbc1c3bcb1063faa11d0177438012db8b6ec314248b8c1d0984b1",
+      "verification_record_sha256": "027d0109336f3f5160a0dc609d2c79cf37722b845d9a050406463d921e4b28c2",
+      "accumulated_commit": "e1e8bab06ce74cb051f92d8f399153d63824a56a",
+      "accumulated_record_sha256": "aedc2782b3cdeab8334d6d970c5f847da8fe92c7c4595a7bd0b261352d8d5a93",
+      "acceptance_commit": "01f059cb5f60e885c7d19e8bf5376bdb27dcca19",
+      "acceptance_record_sha256": "f1963a6cfe7de8c62c2f3de150f0bbb7ffe0e3c93998d2dc352ffdbe4b3eb5bd"
+    },
+    "raw_baseline": {
+      "candidate_commit": "d0d9dbe87f7841f09f261556de0909475e048b95",
+      "candidate_tree": "a749b4e192246afab34eb6f11438d64eaeaa4d0c",
+      "collection_identity": "c3-b1-raw-baseline-reproducer-replacement-1",
+      "collection_launches": 486,
+      "discarded_attempt_launches": 847,
+      "environment_sha256": "d0c038a17b09f8b66b81d07e42ccae9d36ca5fce08dc252ccea491c69e18aa6f",
+      "requests_sha256": "fe5b345270eced91298250032411b6a85112c55baf46d3b71afb424ef385f94c",
+      "observations_sha256": "ba2c7bd1c8a4ea832f6037d311a212c2abbecf9c9c9d67d40eb5a079110c29ee",
+      "hostile_observations_sha256": "af86b3765cc32298003f140312b79640963d3ac7d61b9b259a871827b5522d91",
+      "manifest_sha256": "5d08929c7af59840ecbb01232c17b3c730161f9b8478e53bfd51fe6b3ea761b8",
+      "collection_record_sha256": "75822b3dd81bba77701b57628126cc643b0b96595133d094208ecc152b386e01",
+      "verification_commit": "17397360770f3aab7d79a479a53499b50a1245cd",
+      "verification_identity": "c3-b1-raw-baseline-verifier-replacement-1",
+      "verification_test_sha256": "d61e45363cb461a198e5d9c14aea8a7d27543968c9bf2ee79d6b3a38dbd56d3f",
+      "verification_record_sha256": "86e5fcece470801f70b44ea4985fcb5c10bde9a4d3e76abdecb1edcaac048da7",
+      "accumulated_commit": "7295e4d9472632f92bb22e6a06e001609b2590e6",
+      "accumulated_record_sha256": "b8bc5373d708a69a8d121c9aca28c29ca5bf35f4e4bb84f32f9bf4b62b7467da",
+      "acceptance_commit": "72168f4ca0f90e16e99a72537e159818a434dea1",
+      "acceptance_identity": "c3-b1-raw-baseline-acceptance-replacement-1",
+      "acceptance_record_sha256": "f41b9a7236ab46b8bd7c40c5dde2d6d5247dab0f08aeaceea3effc0c557684ac"
+    },
+    "approved_thresholds": {
+      "proposal_commit": "b680aa59fba4a18da2aeaacc8cbd7ad3a68784e0",
+      "proposal_tree": "e8661f094ba0423ca08055ea785bbfcde8554d71",
+      "proposal_identity": "c3-b1-threshold-proposer-replacement-1",
+      "proposal_sha256": "98e48bb1882104d893a1d4d85659845ff20054f9b52f0b09fdf73efad2547e3c",
+      "rationale_sha256": "58ef6451033603989617b195ab2d0184c75e243cbcad3ec99df3b2d41027242c",
+      "verification_commit": "46d57e482c330fca945c0e2bb3ca35cc1a95d3a1",
+      "verification_identity": "c3-b1-threshold-verifier-replacement-1",
+      "verification_test_sha256": "719acc7d4e474958d36bfc8d08c63f7dcce7dc97faf41b9d188e801bd33e54d6",
+      "verification_record_sha256": "2a5d8ee0ca91b713bbd21f5dbffe39ebeed953d7eb411ce96d97540066c57433",
+      "accumulated_commit": "62b67fe03da96a7baae89c66859e6b67d66664ee",
+      "accumulated_record_sha256": "5e1261261f7ae673cf2dc8a8ae056fadf06deb756cf6289c609e32f565d9390b",
+      "acceptance_commit": "f28643bc69992d60fcf51d289ba5c4fb8e5dcc73",
+      "acceptance_identity": "c3-b1-threshold-acceptance-replacement-1",
+      "acceptance_record_sha256": "3a9208b16bc2f3f3a89c8669711f1ddc0778055f1b238dcdc010c29d8e10fb2d",
+      "operator_approval_commit": "afd45856ee261158521b902dabdf926e5f1f922a",
+      "operator_approval_sha256": "ff1ba9665174b0912adea9eb4682d1a9e6839c6ec9b5efce073a9b055303aba6",
+      "superseded_proposal_commit": "b260d9ecc0e74ed2502dda89beebb851ddfedb77",
+      "superseded_operator_approval_commit": "63fdfee87159251cdf525eb608340e6bc08ad010",
+      "limit_count": 29,
+      "limits": {
+        "input_samples": 65536,
+        "request_bytes": 4194304,
+        "wall_deadline_ms": 5000,
+        "terminate_grace_ms": 250,
+        "worker_address_space_bytes": 68719476736,
+        "worker_peak_rss_bytes": 134217728,
+        "parent_retained_growth_bytes": 33554432,
+        "recursion_limit": 320,
+        "output_records": 16384,
+        "encoded_bytes": 2097152,
+        "decoded_bytes": 2097152,
+        "stdout_bytes": 65536,
+        "stderr_bytes": 65536,
+        "diagnostic_bytes": 8192,
+        "text_bytes": 524288,
+        "binary_bytes": 262144,
+        "nested_depth": 32,
+        "nested_items": 16384,
+        "retained_result_bytes": 8388608,
+        "successful_parent_total_ns": 1300000000,
+        "launch_ns": 50000000,
+        "reap_ns": 50000000,
+        "child_load_ns": 100000000,
+        "child_import_ns": 100000000,
+        "child_decode_ns": 100000000,
+        "timeout_cleanup_total_ns": 5500000000,
+        "terminate_to_reap_ns": 300000000,
+        "kill_to_reap_ns": 50000000,
+        "spi_max_word_size_bits": 8
+      }
+    }
+  },
+  "closed_findings": [
+    "C3B1-RI011",
+    "C3B1-RI013",
+    "C3B1-TPV001",
+    "C3B1-FV001",
+    "C3B1-MP001",
+    "C3B1-MV001",
+    "C3B1-MV002",
+    "C3B2-IF001",
+    "C3B1-RV001",
+    "C3B2-IF002",
+    "C3B1-RA001",
+    "C3B1-RV002",
+    "C3B1-RV003"
+  ],
+  "historical_invalidations_preserved": [
+    "all superseded semantic-fixture candidates and the no-transferred-pass rule",
+    "C3B2-IF001 and its superseded final candidate, manifest, and checkpoint",
+    "C3B2-IF002 and the invalidated round-3 final candidate and downstream evidence",
+    "C3B1-RA001 and the interrupted unfiltered runner-accumulation command, with no result transfer",
+    "C3B1-RV002 and C3B1-RV003 superseded verifier records, with verifier-5 as the only current pass",
+    "four discarded write-at-end raw collection attempts totaling 847 launches, with no output or authority transfer",
+    "all superseded raw chains and raw verifier path-provenance finding C3B1-RV001",
+    "failed threshold proposal round 1 and superseded round-2 and round-3 approvals",
+    "all superseded final-B1 candidates, manifests, checkpoints, and their non-transferable verdicts"
+  ],
+  "frozen_commands": [
+    {"id": "python_dependency_check", "cwd": "Software/LogicAnalyzerPy", "argv": [".venv/bin/python", "-m", "pip", "check"]},
+    {"id": "python_ruff", "cwd": "Software/LogicAnalyzerPy", "argv": [".venv/bin/ruff", "check", "."]},
+    {"id": "python_mypy_product", "cwd": "Software/LogicAnalyzerPy", "argv": [".venv/bin/mypy", "src"]},
+    {"id": "python_mypy_characterization", "cwd": "Software/LogicAnalyzerPy", "argv": [".venv/bin/mypy", "--strict", "tools/cycle3_characterize"]},
+    {"id": "fixture_determinism", "cwd": "Software/LogicAnalyzerPy", "argv": [".venv/bin/python", "scripts/generate_cycle3_fixtures.py", "--check"]},
+    {"id": "runner_binding", "cwd": "Software/LogicAnalyzerPy", "argv": [".venv/bin/python", "-m", "tools.cycle3_characterize.binding", "--check"]},
+    {"id": "installed_cli_help", "cwd": "Software/LogicAnalyzerPy", "argv": [".venv/bin/python", "-m", "pico_logic_analyzer", "--help"]},
+    {"id": "cycle2_evidence_b1", "cwd": "Software/LogicAnalyzerPy", "argv": [".venv/bin/python", "scripts/validate_cycle2_evidence.py", "docs/evidence-manifest/cycle2-schema.json", "testdata/evidence/c2-b1.json"]},
+    {"id": "cycle2_evidence_b2", "cwd": "Software/LogicAnalyzerPy", "argv": [".venv/bin/python", "scripts/validate_cycle2_evidence.py", "docs/evidence-manifest/cycle2-schema.json", "testdata/evidence/c2-b2.json"]},
+    {"id": "cycle2_evidence_b3", "cwd": "Software/LogicAnalyzerPy", "argv": [".venv/bin/python", "scripts/validate_cycle2_evidence.py", "docs/evidence-manifest/cycle2-schema.json", "testdata/evidence/c2-b3.json"]},
+    {"id": "cycle2_evidence_b4", "cwd": "Software/LogicAnalyzerPy", "argv": [".venv/bin/python", "scripts/validate_cycle2_evidence.py", "docs/evidence-manifest/cycle2-schema.json", "testdata/evidence/c2-b4.json"]},
+    {"id": "cycle2_evidence_b5", "cwd": "Software/LogicAnalyzerPy", "argv": [".venv/bin/python", "scripts/validate_cycle2_evidence.py", "docs/evidence-manifest/cycle2-schema.json", "testdata/evidence/c2-b5.json"]},
+    {"id": "cycle2_evidence_b6", "cwd": "Software/LogicAnalyzerPy", "argv": [".venv/bin/python", "scripts/validate_cycle2_evidence.py", "docs/evidence-manifest/cycle2-schema.json", "testdata/evidence/c2-b6.json"]},
+    {"id": "python_applicable_nonhardware", "cwd": "Software/LogicAnalyzerPy", "argv": [".venv/bin/python", "-m", "pytest", "-m", "not hardware", "--deselect", "tests/implementation/test_cycle3_fixtures.py::test_cycle3_fixture_surface_is_present_and_rebuildable", "--deselect", "tests/verification/test_c3_b1_semantic_fixture_correction.py::test_historical_inventory_failure_and_broad_mypy_non_gate_are_not_weakened", "--ignore", "tests/verification/test_c3_b1_final_candidate.py", "--ignore", "tests/verification/test_c3_b1_preexecution_runner_candidate.py", "--ignore", "tests/verification/test_c3_b1_threshold_proposal.py", "--ignore", "tests/verification/test_c3_b1_threshold_proposal_round2.py"]},
+    {"id": "frontend_lint", "cwd": "Software/LogicAnalyzerPy/web", "argv": ["npm", "run", "lint"], "required_node": "v22.14.0"},
+    {"id": "frontend_typecheck", "cwd": "Software/LogicAnalyzerPy/web", "argv": ["npm", "run", "typecheck"], "required_node": "v22.14.0"},
+    {"id": "frontend_unit", "cwd": "Software/LogicAnalyzerPy/web", "argv": ["npm", "test", "--", "--run"], "required_node": "v22.14.0"},
+    {"id": "frontend_build", "cwd": "Software/LogicAnalyzerPy/web", "argv": ["npm", "run", "build"], "required_node": "v22.14.0"},
+    {"id": "frontend_assets", "cwd": "Software/LogicAnalyzerPy", "argv": [".venv/bin/python", "scripts/check_web_assets.py"]},
+    {"id": "frontend_browser", "cwd": "Software/LogicAnalyzerPy/web", "argv": ["npm", "run", "test:browser"], "required_node": "v22.14.0", "requires_loopback_capability": true},
+    {"id": "frontend_performance", "cwd": "Software/LogicAnalyzerPy/web", "argv": ["npm", "run", "benchmark:b6"], "required_node": "v22.14.0", "requires_loopback_capability": true}
+  ],
+  "pytest_applicability": {
+    "inventory_basis": "exact include-only inventory recomputed for each current gate",
+    "latest_classification_record": "docs/reviews/c3-b1-threshold-proposal-accumulated-validation-round-4.md",
+    "inventory_modules": 56,
+    "included_modules": 41,
+    "excluded_modules": 15,
+    "collected": 608,
+    "passed": 602,
+    "inherited_classified_skips": 6,
+    "warnings": 106,
+    "final_gate_requirement": "fresh final verifier plus complete exact-candidate accumulated inventory; exclusions are ordered invalidations, never waivers"
+  },
+  "exclusions": [
+    "product decoder host or public decode API before the replacement B1 checkpoint",
+    "C#/.NET/pythonnet/libsigrokdecode/sigrok-cli or external decoder runtime",
+    "hardware, USB, serial, firmware, or physical decode evidence",
+    "wheel, sdist, upload, publication, or distribution",
+    "non-macOS support claim",
+    "preserved untracked B2 work as input or evidence",
+    "Cycle 4"
+  ],
+  "next_gate": "fresh replacement round-4 final C3-B1 verification, then complete root accumulated validation, fresh independent acceptance, atomic replacement-manifest assembly, distinct manifest verification, joint manifest/verifier commit, and replacement B1 checkpoint; only that checkpoint may resume B2"
+}

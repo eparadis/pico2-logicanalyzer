@@ -2829,3 +2829,47 @@ unchanged.
   runtime capability is missing. A fresh independently owned fixture
   implementation assignment is required; root and the B2 implementor cannot
   author the authoritative expected correction.
+
+### C3B2-IF002 immutable fixture candidate and fresh gate assignments
+
+- Recorded: `2026-08-28T14:22:10Z`. Fresh fixture-only implementor identity
+  `c3-b1-semantic-fixture-implementor-replacement-8` independently derived the
+  correction from frozen I2C source semantics without inspecting or executing
+  the B2 host, a decoder, or raw characterization.
+- Immutable candidate commit/tree:
+  `3af6b9f80dd52611e14acca407707d1da7b8d9ac` /
+  `14c010153ea5542617e601e4126047c561a48483`. Exact five-path scope is the
+  static generator, generated semantic corpus and fixture manifest,
+  implementation assertions, and implementation record. The three preserved
+  untracked B2 owned paths remain untouched and non-evidentiary.
+- Exact semantic correction: only
+  `i2c-unshifted-repeated-start.expected_records[4]` changes binary base64 from
+  `UA==` (`0x50`) to `oA==` (`0xA0`). The selected unshifted Python integer
+  remains 160 and annotation remains `A0`; shifted I2C remains `0x50`; all
+  other records, timelines, options, vectors, provenance, and caps are
+  byte-identical.
+- Candidate SHA-256 identities: generator
+  `a101ae13cba938aa4d574fd1df3e4cc09dc845b2a643088cfee4a79313c3266f`;
+  semantic fixture
+  `34d2a114b653dc1a5d2fc9f253457e11e6b1acd4bc10d38ffa98d84bdd93d094`;
+  fixture manifest
+  `71c64b2c80142cf5d535e03f93f9d3ce66ada120582115fbf403f3621f97c5b9`;
+  implementation test
+  `6a909dd89e99ba40e76e3a66b0139ecba27a4b4843c704d24e883d4948ae6c0e`;
+  implementation record
+  `e9e8c16a2ad5ea32857f66af128ab241b12f2774cf1b0bf2baab35ee94dfb2b1`.
+- Root pre-candidate checks passed deterministic regeneration, 12 focused
+  fixture tests, scoped Ruff, exact 63-timeline comparison proving the single
+  intended record delta, five-path scope, and diff checks. Candidate status is
+  `candidate-not-accepted`; no old fixture verdict transfers.
+- Fresh fixture verification is assigned to distinct identity
+  `c3-b1-semantic-fixture-correction-verifier-2`. It must independently inspect
+  the exact candidate and frozen source, may create only a new round-2 verifier
+  test and review, may repair nothing, and must report `pass` or
+  `changes_required`.
+- After a verifier pass, root owns complete accumulated fixture validation
+  against this exact candidate. Fresh fixture acceptance is reserved for
+  distinct identity `c3-b1-semantic-fixture-correction-acceptance-2`; it may
+  act only after accumulation and may create only its review record. All later
+  runner/raw/threshold/final/manifest gates remain invalidated and may not act
+  early.

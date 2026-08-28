@@ -3169,3 +3169,31 @@ unchanged.
   prohibited.
 - Root accumulation, independent acceptance, and explicit operator approval
   remain mandatory before final-B1 work.
+
+### Round-4 threshold proposal accepted for explicit operator decision
+
+- Recorded: `2026-08-28T18:30:29Z`. Exact proposal candidate
+  `b680aa59fba4a18da2aeaacc8cbd7ad3a68784e0` passed fresh verification at
+  `46d57e482c330fca945c0e2bb3ca35cc1a95d3a1`, complete root accumulation at
+  `62b67fe03da96a7baae89c66859e6b67d66664ee`, and fresh independent
+  acceptance at `f28643bc69992d60fcf51d289ba5c4fb8e5dcc73` / tree
+  `26be58cfc966af86833ec04f6ce5ffc33f26c232`.
+- Proposal/rationale SHA-256 values remain
+  `98e48bb1882104d893a1d4d85659845ff20054f9b52f0b09fdf73efad2547e3c`
+  and
+  `58ef6451033603989617b195ab2d0184c75e243cbcad3ec99df3b2d41027242c`.
+  Verifier test/review SHA-256 values are
+  `719acc7d4e474958d36bfc8d08c63f7dcce7dc97faf41b9d188e801bd33e54d6`
+  and
+  `2a5d8ee0ca91b713bbd21f5dbffe39ebeed953d7eb411ce96d97540066c57433`.
+  Accumulated/acceptance record SHA-256 values are
+  `5e1261261f7ae673cf2dc8a8ae056fadf06deb756cf6289c609e32f565d9390b`
+  and
+  `3a9208b16bc2f3f3a89c8669711f1ddc0778055f1b238dcdc010c29d8e10fb2d`.
+- State: awaiting explicit operator approval or amendment of the exact
+  committed round-4 proposal. It contains 29 values, 26 unchanged from round
+  3 and three changed formula results: parent retained growth 33,554,432
+  bytes, successful parent total 1,300,000,000 ns, and launch 50,000,000 ns.
+  Status remains `proposal-not-approved` until that decision is committed.
+- No earlier approval transfers. Final B1, manifest/checkpoint, and B2 remain
+  paused.

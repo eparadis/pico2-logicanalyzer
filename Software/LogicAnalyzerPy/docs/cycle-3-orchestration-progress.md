@@ -2665,3 +2665,38 @@ unchanged.
   distinct manifest verification, joint manifest/verification commit, and a
   replacement B1 checkpoint. Only that replacement checkpoint may resume the
   preserved B2 work. No Cycle 4 authority exists.
+
+### Immutable replacement final-B1 candidate and fresh role assignments
+
+- Recorded: `2026-08-28T13:04:34Z`. Replacement candidate commit/tree:
+  `4a7dc728048812cfb4cf46f010939c182ac948cf` /
+  `5ee316695d3a4acf8f30e60da377ba6651844969`.
+- Candidate scope is exactly two new paths:
+  `testdata/decoders/cycle3/b1-final-candidate-round-3.json` and
+  `docs/reviews/c3-b1-final-candidate-round-3.md`. Their SHA-256 values are
+  respectively
+  `a46a7b3fc5a684a77990b8f4373f710002411901d2610d1fa30d275e5b07f57c`
+  and
+  `eb570fe3498232a0a206dc168a5afa0f404eca9dd8d1a173a99e746b6a6af20b`.
+  Candidate status remains `candidate-not-accepted`.
+- Root pre-candidate checks passed JSON closure, 34 live artifact digest
+  bindings, all 29 approved inclusive/value-plus-one boundaries, six pairwise
+  distinct current internal identities, complete ordered implementation
+  histories, exact candidate/tree ancestry, assignment identity, correction
+  provenance, 21 frozen command classes, applicability, exclusions, and quiet
+  two-path scope.
+- Fresh final verification is assigned to new verifier identity
+  `c3-b1-final-verifier-3`. It may create only
+  `tests/verification/test_c3_b1_final_candidate_round3.py` and
+  `docs/reviews/c3-b1-final-verification-round-4.md`, may repair nothing, and
+  must report exactly `pass` or `changes_required` after a complete static,
+  non-vacuous audit of this exact candidate.
+- A later pass requires the primary orchestrator to run the complete
+  accumulated gate against the same candidate. Fresh acceptance is reserved
+  for distinct new identity `c3-b1-final-acceptance-3`, and later manifest
+  verification for distinct new identity `c3-b1-manifest-verifier-3`. Neither
+  later role may act early, repair an input, or transfer an old verdict.
+- Existing semantic-fixture, runner-rebinding, raw, and threshold reviewers are
+  internal evidence identities and cannot be reused for any of these three
+  primary roles. No decoder, browser, B2, manifest, checkpoint, or Cycle 4
+  action is authorized by this assignment.

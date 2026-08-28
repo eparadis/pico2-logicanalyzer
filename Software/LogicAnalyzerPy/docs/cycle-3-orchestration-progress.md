@@ -3012,3 +3012,30 @@ unchanged.
   a new verifier test/review with portable exhaustive inventories for both the
   clean tracked tree and the main worktree's optional preserved B2 path. Root
   accumulation and acceptance remain paused; no decoder/raw module ran.
+
+### C3B1-RV003 — verifier-4 still requires optional B2 in a clean clone
+
+- Recorded: `2026-08-28T16:46:36Z`. Root reproduced verifier-4 from clean
+  clone `/private/tmp/c3-runner-if002-final` before acceptance. The exact
+  candidate-plus-verifier inventory correctly collected 584 tests from the
+  explicit 40-module pre-acceptance allowlist, but execution finished with
+  576 passed, 6 inherited skips, and 2 verifier-4 failures.
+- Both failures are confined to
+  `test_c3_b1_runner_fixture_rebinding_round4.py`: its main-worktree audit
+  hard-codes 54 modules and requires optional untracked B2 path
+  `tests/implementation/test_c3_b2_private_host.py`. A clean current
+  descendant contains 53 tracked modules and deliberately lacks that path.
+  This repeats the portability class from `C3B1-RV002` despite verifier-4's
+  claimed disposition.
+- No forbidden module was collected or executed. In particular, the optional
+  B2 test and every raw, threshold, final-candidate, and decoder-execution
+  module remained outside the explicit allowlist. The two failures do not
+  implicate candidate `380d5dd77ae6c6f8648391e3c849c13c4b98fe8a` or its
+  unchanged runner bytes.
+- Disposition: verifier-4's pass transfers no authority. Candidate `380d5dd`
+  remains unchanged and candidate-not-accepted. Fresh verifier identity
+  `c3-b1-pre-execution-runner-rebinding-verifier-5` must create only a new
+  verifier test/review whose clean-clone assertions do not depend on optional
+  B2 presence, while still failing closed when that path is present but not
+  excluded. Root accumulation and acceptance remain paused; raw remains
+  prohibited.

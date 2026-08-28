@@ -3144,3 +3144,28 @@ unchanged.
   a new explicit operator decision on the exact committed round-4 values are
   mandatory. The user's earlier exact round-3 approval does not transfer.
   Final B1, manifest/checkpoint, and B2 remain paused.
+
+### Immutable round-4 threshold proposal and verification assignment
+
+- Recorded: `2026-08-28T18:16:00Z`. Proposal candidate commit/tree:
+  `b680aa59fba4a18da2aeaacc8cbd7ad3a68784e0` /
+  `e8661f094ba0423ca08055ea785bbfcde8554d71`. It adds exactly canonical
+  `threshold-proposal-round-4.json` and its rationale; no product, raw,
+  fixture, runner, approved-limit, B2, or later evidence byte changed.
+- Proposal SHA-256 is
+  `98e48bb1882104d893a1d4d85659845ff20054f9b52f0b09fdf73efad2547e3c`;
+  rationale SHA-256 is
+  `58ef6451033603989617b195ab2d0184c75e243cbcad3ec99df3b2d41027242c`.
+  Status is `proposal-not-approved`.
+- Root independently audited the exact 29 unique values, all raw maxima and
+  formulas, six evidence digests, inclusive/exclusive boundaries, hard-cap and
+  cross-limit relationships, canonical bytes, and the exact 26 unchanged /
+  three changed comparison with round 3.
+- Fresh independent verification is assigned to distinct identity
+  `c3-b1-threshold-verifier-replacement-1`. It may add only a new round-4
+  verifier test and verification record, may repair nothing, and must perform
+  static recomputation plus non-vacuous negative mutations. Raw/decoder,
+  threshold enforcement, product, final, B2, and downstream execution remain
+  prohibited.
+- Root accumulation, independent acceptance, and explicit operator approval
+  remain mandatory before final-B1 work.

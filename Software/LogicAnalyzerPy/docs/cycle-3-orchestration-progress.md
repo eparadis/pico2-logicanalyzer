@@ -3719,3 +3719,28 @@ unchanged.
   paths. No prior verification, accumulated, or acceptance result transfers.
   Complete accumulation, fresh acceptance, manifest assembly, checkpoint, and
   B3 remain paused pending its committed pass.
+
+### C3-B2 replacement-4 verification pass; accumulation restarted
+
+- Recorded: `2026-08-31T14:48:57Z`. Fresh verifier
+  `c3-b2-private-host-verifier-replacement-4` returned `pass` with no finding
+  for exact candidate `959edf77945176b26c7cec86bcdd806d7e5769ea` / tree
+  `bca2c9d482e690d5bd5fa23822f96336bf6aa0b8`. Pass evidence is committed at
+  `ed39a653612b5e879aa08391fcb264f43f09a956` / tree
+  `dc94ec3af39363f6b6c9a41ce5f9a11b04bfe65e`.
+- Round-4 verifier test/review SHA-256 values are
+  `a77b4e6081da5dead4e4f9d3e7b3761a28efa765c24fd9a1c88016b114408607`
+  and
+  `4813ccafec2c66d324e1427646cff34ebaa113d0346dc2019c91716767c6a724`.
+  Six independent attacks cover slow delivery above pipe capacity, early
+  response without complete request, partial-delivery cancellation amid
+  stdout/stderr output, early close/exit/signal, empty readiness, exact cleanup,
+  atomic failure, and real recovery.
+- Root reproduced the complete 313-row B2 set, Ruff, strict mypy, diff-check,
+  and the already-authorized final process audit. No pytest or private worker
+  remained. No external approval was requested and no prior pass transfers.
+- Root now restarts the complete accumulated gate against this new exact
+  candidate and verifier descendant. The prior `bba6662` accumulated record is
+  immutable rejected-candidate history and supplies no pass. Fresh acceptance,
+  manifest assembly, manifest verification, checkpoint, and B3 remain paused
+  until the replacement accumulated record is committed with `pass`.

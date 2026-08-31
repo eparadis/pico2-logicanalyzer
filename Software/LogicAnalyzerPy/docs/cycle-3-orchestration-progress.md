@@ -3869,3 +3869,27 @@ unchanged.
   invalidation, or transferred-acceptance claim. Fresh independent acceptance
   alone may decide `C3B2-A002` disposition and manifest readiness. Manifest,
   checkpoint, and B3 remain paused.
+
+### C3-B2 replacement acceptance pass; manifest assembly authorized
+
+- Completed: `2026-08-31T15:28:26Z`. Fresh acceptance identity
+  `c3-b2-private-host-acceptance-replacement-3` returned `pass` for exact
+  candidate `959edf77945176b26c7cec86bcdd806d7e5769ea`, fresh verifier
+  `ed39a653612b5e879aa08391fcb264f43f09a956`, and complete replacement
+  accumulation `a4f01afe3aaa10692a7aa79f742e46cdb24cfac3`.
+- Acceptance record `docs/reviews/c3-b2-acceptance-round-3.md` has SHA-256
+  `f171864b1730c042a080cecebcaf9fba0e1a1c3d63277a263f18d1295b2598be`;
+  verdict `pass`, no new finding or approval need. It closes `C3B2-A001` and
+  `C3B2-A002` while preserving the original failed timing observation and all
+  failed-candidate/reviewer history without transferring a result.
+- The acceptance independently binds the precommitted five-run rule, all five
+  separately preserved reports, the from-scratch 938-pass accumulated rerun,
+  complete R6-R12/R22 proof, exact 18 hard versus 11 evidence-only limits,
+  prohibited/scope/cleanup results, and no public decoder API/CLI or B3 work.
+- Root may now atomically create only `testdata/evidence/c3-b2.json`. It may
+  name assigned fresh manifest verifier `c3-b2-manifest-verifier-replacement-1`
+  but must contain no future verifier verdict, verifier-record path/digest,
+  checkpoint, predictive pass, or self-dependent digest. The distinct verifier
+  may create only its immutable manifest-verification record and may repair
+  nothing. Manifest/record joint commit and a later checkpoint remain mandatory;
+  B3 stays paused.

@@ -3622,3 +3622,38 @@ unchanged.
   authority, and unchanged Cycle 2 frontend/build/browser/performance gates.
   Acceptance remains prohibited until the complete accumulated record is
   committed with `pass`.
+
+### C3-B2 complete accumulated validation pass; acceptance ready
+
+- Recorded: `2026-08-31T14:19:07Z`. Root completed the full accumulated gate
+  against exact immutable candidate
+  `d8e14bbe490035894f3103a1289b27464a89d0d6` / tree
+  `0ca3d0aec612183e3da01b24f341580743489d38` and fresh passing verifier
+  `5178a63eeb56abc623d4bc10a0a5ae68eb868299`. The accumulated record is
+  `docs/reviews/c3-b2-accumulated-validation-round-1.md`, SHA-256
+  `357432e082180495aba64a6d9fdc58f03d4d849c4eb73a9421292fad83e87ae5`;
+  verdict `pass`, findings none.
+- The exact applicable nonhardware inventory collected 934 tests and completed
+  with 929 passed, four inherited optional physical-artifact skips, one frozen
+  historical deselection, and 149 warnings. Pip dependency consistency, Ruff,
+  product and strict characterization mypy, fixture rebuild, runner binding,
+  installed CLI, six Cycle-2 evidence manifests, corrected C3-B1 manifest,
+  prohibited runtime/import/process, cleanup, scope, and diff gates passed.
+- Exact repository-local Node 22.14.0 passed ESLint, TypeScript, three Vitest
+  files/five tests, a 29-module production build, governed asset comparison,
+  one plus three Playwright browser tests, and the frozen B6 benchmark plus
+  unchanged threshold checker. Accepted performance report SHA-256 is
+  `fe646a5906bdb4c24162bb788c4213dd2d7806ed53b51de0e054ea57eabefaee`.
+  Earlier Node 26 and sandbox-loopback attempts are explicitly discarded in
+  the record; they caused no candidate, method, checker, or threshold change.
+- The exact pinned-Node browser and benchmark command-class approvals are now
+  saved for reuse; no process-by-process or rerun-by-rerun approval is needed.
+  Generated browser results were preserved at
+  `/private/tmp/c3-b2-web-20260831T1416`, and final process/worktree cleanup
+  passed.
+- Fresh independent acceptance may now start under reserved identity
+  `c3-b2-private-host-acceptance-replacement-1`. It may add only its B2
+  acceptance record, may repair nothing, and must audit this exact candidate,
+  fresh verification, complete accumulated evidence, authority, scope, and
+  readiness for atomic B2 manifest assembly. Manifest creation, manifest
+  verification, checkpoint, and B3 remain paused pending its committed pass.

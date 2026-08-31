@@ -3802,3 +3802,24 @@ unchanged.
   iteration/threshold byte unchanged, avoid run-until-pass selection, and
   repeat the complete owning accumulation before fresh acceptance. B3 remains
   paused.
+
+### C3-B2 C3B2-A002 predeclared reproducibility gate
+
+- Recorded before execution on `2026-08-31`. Root created
+  `docs/reviews/c3-b2-performance-reproducibility-plan-round-1.md` to replace
+  unstructured retry selection with a bounded no-retry rule; plan SHA-256 is
+  `c35079e6b2ba7bcf04c700b18e53d8f948387a56e2a13eff2084d879c331c1f6`.
+  It binds exact
+  unchanged candidate `959edf7`, verifier `ed39a65`, finding `C3B2-A002`, both
+  prior report hashes, the frozen exact Node-22 command, and unchanged method,
+  checker, iterations, fixtures, browser, product identities, and ceilings.
+- After a clean identity/process preflight, exactly five consecutive benchmark
+  invocations will run. Every invocation must independently exit 0; every
+  report will be hashed and preserved separately. There is no aggregation,
+  outlier removal, best-of selection, retry, replacement, or sixth run. The
+  first failure stops the gate as `changes_required`.
+- Only five independent passes permit a from-scratch replacement accumulated
+  gate and fresh acceptance that audits the original failure and the complete
+  new series. The plan neither invalidates the original failure nor changes a
+  B1 method/value. No manifest, checkpoint, B3, or later authority follows
+  from the plan itself.

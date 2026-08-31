@@ -3511,3 +3511,31 @@ unchanged.
   add regression evidence, and create a new candidate. Accumulation,
   acceptance, manifest assembly, and checkpoint remain paused. Any later pass
   requires a fresh verifier identity and evidence paths.
+
+### C3-B2 C3B2-V001 replacement candidate
+
+- Recorded: `2026-08-31T05:56:16Z`. Implementation identity
+  `c3-b2-private-host-implementor-replacement-4` closed `C3B2-V001` and created
+  immutable candidate `7a8b2d1d513cf841ec1dc9cf01b2d209b7c518b1` / tree
+  `22d932214cd543bc3cbd0ef9b8d9b1ffad2bdfa0`.
+- The parent now retains an immutable pre-spawn projection of the validated
+  request and verified identity, then atomically rejects any settled result
+  whose decoder/hash, samplerate, capture count/trigger, ordered mapped channel
+  identity, or fully materialized typed options differ. The implementation
+  adds all six failed-verifier mutations plus adjacent trigger, order,
+  duplicate, default, value/type, valid-acceptance, cleanup, and recovery rows.
+- Host, focused implementation test, and round-2 implementation review
+  SHA-256 values are
+  `d2fca4998d75b98bfc6d6f6cd3ad98bb4c42686158b05841d87189e23a0a83aa`,
+  `d353c3b8b30a1f5a1d1895a804d8dd2b577d4f3f286312d38c860d3036fea05b`,
+  and
+  `cb9e5e5a882c06e34a1fa7b0407f584819540308a96e62d07057e14a22a107dc`.
+- Root independently reproduced 218 combined passes: 210 implementation rows
+  and all eight committed round-1 verifier rows, including the six former
+  failures. Ruff, strict mypy across nine private sources, and diff-check also
+  passed. Worktree was clean when the candidate was sealed.
+- Fresh verifier `c3-b2-private-host-verifier-replacement-2` is assigned to
+  rederive and attack the complete exact candidate using new round-2 verifier
+  evidence paths. No prior verification verdict transfers. Accumulation,
+  acceptance, manifest, and checkpoint remain paused pending its committed
+  pass.

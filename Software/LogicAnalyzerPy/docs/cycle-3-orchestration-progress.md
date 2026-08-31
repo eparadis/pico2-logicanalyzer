@@ -3597,3 +3597,28 @@ unchanged.
   rederive and attack this complete candidate using new round-3 evidence paths.
   No prior verdict transfers; accumulation and every later B2 gate remain
   paused pending its committed pass.
+
+### C3-B2 replacement verification pass and accumulated gate
+
+- Recorded: `2026-08-31T06:48:28Z`. Fresh verifier
+  `c3-b2-private-host-verifier-replacement-3` returned `pass` for exact
+  candidate `d8e14bbe490035894f3103a1289b27464a89d0d6` / tree
+  `0ca3d0aec612183e3da01b24f341580743489d38`, with no finding and no approval
+  need. The pass evidence was committed at
+  `5178a63eeb56abc623d4bc10a0a5ae68eb868299` / tree
+  `3105c6cf683b3ba6ffb4f5198bcaeffba85d9608`.
+- Round-3 verifier test/review SHA-256 values are
+  `0fa95ab5e4e849c7f63c34e4badab2a32321dc39897ccf838e40e1dc8c1fa432`
+  and
+  `0c78a9e8d2143e8b488f8780083a19227c166de0221fd7b90dae0385851769d2`.
+  Its 32 new rows and complete combined run produced 304 passes; independent
+  live success and forced-kill cleanup observation gates passed all unchanged
+  exact regression ceilings.
+- B2 now enters root-owned complete accumulated validation against that exact
+  candidate. The gate includes the active 229 implementation and all 75 B2
+  verifier rows, the current B1 include-only partition, inherited Cycle 1/2
+  regressions and evidence validators, full Python static/CLI/fixture checks,
+  prohibited dependency/import/process inspection available without new
+  authority, and unchanged Cycle 2 frontend/build/browser/performance gates.
+  Acceptance remains prohibited until the complete accumulated record is
+  committed with `pass`.

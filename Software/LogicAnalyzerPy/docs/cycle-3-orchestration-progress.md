@@ -3688,3 +3688,34 @@ unchanged.
   prove deterministic cleanup and fresh recovery. Fresh verification, complete
   accumulated validation, and fresh acceptance are mandatory before any
   manifest. B3 remains paused.
+
+### C3-B2 C3B2-A001 replacement candidate
+
+- Recorded: `2026-08-31T14:38:37Z`. Fresh implementation identity
+  `c3-b2-private-host-implementor-replacement-6` closed the implementation side
+  of `C3B2-A001` and created immutable candidate
+  `959edf77945176b26c7cec86bcdd806d7e5769ea` / tree
+  `bca2c9d482e690d5bd5fa23822f96336bf6aa0b8`.
+- Request delivery is now nonblocking and selector-driven beside response,
+  stdout, and stderr draining under one parent-owned deadline/cancellation
+  lifecycle. Partial delivery, broken request pipes, never-reading workers,
+  cancellation during delivery, early exit, terminate/kill/close/reap, atomic
+  failure, descriptor closure, and subsequent fresh recovery have focused
+  evidence. No approved hard limit, private regression ceiling, frame/model,
+  worker, IPC, public surface, B1 evidence, dependency, or later-batch byte
+  changed.
+- Host, focused implementation test, and round-4 implementation review
+  SHA-256 values are
+  `8a555fb08a88badf59bdabe2f558bcd9f7918ccebd52d3c2539013bff733c990`,
+  `77116dab6279a2e6bb579f14d72a2be59a02725cba2ef1f888b69492ae6954b5`,
+  and
+  `c0d5b2573a21c80a9d8e89c5c81e22412642ecd42eda7acf0d7a0fa459d88dbf`.
+- Root independently reproduced all 307 current B2 rows: 232 implementation
+  and 75 immutable verifier rows. Ruff, strict mypy over nine private sources,
+  diff-check, and final process audit passed; no worker or pytest process
+  remained.
+- Fresh verifier `c3-b2-private-host-verifier-replacement-4` is assigned to
+  rederive and attack this exact candidate using new round-4 verifier evidence
+  paths. No prior verification, accumulated, or acceptance result transfers.
+  Complete accumulation, fresh acceptance, manifest assembly, checkpoint, and
+  B3 remain paused pending its committed pass.

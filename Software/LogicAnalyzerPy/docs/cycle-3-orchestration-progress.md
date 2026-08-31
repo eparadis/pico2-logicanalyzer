@@ -4008,3 +4008,48 @@ unchanged.
   conformance items followed by cross-protocol integration and one combined B3
   checkpoint. Public API/CLI work remains C3-B4-owned; B4, B5, the terminal
   closure chain, Cycle 4, and all excluded scope remain paused.
+
+## C3-B3: focused UART, SPI, and I2C conformance
+
+### B3 split preflight and UART-first selection
+
+- Recorded: `2026-08-31T16:22:00Z`. The prerequisite C3-B2 checkpoint is
+  committed at `18614cc812edda68598e19d200f7bb4c87861ebd`; starting tree is
+  `d75d33f67725a7fe04ac8c4ac0d7e57efdf25ec4`. Branch `python-rewrite` was
+  clean and remained bound to governing contract commit/tree
+  `ea83a403bb6f644d33069d3bebd41d5f1e0a60c0` /
+  `d9fb09345ab85580cd8c877745262d1b481e366f`.
+- B3 is decomposed into four bounded implementation/proof items in this order:
+  UART, SPI, I2C, then cross-protocol source-equivalence/integration. Each
+  protocol receives its own focused implementation record and independent
+  verification before the combined B3 accumulated and acceptance gates. One
+  B3 manifest and checkpoint follow only after all four items pass.
+- The first active item owns UART-only R13 conformance. R14 and R15 remain
+  paused for their SPI and I2C items. R16 remains integration-owned because it
+  requires independently materialized in-memory, replay schema 1/2, and
+  explicit-metadata CSV equality across the accepted protocol surface.
+- The accepted option matrix contains 127 UART rows: 50 direct-fixture rows
+  covering every default, enumeration, inclusive numeric boundary, and
+  sentinel, plus 77 unsupported prelaunch type/exclusive-boundary rows. The
+  accepted semantic corpus contains 54 UART timelines, including RX-only,
+  TX-only, defaults, parity/stop/break/idle/packet behavior, nine-bit and
+  incomplete boundaries, every direct option fixture, mappings, and repeated
+  deterministic output.
+- B2's generic implementation suite already executes all accepted semantic
+  timelines through fresh private workers, but that evidence remains B2
+  containment proof. It does not transfer B3 conformance authority. The UART
+  item must independently audit complete typed annotation/Python/binary
+  records and canonical bytes, all 127 matrix dispositions, exact snapshot and
+  helper digests/imports, optional-pin `0xFF` behavior, noncontiguous/reordered
+  mappings, malformed/incomplete and boundary traffic, and byte-identical
+  repeats without modifying expected fixtures or decoder snapshots.
+- The initial UART owner may add only UART-focused B3 tests, an implementation
+  record, and—only if a new failing conformance check proves it necessary—the
+  smallest decoder-specific adapter or static table. It may not edit the B2
+  generic host contract/exceptions, B1 fixtures/generator/matrix, decoder
+  snapshots, dependencies, workflows, public API/CLI, SPI/I2C conformance,
+  manifests, checkpoints, browser behavior, hardware/live capture, or Cycle 4.
+- No B3 worker identity has been assigned or launched by this preflight. Fresh
+  implementation and independent verification identities remain required
+  before any UART candidate can be accepted; B3 accumulation, acceptance,
+  manifest, checkpoint, B4, B5, and terminal closure remain paused.

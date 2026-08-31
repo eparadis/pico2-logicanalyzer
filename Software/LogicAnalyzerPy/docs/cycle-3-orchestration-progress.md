@@ -3539,3 +3539,28 @@ unchanged.
   evidence paths. No prior verification verdict transfers. Accumulation,
   acceptance, manifest, and checkpoint remain paused pending its committed
   pass.
+
+### C3-B2 verification finding C3B2-V002
+
+- Recorded: `2026-08-31T06:05:44Z`. Fresh verifier
+  `c3-b2-private-host-verifier-replacement-2` closed `C3B2-V001` but returned
+  `changes_required` for exact candidate `7a8b2d1d513cf841ec1dc9cf01b2d209b7c518b1`
+  / tree `22d932214cd543bc3cbd0ef9b8d9b1ffad2bdfa0`.
+- Finding `C3B2-V002`: the parent accepts locally typed but cross-reference-
+  inconsistent result graphs. An annotation declaration index changed to 99
+  despite its row references, and an annotation record naming undeclared
+  output ID 999, both returned success rather than atomic `ipc`. The new suite
+  recorded two expected failures and 33 passes; the exact 210 implementation
+  plus eight immutable round-1 verifier rows all passed.
+- Failed round-2 verification evidence was committed at
+  `a62ecc391b792a923cf55fb4208a4563433b26ca` / tree
+  `2e564bd0e6c66f4af194a4cc1cbad44985b71df5`. Test/review SHA-256 values are
+  `1b5f547bf79c42bb00c3157e34be0b77f78afb5c1483e213ea1212771dd44757`
+  and
+  `6490568fabfdd90938811c531e22a35e79b9accc3ba159b84c2e3b10f235cfb3`.
+- Candidate `7a8b2d1` remains immutable rejected history and transfers no
+  verdict. Fresh implementor
+  `c3-b2-private-host-implementor-replacement-5` is assigned to validate the
+  complete declaration/row/output/record/coordinate graph and create a new
+  candidate. Accumulation, acceptance, manifest, and checkpoint remain paused;
+  a later pass requires a fresh verifier identity and new evidence paths.

@@ -3398,3 +3398,29 @@ unchanged.
   gaps, implement the smallest complete private-host containment surface, and
   create a new immutable B2 candidate. Verification, accumulation, acceptance,
   manifest, and checkpoint remain prohibited until that candidate exists.
+
+### C3-B2 worker chain authorized; replacement implementation assigned
+
+- Recorded: `2026-08-31T04:54:53Z`. The operator explicitly authorized the
+  complete bounded C3-B2 worker chain: fresh implementation, verification,
+  acceptance, and manifest-verification identities through the B2 checkpoint.
+  This is one categorical role authorization, not per-command execution
+  authority; the root remains the sole approval broker.
+- Fresh implementation is assigned to
+  `c3-b2-private-host-implementor-replacement-1`. It continues only the three
+  preserved B2-owned paths from corrected B1 checkpoint `d4f984d` and must
+  create a new immutable candidate. It may not edit B1 evidence, snapshots,
+  fixtures, approved thresholds, existing product modules, dependencies,
+  workflows, public APIs/CLI, B3+, governing contracts, or Cycle 4.
+- The implementation must rebind every stale round-3 identity to fixture
+  `3af6b9f`, runner `380d5dd`, proposal `b680aa5`, approval `afd4585`, manifest
+  commit `885be61`, and checkpoint `d4f984d`; enforce all exact round-4 values;
+  and close the complete R6-R12/R22 containment, cancellation, hostile IPC,
+  resource-readback, cleanup/recovery, and no-code-selection matrices rather
+  than merely preserving the existing 110 passing tests.
+- Fresh verification is reserved for
+  `c3-b2-private-host-verifier-replacement-1`, acceptance for
+  `c3-b2-private-host-acceptance-replacement-1`, and manifest verification for
+  `c3-b2-manifest-verifier-replacement-1`. These identities remain inactive
+  until their required predecessor gates pass. Root owns only integration,
+  complete accumulated validation, manifest assembly, and checkpoint order.

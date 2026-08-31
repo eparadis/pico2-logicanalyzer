@@ -3823,3 +3823,27 @@ unchanged.
   new series. The plan neither invalidates the original failure nor changes a
   B1 method/value. No manifest, checkpoint, B3, or later authority follows
   from the plan itself.
+
+### C3-B2 C3B2-A002 predeclared performance result
+
+- Completed: `2026-08-31T15:15:35Z`. The exact five-run rule committed at
+  `de470ab` completed 5/5 passes with no failure, interruption, retry,
+  replacement, sixth run, averaging, or selection. Each unchanged Playwright
+  benchmark passed 1/1 and its chained checker exited 0; all five raw reports
+  were separately hashed and preserved before the next run. Result record
+  `docs/reviews/c3-b2-performance-reproducibility-results-round-1.md` has
+  SHA-256
+  `66442c98fff290626242146a315be1b24fc681bcd4ed93928255760383526369`.
+- Report SHA-256 values in run order are
+  `a02de4b65aa137840617b4948f7d1280984a666a2a1b88a895cccf55db8ef0c6`,
+  `508d1ad1f22e129c1c8c60a4868b059607c2efab5c2c80d4c88327a054f70ca5`,
+  `175008c92ab39f40d913d9bf1b72964588d826a4433f1632e421b2c02deb51c7`,
+  `a2f85b22f578cec4a5ca9074bcf986ef42f59b57ce8f8521c6e3779e5eaff1e1`,
+  and `80fb201f846849ab208fed5fc7da2f179bd78f07d42a30b59f4a961a09193f45`.
+  Separate post-series checker calls accepted all five intact reports; final
+  process inspection found no survivor.
+- Root must still rerun every remaining accumulated gate from the beginning
+  and commit one new complete record. Fresh acceptance will decide whether the
+  original valid failure plus this precommitted five-pass evidence closes
+  `C3B2-A002`; no root label transfers acceptance, and manifest/B3 remain
+  paused.

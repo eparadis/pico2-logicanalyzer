@@ -3893,3 +3893,33 @@ unchanged.
   may create only its immutable manifest-verification record and may repair
   nothing. Manifest/record joint commit and a later checkpoint remain mandatory;
   B3 stays paused.
+
+### C3-B2 manifest findings C3B2-MV001 and C3B2-MV002
+
+- Recorded: `2026-08-31T15:43:00Z`. Fresh manifest verifier
+  `c3-b2-manifest-verifier-replacement-1` returned `changes_required`. Its
+  immutable record is
+  `docs/reviews/c3-b2-manifest-verification-round-1.md`, SHA-256
+  `75187ddda40601f86c564071bd6f20eb4f5349ca526a0e0dfc38067935aeaa91`.
+- `C3B2-MV001`: the assigned proposed-manifest digest was
+  `8cf427f00d5d9b21241fcbf60859759e30c65a774098c662ba9de612b23c7d21`,
+  but root corrected a reference digest and schema-sensitive role spelling
+  before launch, producing live digest
+  `84e251ba2c5561e417f6efe39b8a7aa160b4aa91eb12de0fd186800e6e8da6e8`.
+  The verifier correctly refused to transfer authority across those bytes.
+- `C3B2-MV002`: the live manifest used unsupported acceptance role label
+  `c3-b2-private-host-acceptance-replacement-3-role` to avoid a false-positive
+  43-character secret heuristic. The immutable accepted identity is exactly
+  `c3-b2-private-host-acceptance-replacement-3`; the manifest must record that
+  exact identity and the frozen validator must receive the smallest local
+  correction needed to distinguish a role identity from sensitive free text.
+- Every other independent check passed: schema, 60 unique live and revision
+  digests, candidate/tree ancestry and unchanged product bytes, requirements
+  R6-R12/R21-R25 including R22, stopping conditions 4-8, B1 bindings, command
+  claims, finding history, role separation, and absence of future,
+  self-dependent, checkpoint, or predictive content.
+- The failed verifier record is preserved before correction. Root may correct
+  only the exact acceptance identity and its validator collision, then must
+  assign a fresh manifest verifier to the complete new manifest digest. No
+  result transfers; the manifest joint commit, B2 checkpoint, and B3 remain
+  paused.

@@ -118,7 +118,7 @@ def _decode_with_factory(
         HARD_LIMITS["request_bytes"],
     )
     launch_started = monotonic_ns()
-    process, response_fd = _spawn_fixed_worker(process_factory, payload)
+    process, request_fd, response_fd = _spawn_fixed_worker(process_factory)
     response: Mapping[str, object] | None = None
     stdout = b""
     stderr = b""
@@ -143,7 +143,9 @@ def _decode_with_factory(
 
     try:
         launch_ns = monotonic_ns() - launch_started
-        response, stdout, stderr = _collect_response(process, response_fd, cancellation)
+        response, stdout, stderr = _collect_response(
+            process, request_fd, payload, response_fd, cancellation
+        )
         try:
             reap_started = monotonic_ns()
             process.wait(timeout=HARD_LIMITS["terminate_grace_ms"] / 1000)
@@ -151,27 +153,43 @@ def _decode_with_factory(
         except subprocess.TimeoutExpired:
             raise HostFailure("process-exit") from None
     except TimeoutError:
-        observe_cleanup(_terminate_reap(process, response_fd, monotonic_ns=monotonic_ns), True)
+        observe_cleanup(
+            _terminate_reap(process, request_fd, response_fd, monotonic_ns=monotonic_ns), True
+        )
         raise HostFailure("timeout") from None
     except InterruptedError:
-        observe_cleanup(_terminate_reap(process, response_fd, monotonic_ns=monotonic_ns), False)
+        observe_cleanup(
+            _terminate_reap(process, request_fd, response_fd, monotonic_ns=monotonic_ns), False
+        )
         raise HostFailure("cancelled") from None
     except WorkerFailure as error:
-        observe_cleanup(_terminate_reap(process, response_fd, monotonic_ns=monotonic_ns), False)
+        observe_cleanup(
+            _terminate_reap(process, request_fd, response_fd, monotonic_ns=monotonic_ns), False
+        )
         # A child that exits unsuccessfully before completing its frame is a
         # process failure, not an IPC claim from its untrusted byte stream.
         if str(error) == "output limit":
             raise HostFailure("output-limit") from None
+        if str(error) == "request pipe closed":
+            raise HostFailure("process-exit") from None
         if process.returncode != 0:
             raise HostFailure("process-exit") from None
         raise HostFailure("ipc") from None
     except (OSError, ValueError):
-        observe_cleanup(_terminate_reap(process, response_fd, monotonic_ns=monotonic_ns), False)
+        observe_cleanup(
+            _terminate_reap(process, request_fd, response_fd, monotonic_ns=monotonic_ns), False
+        )
         raise HostFailure("ipc") from None
     except HostFailure:
-        observe_cleanup(_terminate_reap(process, response_fd, monotonic_ns=monotonic_ns), False)
+        observe_cleanup(
+            _terminate_reap(process, request_fd, response_fd, monotonic_ns=monotonic_ns), False
+        )
         raise
     finally:
+        try:
+            os.close(request_fd)
+        except OSError:
+            pass
         try:
             os.close(response_fd)
         except OSError:
@@ -418,9 +436,13 @@ def _validate_parent_growth(before: int, after: int) -> None:
 
 
 def _collect_response(
-    process: subprocess.Popen[bytes], response_fd: int, cancellation: CancellationToken | None
+    process: subprocess.Popen[bytes],
+    request_fd: int,
+    payload: bytes,
+    response_fd: int,
+    cancellation: CancellationToken | None,
 ) -> tuple[Mapping[str, object], bytes, bytes]:
-    """Selector-driven bounded drain; no background readers survive this call."""
+    """Stream request and drain every child pipe under one parent deadline."""
     buffers = {"response": bytearray(), "stdout": bytearray(), "stderr": bytearray()}
     sources: list[tuple[str, int]] = [("response", response_fd)]
     if process.stdout is not None:
@@ -428,6 +450,11 @@ def _collect_response(
     if process.stderr is not None:
         sources.append(("stderr", process.stderr.fileno()))
     selector = selectors.DefaultSelector()
+    request = memoryview(payload)
+    os.set_blocking(request_fd, False)
+    for _, fd in sources:
+        os.set_blocking(fd, False)
+    selector.register(request_fd, selectors.EVENT_WRITE, "request")
     for name, fd in sources:
         selector.register(fd, selectors.EVENT_READ, name)
     deadline = time.monotonic() + HARD_LIMITS["wall_deadline_ms"] / 1000
@@ -439,7 +466,24 @@ def _collect_response(
             if remaining <= 0:
                 raise TimeoutError
             for key, _ in selector.select(min(remaining, 0.05)):
-                data = os.read(key.fd, 65537)
+                if key.data == "request":
+                    try:
+                        written = os.write(key.fd, request)
+                    except BlockingIOError:
+                        continue
+                    except BrokenPipeError:
+                        raise WorkerFailure("request pipe closed") from None
+                    if written <= 0:
+                        raise WorkerFailure("request pipe closed")
+                    request = request[written:]
+                    if not request:
+                        selector.unregister(key.fd)
+                        os.close(request_fd)
+                    continue
+                try:
+                    data = os.read(key.fd, 65537)
+                except BlockingIOError:
+                    continue
                 if not data:
                     selector.unregister(key.fd)
                     continue
@@ -591,8 +635,8 @@ def _close_standard_pipes(process: subprocess.Popen[bytes]) -> None:
 
 
 def _spawn_fixed_worker(
-    process_factory: Callable[..., subprocess.Popen[bytes]], payload: bytes
-) -> tuple[subprocess.Popen[bytes], int]:
+    process_factory: Callable[..., subprocess.Popen[bytes]],
+) -> tuple[subprocess.Popen[bytes], int, int]:
     request_read, request_write = os.pipe()
     response_read, response_write = os.pipe()
     os.set_inheritable(request_read, True)
@@ -617,21 +661,7 @@ def _spawn_fixed_worker(
         raise
     os.close(request_read)
     os.close(response_write)
-    try:
-        _write_all(request_write, payload)
-    except BaseException:
-        _terminate_reap(process, response_read)
-        raise
-    finally:
-        os.close(request_write)
-    return process, response_read
-
-
-def _write_all(fd: int, payload: bytes) -> None:
-    view = memoryview(payload)
-    while view:
-        written = os.write(fd, view)
-        view = view[written:]
+    return process, request_write, response_read
 
 
 def _read_fd_frame(fd: int) -> Mapping[str, object]:

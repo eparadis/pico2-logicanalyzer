@@ -458,7 +458,7 @@ def test_identity_root_is_the_repository_root() -> None:
 
 
 def test_fixed_worker_uses_fd_transport_and_reaps_two_inert_launches() -> None:
-    from pico_logic_analyzer._decode.host import _read_fd_frame, _spawn_fixed_worker
+    from pico_logic_analyzer._decode.host import _collect_response, _spawn_fixed_worker
     from pico_logic_analyzer._decode.ipc import REQUEST, encode_frame
 
     fields = {
@@ -473,16 +473,18 @@ def test_fixed_worker_uses_fd_transport_and_reaps_two_inert_launches() -> None:
     }
     payload = encode_frame(REQUEST, fields, 512)
     for _ in range(2):
-        process, response_fd = _spawn_fixed_worker(subprocess.Popen, payload)
-        response = _read_fd_frame(response_fd)
+        process, request_fd, response_fd = _spawn_fixed_worker(subprocess.Popen)
+        response, stdout, stderr = _collect_response(
+            process, request_fd, payload, response_fd, None
+        )
         os.close(response_fd)
         with pytest.raises(OSError):
             os.fstat(response_fd)
         process.wait(timeout=2)
         assert process.returncode == 0
         assert response["type"] == "decode-result"
-        assert process.stdout is not None and process.stdout.read() == b""
-        assert process.stderr is not None and process.stderr.read() == b""
+        assert stdout == b""
+        assert stderr == b""
 
 
 @pytest.mark.parametrize("decoder", ["uart", "spi", "i2c"])
@@ -911,7 +913,7 @@ def test_each_failure_category_has_a_following_fresh_fixed_worker_success(failur
 def _hostile_factory(
     response: bytes = b"", *, stdout: bytes = b"", stderr: bytes = b"", exit_code: int = 0,
     signal: bool = False, hold_open: bool = False, response_fill: int = 0,
-    ignore_term: bool = False,
+    ignore_term: bool = False, never_read_request: bool = False, request_hold_s: float = 0,
 ):
     """A test-only fixed child: it accepts only the parent-created FD pair."""
 
@@ -925,7 +927,11 @@ def _hostile_factory(
         "import os, signal, sys, time\n"
         + "request_fd, response_fd = map(int, sys.argv[1:3])\n"
         + ("signal.signal(signal.SIGTERM, signal.SIG_IGN)\n" if ignore_term else "")
-        + "os.close(request_fd)\n"
+        + (
+            f"time.sleep({request_hold_s})\nos.close(request_fd)\n"
+            if never_read_request
+            else "os.close(request_fd)\n"
+        )
         + f"os.write(1, b'x' * {len(stdout)})\n"
         + f"os.write(2, b'x' * {len(stderr)})\n"
         + f"os.write(response_fd, b'x' * {response_fill} or "
@@ -960,6 +966,63 @@ def _fresh_valid_decode() -> None:
     from pico_logic_analyzer._decode.host import decode_private
 
     assert decode_private(_request("uart")).decoder == "uart"
+
+
+def _large_delivery_request():
+    """A framed request materially larger than the platform pipe buffer."""
+    return _request("uart", samples=(0,) * 40_000)
+
+
+def test_request_delivery_never_reader_times_out_reaps_and_recovers(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import pico_logic_analyzer._decode.host as host
+    from pico_logic_analyzer._decode.model import HARD_LIMITS, HostFailure
+
+    monkeypatch.setattr(host, "HARD_LIMITS", {**HARD_LIMITS, "wall_deadline_ms": 25})
+    factory = _hostile_factory(never_read_request=True, request_hold_s=10)
+    with pytest.raises(HostFailure, match="^timeout$"):
+        host._decode_with_factory(_large_delivery_request(), factory)
+    _assert_reaped_closed(factory)
+    monkeypatch.undo()
+    _fresh_valid_decode()
+
+
+def test_cancellation_during_partial_request_delivery_reaps_and_recovers(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import pico_logic_analyzer._decode.host as host
+    from pico_logic_analyzer._decode.model import HostFailure
+
+    token = host.CancellationToken()
+    real_write = os.write
+    writes: list[int] = []
+
+    def cancel_after_partial_write(fd: int, data: object) -> int:
+        written = real_write(fd, data)  # type: ignore[arg-type]
+        writes.append(written)
+        if len(writes) == 1 and written < len(data):  # type: ignore[arg-type]
+            token.cancel()
+        return written
+
+    monkeypatch.setattr(host.os, "write", cancel_after_partial_write)
+    factory = _hostile_factory(never_read_request=True, request_hold_s=10)
+    with pytest.raises(HostFailure, match="^cancelled$"):
+        host._decode_with_factory(_large_delivery_request(), factory, token)
+    assert writes and token.cancelled
+    _assert_reaped_closed(factory)
+    _fresh_valid_decode()
+
+
+def test_early_worker_exit_during_request_delivery_reaps_and_recovers() -> None:
+    from pico_logic_analyzer._decode.host import _decode_with_factory
+    from pico_logic_analyzer._decode.model import HostFailure
+
+    factory = _hostile_factory(never_read_request=True, request_hold_s=0.01, exit_code=0)
+    with pytest.raises(HostFailure, match="^process-exit$"):
+        _decode_with_factory(_large_delivery_request(), factory)
+    _assert_reaped_closed(factory)
+    _fresh_valid_decode()
 
 
 def _settled_result_frame(request: object, mutate: object) -> bytes:
@@ -1293,8 +1356,11 @@ def test_post_drain_wait_errors_cleanup_exact_response_fd(
     from pico_logic_analyzer._decode.model import HostFailure
 
     process = _PostDrainProcess(timeout)
+    request_fd = os.open(os.devnull, os.O_WRONLY)
     response_fd = os.open(os.devnull, os.O_RDONLY)
-    monkeypatch.setattr(host, "_spawn_fixed_worker", lambda *_args: (process, response_fd))
+    monkeypatch.setattr(
+        host, "_spawn_fixed_worker", lambda *_args: (process, request_fd, response_fd)
+    )
     monkeypatch.setattr(
         host,
         "_collect_response",
@@ -1307,10 +1373,12 @@ def test_post_drain_wait_errors_cleanup_exact_response_fd(
         )
     with pytest.raises(OSError):
         os.fstat(response_fd)
+    with pytest.raises(OSError):
+        os.fstat(request_fd)
     assert process.events == (["wait"] if not timeout else ["wait"])
 
 
-def test_write_failure_after_spawn_reaps_and_closes_response_fd(
+def test_request_delivery_write_failure_reaps_and_closes_all_parent_fds(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     import pico_logic_analyzer._decode.host as host
@@ -1325,10 +1393,12 @@ def test_write_failure_after_spawn_reaps_and_closes_response_fd(
         return pair
 
     monkeypatch.setattr(host.os, "pipe", record_pipe)
-    monkeypatch.setattr(host, "_write_all", lambda *_args: (_ for _ in ()).throw(OSError("write")))
-    with pytest.raises(OSError, match="write"):
+    monkeypatch.setattr(host.os, "write", lambda *_args: (_ for _ in ()).throw(OSError("write")))
+    with pytest.raises(Exception, match="ipc"):
         host._decode_with_factory(_request("uart"), factory)
     assert len(captured) >= 4
+    with pytest.raises(OSError):
+        os.fstat(captured[1])
     with pytest.raises(OSError):
         os.fstat(captured[2])
     _assert_reaped_closed(factory)
@@ -1343,15 +1413,17 @@ def test_successful_parent_path_closes_its_exact_response_fd(
     captured: list[int] = []
 
     def record_spawn(*args: object):
-        process, response_fd = original_spawn(*args)  # type: ignore[arg-type]
+        process, request_fd, response_fd = original_spawn(*args)  # type: ignore[arg-type]
+        captured.append(request_fd)
         captured.append(response_fd)
-        return process, response_fd
+        return process, request_fd, response_fd
 
     monkeypatch.setattr(host, "_spawn_fixed_worker", record_spawn)
     assert host._decode_with_factory(_request("uart"), subprocess.Popen).decoder == "uart"
-    assert len(captured) == 1
-    with pytest.raises(OSError):
-        os.fstat(captured[0])
+    assert len(captured) == 2
+    for fd in captured:
+        with pytest.raises(OSError):
+            os.fstat(fd)
 
 
 def _valid_result_frame() -> bytes:

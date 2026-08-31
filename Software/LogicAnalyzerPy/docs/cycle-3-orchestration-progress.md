@@ -3847,3 +3847,25 @@ unchanged.
   original valid failure plus this precommitted five-pass evidence closes
   `C3B2-A002`; no root label transfers acceptance, and manifest/B3 remain
   paused.
+
+### C3-B2 C3B2-A002 replacement complete accumulation
+
+- Completed: `2026-08-31T15:24:26Z`. After sealing the predeclared 5/5
+  performance result, root reran every remaining accumulated command from the
+  beginning against unchanged candidate `959edf7` and verifier `ed39a65`.
+  Replacement accumulated record
+  `docs/reviews/c3-b2-accumulated-validation-round-3.md` has SHA-256
+  `cdd7e61972fa0eb3176be4b14fa5e8844229849d43362bd5c4ee5753692e43b6`;
+  verdict `pass`, no new finding.
+- The exact Python partition again collected 943 tests and passed 938 with four
+  inherited optional physical-artifact skips, one governed historical
+  deselection, and 149 warnings. Dependency consistency, Ruff, both mypy
+  scopes, fixture/binding, CLI, Cycle-2 and corrected B1 evidence, exact Node
+  lint/type/unit/build/assets/browser, prohibited-runtime/import/process,
+  cleanup, scope, and diff gates all passed freshly.
+- The record preserves the original exact benchmark failure and ad hoc pass,
+  binds predeclared plan `de470ab`, all five separately preserved passing raw
+  reports and result record `41cccdf`, and makes no threshold, method, product,
+  invalidation, or transferred-acceptance claim. Fresh independent acceptance
+  alone may decide `C3B2-A002` disposition and manifest readiness. Manifest,
+  checkpoint, and B3 remain paused.

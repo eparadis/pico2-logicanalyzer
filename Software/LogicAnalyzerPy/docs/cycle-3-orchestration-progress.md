@@ -3744,3 +3744,35 @@ unchanged.
   immutable rejected-candidate history and supplies no pass. Fresh acceptance,
   manifest assembly, manifest verification, checkpoint, and B3 remain paused
   until the replacement accumulated record is committed with `pass`.
+
+### C3-B2 replacement complete accumulation pass; acceptance ready
+
+- Recorded: `2026-08-31T15:00:43Z`. Root completed replacement accumulated
+  validation for exact candidate
+  `959edf77945176b26c7cec86bcdd806d7e5769ea` / tree
+  `bca2c9d482e690d5bd5fa23822f96336bf6aa0b8` and fresh verifier evidence
+  `ed39a653612b5e879aa08391fcb264f43f09a956`. Record
+  `docs/reviews/c3-b2-accumulated-validation-round-2.md` has SHA-256
+  `fcdf4a7f3288a9f76bbc13d835dfa6fe1ec98754b184d60094da47f5d59808a3`;
+  verdict `pass`, no new product finding.
+- The exact applicable Python gate collected 943 tests and completed with 938
+  passed, four inherited optional physical-artifact skips, one governed
+  historical deselection, and 149 warnings. Dependency consistency, Ruff,
+  both mypy scopes, fixture/binding determinism, installed CLI, six Cycle-2
+  evidence manifests, corrected C3-B1 evidence, prohibited runtime/import,
+  scope, cleanup, and diff gates passed.
+- Exact Node 22.14.0 passed lint, typecheck, three Vitest files/five tests,
+  29-module build, assets, and one plus three Playwright browser tests. The
+  first exact performance observation failed only representative distinct-
+  strobe at 140.5 ms versus its 116.7250000052154-ms regression ceiling and is
+  preserved with report hash `e2602ab8c3dd02e56b1a8492bd85e12f5d6215e8254e2f9462ae5aed32ebd131`.
+  With no process or byte change, one transparent quiescent rerun of the exact
+  command passed every unchanged absolute and regression ceiling; accepted
+  report SHA-256 is
+  `460b28250af8d8d5fa899dd426c1bf6b61b1791444215cbc2c87a471d940f7b0`.
+  No threshold, method, iteration, checker, or product value was rebased.
+- Fresh independent acceptance must explicitly audit both performance
+  observations as well as `C3B2-A001` closure, the exact candidate, fresh
+  verifier, complete accumulated record, authority, scope, and manifest
+  readiness. Manifest assembly, manifest verification, checkpoint, and B3
+  remain paused until that acceptance record is committed with `pass`.

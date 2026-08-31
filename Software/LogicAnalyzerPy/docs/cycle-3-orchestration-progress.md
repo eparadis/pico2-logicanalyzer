@@ -3776,3 +3776,29 @@ unchanged.
   verifier, complete accumulated record, authority, scope, and manifest
   readiness. Manifest assembly, manifest verification, checkpoint, and B3
   remain paused until that acceptance record is committed with `pass`.
+
+### C3-B2 acceptance finding C3B2-A002
+
+- Recorded: `2026-08-31T15:04:46Z`. Fresh acceptance identity
+  `c3-b2-private-host-acceptance-replacement-2` confirmed `C3B2-A001` closed
+  and all R6-R12/R22 product, verifier, Python, dependency, scope, cleanup, and
+  inherited gates except performance ready, but returned `changes_required`
+  for candidate `959edf77945176b26c7cec86bcdd806d7e5769ea` and accumulated
+  pass `9ed76a0`.
+- Finding `C3B2-A002`: the first exact Node-22 benchmark report was method-valid
+  and failed representative distinct-strobe p95 140.5 ms against the approved
+  116.7250000052154-ms regression ceiling. A later unchanged pass cannot
+  displace it without an objective invalidation reason or a predeclared,
+  contract-consistent proof rule. An unstructured rerun-until-pass would waive
+  a failed gate.
+- Acceptance record `docs/reviews/c3-b2-acceptance-round-2.md` has SHA-256
+  `f4f2dcf683dd4b7137043543c014bd8cd0b47e6110d019d1c20ebe1cafa19084`.
+  It introduced no product finding or approval need and performed no test or
+  benchmark rerun.
+- Accumulated record `9ed76a0` is immutable failed-acceptance history and
+  transfers no pass. No manifest or checkpoint may be assembled. Root must
+  define a resolution before executing more performance evidence; any new
+  proof must preserve the failed observation, leave every method/checker/
+  iteration/threshold byte unchanged, avoid run-until-pass selection, and
+  repeat the complete owning accumulation before fresh acceptance. B3 remains
+  paused.

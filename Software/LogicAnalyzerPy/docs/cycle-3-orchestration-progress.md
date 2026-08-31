@@ -3657,3 +3657,34 @@ unchanged.
   fresh verification, complete accumulated evidence, authority, scope, and
   readiness for atomic B2 manifest assembly. Manifest creation, manifest
   verification, checkpoint, and B3 remain paused pending its committed pass.
+
+### C3-B2 acceptance finding C3B2-A001
+
+- Recorded: `2026-08-31T14:24:39Z`. Fresh independent acceptance identity
+  `c3-b2-private-host-acceptance-replacement-1` returned
+  `changes_required` for exact candidate
+  `d8e14bbe490035894f3103a1289b27464a89d0d6` / tree
+  `0ca3d0aec612183e3da01b24f341580743489d38`, verifier pass `5178a63`, and
+  complete accumulated pass `bba6662`.
+- Finding `C3B2-A001`: `_spawn_fixed_worker` synchronously writes the complete
+  request pipe before `_collect_response` enters the parent deadline and
+  cancellation selector. A valid request may approach 4,194,304 bytes, above
+  ordinary pipe capacity; a worker that never drains the pipe can therefore
+  block the parent before timeout, cancellation, terminate/kill, close, or reap
+  handling begins. Existing hang evidence starts only after request delivery
+  and does not prove this R8/R10/R11/R12/R22 failure mode.
+- Acceptance record
+  `docs/reviews/c3-b2-acceptance-round-1.md` has SHA-256
+  `c13f1c04fe0f9d9214a6a85fd1eeacfcb778c2a5fdd266dead353f35b23764c2`.
+  It records no approval need and preserves every otherwise passing verifier,
+  accumulated, dependency, frontend, performance, and scope result without
+  allowing those results to waive the finding.
+- Candidate `d8e14bb` remains immutable rejected history. Its verification,
+  accumulated, and acceptance results transfer no authority to a correction.
+  A fresh B2 implementor must place request writing, response/stdout/stderr
+  draining, deadline, cancellation, and cleanup under one parent-owned
+  nonblocking lifecycle; add hostile evidence for a never-reading worker,
+  cancellation during partial delivery, and early exit during delivery; and
+  prove deterministic cleanup and fresh recovery. Fresh verification, complete
+  accumulated validation, and fresh acceptance are mandatory before any
+  manifest. B3 remains paused.

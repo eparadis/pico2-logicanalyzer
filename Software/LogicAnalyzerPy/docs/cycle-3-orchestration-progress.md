@@ -4053,3 +4053,31 @@ unchanged.
   implementation and independent verification identities remain required
   before any UART candidate can be accepted; B3 accumulation, acceptance,
   manifest, checkpoint, B4, B5, and terminal closure remain paused.
+
+### UART baseline coverage audit
+
+- Recorded: `2026-08-31T16:28:00Z`. Root independently mapped every one of the
+  50 UART direct-fixture option rows to an existing accepted UART timeline;
+  missing fixture identities: zero. The remaining 77 UART rows are all
+  `unsupported` prelaunch rejection rows; UART has no static-equivalence row.
+- The existing complete-matrix request checks passed `2 passed` in 0.08 s:
+  every unsupported row rejected and every direct supported row materialized
+  its exact typed option value. This is generic B2 request-boundary evidence,
+  not an independent B3 UART verdict.
+- The existing private-host semantic gate selected all 54 UART timelines and
+  passed `54 passed, 9 deselected` in 9.21 s. The UART corpus emits exactly
+  annotation, Python, and binary records; its accepted mapping shapes are
+  RX-only and TX-only, with compatibility-pin sentinels `[1,255]` and
+  `[255,0]`. Special traffic includes parity-invalid, stop, break, idle,
+  packet, nine-bit boundary, and incomplete-input cases.
+- This baseline shows no known UART product defect and does not authorize an
+  adapter change. The fresh UART implementation identity must add independent
+  B3 conformance proof that attacks complete record/declaration/canonical-byte
+  equality, both optional-channel sentinel cases, reordered/noncontiguous
+  physical IDs, all matrix dispositions, repeat determinism, and exact digest
+  and import closure. It may modify a decoder-specific adapter or static table
+  only after a newly added failing check demonstrates a concrete need.
+- Cross-source in-memory/replay-schema-1/replay-schema-2/explicit-CSV equality
+  remains R16 integration work and cannot be claimed by the UART baseline.
+  SPI, I2C, accumulated validation, acceptance, manifest, and checkpoint remain
+  paused.

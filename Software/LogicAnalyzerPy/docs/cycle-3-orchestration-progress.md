@@ -3946,3 +3946,65 @@ unchanged.
   `c3-b2-manifest-verifier-replacement-3`, bind this finding, and receive a new
   exact digest and complete fresh verification. No pass transfers; the joint
   manifest commit, checkpoint, and B3 remain paused.
+
+### Checkpoint C3-B2 — isolated compatibility host and containment
+
+- State: Complete.
+- Completed at: `2026-08-31T16:15:48Z`.
+- Governing contract commit/tree:
+  `ea83a403bb6f644d33069d3bebd41d5f1e0a60c0` /
+  `d9fb09345ab85580cd8c877745262d1b481e366f`.
+- Prerequisite corrected C3-B1 checkpoint:
+  `d4f984d26ca45dcd0f70da51ad739da427e23be4`; accepted B1 manifest commit
+  `885be61a2bbea8bf5261b3983cbc79fedde0f315`.
+- Exact tested candidate/tree:
+  `959edf77945176b26c7cec86bcdd806d7e5769ea` /
+  `bca2c9d482e690d5bd5fa23822f96336bf6aa0b8`.
+- Implementation identity:
+  `c3-b2-private-host-implementor-replacement-6`; accepted host,
+  implementation-test, and review SHA-256 values are respectively
+  `8a555fb08a88badf59bdabe2f558bcd9f7918ccebd52d3c2539013bff733c990`,
+  `77116dab6279a2e6bb579f14d72a2be59a02725cba2ef1f888b69492ae6954b5`,
+  and
+  `c0d5b2573a21c80a9d8e89c5c81e22412642ecd42eda7acf0d7a0fa459d88dbf`.
+- Fresh verification identity:
+  `c3-b2-private-host-verifier-replacement-4`; pass at
+  `ed39a653612b5e879aa08391fcb264f43f09a956`; review SHA-256
+  `4813ccafec2c66d324e1427646cff34ebaa113d0346dc2019c91716767c6a724`;
+  complete focused B2 result 313 passed.
+- Complete accumulated validation: primary orchestrator; pass at
+  `a4f01afe3aaa10692a7aa79f742e46cdb24cfac3`; record SHA-256
+  `cdd7e61972fa0eb3176be4b14fa5e8844229849d43362bd5c4ee5753692e43b6`;
+  938 passed, four inherited optional physical-artifact skips, one governed
+  historical deselection, and every required static, dependency, evidence,
+  frontend, browser, scope, prohibited-use, process, and repository gate.
+- Fresh acceptance identity:
+  `c3-b2-private-host-acceptance-replacement-3`; pass at
+  `536eac331904cd0149104ee4409f5b940344ff09`; record SHA-256
+  `f171864b1730c042a080cecebcaf9fba0e1a1c3d63277a263f18d1295b2598be`.
+- Findings `C3B2-II001`, `C3B2-V001`, `C3B2-V002`, `C3B2-A001`, and
+  `C3B2-A002` are closed with their failed evidence and correction histories
+  preserved. The original exact benchmark failure remains valid history; the
+  accepted resolution is the precommitted no-retry five-of-five proof followed
+  by complete fresh accumulation and acceptance.
+- Failed manifest findings `C3B2-MV001`, `C3B2-MV002`, and `C3B2-MV003` are
+  committed at `f5069db` and `127398d`; no verdict transfers. The narrow
+  role-identity validator correction is committed at `91b7a7c`.
+- Corrected manifest SHA-256:
+  `2af5bfc21a5d888132fb4e468f543403e8948632ad9ab2dd11b8da854dd4a602`.
+  Fresh manifest verifier `c3-b2-manifest-verifier-replacement-3` passed with
+  no finding; verifier-record SHA-256:
+  `221bc69396ae140091486cf4ebc84e278ef7e8bd7a80264e89ef19bea4e512e5`.
+  The unchanged manifest and pass record were committed jointly at
+  `0ece04929e36d356f084dba015c9a256cffec50a` / tree
+  `bcd16b7b4c861288de8851096f946deac951ad53`.
+- Requirements R6-R12 and R22, continuous R21/R23-R25, and stopping
+  conditions 4-8 have immutable checkpoint proof. The exact 18 hard product
+  limits remain distinct from 11 evidence-only regression gates; no limit,
+  threshold, method, fixture, decoder snapshot, or accepted B1 identity was
+  weakened or rebased.
+- Checkpoint verdict: `pass`. C3-B3 may begin only from the commit containing
+  this checkpoint. Its work is decomposed into separate UART, SPI, and I2C
+  conformance items followed by cross-protocol integration and one combined B3
+  checkpoint. Public API/CLI work remains C3-B4-owned; B4, B5, the terminal
+  closure chain, Cycle 4, and all excluded scope remain paused.

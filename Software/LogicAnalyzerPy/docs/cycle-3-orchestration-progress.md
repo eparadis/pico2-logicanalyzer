@@ -3923,3 +3923,26 @@ unchanged.
   assign a fresh manifest verifier to the complete new manifest digest. No
   result transfers; the manifest joint commit, B2 checkpoint, and B3 remain
   paused.
+
+### C3-B2 manifest finding C3B2-MV003
+
+- Recorded: `2026-08-31T16:08:00Z`. Fresh manifest verifier
+  `c3-b2-manifest-verifier-replacement-2` returned `changes_required` for
+  unchanged proposed-manifest SHA-256
+  `0aadc0d57f2309fcffbc40091b975a1b49a4683b278af83ccf0aa21fc99df8d8`.
+  Its immutable record is
+  `docs/reviews/c3-b2-manifest-verification-round-2.md`, SHA-256
+  `d33113669ca8b1d743b37e6073310f07d234d606f7bd0aa1bf587836a1a955ab`.
+- `C3B2-MV003`: `roles.manifest_verifier` still named failed round-1 identity
+  `c3-b2-manifest-verifier-replacement-1`, not the fresh identity assigned to
+  the corrected bytes. The verifier correctly rejected that inaccurate role
+  map even though the schema and every digest were valid.
+- Both B1 and B2 strict validation, the validator-boundary adversarial probes,
+  62 unique revision/path/digest tuples, ancestry, unchanged candidate product
+  and implementation-test bytes, complete mappings/history, and absence of
+  future/self-dependent/checkpoint content otherwise passed.
+- The failed round-2 record is preserved before correction. The next corrected
+  manifest must name newly assigned fresh verifier
+  `c3-b2-manifest-verifier-replacement-3`, bind this finding, and receive a new
+  exact digest and complete fresh verification. No pass transfers; the joint
+  manifest commit, checkpoint, and B3 remain paused.

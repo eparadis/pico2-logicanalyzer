@@ -3479,3 +3479,35 @@ unchanged.
   candidate and may add only verifier-owned evidence; it may not repair or
   reinterpret implementation bytes. Accumulation and acceptance remain paused
   until its committed verdict passes.
+
+### C3-B2 verification finding C3B2-V001
+
+- Recorded: `2026-08-31T05:47:46Z`. Fresh verifier
+  `c3-b2-private-host-verifier-replacement-1` returned `changes_required` for
+  exact candidate `2e4e5ce215e619d19a1f1e26646ebc595ff7c903` / tree
+  `51424b7c9b3b3f7bca470eae3c54ba39f9bc8d84`.
+- Finding `C3B2-V001`: the parent accepts a structurally valid success frame
+  whose decoder ID, pinned file-set hash, samplerate, capture sample count,
+  channel/physical mapping, or materialized options differs from the validated
+  request and verified decoder identity. All six independent mutations were
+  accepted when rejection was required; each row then proved fresh real-worker
+  recovery. The verifier suite therefore recorded six expected failures and
+  two passes, while the exact 198-test implementation suite remained passing.
+- Failed verification evidence was committed immutably at
+  `052401272b93bc94491e3301218e33fac94c8aac` / tree
+  `05d8c13f08d69e4e037c90d50a77aa849aa09174`. Verifier test/review SHA-256
+  values are
+  `58e68082bbcc3f1e8c3d4c572722c08110573d18e11f65453c98ae13d88d76cb`
+  and
+  `2da95bb7c9f5785249e75f46fa9246564991ccb58bf2802849e4808e46bcd743`.
+- A process-list audit requested stable class `rtk ps`, but the sandbox denied
+  it. Root did not request new external authority because the decisive failed
+  verdict already blocks the candidate and process inspection cannot change
+  that disposition. No approval class was added.
+- Candidate `2e4e5ce` remains immutable rejected history and transfers no
+  verdict. Fresh implementation identity
+  `c3-b2-private-host-implementor-replacement-4` is assigned only to bind every
+  settled result identity field to the preflighted request/verified identity,
+  add regression evidence, and create a new candidate. Accumulation,
+  acceptance, manifest assembly, and checkpoint remain paused. Any later pass
+  requires a fresh verifier identity and evidence paths.

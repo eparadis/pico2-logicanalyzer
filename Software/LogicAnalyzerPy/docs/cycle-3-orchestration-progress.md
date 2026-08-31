@@ -3564,3 +3564,36 @@ unchanged.
   complete declaration/row/output/record/coordinate graph and create a new
   candidate. Accumulation, acceptance, manifest, and checkpoint remain paused;
   a later pass requires a fresh verifier identity and new evidence paths.
+
+### C3-B2 C3B2-V002 replacement candidate
+
+- Recorded: `2026-08-31T06:33:02Z`. Implementation identity
+  `c3-b2-private-host-implementor-replacement-5` closed `C3B2-V002` and created
+  immutable candidate `d8e14bbe490035894f3103a1289b27464a89d0d6` / tree
+  `0ca3d0aec612183e3da01b24f341580743489d38`.
+- The candidate validates the complete typed declaration/row/output/record
+  graph before return, including contiguous unique declarations, row
+  references, frozen output-kind registration, class bounds, metadata types,
+  coordinates, and exact rational absolute/trigger-relative times. It preserves
+  the frozen terminal interval endpoint equal to capture extent.
+- It also corrects a B2 limit-semantics defect exposed during integration:
+  the 18 approved hard limits remain product enforcement, while the 11 exact
+  macOS-candidate regression ceilings remain unchanged private observations
+  and validation gates rather than real-time product errors. Timeout/cancel/
+  IPC paths retain hard deadline, grace, terminate/kill/close/reap behavior and
+  produce non-retained cleanup observations without changing stable failures.
+- Host, focused implementation test, and round-3 implementation review
+  SHA-256 values are
+  `b913febe115299aa761e913e9f953c9acfdcda6f076fdfaffa29e2a4ca9e3e71`,
+  `e3da648cb4dccbf97023a886a43a616c7249ccb614fc692cadde79e7508323c4`,
+  and
+  `12105221def9e51705577e032882bc8cb47df9916e603a2b79b552829964bf27`.
+- Root independently reproduced all 272 rows in one run: 229 current
+  implementation rows, eight immutable round-1 verifier rows, and 35 immutable
+  round-2 verifier rows. Ruff, strict mypy over nine private sources, and
+  diff-check passed. A separate exact-candidate gate passed all 11 unchanged
+  regression ceilings, including real nonzero forced-cleanup observations.
+- Fresh verifier `c3-b2-private-host-verifier-replacement-3` is assigned to
+  rederive and attack this complete candidate using new round-3 evidence paths.
+  No prior verdict transfers; accumulation and every later B2 gate remain
+  paused pending its committed pass.

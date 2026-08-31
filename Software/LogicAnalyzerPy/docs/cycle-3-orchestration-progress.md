@@ -3424,3 +3424,28 @@ unchanged.
   `c3-b2-manifest-verifier-replacement-1`. These identities remain inactive
   until their required predecessor gates pass. Root owns only integration,
   complete accumulated validation, manifest assembly, and checkpoint order.
+
+### C3-B2 implementation integration finding C3B2-II001
+
+- Recorded: `2026-08-31T05:02:23Z`. Implementation identity
+  `c3-b2-private-host-implementor-replacement-1` produced immutable candidate
+  `a24b14c4455a229424fc6092b4ed58bd840d2a9c` / tree
+  `56cd862258f45cfc0904b8f442bff9062fd81287`. Its focused checks reported 110
+  passing tests, Ruff pass, strict mypy pass, and diff-check pass.
+- Root integration inspection found that this candidate does not complete the
+  R11/R12/R22 containment and recovery contract and that its implementation
+  review overclaims those outcomes. The host exposes no parent cancellation
+  path; `REGRESSION_LIMITS` is defined but unused; parent timing, RSS, retained
+  result growth, and resource readback are absent; and stdout is compared with
+  the 2 MiB encoded-result limit rather than the approved 64 KiB stdout limit.
+- Focused evidence also lacks the required independent hostile matrix for
+  cancellation races, deadline terminate-then-kill behavior, exits/signals,
+  memory and recursion pressure, output floods and retention, and a fresh
+  successful request after every failure class. Passing the inherited 110-test
+  matrix therefore does not prove deterministic cleanup, resource ceilings,
+  recovery, or absence of retained partial state.
+- Finding `C3B2-II001` blocks verification of this candidate. Its bytes remain
+  immutable history and its verdict transfers no result. A fresh replacement
+  implementation identity must close the concrete gaps, extend the focused
+  evidence, and create a new immutable candidate before the reserved verifier
+  can start.

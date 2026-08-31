@@ -3449,3 +3449,33 @@ unchanged.
   implementation identity must close the concrete gaps, extend the focused
   evidence, and create a new immutable candidate before the reserved verifier
   can start.
+
+### C3-B2 replacement implementation candidate
+
+- Recorded: `2026-08-31T05:41:32Z`. The ordered implementation history is
+  preserved: replacement 1 produced rejected immutable candidate `a24b14c`
+  under `C3B2-II001`; replacement 2 produced only uncommitted partial
+  increments and explicitly transferred no verdict; replacement 3 completed
+  and owns the new immutable candidate.
+- Current implementation identity:
+  `c3-b2-private-host-implementor-replacement-3`. Exact candidate/tree:
+  `2e4e5ce215e619d19a1f1e26646ebc595ff7c903` /
+  `51424b7c9b3b3f7bca470eae3c54ba39f9bc8d84`.
+- Candidate review, host, IPC, worker, and focused-test SHA-256 values are,
+  respectively,
+  `0e3c76715a4cfa0f3fa9c899afdf7130fdb1daf271c002db1bc156e9f8aede35`,
+  `b1e473983b7cf72a0e191abfb693912ecbc3cd620922685e6ba30257960b2628`,
+  `f3502eba02c66c957c6fc12a9d6c7e181d8c5e0c8e75ea75cb59c8027c460114`,
+  `9a01a2c03ecb255fb3dddc43036a8d4ba3b7b62923e4a687748a1db70ffdb160`,
+  and
+  `20f80b0e14c08a85a3c0f996962bb815dcb5d23018cf81dfb1486910d6091bef`.
+- Root independently reproduced 198 focused passes, Ruff pass, strict mypy
+  pass across all nine private `_decode` source files, and diff-check pass.
+  Root source audit additionally forced direct containment, cancellation,
+  timing/RSS/result-retention, stream, cleanup/reap, hostile IPC/process, and
+  failure-then-success evidence before sealing the candidate.
+- Fresh independent verification is now assigned to
+  `c3-b2-private-host-verifier-replacement-1`. It must test this exact immutable
+  candidate and may add only verifier-owned evidence; it may not repair or
+  reinterpret implementation bytes. Accumulation and acceptance remain paused
+  until its committed verdict passes.

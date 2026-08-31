@@ -17,6 +17,7 @@ REQUIREMENT = re.compile(r"^R(?:[1-9]|1[0-9]|2[0-6])$")
 PYTHON_312 = re.compile(r"^3\.12(?:\.|$)")
 SAFE_ID = re.compile(r"^[A-Za-z0-9._-]+$")
 SAFE_NAME = re.compile(r"^[a-z][a-z0-9_]*$")
+ROLE_ID = re.compile(r"^(?:c3-|cycle3-)[A-Za-z0-9._-]+$")
 SECRET = re.compile(
     r"/dev/(?:tty|cu\.|serial/)|https?://(?:localhost|127\.0\.0\.1|\[)|/(?:Users|home)/"
     r"|authorization\s*(?::|=)?\s*(?:bearer|basic)\s+[^\s,;]+"
@@ -67,6 +68,13 @@ def string(value: object, label: str, *, max_length: int | None = None) -> str:
     if max_length is not None and len(result) > max_length:
         fail(f"{label} is too long")
     return result
+
+
+def role_identity(value: object, label: str) -> str:
+    """Validate a namespaced role identity without treating it as free text."""
+    if not isinstance(value, str) or not ROLE_ID.fullmatch(value):
+        fail(f"invalid {label}")
+    return cast(str, value)
 
 
 def digest(value: object, label: str) -> str:
@@ -140,7 +148,7 @@ def validate_roles(value: object, checkpoint: str) -> None:
         {"b1_internal"},
         "roles",
     )
-    identities = [string(item[key], f"roles.{key}") for key in (
+    identities = [role_identity(item[key], f"roles.{key}") for key in (
         "implementation", "verification", "acceptance", "manifest_verifier"
     )]
     if len(set(identities)) != len(identities):
@@ -154,7 +162,10 @@ def validate_roles(value: object, checkpoint: str) -> None:
             "runner_verification", "runner_acceptance",
         }
         internal = obj(item["b1_internal"], keys, set(), "roles.b1_internal")
-        internal_ids = [string(internal[key], f"roles.b1_internal.{key}") for key in sorted(keys)]
+        internal_ids = [
+            role_identity(internal[key], f"roles.b1_internal.{key}")
+            for key in sorted(keys)
+        ]
         if len(set(internal_ids)) != 6:
             fail("all six C3-B1 internal identities must be distinct")
         if set(internal_ids) & set(identities[1:]):
@@ -363,7 +374,7 @@ def validate(value: object) -> None:
     validate_findings_decisions(data)
     validate_audits(data["audits"])
     validate_optional(data, tested_commit)
-    free_text(data, "manifest")
+    free_text({key: value for key, value in data.items() if key != "roles"}, "manifest")
 
 
 def main(argv: list[str]) -> int:

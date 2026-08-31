@@ -25,7 +25,7 @@ _SCHEMAS = {
             "options",
         }
     ),
-    RESULT: frozenset({"result"}),
+    RESULT: frozenset({"result", "metrics"}),
     FAILURE: frozenset({"code", "message"}),
 }
 

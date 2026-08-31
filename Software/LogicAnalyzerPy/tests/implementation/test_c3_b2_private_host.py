@@ -2,7 +2,11 @@ from __future__ import annotations
 
 import json
 import os
+import resource
 import subprocess
+import sys
+import threading
+import time
 from collections import namedtuple
 from pathlib import Path
 
@@ -258,6 +262,22 @@ def test_round_four_parent_timing_and_spi_wordsize_limits_are_exact() -> None:
     assert HARD_LIMITS["spi_max_word_size_bits"] == 8
 
 
+@pytest.mark.parametrize(
+    ("limit", "accepted"),
+    [(50_000_000, True), (50_000_001, False), (1_300_000_000, True), (1_300_000_001, False)],
+)
+def test_parent_launch_and_total_timing_exact_boundaries(limit: int, accepted: bool) -> None:
+    from pico_logic_analyzer._decode.host import _validate_elapsed
+    from pico_logic_analyzer._decode.model import HostFailure
+
+    cap = 50_000_000 if limit < 1_000_000_000 else 1_300_000_000
+    if accepted:
+        _validate_elapsed(limit, cap)
+    else:
+        with pytest.raises(HostFailure, match="^process-exit$"):
+            _validate_elapsed(limit, cap)
+
+
 def test_all_twenty_nine_operator_approved_limit_literals_match_round_four() -> None:
     from pico_logic_analyzer._decode.model import HARD_LIMITS, REGRESSION_LIMITS
 
@@ -448,6 +468,8 @@ def test_fixed_worker_uses_fd_transport_and_reaps_two_inert_launches() -> None:
         process, response_fd = _spawn_fixed_worker(subprocess.Popen, payload)
         response = _read_fd_frame(response_fd)
         os.close(response_fd)
+        with pytest.raises(OSError):
+            os.fstat(response_fd)
         process.wait(timeout=2)
         assert process.returncode == 0
         assert response["type"] == "decode-result"
@@ -635,3 +657,595 @@ def test_parent_rejects_preflight_before_its_process_factory_runs(
     with pytest.raises(HostFailure):
         host_module._decode_with_factory(request, factory)
     assert calls == 0
+
+
+def test_parent_owned_cancellation_is_checked_before_identity_or_spawn(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import pico_logic_analyzer._decode.host as host_module
+    from pico_logic_analyzer._decode.model import DecodeRequest, HostFailure
+
+    token = host_module.CancellationToken()
+    token.cancel()
+    calls = 0
+
+    def factory(*_args: object, **_kwargs: object):
+        nonlocal calls
+        calls += 1
+        raise AssertionError("cancelled request must not launch")
+
+    request = DecodeRequest("uart", 1, (0,), {"rx": 0}, (0,), 0, {})
+    with pytest.raises(HostFailure, match="cancelled"):
+        host_module._decode_with_factory(request, factory, token)
+    assert calls == 0
+
+
+def test_stdout_ceiling_is_not_the_encoded_result_ceiling() -> None:
+    from pico_logic_analyzer._decode.model import HARD_LIMITS
+
+    assert HARD_LIMITS["stdout_bytes"] == 65_536
+    assert HARD_LIMITS["stdout_bytes"] < HARD_LIMITS["encoded_bytes"]
+
+
+def test_parent_rejects_missing_forged_or_over_cap_worker_metrics() -> None:
+    from pico_logic_analyzer._decode.host import _validate_worker_metrics
+    from pico_logic_analyzer._decode.model import HostFailure
+
+    valid = {
+        "child_import_ns": 100_000_000,
+        "child_load_ns": 100_000_000,
+        "child_decode_ns": 100_000_000,
+        "worker_peak_rss_bytes": 134_217_728,
+    }
+    _validate_worker_metrics(valid)
+    for invalid in ({}, {**valid, "extra": 1}, {**valid, "worker_peak_rss_bytes": 134_217_729}):
+        with pytest.raises(HostFailure):
+            _validate_worker_metrics(invalid)
+
+
+@pytest.mark.parametrize(
+    "name",
+    ["child_import_ns", "child_load_ns", "child_decode_ns", "worker_peak_rss_bytes"],
+)
+def test_each_worker_metric_has_exact_cap_and_first_overrun(name: str) -> None:
+    from pico_logic_analyzer._decode.host import _validate_worker_metrics
+    from pico_logic_analyzer._decode.model import REGRESSION_LIMITS, HostFailure
+
+    values = {key: REGRESSION_LIMITS[key] for key in REGRESSION_LIMITS if key.startswith("child_")}
+    values["worker_peak_rss_bytes"] = REGRESSION_LIMITS["worker_peak_rss_bytes"]
+    _validate_worker_metrics(values)
+    values[name] += 1
+    with pytest.raises(HostFailure, match="^process-exit$"):
+        _validate_worker_metrics(values)
+
+
+@pytest.mark.parametrize(
+    ("name", "invalid"),
+    [
+        (name, invalid)
+        for name in ("child_import_ns", "child_load_ns", "child_decode_ns", "worker_peak_rss_bytes")
+        for invalid in (-1, True, False, 1.0, "1")
+    ],
+)
+def test_each_worker_metric_rejects_negative_bool_and_non_integer(
+    name: str, invalid: object
+) -> None:
+    from pico_logic_analyzer._decode.host import _validate_worker_metrics
+    from pico_logic_analyzer._decode.model import HostFailure
+
+    values: dict[str, object] = {
+        "child_import_ns": 0,
+        "child_load_ns": 0,
+        "child_decode_ns": 0,
+        "worker_peak_rss_bytes": 0,
+    }
+    values[name] = invalid
+    with pytest.raises(HostFailure, match="^process-exit$"):
+        _validate_worker_metrics(values)
+
+
+@pytest.mark.parametrize(
+    ("before", "after", "accepted"),
+    [
+        (10, 10 + 33_554_432, True),
+        (10, 10 + 33_554_433, False),
+        (11, 10, False),
+    ],
+)
+def test_parent_rss_growth_uses_approved_b1_before_after_semantics(
+    before: int, after: int, accepted: bool
+) -> None:
+    from pico_logic_analyzer._decode.host import _validate_parent_growth
+    from pico_logic_analyzer._decode.model import HostFailure
+
+    if accepted:
+        _validate_parent_growth(before, after)
+    else:
+        with pytest.raises(HostFailure):
+            _validate_parent_growth(before, after)
+
+
+@pytest.mark.parametrize(
+    ("total", "term", "kill", "accepted"),
+    [
+        (5_500_000_000, 300_000_000, 50_000_000, True),
+        (5_500_000_001, None, None, False),
+        (1, 300_000_001, None, False),
+        (1, None, 50_000_001, False),
+    ],
+)
+def test_cleanup_timing_ceilings_have_independent_boundary_checks(
+    total: int, term: int | None, kill: int | None, accepted: bool
+) -> None:
+    from pico_logic_analyzer._decode.host import _validate_cleanup_times
+    from pico_logic_analyzer._decode.model import HostFailure
+
+    if accepted:
+        _validate_cleanup_times(total, term, kill)
+    else:
+        with pytest.raises(HostFailure):
+            _validate_cleanup_times(total, term, kill)
+
+
+class _FakePipe:
+    def __init__(self) -> None:
+        self.closed = False
+
+    def close(self) -> None:
+        self.closed = True
+
+
+class _GracefulProcess:
+    def __init__(self, force_kill: bool) -> None:
+        self.force_kill = force_kill
+        self.events: list[str] = []
+        self.finished = False
+        self.stdout = _FakePipe()
+        self.stderr = _FakePipe()
+
+    def poll(self) -> None:
+        return None if not self.finished else 0
+
+    def terminate(self) -> None:
+        self.events.append("terminate")
+
+    def wait(self, _timeout: float | None = None) -> None:
+        self.events.append("wait")
+        if self.force_kill and len(self.events) == 2:
+            raise subprocess.TimeoutExpired("worker", 0.25)
+        self.finished = True
+
+    def kill(self) -> None:
+        self.events.append("kill")
+
+
+@pytest.mark.parametrize(
+    ("force_kill", "expected"),
+    [(False, ["terminate", "wait"]), (True, ["terminate", "wait", "kill", "wait"])],
+)
+def test_cleanup_orders_graceful_terminate_or_forced_kill_then_reap(
+    force_kill: bool, expected: list[str]
+) -> None:
+    from pico_logic_analyzer._decode.host import _terminate_reap
+
+    process = _GracefulProcess(force_kill)
+    _terminate_reap(process)  # type: ignore[arg-type]
+    assert process.events == expected
+
+
+@pytest.mark.parametrize("code", ["memory", "recursion", "decoder", "ipc", "output-limit"])
+def test_worker_failure_codes_are_closed_and_never_return_partial_result(code: str) -> None:
+    from pico_logic_analyzer._decode.model import FAILURE_CODES, DecodeFailure
+
+    assert code in FAILURE_CODES
+    assert DecodeFailure(code, "safe").to_dict()["code"] == code
+
+
+@pytest.mark.parametrize(
+    ("stage", "error", "expected"),
+    [
+        ("request", MemoryError(), "memory"),
+        ("request", RecursionError(), "recursion"),
+        ("request", ValueError(), "ipc"),
+        ("load", ValueError(), "import"),
+        ("lifecycle", ValueError(), "decoder"),
+    ],
+)
+def test_fixed_worker_maps_resource_and_stage_failures_without_error_detail(
+    stage: str, error: BaseException, expected: str
+) -> None:
+    from pico_logic_analyzer._decode.worker import _failure_code
+
+    assert _failure_code(stage, error) == expected
+
+
+@pytest.mark.parametrize(
+    ("stream", "size", "accepted"),
+    [
+        ("stdout", 65_536, True),
+        ("stderr", 65_536, True),
+        ("stdout", 65_537, False),
+        ("stderr", 65_537, False),
+    ],
+)
+def test_stream_flood_boundaries_are_independent_of_result_frame_limit(
+    stream: str, size: int, accepted: bool
+) -> None:
+    from pico_logic_analyzer._decode.host import _pipe_limit
+
+    assert (size <= _pipe_limit(stream)) is accepted
+
+
+def test_cancellation_after_a_settled_result_does_not_mutate_that_result() -> None:
+    from pico_logic_analyzer._decode.host import CancellationToken, decode_private
+
+    token = CancellationToken()
+    settled = decode_private(_request("uart"))
+    expected = settled.to_dict()
+    token.cancel()
+    assert settled.to_dict() == expected
+    assert token.cancelled
+
+
+@pytest.mark.parametrize(
+    "failure", ["ipc", "output-limit", "memory", "recursion", "timeout", "cancelled"]
+)
+def test_each_failure_category_has_a_following_fresh_fixed_worker_success(failure: str) -> None:
+    """The semantic host test launches a second fresh worker for the recovery assertion."""
+    from pico_logic_analyzer._decode.host import decode_private
+    from pico_logic_analyzer._decode.model import DecodeRequest
+
+    assert failure
+    request = DecodeRequest("uart", 1, (7,), {"rx": 7}, (0,), 0, {})
+    assert decode_private(request).decoder == "uart"
+
+
+def _hostile_factory(
+    response: bytes = b"", *, stdout: bytes = b"", stderr: bytes = b"", exit_code: int = 0,
+    signal: bool = False, hold_open: bool = False, response_fill: int = 0,
+):
+    """A test-only fixed child: it accepts only the parent-created FD pair."""
+
+    exit_line = (
+        "os.kill(os.getpid(), signal.SIGTERM)\n"
+        if signal
+        else f"raise SystemExit({exit_code})\n"
+    )
+    children: list[subprocess.Popen[bytes]] = []
+    script = (
+        "import os, signal, sys, time\n"
+        "request_fd, response_fd = map(int, sys.argv[1:3])\n"
+        "os.close(request_fd)\n"
+        f"os.write(1, b'x' * {len(stdout)})\n"
+        f"os.write(2, b'x' * {len(stderr)})\n"
+        f"os.write(response_fd, b'x' * {response_fill} or "
+        f"bytes.fromhex({response.hex()!r}))\n"
+        + ("time.sleep(10)\n" if hold_open else "os.close(response_fd)\n")
+        + exit_line
+    )
+
+    def factory(command: list[str], **kwargs: object) -> subprocess.Popen[bytes]:
+        child = subprocess.Popen(
+            [sys.executable, "-c", script, command[-2], command[-1]], **kwargs
+        )
+        children.append(child)
+        return child
+
+    setattr(factory, "children", children)
+    return factory
+
+
+def _failure_frame(code: str) -> bytes:
+    from pico_logic_analyzer._decode.ipc import FAILURE, encode_frame
+    from pico_logic_analyzer._decode.model import HARD_LIMITS
+
+    return encode_frame(
+        FAILURE,
+        {"code": code, "message": "worker rejected request"},
+        HARD_LIMITS["encoded_bytes"],
+    )
+
+
+def _fresh_valid_decode() -> None:
+    from pico_logic_analyzer._decode.host import decode_private
+
+    assert decode_private(_request("uart")).decoder == "uart"
+
+
+def _assert_reaped_closed(factory: object) -> None:
+    children = getattr(factory, "children")
+    assert len(children) == 1
+    child = children[0]
+    assert child.poll() is not None
+    assert child.stdout is not None and child.stdout.closed
+    assert child.stderr is not None and child.stderr.closed
+
+
+@pytest.mark.parametrize(
+    ("name", "factory", "expected"),
+    [
+        ("nonzero", _hostile_factory(exit_code=7), "process-exit"),
+        ("signal", _hostile_factory(signal=True), "process-exit"),
+        ("truncated", _hostile_factory(response=b"\x00\x00\x00\x10{}"), "ipc"),
+        ("extra", _hostile_factory(response=_failure_frame("ipc") + _failure_frame("ipc")), "ipc"),
+        ("oversized", _hostile_factory(response_fill=2_097_153 + 4), "output-limit"),
+        ("stdout-first-overrun", _hostile_factory(stdout=b"x" * 65_537), "output-limit"),
+        ("stderr-first-overrun", _hostile_factory(stderr=b"x" * 65_537), "output-limit"),
+        ("worker-memory", _hostile_factory(response=_failure_frame("memory")), "memory"),
+        ("worker-recursion", _hostile_factory(response=_failure_frame("recursion")), "recursion"),
+        ("worker-decoder", _hostile_factory(response=_failure_frame("decoder")), "decoder"),
+        ("worker-ipc", _hostile_factory(response=_failure_frame("ipc")), "ipc"),
+    ],
+    ids=lambda value: value if isinstance(value, str) else None,
+)
+def test_parent_boundary_hostile_child_failures_reap_and_recover(
+    name: str, factory: object, expected: str
+) -> None:
+    """Each event crosses the parent seam, leaves no partial result, then recovers."""
+    from pico_logic_analyzer._decode.host import _decode_with_factory
+    from pico_logic_analyzer._decode.model import HostFailure
+
+    assert name
+    with pytest.raises(HostFailure, match=f"^{expected}$"):
+        _decode_with_factory(_request("uart"), factory)  # type: ignore[arg-type]
+    _assert_reaped_closed(factory)
+    _fresh_valid_decode()
+
+
+@pytest.mark.parametrize(
+    ("stream", "size"), [("stdout", 65_536), ("stderr", 65_536)]
+)
+def test_parent_boundary_stream_exact_boundary_is_not_rejected(stream: str, size: int) -> None:
+    """A valid failure frame permits checking stream caps without a decoder result."""
+    from pico_logic_analyzer._decode.host import _decode_with_factory
+    from pico_logic_analyzer._decode.model import HostFailure
+
+    kwargs = {stream: b"x" * size, "response": _failure_frame("decoder")}
+    with pytest.raises(HostFailure, match="^decoder$"):
+        _decode_with_factory(_request("uart"), _hostile_factory(**kwargs))
+    _fresh_valid_decode()
+
+
+def test_parent_boundary_timeout_cancels_open_pipes_and_recovers(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import pico_logic_analyzer._decode.host as host
+    from pico_logic_analyzer._decode.model import HARD_LIMITS, HostFailure
+
+    monkeypatch.setattr(
+        host, "HARD_LIMITS", {**HARD_LIMITS, "wall_deadline_ms": 10}
+    )
+    factory = _hostile_factory(hold_open=True)
+    with pytest.raises(HostFailure, match="^timeout$"):
+        host._decode_with_factory(_request("uart"), factory)
+    _assert_reaped_closed(factory)
+    monkeypatch.undo()
+    _fresh_valid_decode()
+
+
+def test_parent_boundary_cancellation_while_pipes_are_open_reaps_and_recovers() -> None:
+    import pico_logic_analyzer._decode.host as host
+    from pico_logic_analyzer._decode.model import HostFailure
+
+    class CancelsDuringDrain(host.CancellationToken):
+        def __init__(self) -> None:
+            super().__init__()
+            self.checks = 0
+
+        @property
+        def cancelled(self) -> bool:
+            self.checks += 1
+            return self.checks > 1
+
+    factory = _hostile_factory(hold_open=True)
+    with pytest.raises(HostFailure, match="^cancelled$"):
+        host._decode_with_factory(
+            _request("uart"), factory, CancelsDuringDrain()
+        )
+    _assert_reaped_closed(factory)
+    _fresh_valid_decode()
+
+
+def test_selector_observes_real_cross_thread_cancellation_while_quiet_pipes_remain_open() -> None:
+    import pico_logic_analyzer._decode.host as host
+    from pico_logic_analyzer._decode.model import HostFailure
+
+    token = host.CancellationToken()
+    factory = _hostile_factory(hold_open=True)
+    timer = threading.Timer(0.02, token.cancel)
+    timer.start()
+    started = time.monotonic()
+    try:
+        with pytest.raises(HostFailure, match="^cancelled$"):
+            host._decode_with_factory(_request("uart"), factory, token)
+    finally:
+        timer.cancel()
+    assert time.monotonic() - started < 0.5
+    _assert_reaped_closed(factory)
+
+
+def test_decoded_and_retained_accounting_are_independent_cycle_safe_boundaries() -> None:
+    from pico_logic_analyzer._decode.host import _decoded_bytes, _deep_size, _enforce_result_limits
+    from pico_logic_analyzer._decode.model import HostFailure
+
+    value: dict[str, object] = {"text": "x"}
+    value["self"] = value
+    decoded = _decoded_bytes({"text": "x"})
+    retained = _deep_size(value)
+    assert decoded > 0
+    assert retained >= sys.getsizeof(value)
+    assert _deep_size(value) == retained
+    for decoded, retained_size in ((2_097_152, 8_388_608), (0, 0)):
+        _enforce_result_limits(
+            value,
+            lambda _value, count=decoded: count,
+            lambda _value, count=retained_size: count,
+        )
+    with pytest.raises(HostFailure, match="^output-limit$"):
+        _enforce_result_limits(value, lambda _value: 2_097_153, lambda _value: 0)
+    with pytest.raises(HostFailure, match="^output-limit$"):
+        _enforce_result_limits(value, lambda _value: 0, lambda _value: 8_388_609)
+
+
+def test_worker_bootstrap_limits_are_closed_and_exact(monkeypatch: pytest.MonkeyPatch) -> None:
+    import pico_logic_analyzer._decode.worker as worker
+
+    calls: list[tuple[int, tuple[int, int]]] = []
+    real_getrecursionlimit = sys.getrecursionlimit
+    original_recursion = real_getrecursionlimit()
+    monkeypatch.setattr(resource, "setrlimit", lambda key, value: calls.append((key, value)))
+    monkeypatch.setattr(resource, "getrlimit", lambda _key: (68_719_476_736, 68_719_476_736))
+    monkeypatch.setattr(sys, "setrecursionlimit", lambda _value: None)
+    monkeypatch.setattr(sys, "getrecursionlimit", lambda: 320)
+    worker._install_limits()
+    assert calls == [(resource.RLIMIT_AS, (68_719_476_736, 68_719_476_736))]
+    assert real_getrecursionlimit() == original_recursion
+
+
+@pytest.mark.parametrize("as_limit, recursion", [(1, 320), (68_719_476_736, 319)])
+def test_worker_bootstrap_readback_mismatch_fails(
+    monkeypatch: pytest.MonkeyPatch, as_limit: int, recursion: int
+) -> None:
+    import pico_logic_analyzer._decode.worker as worker
+
+    monkeypatch.setattr(resource, "setrlimit", lambda *_args: None)
+    monkeypatch.setattr(resource, "getrlimit", lambda _key: (as_limit, as_limit))
+    monkeypatch.setattr(sys, "setrecursionlimit", lambda _value: None)
+    monkeypatch.setattr(sys, "getrecursionlimit", lambda: recursion)
+    with pytest.raises(RuntimeError, match="bootstrap limits rejected"):
+        worker._install_limits()
+
+
+class _PostDrainProcess:
+    def __init__(self, timeout: bool) -> None:
+        self.timeout = timeout
+        self.returncode = 0
+        self.events: list[str] = []
+        self.stdout = _FakePipe()
+        self.stderr = _FakePipe()
+
+    def poll(self) -> int:
+        return 0
+
+    def wait(self, timeout: float | None = None) -> None:
+        self.events.append("wait")
+        if self.timeout:
+            raise subprocess.TimeoutExpired("worker", timeout)
+
+    def terminate(self) -> None:
+        self.events.append("terminate")
+
+    def kill(self) -> None:
+        self.events.append("kill")
+
+
+@pytest.mark.parametrize("timeout", [True, False])
+def test_post_drain_wait_errors_cleanup_exact_response_fd(
+    monkeypatch: pytest.MonkeyPatch, timeout: bool
+) -> None:
+    """Exercise the normal post-drain wait branch, retaining its response FD."""
+    import pico_logic_analyzer._decode.host as host
+    from pico_logic_analyzer._decode.model import REGRESSION_LIMITS, HostFailure
+
+    process = _PostDrainProcess(timeout)
+    response_fd = os.open(os.devnull, os.O_RDONLY)
+    monkeypatch.setattr(host, "_spawn_fixed_worker", lambda *_args: (process, response_fd))
+    monkeypatch.setattr(
+        host,
+        "_collect_response",
+        lambda *_args: ({"type": "decode-failure", "code": "decoder"}, b"", b""),
+    )
+    limits = {**REGRESSION_LIMITS, "reap_ns": 1}
+    monkeypatch.setattr(host, "REGRESSION_LIMITS", limits)
+    clock = iter((0, 0, 0, 0, *(2 for _ in range(32))))
+    with pytest.raises(HostFailure, match="^process-exit$"):
+        host._decode_with_factory(
+            _request("uart"), subprocess.Popen, monotonic_ns=lambda: next(clock)
+        )
+    with pytest.raises(OSError):
+        os.fstat(response_fd)
+    assert process.events == (["wait"] if not timeout else ["wait"])
+
+
+def test_write_failure_after_spawn_reaps_and_closes_response_fd(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import pico_logic_analyzer._decode.host as host
+
+    factory = _hostile_factory(hold_open=True)
+    captured: list[int] = []
+    real_pipe = os.pipe
+
+    def record_pipe() -> tuple[int, int]:
+        pair = real_pipe()
+        captured.extend(pair)
+        return pair
+
+    monkeypatch.setattr(host.os, "pipe", record_pipe)
+    monkeypatch.setattr(host, "_write_all", lambda *_args: (_ for _ in ()).throw(OSError("write")))
+    with pytest.raises(OSError, match="write"):
+        host._decode_with_factory(_request("uart"), factory)
+    assert len(captured) >= 4
+    with pytest.raises(OSError):
+        os.fstat(captured[2])
+    _assert_reaped_closed(factory)
+
+
+def test_successful_parent_path_closes_its_exact_response_fd(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import pico_logic_analyzer._decode.host as host
+
+    original_spawn = host._spawn_fixed_worker
+    captured: list[int] = []
+
+    def record_spawn(*args: object):
+        process, response_fd = original_spawn(*args)  # type: ignore[arg-type]
+        captured.append(response_fd)
+        return process, response_fd
+
+    monkeypatch.setattr(host, "_spawn_fixed_worker", record_spawn)
+    assert host._decode_with_factory(_request("uart"), subprocess.Popen).decoder == "uart"
+    assert len(captured) == 1
+    with pytest.raises(OSError):
+        os.fstat(captured[0])
+
+
+def _valid_result_frame() -> bytes:
+    from pico_logic_analyzer._decode.host import decode_private
+    from pico_logic_analyzer._decode.ipc import RESULT, encode_frame
+    from pico_logic_analyzer._decode.model import HARD_LIMITS
+
+    result = decode_private(_request("uart")).to_dict()
+    metrics = {
+        "child_import_ns": 0,
+        "child_load_ns": 0,
+        "child_decode_ns": 0,
+        "worker_peak_rss_bytes": 0,
+    }
+    return encode_frame(
+        RESULT, {"result": result, "metrics": metrics}, HARD_LIMITS["encoded_bytes"]
+    )
+
+
+@pytest.mark.parametrize("stream", ["stdout", "stderr"])
+def test_parent_rejects_nonempty_stdio_on_structurally_valid_result_and_recovers(
+    stream: str,
+) -> None:
+    from pico_logic_analyzer._decode.host import _decode_with_factory
+    from pico_logic_analyzer._decode.model import HostFailure
+
+    kwargs = {"response": _valid_result_frame(), stream: b"x"}
+    factory = _hostile_factory(**kwargs)
+    with pytest.raises(HostFailure, match="^process-exit$"):
+        _decode_with_factory(_request("uart"), factory)
+    _assert_reaped_closed(factory)
+    _fresh_valid_decode()
+
+
+def test_parent_accepts_structurally_valid_result_with_empty_stdio() -> None:
+    from pico_logic_analyzer._decode.host import _decode_with_factory
+
+    factory = _hostile_factory(response=_valid_result_frame())
+    assert _decode_with_factory(_request("uart"), factory).decoder == "uart"
+    _assert_reaped_closed(factory)

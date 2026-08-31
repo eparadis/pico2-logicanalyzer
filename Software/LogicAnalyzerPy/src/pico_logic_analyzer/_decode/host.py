@@ -10,7 +10,7 @@ import subprocess
 import sys
 import time
 from collections.abc import Callable, Mapping
-from dataclasses import fields, is_dataclass
+from dataclasses import dataclass, fields, is_dataclass
 from pathlib import Path
 
 from .identity import verify_decoder
@@ -40,6 +40,20 @@ class CancellationToken:
         return self._cancelled
 
 
+@dataclass(frozen=True)
+class _ExpectedResultProjection:
+    """Request/identity facts retained before the untrusted worker is spawned."""
+
+    decoder: str
+    file_set_sha256: str
+    samplerate_hz: int
+    sample_count: int
+    trigger_index: int
+    channel_ids: tuple[int, ...]
+    channels: tuple[tuple[str, int], ...]
+    options: tuple[tuple[str, type[object], object], ...]
+
+
 def decode_private(
     request: DecodeRequest, cancellation: CancellationToken | None = None
 ) -> DecodeResult:
@@ -63,6 +77,7 @@ def _decode_with_factory(
     if cancellation is not None and cancellation.cancelled:
         raise HostFailure("cancelled")
     identity = verify_decoder(request.decoder)
+    expected = _expected_result_projection(request, identity.decoder, identity.file_set_sha256)
     payload = encode_frame(
         REQUEST,
         {
@@ -143,9 +158,45 @@ def _decode_with_factory(
         materialized = decode_result_from_dict(result)
     except HostFailure:
         raise HostFailure("ipc") from None
+    _validate_result_projection(materialized, expected)
     _validate_elapsed(monotonic_ns() - run_started, REGRESSION_LIMITS["successful_parent_total_ns"])
     _validate_parent_growth(parent_before, rss())
     return materialized
+
+
+def _expected_result_projection(
+    request: DecodeRequest, decoder: str, file_set_sha256: str
+) -> _ExpectedResultProjection:
+    """Copy every result-visible preflight fact before child-controlled bytes exist."""
+    channels = tuple(request.mapping.items())
+    return _ExpectedResultProjection(
+        decoder,
+        file_set_sha256,
+        request.samplerate,
+        len(request.samples),
+        request.trigger_index,
+        tuple(physical for _, physical in channels),
+        channels,
+        tuple((key, type(value), value) for key, value in sorted(request.options.items())),
+    )
+
+
+def _validate_result_projection(
+    result: DecodeResult, expected: _ExpectedResultProjection
+) -> None:
+    """Reject a locally valid result that does not describe this exact request."""
+    actual_options = tuple((key, type(value), value) for key, value in result.options.items())
+    if (
+        result.decoder != expected.decoder
+        or result.file_set_sha256 != expected.file_set_sha256
+        or result.samplerate_hz != expected.samplerate_hz
+        or result.capture.sample_count != expected.sample_count
+        or result.capture.trigger_index != expected.trigger_index
+        or result.capture.channel_ids != expected.channel_ids
+        or tuple(result.channels.items()) != expected.channels
+        or actual_options != expected.options
+    ):
+        raise HostFailure("ipc")
 
 
 def _validate_worker_metrics(value: object) -> None:

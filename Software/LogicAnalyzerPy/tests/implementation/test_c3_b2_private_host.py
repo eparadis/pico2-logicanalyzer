@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 import os
 import resource
@@ -21,7 +22,12 @@ THRESHOLDS = json.loads(
 SEMANTIC = json.loads((ROOT / "testdata/decoders/cycle3/semantic-fixtures.json").read_text())
 
 
-def _request(decoder: str, options: dict[str, object] | None = None):
+def _request(
+    decoder: str,
+    options: dict[str, object] | None = None,
+    samples: tuple[int, ...] = (0,),
+    trigger_index: int = 0,
+):
     from pico_logic_analyzer._decode.model import DecodeRequest
 
     mappings = {
@@ -29,7 +35,9 @@ def _request(decoder: str, options: dict[str, object] | None = None):
         "spi": {"clk": 7, "miso": 2},
         "i2c": {"scl": 7, "sda": 2},
     }
-    return DecodeRequest(decoder, 1, (7, 2, 19), mappings[decoder], (0,), 0, options or {})
+    return DecodeRequest(
+        decoder, 1, (7, 2, 19), mappings[decoder], samples, trigger_index, options or {}
+    )
 
 
 def test_private_host_exposes_only_internal_immutable_request_model() -> None:
@@ -952,6 +960,29 @@ def _fresh_valid_decode() -> None:
     assert decode_private(_request("uart")).decoder == "uart"
 
 
+def _settled_result_frame(request: object, mutate: object) -> bytes:
+    """Build a locally valid hostile result from an independently settled worker result."""
+    from pico_logic_analyzer._decode.host import decode_private
+    from pico_logic_analyzer._decode.ipc import RESULT, encode_frame
+    from pico_logic_analyzer._decode.model import HARD_LIMITS
+
+    result = copy.deepcopy(decode_private(request).to_dict())  # type: ignore[arg-type]
+    mutate(result)  # type: ignore[operator]
+    return encode_frame(
+        RESULT,
+        {
+            "result": result,
+            "metrics": {
+                "child_import_ns": 0,
+                "child_load_ns": 0,
+                "child_decode_ns": 0,
+                "worker_peak_rss_bytes": 0,
+            },
+        },
+        HARD_LIMITS["encoded_bytes"],
+    )
+
+
 def _assert_reaped_closed(factory: object) -> None:
     children = getattr(factory, "children")
     assert len(children) == 1
@@ -959,6 +990,70 @@ def _assert_reaped_closed(factory: object) -> None:
     assert child.poll() is not None
     assert child.stdout is not None and child.stdout.closed
     assert child.stderr is not None and child.stderr.closed
+
+
+@pytest.mark.parametrize(
+    ("decoder", "samples", "mutate"),
+    [
+        ("uart", (0,), lambda result: result["decoder"].__setitem__("id", "i2c")),
+        ("uart", (0,), lambda result: result["decoder"].__setitem__("file_set_sha256", "0" * 64)),
+        ("uart", (0,), lambda result: result.__setitem__("samplerate_hz", 2)),
+        ("uart", (0, 0), lambda result: result["capture"].__setitem__("sample_count", 1)),
+        ("uart", (0, 0), lambda result: result["capture"].__setitem__("trigger_index", 1)),
+        ("uart", (0,), lambda result: result["channels"][0].__setitem__("physical_channel", 2)),
+        (
+            "spi",
+            (0,),
+            lambda result: result.__setitem__("channels", list(reversed(result["channels"]))),
+        ),
+        (
+            "spi",
+            (0,),
+            lambda result: result["channels"].append(copy.deepcopy(result["channels"][0])),
+        ),
+        ("uart", (0,), lambda result: result.__setitem__("options", {"baudrate": 115200})),
+        ("uart", (0,), lambda result: result["options"].__setitem__("baudrate", 9600)),
+        ("uart", (0,), lambda result: result["options"].__setitem__("stop_bits", 1)),
+    ],
+    ids=(
+        "decoder-id",
+        "file-set-hash",
+        "samplerate",
+        "capture-sample-count",
+        "capture-trigger-index",
+        "channel-physical-mapping",
+        "channel-declaration-order",
+        "duplicate-channel-declaration",
+        "options-defaults-omitted",
+        "option-value",
+        "option-value-type",
+    ),
+)
+def test_parent_binds_every_materialized_result_identity_to_preflight(
+    decoder: str, samples: tuple[int, ...], mutate: object
+) -> None:
+    """A syntactically valid child result cannot alter any preflight-derived fact."""
+    from pico_logic_analyzer._decode.host import _decode_with_factory
+    from pico_logic_analyzer._decode.model import HostFailure
+
+    request = _request(decoder, samples=samples)
+    factory = _hostile_factory(response=_settled_result_frame(request, mutate))
+    with pytest.raises(HostFailure, match="^ipc$"):
+        _decode_with_factory(request, factory)  # type: ignore[arg-type]
+    _assert_reaped_closed(factory)
+    _fresh_valid_decode()
+
+
+def test_parent_accepts_exact_preflight_projection_after_materialization() -> None:
+    from pico_logic_analyzer._decode.host import _decode_with_factory
+
+    request = _request("spi")
+    factory = _hostile_factory(response=_settled_result_frame(request, lambda _result: None))
+    result = _decode_with_factory(request, factory)  # type: ignore[arg-type]
+    assert result.decoder == request.decoder
+    assert tuple(result.channels.items()) == tuple(request.mapping.items())
+    assert dict(result.options) == dict(request.options)
+    _assert_reaped_closed(factory)
 
 
 @pytest.mark.parametrize(

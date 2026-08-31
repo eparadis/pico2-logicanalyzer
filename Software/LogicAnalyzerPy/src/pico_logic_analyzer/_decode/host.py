@@ -18,9 +18,16 @@ from .ipc import REQUEST, RESULT, encode_frame, read_frame
 from .model import (
     HARD_LIMITS,
     REGRESSION_LIMITS,
+    AnnotationDeclaration,
+    AnnotationRowDeclaration,
+    AnnotationValue,
+    BinaryDeclaration,
+    BinaryValue,
     DecodeRequest,
     DecodeResult,
     HostFailure,
+    MetadataDeclaration,
+    MetadataValue,
     WorkerFailure,
     decode_result_from_dict,
 )
@@ -54,6 +61,23 @@ class _ExpectedResultProjection:
     options: tuple[tuple[str, type[object], object], ...]
 
 
+@dataclass(frozen=True)
+class _RegressionObservation:
+    """Per-call private measurements for external regression evidence only."""
+
+    child_import_ns: int
+    child_load_ns: int
+    child_decode_ns: int
+    worker_peak_rss_bytes: int
+    parent_retained_growth_bytes: int
+    successful_parent_total_ns: int
+    launch_ns: int
+    reap_ns: int
+    timeout_cleanup_total_ns: int = 0
+    terminate_to_reap_ns: int = 0
+    kill_to_reap_ns: int = 0
+
+
 def decode_private(
     request: DecodeRequest, cancellation: CancellationToken | None = None
 ) -> DecodeResult:
@@ -69,6 +93,7 @@ def _decode_with_factory(
     monotonic_ns: Callable[[], int] = time.monotonic_ns,
     measure_decoded: Callable[[object], int] | None = None,
     measure_retained: Callable[[object], int] | None = None,
+    regression_observer: Callable[[_RegressionObservation], None] | None = None,
 ) -> DecodeResult:
     """Injection seam for inert preflight-order tests; never exposed by the package."""
     run_started = monotonic_ns()
@@ -97,24 +122,42 @@ def _decode_with_factory(
     response: Mapping[str, object] | None = None
     stdout = b""
     stderr = b""
+
+    def observe_cleanup(cleanup: _CleanupObservation, timed_out: bool) -> None:
+        if regression_observer is not None:
+            regression_observer(
+                _RegressionObservation(
+                    child_import_ns=0,
+                    child_load_ns=0,
+                    child_decode_ns=0,
+                    worker_peak_rss_bytes=0,
+                    parent_retained_growth_bytes=0,
+                    successful_parent_total_ns=0,
+                    launch_ns=0,
+                    reap_ns=0,
+                    timeout_cleanup_total_ns=(monotonic_ns() - run_started) if timed_out else 0,
+                    terminate_to_reap_ns=cleanup.terminate_to_reap_ns,
+                    kill_to_reap_ns=cleanup.kill_to_reap_ns,
+                )
+            )
+
     try:
-        _validate_elapsed(monotonic_ns() - launch_started, REGRESSION_LIMITS["launch_ns"])
+        launch_ns = monotonic_ns() - launch_started
         response, stdout, stderr = _collect_response(process, response_fd, cancellation)
         try:
             reap_started = monotonic_ns()
             process.wait(timeout=HARD_LIMITS["terminate_grace_ms"] / 1000)
-            if monotonic_ns() - reap_started > REGRESSION_LIMITS["reap_ns"]:
-                raise HostFailure("process-exit")
+            reap_ns = monotonic_ns() - reap_started
         except subprocess.TimeoutExpired:
             raise HostFailure("process-exit") from None
     except TimeoutError:
-        _terminate_reap(process, response_fd)
+        observe_cleanup(_terminate_reap(process, response_fd, monotonic_ns=monotonic_ns), True)
         raise HostFailure("timeout") from None
     except InterruptedError:
-        _terminate_reap(process, response_fd)
+        observe_cleanup(_terminate_reap(process, response_fd, monotonic_ns=monotonic_ns), False)
         raise HostFailure("cancelled") from None
     except WorkerFailure as error:
-        _terminate_reap(process, response_fd)
+        observe_cleanup(_terminate_reap(process, response_fd, monotonic_ns=monotonic_ns), False)
         # A child that exits unsuccessfully before completing its frame is a
         # process failure, not an IPC claim from its untrusted byte stream.
         if str(error) == "output limit":
@@ -123,10 +166,10 @@ def _decode_with_factory(
             raise HostFailure("process-exit") from None
         raise HostFailure("ipc") from None
     except (OSError, ValueError):
-        _terminate_reap(process, response_fd)
+        observe_cleanup(_terminate_reap(process, response_fd, monotonic_ns=monotonic_ns), False)
         raise HostFailure("ipc") from None
     except HostFailure:
-        _terminate_reap(process, response_fd)
+        observe_cleanup(_terminate_reap(process, response_fd, monotonic_ns=monotonic_ns), False)
         raise
     finally:
         try:
@@ -152,15 +195,24 @@ def _decode_with_factory(
         raise HostFailure("decoder")
     if response.get("type") != RESULT or not isinstance(result, Mapping):
         raise HostFailure("decode protocol rejected")
-    _validate_worker_metrics(response.get("metrics"))
+    metrics = _worker_metrics(response.get("metrics"))
     _enforce_result_limits(result, measure_decoded, measure_retained)
     try:
         materialized = decode_result_from_dict(result)
     except HostFailure:
         raise HostFailure("ipc") from None
     _validate_result_projection(materialized, expected)
-    _validate_elapsed(monotonic_ns() - run_started, REGRESSION_LIMITS["successful_parent_total_ns"])
-    _validate_parent_growth(parent_before, rss())
+    _validate_result_graph(materialized)
+    parent_after = rss()
+    observation = _RegressionObservation(
+        **metrics,
+        parent_retained_growth_bytes=parent_after - parent_before,
+        successful_parent_total_ns=monotonic_ns() - run_started,
+        launch_ns=launch_ns,
+        reap_ns=reap_ns,
+    )
+    if regression_observer is not None:
+        regression_observer(observation)
     return materialized
 
 
@@ -199,15 +251,128 @@ def _validate_result_projection(
         raise HostFailure("ipc")
 
 
-def _validate_worker_metrics(value: object) -> None:
-    """Metrics are required protocol fields from the hash-pinned worker, never hints."""
+_REGISTERED_OUTPUT_KINDS: Mapping[str, tuple[str, ...]] = {
+    # These are the frozen API-v3 register orders, not fixture records.  Output
+    # ids are allocation positions in ApiV3Host.register().
+    "uart": ("python", "binary", "annotation"),
+    "spi": ("python", "annotation", "binary", "metadata"),
+    "i2c": ("python", "annotation", "binary", "metadata"),
+}
+
+
+def _validate_result_graph(result: DecodeResult) -> None:
+    """Validate the complete post-materialization declaration/put graph.
+
+    The child controls every member of ``result``.  This deliberately makes no
+    best-effort correction: any broken edge is a single IPC failure before the
+    result is observable by a caller.
+    """
+    try:
+        annotation = tuple(
+            item for item in result.declarations if type(item) is AnnotationDeclaration
+        )
+        rows = tuple(item for item in result.declarations if type(item) is AnnotationRowDeclaration)
+        binary = tuple(item for item in result.declarations if type(item) is BinaryDeclaration)
+        metadata = tuple(item for item in result.declarations if type(item) is MetadataDeclaration)
+        _validate_declaration_collection(annotation)
+        _validate_declaration_collection(rows)
+        _validate_declaration_collection(binary)
+        annotation_indices = {item.index for item in annotation}
+        for row in rows:
+            if not row.annotation_indices or len(row.annotation_indices) != len(
+                set(row.annotation_indices)
+            ):
+                raise ValueError
+            if any(index not in annotation_indices for index in row.annotation_indices):
+                raise ValueError
+        output_kinds = _REGISTERED_OUTPUT_KINDS[result.decoder]
+        metadata_by_output = {item.output_id: item for item in metadata}
+        if len(metadata_by_output) != len(metadata):
+            raise ValueError
+        if any(
+            item.output_id >= len(output_kinds)
+            or output_kinds[item.output_id] != "metadata"
+            or item.value_type != "integer"
+            or not item.name
+            or not item.description
+            for item in metadata
+        ):
+            raise ValueError
+        for record in result.records:
+            # API-v3's ``put`` permits the terminal sample coordinate equal to
+            # the capture extent (an interval end, rather than an array index).
+            if not 0 <= record.start_sample <= record.end_sample <= result.capture.sample_count:
+                raise ValueError
+            if (
+                record.output_id >= len(output_kinds)
+                or output_kinds[record.output_id] != record.kind
+            ):
+                raise ValueError
+            _validate_record_time(record.start_sample, record.start_time, result)
+            _validate_record_time(record.end_sample, record.end_time, result)
+            if record.kind == "annotation":
+                if (
+                    type(record.value) is not AnnotationValue
+                    or record.value.class_index >= len(annotation)
+                ):
+                    raise ValueError
+            elif record.kind == "binary":
+                if type(record.value) is not BinaryValue or record.value.class_index >= len(binary):
+                    raise ValueError
+            elif record.kind == "metadata":
+                if (
+                    type(record.value) is not MetadataValue
+                    or record.output_id not in metadata_by_output
+                ):
+                    raise ValueError
+                if record.value.value_type != metadata_by_output[record.output_id].value_type:
+                    raise ValueError
+    except (KeyError, ValueError):
+        raise HostFailure("ipc") from None
+
+
+def _validate_declaration_collection(
+    declarations: tuple[AnnotationDeclaration, ...]
+    | tuple[AnnotationRowDeclaration, ...]
+    | tuple[BinaryDeclaration, ...],
+) -> None:
+    if (
+        tuple(item.index for item in declarations) != tuple(range(len(declarations)))
+        or len({item.identifier for item in declarations}) != len(declarations)
+        or any(not item.identifier or not item.description for item in declarations)
+    ):
+        raise ValueError
+
+
+def _validate_record_time(sample: int, time_value: object, result: DecodeResult) -> None:
+    absolute = getattr(time_value, "absolute", None)
+    relative = getattr(time_value, "trigger_relative", None)
+    if (
+        absolute is None
+        or relative is None
+        or absolute.numerator != sample
+        or absolute.denominator != result.samplerate_hz
+        or relative.numerator != sample - result.capture.trigger_index
+        or relative.denominator != result.samplerate_hz
+    ):
+        raise ValueError
+
+
+def _worker_metrics(value: object) -> dict[str, int]:
+    """Validate the hostile worker metric frame without enforcing regressions."""
     if not isinstance(value, Mapping) or set(value) != {
         "child_import_ns",
         "child_load_ns",
         "child_decode_ns",
         "worker_peak_rss_bytes",
-    }:
+    } or any(type(value[name]) is not int or value[name] < 0 for name in value):
         raise HostFailure("ipc")
+    return {name: value[name] for name in value}
+
+
+def _validate_worker_metrics(value: object) -> None:
+    """Metrics are required protocol fields from the hash-pinned worker, never hints."""
+    metrics = _worker_metrics(value)
     caps = {
         "child_import_ns": REGRESSION_LIMITS["child_import_ns"],
         "child_load_ns": REGRESSION_LIMITS["child_load_ns"],
@@ -215,8 +380,19 @@ def _validate_worker_metrics(value: object) -> None:
         "worker_peak_rss_bytes": REGRESSION_LIMITS["worker_peak_rss_bytes"],
     }
     if any(
-        type(value[name]) is not int or value[name] < 0 or value[name] > cap
+        metrics[name] > cap
         for name, cap in caps.items()
+    ):
+        raise HostFailure("process-exit")
+
+
+def _validate_regression_observation(observation: _RegressionObservation) -> None:
+    """Pure exact-candidate regression gate; never called by product decode."""
+    if any(
+        type(getattr(observation, name)) is not int
+        or getattr(observation, name) < 0
+        or getattr(observation, name) > limit
+        for name, limit in REGRESSION_LIMITS.items()
     ):
         raise HostFailure("process-exit")
 
@@ -344,20 +520,30 @@ def _deep_size(value: object, seen: set[int] | None = None) -> int:
     return total
 
 
-def _terminate_reap(process: subprocess.Popen[bytes], *fds: int) -> None:
-    cleanup_started = time.monotonic_ns()
+@dataclass(frozen=True)
+class _CleanupObservation:
+    terminate_to_reap_ns: int
+    kill_to_reap_ns: int
+
+
+def _terminate_reap(
+    process: subprocess.Popen[bytes], *fds: int, monotonic_ns: Callable[[], int] = time.monotonic_ns
+) -> _CleanupObservation:
     terminate_started: int | None = None
     kill_started: int | None = None
+    reaped_at: int | None = None
     try:
         if process.poll() is None:
-            terminate_started = time.monotonic_ns()
+            terminate_started = monotonic_ns()
             process.terminate()
             try:
                 process.wait(HARD_LIMITS["terminate_grace_ms"] / 1000)
+                reaped_at = monotonic_ns()
             except subprocess.TimeoutExpired:
-                kill_started = time.monotonic_ns()
+                kill_started = monotonic_ns()
                 process.kill()
                 process.wait()
+                reaped_at = monotonic_ns()
     finally:
         for fd in fds:
             try:
@@ -365,10 +551,10 @@ def _terminate_reap(process: subprocess.Popen[bytes], *fds: int) -> None:
             except OSError:
                 pass
         _close_standard_pipes(process)
-    _validate_cleanup_times(
-        time.monotonic_ns() - cleanup_started,
-        None if terminate_started is None else time.monotonic_ns() - terminate_started,
-        None if kill_started is None else time.monotonic_ns() - kill_started,
+    finished = reaped_at if reaped_at is not None else monotonic_ns()
+    return _CleanupObservation(
+        0 if terminate_started is None else finished - terminate_started,
+        0 if kill_started is None else finished - kill_started,
     )
 
 

@@ -748,7 +748,7 @@ def test_each_worker_metric_rejects_negative_bool_and_non_integer(
         "worker_peak_rss_bytes": 0,
     }
     values[name] = invalid
-    with pytest.raises(HostFailure, match="^process-exit$"):
+    with pytest.raises(HostFailure, match="^ipc$"):
         _validate_worker_metrics(values)
 
 
@@ -911,6 +911,7 @@ def test_each_failure_category_has_a_following_fresh_fixed_worker_success(failur
 def _hostile_factory(
     response: bytes = b"", *, stdout: bytes = b"", stderr: bytes = b"", exit_code: int = 0,
     signal: bool = False, hold_open: bool = False, response_fill: int = 0,
+    ignore_term: bool = False,
 ):
     """A test-only fixed child: it accepts only the parent-created FD pair."""
 
@@ -922,12 +923,13 @@ def _hostile_factory(
     children: list[subprocess.Popen[bytes]] = []
     script = (
         "import os, signal, sys, time\n"
-        "request_fd, response_fd = map(int, sys.argv[1:3])\n"
-        "os.close(request_fd)\n"
-        f"os.write(1, b'x' * {len(stdout)})\n"
-        f"os.write(2, b'x' * {len(stderr)})\n"
-        f"os.write(response_fd, b'x' * {response_fill} or "
-        f"bytes.fromhex({response.hex()!r}))\n"
+        + "request_fd, response_fd = map(int, sys.argv[1:3])\n"
+        + ("signal.signal(signal.SIGTERM, signal.SIG_IGN)\n" if ignore_term else "")
+        + "os.close(request_fd)\n"
+        + f"os.write(1, b'x' * {len(stdout)})\n"
+        + f"os.write(2, b'x' * {len(stderr)})\n"
+        + f"os.write(response_fd, b'x' * {response_fill} or "
+        + f"bytes.fromhex({response.hex()!r}))\n"
         + ("time.sleep(10)\n" if hold_open else "os.close(response_fd)\n")
         + exit_line
     )
@@ -1118,6 +1120,54 @@ def test_parent_boundary_timeout_cancels_open_pipes_and_recovers(
     _fresh_valid_decode()
 
 
+@pytest.mark.parametrize("cancelled", [False, True], ids=("timeout", "cancelled"))
+def test_cleanup_regression_observation_cannot_change_timeout_or_cancelled_product_failure(
+    monkeypatch: pytest.MonkeyPatch, cancelled: bool
+) -> None:
+    """Forced kill is hard cleanup; its timing is regression evidence only."""
+    from dataclasses import replace
+
+    import pico_logic_analyzer._decode.host as host
+    from pico_logic_analyzer._decode.model import HARD_LIMITS, REGRESSION_LIMITS, HostFailure
+
+    class CancelsDuringDrain(host.CancellationToken):
+        def __init__(self) -> None:
+            super().__init__()
+            self.checks = 0
+
+        @property
+        def cancelled(self) -> bool:
+            self.checks += 1
+            return self.checks > 1
+
+    monkeypatch.setattr(
+        host,
+        "HARD_LIMITS",
+        {**HARD_LIMITS, "wall_deadline_ms": 50, "terminate_grace_ms": 10},
+    )
+    observed: list[host._RegressionObservation] = []
+    factory = _hostile_factory(hold_open=True, ignore_term=True)
+    token = CancelsDuringDrain() if cancelled else None
+    with pytest.raises(HostFailure, match="^cancelled$" if cancelled else "^timeout$"):
+        host._decode_with_factory(
+            _request("uart"), factory, token, regression_observer=observed.append
+        )
+    _assert_reaped_closed(factory)
+    assert len(observed) == 1
+    actual = observed[0]
+    assert actual.terminate_to_reap_ns > 0
+    if not cancelled:
+        assert actual.timeout_cleanup_total_ns > 0 and actual.kill_to_reap_ns > 0
+    over_ceiling = replace(
+        actual,
+        timeout_cleanup_total_ns=REGRESSION_LIMITS["timeout_cleanup_total_ns"] + 1,
+        terminate_to_reap_ns=REGRESSION_LIMITS["terminate_to_reap_ns"] + 1,
+        kill_to_reap_ns=REGRESSION_LIMITS["kill_to_reap_ns"] + 1,
+    )
+    with pytest.raises(HostFailure, match="^process-exit$"):
+        host._validate_regression_observation(over_ceiling)
+
+
 def test_parent_boundary_cancellation_while_pipes_are_open_reaps_and_recovers() -> None:
     import pico_logic_analyzer._decode.host as host
     from pico_logic_analyzer._decode.model import HostFailure
@@ -1240,7 +1290,7 @@ def test_post_drain_wait_errors_cleanup_exact_response_fd(
 ) -> None:
     """Exercise the normal post-drain wait branch, retaining its response FD."""
     import pico_logic_analyzer._decode.host as host
-    from pico_logic_analyzer._decode.model import REGRESSION_LIMITS, HostFailure
+    from pico_logic_analyzer._decode.model import HostFailure
 
     process = _PostDrainProcess(timeout)
     response_fd = os.open(os.devnull, os.O_RDONLY)
@@ -1250,10 +1300,8 @@ def test_post_drain_wait_errors_cleanup_exact_response_fd(
         "_collect_response",
         lambda *_args: ({"type": "decode-failure", "code": "decoder"}, b"", b""),
     )
-    limits = {**REGRESSION_LIMITS, "reap_ns": 1}
-    monkeypatch.setattr(host, "REGRESSION_LIMITS", limits)
     clock = iter((0, 0, 0, 0, *(2 for _ in range(32))))
-    with pytest.raises(HostFailure, match="^process-exit$"):
+    with pytest.raises(HostFailure, match="^process-exit$" if timeout else "^decoder$"):
         host._decode_with_factory(
             _request("uart"), subprocess.Popen, monotonic_ns=lambda: next(clock)
         )
@@ -1344,3 +1392,123 @@ def test_parent_accepts_structurally_valid_result_with_empty_stdio() -> None:
     factory = _hostile_factory(response=_valid_result_frame())
     assert _decode_with_factory(_request("uart"), factory).decoder == "uart"
     _assert_reaped_closed(factory)
+
+
+def test_regression_observation_is_not_a_product_failure_but_has_a_private_gate() -> None:
+    from pico_logic_analyzer._decode.host import (
+        _decode_with_factory,
+        _RegressionObservation,
+        _validate_regression_observation,
+    )
+    from pico_logic_analyzer._decode.model import REGRESSION_LIMITS, HostFailure
+
+    observed: list[_RegressionObservation] = []
+    result = _decode_with_factory(
+        _request("uart"),
+        _hostile_factory(response=_valid_result_frame()),
+        regression_observer=observed.append,
+    )
+    assert result.decoder == "uart"
+    assert len(observed) == 1
+    over_ceiling = _RegressionObservation(
+        **{
+            name: REGRESSION_LIMITS[name] + 1
+            for name in REGRESSION_LIMITS
+        }
+    )
+    with pytest.raises(HostFailure, match="^process-exit$"):
+        _validate_regression_observation(over_ceiling)
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "duplicate-annotation-index", "gapped-annotation-index", "reordered-annotation-index",
+        "duplicate-row-index", "missing-row-reference", "duplicate-row-reference",
+        "undeclared-output",
+        "cross-kind-output",
+        "annotation-class-overrun",
+        "binary-class-overrun",
+        "metadata-output-mismatch", "negative-coordinate", "reversed-coordinate", "past-capture",
+        "absolute-time", "relative-time",
+    ],
+)
+def test_parent_rejects_each_closed_result_graph_edge_and_recovers(mutation: str) -> None:
+    """Typed child data still needs one closed declaration/register/put graph."""
+    from pico_logic_analyzer._decode.host import _decode_with_factory, decode_private
+    from pico_logic_analyzer._decode.ipc import RESULT, encode_frame
+    from pico_logic_analyzer._decode.model import HARD_LIMITS, HostFailure
+
+    request = _request("uart", samples=(0, 0))
+    result = decode_private(request).to_dict()
+    declarations = result["declarations"]
+    assert isinstance(declarations, dict)
+    annotations = declarations["annotations"]
+    rows = declarations["annotation_rows"]
+    binary = declarations["binary"]
+    assert isinstance(annotations, list) and isinstance(rows, list) and isinstance(binary, list)
+    record = {
+        "emission_index": 0, "start_sample": 0, "end_sample": 0,
+        "output_id": 2, "kind": "annotation", "value": {"class_index": 0, "texts": ["x"]},
+        "start_time": {
+            "absolute": {"numerator": 0, "denominator": 1},
+            "trigger_relative": {"numerator": -1, "denominator": 1},
+        },
+        "end_time": {
+            "absolute": {"numerator": 0, "denominator": 1},
+            "trigger_relative": {"numerator": -1, "denominator": 1},
+        },
+    }
+    if mutation == "duplicate-annotation-index":
+        annotations[1]["index"] = 0
+    elif mutation == "gapped-annotation-index":
+        annotations[0]["index"] = 99
+    elif mutation == "reordered-annotation-index":
+        annotations[0]["index"], annotations[1]["index"] = 1, 0
+    elif mutation == "duplicate-row-index":
+        rows[1]["index"] = 0
+    elif mutation == "missing-row-reference":
+        rows[0]["annotation_indices"] = [999]
+    elif mutation == "duplicate-row-reference":
+        rows[0]["annotation_indices"] = [12, 12]
+    elif mutation == "undeclared-output":
+        record["output_id"] = 999
+    elif mutation == "cross-kind-output":
+        record["output_id"] = 0
+    elif mutation == "annotation-class-overrun":
+        record["value"] = {"class_index": len(annotations), "texts": ["x"]}
+    elif mutation == "binary-class-overrun":
+        record.update(
+            {
+                "output_id": 1,
+                "kind": "binary",
+                "value": {"class_index": len(binary), "data_base64": ""},
+            }
+        )
+    elif mutation == "metadata-output-mismatch":
+        record.update(
+            {
+                "output_id": 2,
+                "kind": "metadata",
+                "value": {"value_type": "integer", "value": 1},
+            }
+        )
+    elif mutation == "negative-coordinate":
+        record["start_sample"] = -1
+    elif mutation == "reversed-coordinate":
+        record.update({"start_sample": 1, "end_sample": 0})
+    elif mutation == "past-capture":
+        record.update({"start_sample": 2, "end_sample": 2})
+    elif mutation == "absolute-time":
+        record["start_time"]["absolute"]["numerator"] = 1  # type: ignore[index]
+    else:
+        record["end_time"]["trigger_relative"]["numerator"] = 0  # type: ignore[index]
+    result["records"] = [record]
+    frame = encode_frame(RESULT, {"result": result, "metrics": {
+        "child_import_ns": 0, "child_load_ns": 0, "child_decode_ns": 0, "worker_peak_rss_bytes": 0,
+    }}, HARD_LIMITS["encoded_bytes"])
+    factory = _hostile_factory(response=frame)
+    with pytest.raises(HostFailure, match="^ipc$"):
+        _decode_with_factory(request, factory)
+    _assert_reaped_closed(factory)
+    _fresh_valid_decode()

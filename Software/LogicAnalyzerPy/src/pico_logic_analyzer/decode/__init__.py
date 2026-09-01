@@ -7,6 +7,7 @@ import json
 import math
 from collections.abc import Mapping
 from dataclasses import dataclass
+from types import MappingProxyType
 from typing import Literal, cast
 
 from pico_logic_analyzer._decode.host import decode_private as _decode_private
@@ -46,6 +47,24 @@ from pico_logic_analyzer._decode.model import (
 from pico_logic_analyzer.model import CaptureResult
 
 type OptionScalar = int | float | str
+
+_FAILURE_CODES = frozenset(
+    {
+        "snapshot",
+        "import",
+        "ipc",
+        "decoder",
+        "recursion",
+        "memory",
+        "process-exit",
+        "timeout",
+        "cancelled",
+        "output-limit",
+    }
+)
+_MAX_STABLE_DIAGNOSTIC_BYTES = max(
+    len(f"decoder failed: {code}".encode()) for code in _FAILURE_CODES
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -241,22 +260,9 @@ type PythonValue = (
 )
 
 
-@dataclass(frozen=True, slots=True)
-class _AnnotationPayload:
-    class_index: int
-    texts: tuple[str, ...]
-
-
-@dataclass(frozen=True, slots=True)
-class _BinaryPayload:
-    class_index: int
-    data: bytes
-
-
-@dataclass(frozen=True, slots=True)
-class _MetadataPayload:
-    value_type: Literal["integer"]
-    value: int
+type _AnnotationValue = Mapping[str, int | tuple[str, ...]]
+type _BinaryValue = Mapping[str, int | str]
+type _MetadataValue = Mapping[str, int | Literal["integer"]]
 
 
 @dataclass(frozen=True, slots=True)
@@ -267,8 +273,11 @@ class AnnotationRecord:
     end_sample: int
     start_time: RecordTime
     end_time: RecordTime
-    value: _AnnotationPayload
+    value: _AnnotationValue
     kind: Literal["annotation"] = "annotation"
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "value", _annotation_value(self.value))
 
 
 @dataclass(frozen=True, slots=True)
@@ -291,8 +300,11 @@ class BinaryRecord:
     end_sample: int
     start_time: RecordTime
     end_time: RecordTime
-    value: _BinaryPayload
+    value: _BinaryValue
     kind: Literal["binary"] = "binary"
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "value", _binary_value(self.value))
 
 
 @dataclass(frozen=True, slots=True)
@@ -303,8 +315,65 @@ class MetadataRecord:
     end_sample: int
     start_time: RecordTime
     end_time: RecordTime
-    value: _MetadataPayload
+    value: _MetadataValue
     kind: Literal["metadata"] = "metadata"
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "value", _metadata_value(self.value))
+
+
+def _annotation_value(value: Mapping[str, object]) -> _AnnotationValue:
+    if not isinstance(value, Mapping) or set(value) != {"class_index", "texts"}:
+        raise ValueError("invalid annotation value")
+    class_index = value["class_index"]
+    texts = value["texts"]
+    if (
+        type(class_index) is not int
+        or class_index < 0
+        or type(texts) is not tuple
+        or not texts
+        or any(type(text) is not str for text in texts)
+    ):
+        raise ValueError("invalid annotation value")
+    result: dict[str, int | tuple[str, ...]] = {
+        "class_index": class_index,
+        "texts": texts,
+    }
+    return MappingProxyType(result)
+
+
+def _binary_value(value: Mapping[str, object]) -> _BinaryValue:
+    if not isinstance(value, Mapping) or set(value) != {"class_index", "data_base64"}:
+        raise ValueError("invalid binary value")
+    class_index = value["class_index"]
+    data_base64 = value["data_base64"]
+    if type(class_index) is not int or class_index < 0 or type(data_base64) is not str:
+        raise ValueError("invalid binary value")
+    try:
+        decoded = base64.b64decode(data_base64, validate=True)
+    except (ValueError, TypeError):
+        raise ValueError("invalid binary value") from None
+    if base64.b64encode(decoded).decode("ascii") != data_base64:
+        raise ValueError("invalid binary value")
+    result: dict[str, int | str] = {
+        "class_index": class_index,
+        "data_base64": data_base64,
+    }
+    return MappingProxyType(result)
+
+
+def _metadata_value(value: Mapping[str, object]) -> _MetadataValue:
+    if not isinstance(value, Mapping) or set(value) != {"value_type", "value"}:
+        raise ValueError("invalid metadata value")
+    value_type = value["value_type"]
+    integer = value["value"]
+    if value_type != "integer" or type(integer) is not int:
+        raise ValueError("invalid metadata value")
+    result: dict[str, int | Literal["integer"]] = {
+        "value_type": "integer",
+        "value": integer,
+    }
+    return MappingProxyType(result)
 
 
 type DecodeRecord = AnnotationRecord | PythonRecord | BinaryRecord | MetadataRecord
@@ -386,19 +455,7 @@ class DecodeError(RuntimeError):
     def __post_init__(self) -> None:
         if (
             self.schema != "pico-logic-analyzer.decode-error/v1"
-            or self.code
-            not in {
-                "snapshot",
-                "import",
-                "ipc",
-                "decoder",
-                "recursion",
-                "memory",
-                "process-exit",
-                "timeout",
-                "cancelled",
-                "output-limit",
-            }
+            or self.code not in _FAILURE_CODES
             or type(self.message) is not str
             or not self.message
             or len(self.message.encode("utf-8")) > HARD_LIMITS["diagnostic_bytes"]
@@ -440,24 +497,20 @@ def decode_capture(
         raise ValueError(str(exc)) from None
     if len(request.samples) > effective_limits["input_samples"]:
         raise ValueError("capture exceeds caller limits")
+    wordsize = request.options.get("wordsize")
+    if (
+        request.decoder == "spi"
+        and type(wordsize) is int
+        and wordsize > effective_limits["spi_max_word_size_bits"]
+    ):
+        raise ValueError("SPI word size exceeds caller limits")
     try:
         private = _decode_private(request, limits=effective_limits)
     except (HostFailure, OSError) as exc:
         code = str(exc)
         if isinstance(exc, OSError):
             code = "process-exit"
-        if code not in {
-            "snapshot",
-            "import",
-            "ipc",
-            "decoder",
-            "recursion",
-            "memory",
-            "process-exit",
-            "timeout",
-            "cancelled",
-            "output-limit",
-        }:
+        if code not in _FAILURE_CODES:
             code = "snapshot" if "identity" in code else "ipc"
         raise DecodeError(code, f"decoder failed: {code}") from None
     return _public_result(private)
@@ -485,6 +538,8 @@ def _validated_limits(limits: Mapping[str, int] | None) -> dict[str, int]:
         if type(value) is not int or value <= 0 or value > HARD_LIMITS[key]:
             raise ValueError("limits may only tighten approved ceilings")
         effective[key] = value
+    if effective["diagnostic_bytes"] < _MAX_STABLE_DIAGNOSTIC_BYTES:
+        raise ValueError("diagnostic limit cannot encode stable failures")
     return effective
 
 
@@ -555,14 +610,24 @@ def _public_record(value: object) -> DecodeRecord:
     )
     if value.kind == "annotation" and type(value.value) is _PrivateAnnotationValue:
         return AnnotationRecord(
-            *common, _AnnotationPayload(value.value.class_index, value.value.texts)
+            *common,
+            {"class_index": value.value.class_index, "texts": value.value.texts},
         )
     if value.kind == "python":
         return PythonRecord(*common, _python_value(value.value))
     if value.kind == "binary" and type(value.value) is _PrivateBinaryValue:
-        return BinaryRecord(*common, _BinaryPayload(value.value.class_index, value.value.data))
+        return BinaryRecord(
+            *common,
+            {
+                "class_index": value.value.class_index,
+                "data_base64": base64.b64encode(value.value.data).decode("ascii"),
+            },
+        )
     if value.kind == "metadata" and type(value.value) is _PrivateMetadataValue:
-        return MetadataRecord(*common, _MetadataPayload(value.value.value_type, value.value.value))
+        return MetadataRecord(
+            *common,
+            {"value_type": value.value.value_type, "value": value.value.value},
+        )
     raise DecodeError("ipc", "decoder failed: ipc")
 
 
@@ -627,20 +692,14 @@ def _python_dict(value: PythonValue) -> dict[str, object]:
 def _record_dict(record: DecodeRecord) -> dict[str, object]:
     value: dict[str, object]
     if type(record) is AnnotationRecord:
-        value = {"class_index": record.value.class_index, "texts": list(record.value.texts)}
+        value = dict(record.value)
     elif type(record) is PythonRecord:
         value = _python_dict(record.value)
     elif type(record) is BinaryRecord:
-        value = {
-            "class_index": record.value.class_index,
-            "data_base64": base64.b64encode(record.value.data).decode("ascii"),
-        }
+        value = dict(record.value)
     else:
         metadata = cast(MetadataRecord, record)
-        value = {
-            "value_type": metadata.value.value_type,
-            "value": metadata.value.value,
-        }
+        value = dict(metadata.value)
     return {
         "emission_index": record.emission_index,
         "output_id": record.output_id,

@@ -35,7 +35,36 @@ EXIT_CAPTURE = 4
 EXIT_VALIDATION = 5
 EXIT_OUTPUT = 6
 EXIT_DECODE = 7
+DIAGNOSTIC_BYTES = 8192
 UNCALIBRATED_SOURCE_TOLERANCE_FRACTION = 0.02
+_diagnostic_bytes_remaining = DIAGNOSTIC_BYTES
+
+
+def _bounded_diagnostic(message: str, maximum: int) -> str:
+    encoded = message.encode("utf-8", errors="replace")
+    if len(encoded) <= maximum:
+        return message
+    body = encoded[: max(0, maximum - 1)].decode("utf-8", errors="ignore")
+    return body + "\n"
+
+
+def _write_diagnostic(message: str) -> None:
+    global _diagnostic_bytes_remaining
+    if _diagnostic_bytes_remaining <= 0:
+        return
+    bounded = _bounded_diagnostic(message, _diagnostic_bytes_remaining)
+    _diagnostic_bytes_remaining -= len(bounded.encode("utf-8"))
+    sys.stderr.write(bounded)
+
+
+class _BoundedArgumentParser(argparse.ArgumentParser):
+    def _print_message(self, message: str | None, file: object | None = None) -> None:
+        if message is None:
+            return
+        if file is sys.stdout:
+            sys.stdout.write(message)
+            return
+        _write_diagnostic(message)
 
 
 def _new_device_service() -> DriverService:
@@ -57,7 +86,9 @@ list_candidates: Callable[[], list[PortCandidate]] = _list_candidates
 
 
 def _parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="pico-la", description="Pico logic analyzer")
+    global _diagnostic_bytes_remaining
+    _diagnostic_bytes_remaining = DIAGNOSTIC_BYTES
+    parser = _BoundedArgumentParser(prog="pico-la", description="Pico logic analyzer")
     subcommands = parser.add_subparsers(dest="command", required=True)
 
     devices = subcommands.add_parser("devices", help="list candidate serial ports")
@@ -484,6 +515,20 @@ def _decode_options(decoder: str, values: list[str]) -> dict[str, object]:
     return result
 
 
+def _decode_csv_channels(value: str) -> tuple[int, ...]:
+    try:
+        channel_ids = tuple(int(channel) for channel in value.split(","))
+    except ValueError as exc:
+        raise ProtocolError("invalid CSV channel metadata") from exc
+    if (
+        not channel_ids
+        or len(set(channel_ids)) != len(channel_ids)
+        or any(not 0 <= channel <= 23 for channel in channel_ids)
+    ):
+        raise ProtocolError("invalid CSV channel metadata")
+    return channel_ids
+
+
 def _decode(arguments: argparse.Namespace) -> int:
     from pico_logic_analyzer.decode import canonical_json, decode_capture
     from pico_logic_analyzer.formats.replay import import_replay_bytes
@@ -509,7 +554,7 @@ def _decode(arguments: argparse.Namespace) -> int:
             raise ProtocolError(
                 "CSV requires --channels, --trigger-channel, and --edge"
             )
-        channel_ids = _channel_ids(arguments.channels)
+        channel_ids = _decode_csv_channels(arguments.channels)
         if arguments.sample_rate is None and channel_ids != tuple(range(8)):
             raise ProtocolError(
                 "CSV sample-rate omission requires the exact legacy D0-D7 identity"
@@ -533,10 +578,9 @@ def _web(arguments: argparse.Namespace) -> int:
         from pico_logic_analyzer.web.server import run
     except ModuleNotFoundError as exc:
         if exc.name in {"aiohttp", "pico_logic_analyzer.web"}:
-            print(
+            _write_diagnostic(
                 "pico-la: web support is not installed; run "
-                "pip install 'pico-logic-analyzer[web]'",
-                file=sys.stderr,
+                "pip install 'pico-logic-analyzer[web]'\n"
             )
             return EXIT_USAGE
         raise
@@ -573,20 +617,19 @@ def main(argv: Sequence[str] | None = None) -> int:
             return _hardware_smoke(arguments)
         if arguments.command == "hardware-recovery-smoke":
             return _hardware_recovery_smoke(arguments)
-        print(
-            f"pico-la: {arguments.command} is not implemented until its owning batch",
-            file=sys.stderr,
+        _write_diagnostic(
+            f"pico-la: {arguments.command} is not implemented until its owning batch\n"
         )
         return EXIT_USAGE
     except TimeoutError as exc:
-        print(f"pico-la: {exc}", file=sys.stderr)
+        _write_diagnostic(f"pico-la: {exc}\n")
         return (
             EXIT_CAPTURE
             if arguments.command in {"capture", "hardware-smoke", "hardware-recovery-smoke"}
             else EXIT_CONNECTION
         )
     except ProtocolError as exc:
-        print(f"pico-la: {exc}", file=sys.stderr)
+        _write_diagnostic(f"pico-la: {exc}\n")
         return (
             EXIT_VALIDATION
             if arguments.command
@@ -600,20 +643,20 @@ def main(argv: Sequence[str] | None = None) -> int:
             else EXIT_CONNECTION
         )
     except DecodeError as exc:
-        print(f"pico-la: {exc.message}", file=sys.stderr)
+        _write_diagnostic(f"pico-la: {exc.message}\n")
         return EXIT_DECODE
     except ConnectionError as exc:
-        print(f"pico-la: {exc}", file=sys.stderr)
+        _write_diagnostic(f"pico-la: {exc}\n")
         return EXIT_CONNECTION
     except ValueError as exc:
-        print(f"pico-la: {exc}", file=sys.stderr)
+        _write_diagnostic(f"pico-la: {exc}\n")
         return EXIT_USAGE
     except OutputError as exc:
-        print(f"pico-la: {exc}", file=sys.stderr)
+        _write_diagnostic(f"pico-la: {exc}\n")
         return EXIT_OUTPUT
     except KeyboardInterrupt:
         if arguments.command == "decode":
-            print("pico-la: decoder failed: cancelled", file=sys.stderr)
+            _write_diagnostic("pico-la: decoder failed: cancelled\n")
             return EXIT_DECODE
-        print("pico-la: capture cancelled", file=sys.stderr)
+        _write_diagnostic("pico-la: capture cancelled\n")
         return EXIT_CAPTURE

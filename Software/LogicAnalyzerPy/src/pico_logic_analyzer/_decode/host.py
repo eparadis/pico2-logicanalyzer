@@ -102,6 +102,13 @@ def _decode_with_factory(
 ) -> DecodeResult:
     """Injection seam for inert preflight-order tests; never exposed by the package."""
     effective_limits = _effective_limits(limits)
+    wordsize = request.options.get("wordsize")
+    if (
+        request.decoder == "spi"
+        and type(wordsize) is int
+        and wordsize > effective_limits["spi_max_word_size_bits"]
+    ):
+        raise RequestFailure("options rejected")
     run_started = monotonic_ns()
     rss = measure_rss or _parent_rss
     parent_before = rss()

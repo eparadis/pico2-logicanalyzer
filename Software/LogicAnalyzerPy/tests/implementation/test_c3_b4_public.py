@@ -63,6 +63,17 @@ def test_public_exports_are_stable_and_models_are_immutable() -> None:
     )
 
 
+def test_record_values_are_immutable_without_unlisted_payload_models() -> None:
+    import dataclasses
+    import typing
+
+    import pico_logic_analyzer.decode as public
+
+    for record_name in ("AnnotationRecord", "BinaryRecord", "MetadataRecord"):
+        value_type = typing.get_type_hints(getattr(public, record_name))["value"]
+        assert not (isinstance(value_type, type) and dataclasses.is_dataclass(value_type))
+
+
 def test_public_call_delegates_once_and_rejects_limit_weakening(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -108,6 +119,30 @@ def test_every_approved_limit_rejects_weakening_before_delegation(
             )
 
 
+def test_tightened_spi_and_diagnostic_limits_reject_before_delegation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import pico_logic_analyzer.decode as public
+
+    monkeypatch.setattr(
+        public,
+        "_decode_private",
+        lambda *_args, **_kwargs: pytest.fail("worker launched"),
+    )
+    with pytest.raises(ValueError):
+        public.decode_capture(
+            _capture(),
+            "spi",
+            {"clk": 0, "mosi": 1},
+            {"wordsize": 8},
+            {"spi_max_word_size_bits": 4},
+        )
+    with pytest.raises(ValueError):
+        public.decode_capture(
+            _capture(), "uart", {"rx": 0}, {}, {"diagnostic_bytes": 1}
+        )
+
+
 def test_b1_literal_object_vectors_and_cli_bytes_match_public_models() -> None:
     import pico_logic_analyzer.decode as public
     from pico_logic_analyzer._decode.model import decode_result_from_dict
@@ -124,6 +159,26 @@ def test_b1_literal_object_vectors_and_cli_bytes_match_public_models() -> None:
         private = decode_result_from_dict(vector["object"])
         result = public._public_result(private)
         assert public.canonical_json(result) == goldens[vector["id"]]
+        if vector["kind"] != "python":
+            assert not hasattr(result.records[0].value, "__setitem__")
+
+
+def test_tightened_diagnostic_limit_bounds_a_host_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import pico_logic_analyzer.decode as public
+    from pico_logic_analyzer._decode.model import HostFailure
+
+    monkeypatch.setattr(
+        public,
+        "_decode_private",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(HostFailure("timeout")),
+    )
+    with pytest.raises(public.DecodeError) as raised:
+        public.decode_capture(
+            _capture(), "uart", {"rx": 0}, {}, {"diagnostic_bytes": 28}
+        )
+    assert len(raised.value.message.encode()) <= 28
 
 
 def test_package_snapshot_is_exact_and_closed() -> None:
@@ -341,6 +396,78 @@ def test_cli_duplicate_unknown_and_invalid_assignments_are_usage_errors(
         assert run.returncode == 2
         assert run.stdout == b""
         assert run.stderr.startswith(b"pico-la:")
+
+
+@pytest.mark.parametrize("channels", ("", "0,x", "0,0", "0,24", "0"))
+def test_invalid_csv_channel_metadata_is_input_exit_five(
+    tmp_path: Path, channels: str
+) -> None:
+    from pico_logic_analyzer.formats import csv_bytes
+
+    csv = tmp_path / "capture.csv"
+    csv.write_bytes(csv_bytes(_capture()))
+    run = _run_cli(
+        tmp_path,
+        "decode",
+        "--csv",
+        str(csv),
+        "--channels",
+        channels,
+        "--sample-rate",
+        "1000000",
+        "--trigger-channel",
+        "0",
+        "--edge",
+        "rising",
+        "--decoder",
+        "uart",
+        "--channel",
+        "rx=0",
+    )
+    assert run.returncode == 5
+    assert run.stdout == b""
+    assert len(run.stderr) <= 8192
+
+
+def test_all_cli_diagnostics_are_bounded(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from pico_logic_analyzer.cli import main as cli
+
+    hostile = "x" * 8193
+    argparse_run = _run_cli(
+        tmp_path,
+        "decode",
+        "--replay",
+        "inert.npz",
+        "--decoder",
+        hostile,
+        "--channel",
+        "rx=0",
+    )
+    assert argparse_run.returncode == 2
+    assert argparse_run.stdout == b""
+    assert len(argparse_run.stderr) <= 8192
+
+    monkeypatch.setattr(
+        cli,
+        "_decode",
+        lambda _arguments: (_ for _ in ()).throw(ValueError(hostile)),
+    )
+    assert cli.main(
+        [
+            "decode",
+            "--replay",
+            "inert.npz",
+            "--decoder",
+            "uart",
+            "--channel",
+            "rx=0",
+        ]
+    ) == 2
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert len(captured.err.encode("utf-8")) <= 8192
 
 
 def test_cli_legacy_d0_d7_rate_inference_is_the_only_omission(tmp_path: Path) -> None:

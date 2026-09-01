@@ -1,10 +1,63 @@
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 REPOSITORY = Path(__file__).resolve().parents[4]
 WORKFLOWS = REPOSITORY / ".github" / "workflows"
 WORKFLOW = WORKFLOWS / "logic-analyzer-python-cycle2.yml"
+
+SUPERSEDED_B1_IGNORES = (
+    "tests/verification/test_c3_b1_threshold_proposal_round2.py",
+    "tests/verification/test_c3_b1_final_candidate.py",
+    "tests/verification/test_c3_b1_raw_baseline_candidate.py",
+    "tests/verification/test_c3_b1_runner_fixture_rebinding.py",
+    "tests/verification/test_c3_b1_semantic_fixture_candidate.py",
+    "tests/verification/test_c3_b1_threshold_proposal_round3.py",
+    "tests/verification/test_c3_b1_preexecution_runner_candidate.py",
+    "tests/verification/test_c3_b1_runner_fixture_rebinding_round4.py",
+    "tests/verification/test_c3_b1_final_candidate_round3.py",
+    "tests/verification/test_c3_b1_runner_fixture_rebinding_round5.py",
+    "tests/verification/test_c3_b1_semantic_fixture_correction_round2.py",
+    "tests/verification/test_c3_b1_runner_fixture_rebinding_round2.py",
+    "tests/verification/test_c3_b1_runner_fixture_rebinding_round3.py",
+    "tests/verification/test_c3_b1_threshold_proposal.py",
+    "tests/verification/test_c3_b1_semantic_fixture_correction.py",
+)
+ACCEPTED_DESELECTS = (
+    (
+        "tests/implementation/test_cycle3_fixtures.py::"
+        "test_cycle3_fixture_surface_is_present_and_rebuildable"
+    ),
+    (
+        "tests/verification/test_c3_b4_public_round4.py::"
+        "test_candidate_binding_and_exact_workflow_digest"
+    ),
+    (
+        "tests/verification/test_c3_b4_public_round4.py::"
+        "test_hosted_correction_preserves_every_prior_workflow_byte_and_gate_order"
+    ),
+)
+MANDATORY_CURRENT_MODULES = (
+    "tests/implementation/test_c3_b2_private_host.py",
+    "tests/verification/test_c3_b2_private_host.py",
+    "tests/verification/test_c3_b2_private_host_round2.py",
+    "tests/verification/test_c3_b2_private_host_round3.py",
+    "tests/verification/test_c3_b2_private_host_round4.py",
+    "tests/implementation/test_c3_b3_cross_source_equivalence.py",
+    "tests/implementation/test_c3_b3_uart_conformance.py",
+    "tests/implementation/test_c3_b3_spi_conformance.py",
+    "tests/implementation/test_c3_b3_i2c_conformance.py",
+    "tests/verification/test_c3_b3_cross_source_equivalence.py",
+    "tests/verification/test_c3_b3_uart_conformance.py",
+    "tests/verification/test_c3_b3_spi_conformance.py",
+    "tests/verification/test_c3_b3_i2c_conformance.py",
+    "tests/implementation/test_c3_b4_public.py",
+    "tests/verification/test_c3_b4_public_round1.py",
+    "tests/verification/test_c3_b4_public_round2.py",
+    "tests/verification/test_c3_b4_public_round3.py",
+    "tests/verification/test_c3_b4_public_round4.py",
+)
 
 
 def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:
@@ -67,3 +120,15 @@ def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:
     )
     assert all(fragment in text for fragment in required)
     assert text.count("--tb=short --disable-warnings") == 1
+
+    ignores = tuple(re.findall(r"--ignore ([^\s\\]+)", text))
+    deselections = tuple(re.findall(r"--deselect ([^\s\\]+)", text))
+    assert ignores == SUPERSEDED_B1_IGNORES
+    assert deselections == ACCEPTED_DESELECTS
+    assert len(set(ignores)) == len(ignores) == 15
+    assert len(set(deselections)) == len(deselections) == 3
+    for relative in MANDATORY_CURRENT_MODULES:
+        assert (REPOSITORY / "Software/LogicAnalyzerPy" / relative).is_file()
+        assert relative not in ignores
+    round4 = "tests/verification/test_c3_b4_public_round4.py"
+    assert sum(item.startswith(f"{round4}::") for item in deselections) == 2

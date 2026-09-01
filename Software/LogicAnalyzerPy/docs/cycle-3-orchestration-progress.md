@@ -4339,7 +4339,7 @@ unchanged.
 
 ## C3-B4: public library and installed CLI
 
-- State: Pending.
+- State: Ready.
 - Objective: expose the accepted B2 private host and B3 decoder behavior through
   the single synchronous typed `pico_logic_analyzer.decode.decode_capture(...)`
   API and the exact offline installed `pico-la decode` grammar, without adding a
@@ -4347,8 +4347,9 @@ unchanged.
 - Prerequisites: the accepted C3-B3 checkpoint
   `233b3b0667add740cee96ce3c9ee266c8a639067` / tree
   `0d3709a861bf79f002246836a582b87677e29b15` is present and its strict manifest
-  validation passes. Explicit authority for the bounded B4 subagent chain and
-  for the required exact-candidate hosted macOS CI dispatch remains absent.
+  validation passes. On 2026-09-01 the operator explicitly authorized the four
+  fresh bounded B4 subagents and the required exact-candidate hosted macOS CI
+  dispatch.
 - Governing commit/tree:
   `ea83a403bb6f644d33069d3bebd41d5f1e0a60c0` /
   `d9fb09345ab85580cd8c877745262d1b481e366f`.
@@ -4403,11 +4404,12 @@ unchanged.
   Ruff, strict mypy, evidence/fixture/manifest validators, dependency/lock and
   prohibited-use audits, installed help smoke, process cleanup, clean bootstrap,
   repository-scope audit, and exact-candidate hosted macOS CI.
-- Authority notes: no B4 subagent may launch until the user explicitly
-  authorizes this bounded chain. No hosted workflow may be dispatched until the
-  user explicitly authorizes that external action. Root remains the only
-  approval broker and will request at most one narrow reusable command class
-  for each genuinely missing privileged capability.
+- Authority notes: on 2026-09-01 the operator authorized the complete bounded
+  four-identity B4 chain and the exact-candidate hosted macOS CI dispatch. This
+  authority does not cover B5 subagents, publication, or any excluded product
+  scope. Root remains the only approval broker and will request at most one
+  narrow reusable command class for each genuinely missing privileged
+  capability.
 - Prohibited runtime audit: static dependency/import/command/path scan plus
   installed import/open/process/serial/web spies must prove no C#/.NET,
   pythonnet, libsigrokdecode, `sigrok-cli`, external/reference host, decoder

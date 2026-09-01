@@ -1,0 +1,143 @@
+{
+  "schema_version": 3,
+  "checkpoint": "C3-B3",
+  "tested_commit": "0e1f619c8c744c16a96119c0834ed2f7d2518d0e",
+  "tested_tree": "d22ecdd374446cef9e4b1e941b0937ae6389a1cb",
+  "timestamp_utc": "2026-09-01T03:25:33Z",
+  "worktree_state": "The exact B3 product and evidence candidate is immutable at the tested commit and tree. Accumulated validation is committed at 6eeb43d660eeb9d7e9b55b320921aa108becf068 and independent acceptance is committed at 52dfa4ab3cac45839c20d63722b0a389651f965f. Only this post-acceptance proposed manifest is untracked; it contains no manifest-verification result, manifest digest, checkpoint, or future pass.",
+  "environment": {
+    "os": "macOS 15.7.9 build 24G830",
+    "architecture": "x86_64",
+    "python": "3.12.13",
+    "environment_class": "Macmini8,1 repository-local locked environment",
+    "resource_observation": "B3 added conformance and cross-source evidence only; accepted B1 thresholds and B2 containment remained unchanged."
+  },
+  "locks": [
+    {"name": "requirements-dev", "path": "Software/LogicAnalyzerPy/requirements-dev.lock", "sha256": "6f78ec8f0219b919c44ed9b9f1d30c2337fcce7c911b8d3dc4c13edb707a6575"},
+    {"name": "requirements-web", "path": "Software/LogicAnalyzerPy/requirements-web.lock", "sha256": "6f78ec8f0219b919c44ed9b9f1d30c2337fcce7c911b8d3dc4c13edb707a6575"},
+    {"name": "package-lock", "path": "Software/LogicAnalyzerPy/web/package-lock.json", "sha256": "d388a2668b3f65edeb62ee99da3ad37ffc56ab1ca3439b6d418a6bbe92e838d9"},
+    {"name": "production-assets", "path": "Software/LogicAnalyzerPy/web/production-assets.json", "sha256": "00d553697834509104a5751affc2abad48ec619bbd7f167ac2f8a1de0953d9d9"}
+  ],
+  "roles": {
+    "implementation": "c3-b3-r16-integration-implementor-1",
+    "verification": "c3-b3-r16-integration-verifier-1",
+    "acceptance": "c3-b3-independent-acceptor-1",
+    "manifest_verifier": "c3-b3-manifest-verifier-1"
+  },
+  "commands": [
+    {
+      "name": "b3_complete_conformance",
+      "command": ".venv/bin/python -m pytest -q over all eight B3 implementation and verification modules",
+      "exit_status": 0,
+      "verifier": "c3-b3-independent-acceptor-1",
+      "candidate_commit": "0e1f619c8c744c16a96119c0834ed2f7d2518d0e",
+      "result": "421 passed; all 63 timelines, 165 option rows, and four-source integration evidence passed.",
+      "skipped": false,
+      "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-acceptance-round-1.md", "sha256": "bcfde3597a1203a69493ed1169401111526cfd40181bba90c2ac3e7293e794f3"}]
+    },
+    {
+      "name": "applicable_nonhardware",
+      "command": ".venv/bin/python -m pytest -m not-hardware with the governed historical exclusions",
+      "exit_status": 0,
+      "verifier": "c3-b3-accumulated-validator-1",
+      "candidate_commit": "0e1f619c8c744c16a96119c0834ed2f7d2518d0e",
+      "result": "1359 passed, four accepted optional physical-artifact skips, one established historical deselection, and 149 inherited warnings; no mandatory Cycle 3 test skipped.",
+      "skipped": false,
+      "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-accumulated-validation-round-1.md", "sha256": "5c48ceb6fc1346991903285fbfb6c4497e469aef7a1d07378420f21563edc16e"}]
+    },
+    {
+      "name": "static_dependency_and_binding",
+      "command": "pip check, whole-project Ruff, strict mypy, fixture generation, characterization binding, and installed CLI help",
+      "exit_status": 0,
+      "verifier": "c3-b3-accumulated-validator-1",
+      "candidate_commit": "0e1f619c8c744c16a96119c0834ed2f7d2518d0e",
+      "result": "Dependency, static, fixture-drift, binding-drift, and pre-B4 CLI gates passed.",
+      "skipped": false,
+      "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-accumulated-validation-round-1.md", "sha256": "5c48ceb6fc1346991903285fbfb6c4497e469aef7a1d07378420f21563edc16e"}]
+    },
+    {
+      "name": "inherited_evidence_and_scope",
+      "command": "validate all accepted Cycle 2 manifests and Cycle 3 B1/B2 manifests; run prohibited-runtime, process, repository, and excluded-scope audits",
+      "exit_status": 0,
+      "verifier": "c3-b3-independent-acceptor-1",
+      "candidate_commit": "0e1f619c8c744c16a96119c0834ed2f7d2518d0e",
+      "result": "All inherited manifests and continuous R21, R23, R24, and R25 audits passed with a clean final process inventory.",
+      "skipped": false,
+      "evidence": [
+        {"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-accumulated-validation-round-1.md", "sha256": "5c48ceb6fc1346991903285fbfb6c4497e469aef7a1d07378420f21563edc16e"},
+        {"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-acceptance-round-1.md", "sha256": "bcfde3597a1203a69493ed1169401111526cfd40181bba90c2ac3e7293e794f3"}
+      ]
+    }
+  ],
+  "artifacts": [
+    {"category": "checkpoint", "provenance": "frozen Cycle 3 evidence schema", "revision": "39e74a27638541b36b2845a8c6f1079bc0a3ae61", "path": "Software/LogicAnalyzerPy/docs/evidence-manifest/cycle3-schema.json", "sha256": "779d313ee79fabe8e98e627f7d6e27f0e436873ee2b8e118c0a3cac89e6bf3a3"},
+    {"category": "test", "provenance": "strict Cycle 3 evidence validator", "revision": "91b7a7c07f5202f5d7dc9af539f1810860725a4c", "path": "Software/LogicAnalyzerPy/scripts/validate_cycle3_evidence.py", "sha256": "6b677cbc01f2ee27df4b8aaf83ab4f51465f170f2b69baa3706fe7c6a4dffdca"},
+    {"category": "checkpoint", "provenance": "accepted C3-B1 evidence", "revision": "885be61a2bbea8bf5261b3983cbc79fedde0f315", "path": "Software/LogicAnalyzerPy/testdata/evidence/c3-b1.json", "sha256": "3710e7fde7523096b70607b3a7da217b1e71fdb46492b83b72861e3eaa48cfae"},
+    {"category": "checkpoint", "provenance": "accepted C3-B2 evidence", "revision": "0ece04929e36d356f084dba015c9a256cffec50a", "path": "Software/LogicAnalyzerPy/testdata/evidence/c3-b2.json", "sha256": "2af5bfc21a5d888132fb4e468f543403e8948632ad9ab2dd11b8da854dd4a602"},
+    {"category": "generated-fixture", "provenance": "accepted B1 fixture manifest", "revision": "3af6b9f80dd52611e14acca407707d1da7b8d9ac", "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3/manifest.json", "sha256": "71c64b2c80142cf5d535e03f93f9d3ce66ada120582115fbf403f3621f97c5b9"},
+    {"category": "generated-fixture", "provenance": "accepted 63-timeline semantic oracle", "revision": "3af6b9f80dd52611e14acca407707d1da7b8d9ac", "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3/semantic-fixtures.json", "sha256": "34d2a114b653dc1a5d2fc9f253457e11e6b1acd4bc10d38ffa98d84bdd93d094", "counts": [{"name": "timelines", "value": 63}]},
+    {"category": "generated-fixture", "provenance": "accepted closed option matrix", "revision": "3af6b9f80dd52611e14acca407707d1da7b8d9ac", "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3/option-matrix.json", "sha256": "5d84b9d9855e9e2e75d45d5cd9560fbcfd1ac6ff88abfcf1c1326d3427ffc209", "counts": [{"name": "rows", "value": 165}]},
+    {"category": "test", "provenance": "UART conformance implementation", "revision": "e5ac88ef7425bfab75a7901d1ca6552cc587fec0", "path": "Software/LogicAnalyzerPy/tests/implementation/test_c3_b3_uart_conformance.py", "sha256": "6ebad5ba914a41904fc6965dbc592e201e0d1bee8211efb030e2bd18a6d5bd16"},
+    {"category": "test", "provenance": "UART independent verification", "revision": "25d4849459ff238a28a41a4d72156b64f5fc8251", "path": "Software/LogicAnalyzerPy/tests/verification/test_c3_b3_uart_conformance.py", "sha256": "da85f425e93107002e9eefd18e614355a7a374d94c4e372042520346fa4ca187"},
+    {"category": "test", "provenance": "SPI conformance implementation", "revision": "3e6124ab68d1bcea7df628c520741add93658350", "path": "Software/LogicAnalyzerPy/tests/implementation/test_c3_b3_spi_conformance.py", "sha256": "e35c8d2ac472a7ae4c557daaba54521696971f871ef158d794c3d754cfdc0250"},
+    {"category": "test", "provenance": "SPI independent verification", "revision": "db825eff3ab4ca0e30f5ed0197dcad6bc93cda88", "path": "Software/LogicAnalyzerPy/tests/verification/test_c3_b3_spi_conformance.py", "sha256": "9bbcbcc70db1d53a23375d44c353875c198d59a7e20f456be52d5ee28918a118"},
+    {"category": "test", "provenance": "I2C conformance implementation", "revision": "844d69d22d2f82ae78f423762861abf3b18def66", "path": "Software/LogicAnalyzerPy/tests/implementation/test_c3_b3_i2c_conformance.py", "sha256": "20c04a6f1eeb77760fe16b522ccaf1b1def8b8ca5a3418b29b3af6471bd433c3"},
+    {"category": "test", "provenance": "I2C independent verification", "revision": "30b020a3f8cc14ce65b42c8764dcaff9900dcd45", "path": "Software/LogicAnalyzerPy/tests/verification/test_c3_b3_i2c_conformance.py", "sha256": "997e50b97edaff76f40bb48f2002cff836537ce780dac1445a379986b8bfd6ef"},
+    {"category": "test", "provenance": "cross-source equivalence implementation", "revision": "970f9a79169733d20bc06db60e2c736a8234b7eb", "path": "Software/LogicAnalyzerPy/tests/implementation/test_c3_b3_cross_source_equivalence.py", "sha256": "90754fb7a3d32da70c1526bde29dcc359d2a9e17ac21ea0a97273650f5bd1159"},
+    {"category": "test", "provenance": "cross-source independent verification", "revision": "0e1f619c8c744c16a96119c0834ed2f7d2518d0e", "path": "Software/LogicAnalyzerPy/tests/verification/test_c3_b3_cross_source_equivalence.py", "sha256": "1cd77c44b14bff2e23ec0451a9f9184fad167001f229aac8e913e8494cc6740c"},
+    {"category": "review", "provenance": "UART implementation record", "revision": "e5ac88ef7425bfab75a7901d1ca6552cc587fec0", "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-uart-implementation-round-1.md", "sha256": "bf7ffcd8e147139a7f02436f324858408e414937dac0a0140ee33432debbe56c"},
+    {"category": "review", "provenance": "UART verification pass", "revision": "25d4849459ff238a28a41a4d72156b64f5fc8251", "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-uart-verification-round-1.md", "sha256": "045f8fac0da2eb6f2737158e50d4b1f12b2dbfee0499d3efa570eec87f0e9f8f"},
+    {"category": "review", "provenance": "SPI implementation record", "revision": "3e6124ab68d1bcea7df628c520741add93658350", "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-spi-implementation-round-1.md", "sha256": "5590414dee3de853d441f3413bcbc23ce33da4e7b05b923a945a6d0d2f2e58b7"},
+    {"category": "review", "provenance": "SPI verification pass", "revision": "db825eff3ab4ca0e30f5ed0197dcad6bc93cda88", "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-spi-verification-round-1.md", "sha256": "c0a6284e7212e02ba3f478835c4b41fe26d3b5108812ee68a3067aa5a836cd0d"},
+    {"category": "review", "provenance": "I2C implementation record", "revision": "844d69d22d2f82ae78f423762861abf3b18def66", "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-i2c-implementation-round-1.md", "sha256": "1cf39a040e6c9a0a85f9406cc3088031729d36c272ef22903879012f03688f41"},
+    {"category": "review", "provenance": "I2C verification pass", "revision": "30b020a3f8cc14ce65b42c8764dcaff9900dcd45", "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-i2c-verification-round-1.md", "sha256": "92e6d324111c033166fa8d9509ad9ef28de74b37d68d058bf3ed67a87eb2c8d2"},
+    {"category": "review", "provenance": "cross-source implementation record", "revision": "970f9a79169733d20bc06db60e2c736a8234b7eb", "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-cross-source-implementation-round-1.md", "sha256": "f2c89da83d745d0269b0a7a9c077f2b759a89f64587a851051620762d0052358"},
+    {"category": "review", "provenance": "cross-source verification pass", "revision": "0e1f619c8c744c16a96119c0834ed2f7d2518d0e", "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-cross-source-verification-round-1.md", "sha256": "a69262dfe5c5658c81a6d806e94c177451ce18985e2dc63adb758467de53ad37"},
+    {"category": "review", "provenance": "combined accumulated validation pass", "revision": "6eeb43d660eeb9d7e9b55b320921aa108becf068", "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-accumulated-validation-round-1.md", "sha256": "5c48ceb6fc1346991903285fbfb6c4497e469aef7a1d07378420f21563edc16e", "counts": [{"name": "passed", "value": 1359}, {"name": "skipped", "value": 4}, {"name": "deselected", "value": 1}]},
+    {"category": "review", "provenance": "independent B3 acceptance pass", "revision": "52dfa4ab3cac45839c20d63722b0a389651f965f", "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-acceptance-round-1.md", "sha256": "bcfde3597a1203a69493ed1169401111526cfd40181bba90c2ac3e7293e794f3"}
+  ],
+  "requirements": [
+    {"id": "R13", "status": "pass", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-uart-verification-round-1.md", "sha256": "045f8fac0da2eb6f2737158e50d4b1f12b2dbfee0499d3efa570eec87f0e9f8f"}]},
+    {"id": "R14", "status": "pass", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-spi-verification-round-1.md", "sha256": "c0a6284e7212e02ba3f478835c4b41fe26d3b5108812ee68a3067aa5a836cd0d"}]},
+    {"id": "R15", "status": "pass", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-i2c-verification-round-1.md", "sha256": "92e6d324111c033166fa8d9509ad9ef28de74b37d68d058bf3ed67a87eb2c8d2"}]},
+    {"id": "R16", "status": "pass", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-cross-source-verification-round-1.md", "sha256": "a69262dfe5c5658c81a6d806e94c177451ce18985e2dc63adb758467de53ad37"}]},
+    {"id": "R21", "status": "pass", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-accumulated-validation-round-1.md", "sha256": "5c48ceb6fc1346991903285fbfb6c4497e469aef7a1d07378420f21563edc16e"}]},
+    {"id": "R23", "status": "pass", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-accumulated-validation-round-1.md", "sha256": "5c48ceb6fc1346991903285fbfb6c4497e469aef7a1d07378420f21563edc16e"}]},
+    {"id": "R24", "status": "pass", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-acceptance-round-1.md", "sha256": "bcfde3597a1203a69493ed1169401111526cfd40181bba90c2ac3e7293e794f3"}]},
+    {"id": "R25", "status": "pass", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-acceptance-round-1.md", "sha256": "bcfde3597a1203a69493ed1169401111526cfd40181bba90c2ac3e7293e794f3"}]}
+  ],
+  "stopping_conditions": [
+    {"id": 9, "status": "pass", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-acceptance-round-1.md", "sha256": "bcfde3597a1203a69493ed1169401111526cfd40181bba90c2ac3e7293e794f3"}]},
+    {"id": 10, "status": "pass", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-cross-source-verification-round-1.md", "sha256": "a69262dfe5c5658c81a6d806e94c177451ce18985e2dc63adb758467de53ad37"}]},
+    {"id": 13, "status": "pass", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-accumulated-validation-round-1.md", "sha256": "5c48ceb6fc1346991903285fbfb6c4497e469aef7a1d07378420f21563edc16e"}]},
+    {"id": 14, "status": "pass", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-accumulated-validation-round-1.md", "sha256": "5c48ceb6fc1346991903285fbfb6c4497e469aef7a1d07378420f21563edc16e"}]},
+    {"id": 16, "status": "pass", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-acceptance-round-1.md", "sha256": "bcfde3597a1203a69493ed1169401111526cfd40181bba90c2ac3e7293e794f3"}]},
+    {"id": 17, "status": "pass", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-acceptance-round-1.md", "sha256": "bcfde3597a1203a69493ed1169401111526cfd40181bba90c2ac3e7293e794f3"}]}
+  ],
+  "findings": [],
+  "decisions": [
+    {"authority": "independent B3 acceptance", "decision": "The exact ordered B3 record passes R13 through R16 and continuous R21, R23, R24, and R25; only root may create this post-acceptance manifest, with manifest verification and checkpoint still deferred.", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-acceptance-round-1.md", "sha256": "bcfde3597a1203a69493ed1169401111526cfd40181bba90c2ac3e7293e794f3"}]}
+  ],
+  "limitations": [
+    "Cycle 3 support and B3 conformance evidence remain macOS-only with Python 3.12.",
+    "The R16 source-equivalence matrix covers six channel-requirement classes; the other 57 timelines retain authoritative R13 through R15 conformance ownership.",
+    "Four accumulated-test skips are inherited optional machine-local physical-artifact reruns; no mandatory Cycle 3 test skipped.",
+    "B3 exposes no public decode library or installed decode command."
+  ],
+  "deferred_work": [
+    "Independent verification of this exact post-acceptance manifest and the separate B3 checkpoint remain pending.",
+    "Public typed library and installed decode command remain deferred to C3-B4.",
+    "Final measurements, hosted CI, complete R1 through R26 mapping, and terminal closure remain deferred to C3-B5.",
+    "Browser decoder behavior, hardware, firmware, serial or live capture, dynamic discovery, stacking, .lac support, publication, unsupported platforms, and Cycle 4 remain excluded."
+  ],
+  "audits": [
+    {"category": "prohibited-runtime", "verdict": "pass", "scope": "Active B3 source, test, evidence, dependency, command, import, and process paths contain no prohibited runtime use.", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-accumulated-validation-round-1.md", "sha256": "5c48ceb6fc1346991903285fbfb6c4497e469aef7a1d07378420f21563edc16e"}]},
+    {"category": "dependency", "verdict": "pass", "scope": "Python and web lock identities, installed dependency health, and prohibited dependency absence remain unchanged.", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-accumulated-validation-round-1.md", "sha256": "5c48ceb6fc1346991903285fbfb6c4497e469aef7a1d07378420f21563edc16e"}]},
+    {"category": "process", "verdict": "pass", "scope": "Private-worker cleanup and final bounded process inventory passed with no matching process.", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-acceptance-round-1.md", "sha256": "bcfde3597a1203a69493ed1169401111526cfd40181bba90c2ac3e7293e794f3"}]},
+    {"category": "import", "verdict": "pass", "scope": "Hash-pinned decoder snapshots and closed import roots remained exact across UART, SPI, and I2C evidence.", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-acceptance-round-1.md", "sha256": "bcfde3597a1203a69493ed1169401111526cfd40181bba90c2ac3e7293e794f3"}]},
+    {"category": "scope", "verdict": "pass", "scope": "No public decode API or CLI, browser decoder, hardware, firmware, live capture, publication, unsupported-platform, B4, B5, or Cycle 4 work occurred.", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-acceptance-round-1.md", "sha256": "bcfde3597a1203a69493ed1169401111526cfd40181bba90c2ac3e7293e794f3"}]},
+    {"category": "license", "verdict": "pass", "scope": "Accepted B1 provenance, notice, package-placement, and conditional non-conveyance disposition remain unchanged.", "evidence": [{"path": "Software/LogicAnalyzerPy/testdata/evidence/c3-b1.json", "sha256": "3710e7fde7523096b70607b3a7da217b1e71fdb46492b83b72861e3eaa48cfae"}]},
+    {"category": "rollback", "verdict": "pass", "scope": "Accepted Cycle 1 and Cycle 2 behavior, manifests, replay and CSV behavior, rollback paths, optional-web separation, and macOS claim remain intact.", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-accumulated-validation-round-1.md", "sha256": "5c48ceb6fc1346991903285fbfb6c4497e469aef7a1d07378420f21563edc16e"}]},
+    {"category": "repository", "verdict": "pass", "scope": "Exact candidate and tree, complete correction history, clean pre-manifest worktree, and ordered post-acceptance manifest creation are auditable.", "evidence": [{"path": "Software/LogicAnalyzerPy/docs/reviews/c3-b3-acceptance-round-1.md", "sha256": "bcfde3597a1203a69493ed1169401111526cfd40181bba90c2ac3e7293e794f3"}]}
+  ]
+}

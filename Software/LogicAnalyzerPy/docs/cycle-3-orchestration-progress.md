@@ -4339,7 +4339,7 @@ unchanged.
 
 ## C3-B4: public library and installed CLI
 
-- State: Ready.
+- State: In progress.
 - Objective: expose the accepted B2 private host and B3 decoder behavior through
   the single synchronous typed `pico_logic_analyzer.decode.decode_capture(...)`
   API and the exact offline installed `pico-la decode` grammar, without adding a
@@ -4356,8 +4356,10 @@ unchanged.
 - Starting commit/tree:
   `233b3b0667add740cee96ce3c9ee266c8a639067` /
   `0d3709a861bf79f002246836a582b87677e29b15`.
-- Implementation agent: planned fresh identity
-  `c3-b4-public-implementor-1`; not launched or assigned.
+- Implementation agent: fresh identity `c3-b4-public-implementor-1`, launched
+  from clean orchestration HEAD
+  `89edbbd937a823b71e176209d291ffcb3bf63d53` on 2026-09-01 with the bounded
+  R17-R20 implementation assignment recorded here.
 - Verification agent: planned fresh identity
   `c3-b4-public-verifier-1`; not launched or assigned.
 - Acceptance agent: planned fresh identity

@@ -10,7 +10,7 @@ import sys
 import tempfile
 from collections.abc import Callable, Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal, cast
 
 import numpy as np
 from numpy.typing import NDArray
@@ -135,9 +135,9 @@ def _parser() -> argparse.ArgumentParser:
     decode_input.add_argument("--replay", metavar="PATH")
     decode_input.add_argument("--csv", metavar="PATH")
     decode.add_argument("--channels", metavar="D0,D1,...")
-    decode.add_argument("--sample-rate", type=int, metavar="HZ")
-    decode.add_argument("--trigger-channel", type=int, metavar="PHYSICAL_CHANNEL")
-    decode.add_argument("--edge", choices=("rising", "falling"))
+    decode.add_argument("--sample-rate", metavar="HZ")
+    decode.add_argument("--trigger-channel", metavar="PHYSICAL_CHANNEL")
+    decode.add_argument("--edge", metavar="{rising,falling}")
     decode.add_argument("--decoder", required=True, choices=("uart", "spi", "i2c"))
     decode.add_argument(
         "--channel", required=True, action="append", metavar="DECODER_CHANNEL=PHYSICAL_CHANNEL"
@@ -529,11 +529,46 @@ def _decode_csv_channels(value: str) -> tuple[int, ...]:
     return channel_ids
 
 
+def _validate_replay_decode_metadata(arguments: argparse.Namespace) -> None:
+    for name in ("sample_rate", "trigger_channel"):
+        value = getattr(arguments, name)
+        if value is not None:
+            try:
+                int(value)
+            except ValueError as exc:
+                raise ValueError("invalid replay metadata option") from exc
+    if arguments.edge is not None and arguments.edge not in {"rising", "falling"}:
+        raise ValueError("invalid replay metadata option")
+
+
+def _decode_csv_integer(value: str | None, name: str) -> int | None:
+    if value is None:
+        return None
+    try:
+        return int(value)
+    except ValueError as exc:
+        raise ProtocolError(f"invalid CSV {name}") from exc
+
+
+def _required_decode_csv_integer(value: str | None, name: str) -> int:
+    result = _decode_csv_integer(value, name)
+    if result is None:
+        raise ProtocolError(f"CSV requires --{name.replace(' ', '-')}")
+    return result
+
+
+def _decode_csv_edge(value: str | None) -> Literal["rising", "falling"]:
+    if value not in {"rising", "falling"}:
+        raise ProtocolError("invalid CSV trigger edge")
+    return cast(Literal["rising", "falling"], value)
+
+
 def _decode(arguments: argparse.Namespace) -> int:
     from pico_logic_analyzer.decode import canonical_json, decode_capture
     from pico_logic_analyzer.formats.replay import import_replay_bytes
 
     if arguments.replay is not None:
+        _validate_replay_decode_metadata(arguments)
         if any(
             value is not None
             for value in (
@@ -555,16 +590,21 @@ def _decode(arguments: argparse.Namespace) -> int:
                 "CSV requires --channels, --trigger-channel, and --edge"
             )
         channel_ids = _decode_csv_channels(arguments.channels)
-        if arguments.sample_rate is None and channel_ids != tuple(range(8)):
+        sample_rate = _decode_csv_integer(arguments.sample_rate, "sample rate")
+        trigger_channel = _required_decode_csv_integer(
+            arguments.trigger_channel, "trigger channel"
+        )
+        trigger_edge = _decode_csv_edge(arguments.edge)
+        if sample_rate is None and channel_ids != tuple(range(8)):
             raise ProtocolError(
                 "CSV sample-rate omission requires the exact legacy D0-D7 identity"
             )
         capture = import_csv_bytes(
             _read_inert(arguments.csv, "CSV", MAX_CSV_INPUT_BYTES),
             channel_ids=channel_ids,
-            sample_rate_hz=arguments.sample_rate,
-            trigger_channel=arguments.trigger_channel,
-            trigger_edge=arguments.edge,
+            sample_rate_hz=sample_rate,
+            trigger_channel=trigger_channel,
+            trigger_edge=trigger_edge,
         )
     mapping = _decode_channels(arguments.channel)
     options = _decode_options(arguments.decoder, arguments.option)

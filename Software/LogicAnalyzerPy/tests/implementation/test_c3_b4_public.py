@@ -429,6 +429,51 @@ def test_invalid_csv_channel_metadata_is_input_exit_five(
     assert len(run.stderr) <= 8192
 
 
+@pytest.mark.parametrize(
+    ("flag", "value"),
+    (("--sample-rate", "invalid"), ("--trigger-channel", "invalid"), ("--edge", "sideways")),
+)
+def test_parser_invalid_decode_csv_metadata_is_exit_five_but_replay_is_usage(
+    tmp_path: Path, flag: str, value: str
+) -> None:
+    csv_arguments = [
+        "decode",
+        "--csv",
+        str(tmp_path / "inert.csv"),
+        "--channels",
+        "0,1",
+        "--sample-rate",
+        "1000000",
+        "--trigger-channel",
+        "0",
+        "--edge",
+        "rising",
+        "--decoder",
+        "uart",
+        "--channel",
+        "rx=0",
+    ]
+    csv_arguments[csv_arguments.index(flag) + 1] = value
+    csv_run = _run_cli(tmp_path, *csv_arguments)
+    assert csv_run.returncode == 5
+    assert csv_run.stdout == b""
+
+    replay_run = _run_cli(
+        tmp_path,
+        "decode",
+        "--replay",
+        "inert.npz",
+        flag,
+        value,
+        "--decoder",
+        "uart",
+        "--channel",
+        "rx=0",
+    )
+    assert replay_run.returncode == 2
+    assert replay_run.stdout == b""
+
+
 def test_all_cli_diagnostics_are_bounded(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:

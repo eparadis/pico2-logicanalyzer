@@ -8,13 +8,14 @@ import math
 import os
 import sys
 import tempfile
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
 from numpy.typing import NDArray
 
-from pico_logic_analyzer.driver import V2DeviceService, list_candidates
+from pico_logic_analyzer.decode import DecodeError
 from pico_logic_analyzer.formats import (
     MAX_CSV_INPUT_BYTES,
     OutputError,
@@ -24,12 +25,35 @@ from pico_logic_analyzer.formats import (
 )
 from pico_logic_analyzer.model import CaptureConfig, ProtocolError
 
+if TYPE_CHECKING:
+    from pico_logic_analyzer.driver import PortCandidate
+    from pico_logic_analyzer.driver import V2DeviceService as DriverService
+
 EXIT_USAGE = 2
 EXIT_CONNECTION = 3
 EXIT_CAPTURE = 4
 EXIT_VALIDATION = 5
 EXIT_OUTPUT = 6
+EXIT_DECODE = 7
 UNCALIBRATED_SOURCE_TOLERANCE_FRACTION = 0.02
+
+
+def _new_device_service() -> DriverService:
+    from pico_logic_analyzer.driver import V2DeviceService as Service
+
+    return Service()
+
+
+def _list_candidates() -> list[PortCandidate]:
+    from pico_logic_analyzer.driver import list_candidates as find
+
+    return find()
+
+
+# Preserve the accepted Cycle 1/2 monkeypatch seams without importing pyserial
+# when the new offline decode command loads this module.
+V2DeviceService: Callable[[], DriverService] = _new_device_service
+list_candidates: Callable[[], list[PortCandidate]] = _list_candidates
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -74,6 +98,20 @@ def _parser() -> argparse.ArgumentParser:
     csv_import.add_argument("--csv", required=True, metavar="PATH")
     csv_import.add_argument("--replay", required=True, metavar="PATH")
     csv_import.add_argument("--force", action="store_true")
+
+    decode = subcommands.add_parser("decode", help="decode an inert replay or CSV capture")
+    decode_input = decode.add_mutually_exclusive_group(required=True)
+    decode_input.add_argument("--replay", metavar="PATH")
+    decode_input.add_argument("--csv", metavar="PATH")
+    decode.add_argument("--channels", metavar="D0,D1,...")
+    decode.add_argument("--sample-rate", type=int, metavar="HZ")
+    decode.add_argument("--trigger-channel", type=int, metavar="PHYSICAL_CHANNEL")
+    decode.add_argument("--edge", choices=("rising", "falling"))
+    decode.add_argument("--decoder", required=True, choices=("uart", "spi", "i2c"))
+    decode.add_argument(
+        "--channel", required=True, action="append", metavar="DECODER_CHANNEL=PHYSICAL_CHANNEL"
+    )
+    decode.add_argument("--option", action="append", default=[], metavar="KEY=VALUE")
 
     smoke = subcommands.add_parser(
         "hardware-smoke", help="run the opt-in capture hardware procedure"
@@ -384,6 +422,112 @@ def _replay_validate(arguments: argparse.Namespace) -> int:
     return 0
 
 
+def _read_inert(path: str, kind: str, maximum: int) -> bytes:
+    source = Path(path)
+    try:
+        if source.stat().st_size > maximum:
+            raise ProtocolError(f"{kind} input is too large")
+        with source.open("rb") as file:
+            data = file.read(maximum + 1)
+    except OSError as exc:
+        raise ProtocolError(f"cannot read {kind} input") from exc
+    if len(data) > maximum:
+        raise ProtocolError(f"{kind} input is too large")
+    return data
+
+
+def _assignments(values: list[str], name: str) -> dict[str, str]:
+    result: dict[str, str] = {}
+    for assignment in values:
+        key, separator, value = assignment.partition("=")
+        if not separator or not key or not value or key in result:
+            raise ValueError(f"duplicate or invalid {name} assignment")
+        result[key] = value
+    return result
+
+
+def _decode_channels(values: list[str]) -> dict[str, int]:
+    assignments = _assignments(values, "channel")
+    try:
+        return {key: int(value) for key, value in assignments.items()}
+    except ValueError as exc:
+        raise ValueError("channel values must be integer physical IDs") from exc
+
+
+def _decode_options(decoder: str, values: list[str]) -> dict[str, object]:
+    assignments = _assignments(values, "option")
+    integer_keys = {
+        "uart": {
+            "baudrate",
+            "data_bits",
+            "sample_point",
+            "rx_packet_delim",
+            "tx_packet_delim",
+            "rx_packet_len",
+            "tx_packet_len",
+        },
+        "spi": {"cpol", "cpha", "wordsize"},
+        "i2c": set(),
+    }[decoder]
+    float_keys = {"stop_bits"} if decoder == "uart" else set()
+    result: dict[str, object] = {}
+    for key, value in assignments.items():
+        try:
+            if key in integer_keys:
+                result[key] = int(value)
+            elif key in float_keys:
+                result[key] = float(value)
+            else:
+                result[key] = value
+        except ValueError as exc:
+            raise ValueError(f"invalid value for option {key}") from exc
+    return result
+
+
+def _decode(arguments: argparse.Namespace) -> int:
+    from pico_logic_analyzer.decode import canonical_json, decode_capture
+    from pico_logic_analyzer.formats.replay import import_replay_bytes
+
+    if arguments.replay is not None:
+        if any(
+            value is not None
+            for value in (
+                arguments.channels,
+                arguments.sample_rate,
+                arguments.trigger_channel,
+                arguments.edge,
+            )
+        ):
+            raise ProtocolError("CSV metadata options are forbidden with replay")
+        capture = import_replay_bytes(_read_inert(arguments.replay, "replay", 32 * 1024 * 1024))
+    else:
+        if (
+            arguments.channels is None
+            or arguments.trigger_channel is None
+            or arguments.edge is None
+        ):
+            raise ProtocolError(
+                "CSV requires --channels, --trigger-channel, and --edge"
+            )
+        channel_ids = _channel_ids(arguments.channels)
+        if arguments.sample_rate is None and channel_ids != tuple(range(8)):
+            raise ProtocolError(
+                "CSV sample-rate omission requires the exact legacy D0-D7 identity"
+            )
+        capture = import_csv_bytes(
+            _read_inert(arguments.csv, "CSV", MAX_CSV_INPUT_BYTES),
+            channel_ids=channel_ids,
+            sample_rate_hz=arguments.sample_rate,
+            trigger_channel=arguments.trigger_channel,
+            trigger_edge=arguments.edge,
+        )
+    mapping = _decode_channels(arguments.channel)
+    options = _decode_options(arguments.decoder, arguments.option)
+    result = decode_capture(capture, arguments.decoder, mapping, options)
+    sys.stdout.buffer.write(canonical_json(result))
+    return 0
+
+
 def _web(arguments: argparse.Namespace) -> int:
     try:
         from pico_logic_analyzer.web.server import run
@@ -421,6 +565,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             return _csv_import(arguments)
         if arguments.command == "replay-validate":
             return _replay_validate(arguments)
+        if arguments.command == "decode":
+            return _decode(arguments)
         if arguments.command == "web":
             return _web(arguments)
         if arguments.command == "hardware-smoke":
@@ -444,9 +590,18 @@ def main(argv: Sequence[str] | None = None) -> int:
         return (
             EXIT_VALIDATION
             if arguments.command
-            in {"csv-import", "replay-validate", "hardware-smoke", "hardware-recovery-smoke"}
+            in {
+                "csv-import",
+                "replay-validate",
+                "hardware-smoke",
+                "hardware-recovery-smoke",
+                "decode",
+            }
             else EXIT_CONNECTION
         )
+    except DecodeError as exc:
+        print(f"pico-la: {exc.message}", file=sys.stderr)
+        return EXIT_DECODE
     except ConnectionError as exc:
         print(f"pico-la: {exc}", file=sys.stderr)
         return EXIT_CONNECTION
@@ -457,5 +612,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"pico-la: {exc}", file=sys.stderr)
         return EXIT_OUTPUT
     except KeyboardInterrupt:
+        if arguments.command == "decode":
+            print("pico-la: decoder failed: cancelled", file=sys.stderr)
+            return EXIT_DECODE
         print("pico-la: capture cancelled", file=sys.stderr)
         return EXIT_CAPTURE

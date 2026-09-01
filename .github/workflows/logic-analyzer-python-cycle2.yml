@@ -37,6 +37,9 @@ jobs:
       - name: Run mypy
         working-directory: Software/LogicAnalyzerPy
         run: .venv/bin/python -m mypy src
+      - name: Type-check the installed public decode consumer
+        working-directory: Software/LogicAnalyzerPy
+        run: .venv/bin/python -m mypy --strict tests/implementation/c3_b4_consumer.py
       - name: Run non-hardware Python tests
         working-directory: Software/LogicAnalyzerPy
         run: |
@@ -78,12 +81,14 @@ jobs:
             annotation=${report//%/%25}
             annotation=${annotation//$'\r'/%0D}
             annotation=${annotation//$'\n'/%0A}
-            printf '::error title=Cycle 2 non-hardware pytest failure::%s\n' "$annotation"
+            printf '::error title=Cycle 3 non-hardware pytest failure::%s\n' "$annotation"
           fi
           exit "$status"
       - name: Check CLI help
         working-directory: Software/LogicAnalyzerPy
-        run: .venv/bin/python -m pico_logic_analyzer --help
+        run: |
+          .venv/bin/python -m pico_logic_analyzer --help
+          .venv/bin/python -m pico_logic_analyzer decode --help
       - name: Create clean web-runtime Python 3.12 environment
         working-directory: Software/LogicAnalyzerPy
         run: python -m venv .venv-web

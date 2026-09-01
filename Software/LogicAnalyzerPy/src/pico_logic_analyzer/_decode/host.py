@@ -28,6 +28,7 @@ from .model import (
     HostFailure,
     MetadataDeclaration,
     MetadataValue,
+    RequestFailure,
     WorkerFailure,
     decode_result_from_dict,
 )
@@ -79,10 +80,13 @@ class _RegressionObservation:
 
 
 def decode_private(
-    request: DecodeRequest, cancellation: CancellationToken | None = None
+    request: DecodeRequest,
+    cancellation: CancellationToken | None = None,
+    *,
+    limits: Mapping[str, int] | None = None,
 ) -> DecodeResult:
     """Run one fresh fixed worker only after identity and request preflight succeed."""
-    return _decode_with_factory(request, subprocess.Popen, cancellation)
+    return _decode_with_factory(request, subprocess.Popen, cancellation, limits=limits)
 
 
 def _decode_with_factory(
@@ -94,8 +98,10 @@ def _decode_with_factory(
     measure_decoded: Callable[[object], int] | None = None,
     measure_retained: Callable[[object], int] | None = None,
     regression_observer: Callable[[_RegressionObservation], None] | None = None,
+    limits: Mapping[str, int] | None = None,
 ) -> DecodeResult:
     """Injection seam for inert preflight-order tests; never exposed by the package."""
+    effective_limits = _effective_limits(limits)
     run_started = monotonic_ns()
     rss = measure_rss or _parent_rss
     parent_before = rss()
@@ -115,10 +121,10 @@ def _decode_with_factory(
             "trigger_index": request.trigger_index,
             "options": dict(request.options),
         },
-        HARD_LIMITS["request_bytes"],
+        effective_limits["request_bytes"],
     )
     launch_started = monotonic_ns()
-    process, request_fd, response_fd = _spawn_fixed_worker(process_factory)
+    process, request_fd, response_fd = _spawn_fixed_worker(process_factory, effective_limits)
     response: Mapping[str, object] | None = None
     stdout = b""
     stderr = b""
@@ -144,27 +150,60 @@ def _decode_with_factory(
     try:
         launch_ns = monotonic_ns() - launch_started
         response, stdout, stderr = _collect_response(
-            process, request_fd, payload, response_fd, cancellation
+            process, request_fd, payload, response_fd, cancellation, effective_limits
         )
         try:
             reap_started = monotonic_ns()
-            process.wait(timeout=HARD_LIMITS["terminate_grace_ms"] / 1000)
+            process.wait(timeout=effective_limits["terminate_grace_ms"] / 1000)
             reap_ns = monotonic_ns() - reap_started
         except subprocess.TimeoutExpired:
             raise HostFailure("process-exit") from None
     except TimeoutError:
         observe_cleanup(
-            _terminate_reap(process, request_fd, response_fd, monotonic_ns=monotonic_ns), True
+            _terminate_reap(
+                process,
+                request_fd,
+                response_fd,
+                monotonic_ns=monotonic_ns,
+                limits=effective_limits,
+            ),
+            True,
         )
         raise HostFailure("timeout") from None
     except InterruptedError:
         observe_cleanup(
-            _terminate_reap(process, request_fd, response_fd, monotonic_ns=monotonic_ns), False
+            _terminate_reap(
+                process,
+                request_fd,
+                response_fd,
+                monotonic_ns=monotonic_ns,
+                limits=effective_limits,
+            ),
+            False,
+        )
+        raise HostFailure("cancelled") from None
+    except KeyboardInterrupt:
+        observe_cleanup(
+            _terminate_reap(
+                process,
+                request_fd,
+                response_fd,
+                monotonic_ns=monotonic_ns,
+                limits=effective_limits,
+            ),
+            False,
         )
         raise HostFailure("cancelled") from None
     except WorkerFailure as error:
         observe_cleanup(
-            _terminate_reap(process, request_fd, response_fd, monotonic_ns=monotonic_ns), False
+            _terminate_reap(
+                process,
+                request_fd,
+                response_fd,
+                monotonic_ns=monotonic_ns,
+                limits=effective_limits,
+            ),
+            False,
         )
         # A child that exits unsuccessfully before completing its frame is a
         # process failure, not an IPC claim from its untrusted byte stream.
@@ -177,12 +216,26 @@ def _decode_with_factory(
         raise HostFailure("ipc") from None
     except (OSError, ValueError):
         observe_cleanup(
-            _terminate_reap(process, request_fd, response_fd, monotonic_ns=monotonic_ns), False
+            _terminate_reap(
+                process,
+                request_fd,
+                response_fd,
+                monotonic_ns=monotonic_ns,
+                limits=effective_limits,
+            ),
+            False,
         )
         raise HostFailure("ipc") from None
     except HostFailure:
         observe_cleanup(
-            _terminate_reap(process, request_fd, response_fd, monotonic_ns=monotonic_ns), False
+            _terminate_reap(
+                process,
+                request_fd,
+                response_fd,
+                monotonic_ns=monotonic_ns,
+                limits=effective_limits,
+            ),
+            False,
         )
         raise
     finally:
@@ -199,8 +252,8 @@ def _decode_with_factory(
         process.returncode != 0
         or (response is not None and response.get("type") == RESULT and bool(stdout))
         or (response is not None and response.get("type") == RESULT and bool(stderr))
-        or len(stdout) > HARD_LIMITS["stdout_bytes"]
-        or len(stderr) > HARD_LIMITS["stderr_bytes"]
+        or len(stdout) > effective_limits["stdout_bytes"]
+        or len(stderr) > effective_limits["stderr_bytes"]
     ):
         raise HostFailure("process-exit")
     if response is None:
@@ -214,13 +267,14 @@ def _decode_with_factory(
     if response.get("type") != RESULT or not isinstance(result, Mapping):
         raise HostFailure("decode protocol rejected")
     metrics = _worker_metrics(response.get("metrics"))
-    _enforce_result_limits(result, measure_decoded, measure_retained)
+    _enforce_result_limits(result, measure_decoded, measure_retained, effective_limits)
     try:
         materialized = decode_result_from_dict(result)
     except HostFailure:
         raise HostFailure("ipc") from None
     _validate_result_projection(materialized, expected)
     _validate_result_graph(materialized)
+    _enforce_typed_result_limits(materialized, effective_limits)
     parent_after = rss()
     observation = _RegressionObservation(
         **metrics,
@@ -441,6 +495,7 @@ def _collect_response(
     payload: bytes,
     response_fd: int,
     cancellation: CancellationToken | None,
+    limits: Mapping[str, int] = HARD_LIMITS,
 ) -> tuple[Mapping[str, object], bytes, bytes]:
     """Stream request and drain every child pipe under one parent deadline."""
     buffers = {"response": bytearray(), "stdout": bytearray(), "stderr": bytearray()}
@@ -457,7 +512,7 @@ def _collect_response(
     selector.register(request_fd, selectors.EVENT_WRITE, "request")
     for name, fd in sources:
         selector.register(fd, selectors.EVENT_READ, name)
-    deadline = time.monotonic() + HARD_LIMITS["wall_deadline_ms"] / 1000
+    deadline = time.monotonic() + limits["wall_deadline_ms"] / 1000
     try:
         while selector.get_map():
             if cancellation is not None and cancellation.cancelled:
@@ -489,19 +544,19 @@ def _collect_response(
                     continue
                 name = key.data
                 buffers[name].extend(data)
-                if len(buffers[name]) > _pipe_limit(name):
+                if len(buffers[name]) > _pipe_limit(name, limits):
                     raise WorkerFailure("output limit")
     finally:
         selector.close()
     return (
-        read_frame(_reader(bytes(buffers["response"])), HARD_LIMITS["encoded_bytes"]),
+        read_frame(_reader(bytes(buffers["response"])), limits["encoded_bytes"]),
         bytes(buffers["stdout"]),
         bytes(buffers["stderr"]),
     )
 
 
-def _pipe_limit(name: str) -> int:
-    return HARD_LIMITS["encoded_bytes"] + 4 if name == "response" else HARD_LIMITS[f"{name}_bytes"]
+def _pipe_limit(name: str, limits: Mapping[str, int] = HARD_LIMITS) -> int:
+    return limits["encoded_bytes"] + 4 if name == "response" else limits[f"{name}_bytes"]
 
 
 def _drain_pipes(process: subprocess.Popen[bytes]) -> tuple[bytes, bytes]:
@@ -523,6 +578,7 @@ def _enforce_result_limits(
     raw_result: object,
     measure_decoded: Callable[[object], int] | None = None,
     measure_retained: Callable[[object], int] | None = None,
+    limits: Mapping[str, int] = HARD_LIMITS,
 ) -> None:
     """Apply B1's raw settled-result accounting before typed materialization."""
     decoded = (measure_decoded or _decoded_bytes)(raw_result)
@@ -534,8 +590,52 @@ def _enforce_result_limits(
         or retained < 0
     ):
         raise HostFailure("ipc")
-    if decoded > HARD_LIMITS["decoded_bytes"] or retained > HARD_LIMITS["retained_result_bytes"]:
+    if decoded > limits["decoded_bytes"] or retained > limits["retained_result_bytes"]:
         raise HostFailure("output-limit")
+
+
+def _enforce_typed_result_limits(
+    result: DecodeResult, limits: Mapping[str, int]
+) -> None:
+    text_bytes = sum(len(str(item.to_dict()).encode()) for item in result.declarations)
+    binary_bytes = 0
+    nested_items = 0
+    nested_depth = 0
+    for record in result.records:
+        if record.kind == "annotation" and isinstance(record.value, AnnotationValue):
+            text_bytes += sum(len(text.encode()) for text in record.value.texts)
+        elif record.kind == "binary" and isinstance(record.value, BinaryValue):
+            binary_bytes += len(record.value.data)
+        elif record.kind == "python":
+            text, binary, items, depth = _measure_typed_value(record.value)
+            text_bytes += text
+            binary_bytes += binary
+            nested_items += items
+            nested_depth = max(nested_depth, depth)
+    if (
+        len(result.records) > limits["output_records"]
+        or text_bytes > limits["text_bytes"]
+        or binary_bytes > limits["binary_bytes"]
+        or nested_items > limits["nested_items"]
+        or nested_depth > limits["nested_depth"]
+    ):
+        raise HostFailure("output-limit")
+
+
+def _measure_typed_value(value: object, depth: int = 1) -> tuple[int, int, int, int]:
+    if isinstance(value, str):
+        return len(value.encode()), 0, 1, depth
+    if type(value) is bytes:
+        return 0, len(value), 1, depth
+    if isinstance(value, tuple | list):
+        children = [_measure_typed_value(item, depth + 1) for item in value]
+        return (
+            sum(item[0] for item in children),
+            sum(item[1] for item in children),
+            1 + sum(item[2] for item in children),
+            max((depth, *(item[3] for item in children))),
+        )
+    return 0, 0, 1, depth
 
 
 def _deep_size(value: object, seen: set[int] | None = None) -> int:
@@ -571,7 +671,10 @@ class _CleanupObservation:
 
 
 def _terminate_reap(
-    process: subprocess.Popen[bytes], *fds: int, monotonic_ns: Callable[[], int] = time.monotonic_ns
+    process: subprocess.Popen[bytes],
+    *fds: int,
+    monotonic_ns: Callable[[], int] = time.monotonic_ns,
+    limits: Mapping[str, int] = HARD_LIMITS,
 ) -> _CleanupObservation:
     terminate_started: int | None = None
     kill_started: int | None = None
@@ -581,7 +684,7 @@ def _terminate_reap(
             terminate_started = monotonic_ns()
             process.terminate()
             try:
-                process.wait(HARD_LIMITS["terminate_grace_ms"] / 1000)
+                process.wait(limits["terminate_grace_ms"] / 1000)
                 reaped_at = monotonic_ns()
             except subprocess.TimeoutExpired:
                 kill_started = monotonic_ns()
@@ -600,6 +703,20 @@ def _terminate_reap(
         0 if terminate_started is None else finished - terminate_started,
         0 if kill_started is None else finished - kill_started,
     )
+
+
+def _effective_limits(limits: Mapping[str, int] | None) -> dict[str, int]:
+    if limits is None:
+        return dict(HARD_LIMITS)
+    if set(limits) != set(HARD_LIMITS):
+        raise RequestFailure("limits rejected")
+    effective: dict[str, int] = {}
+    for key, ceiling in HARD_LIMITS.items():
+        value = limits.get(key)
+        if type(value) is not int or value <= 0 or value > ceiling:
+            raise RequestFailure("limits rejected")
+        effective[key] = value
+    return effective
 
 
 def _validate_cleanup_times(
@@ -636,6 +753,7 @@ def _close_standard_pipes(process: subprocess.Popen[bytes]) -> None:
 
 def _spawn_fixed_worker(
     process_factory: Callable[..., subprocess.Popen[bytes]],
+    limits: Mapping[str, int] = HARD_LIMITS,
 ) -> tuple[subprocess.Popen[bytes], int, int]:
     request_read, request_write = os.pipe()
     response_read, response_write = os.pipe()
@@ -643,8 +761,26 @@ def _spawn_fixed_worker(
     os.set_inheritable(response_write, True)
     try:
         worker = Path(__file__).with_name("worker.py")
+        arguments = [
+            sys.executable,
+            "-I",
+            "-B",
+            str(worker),
+            str(request_read),
+            str(response_write),
+        ]
+        if (
+            limits["worker_address_space_bytes"] != HARD_LIMITS["worker_address_space_bytes"]
+            or limits["recursion_limit"] != HARD_LIMITS["recursion_limit"]
+        ):
+            arguments.extend(
+                (
+                    str(limits["worker_address_space_bytes"]),
+                    str(limits["recursion_limit"]),
+                )
+            )
         process = process_factory(
-            [sys.executable, "-I", "-B", str(worker), str(request_read), str(response_write)],
+            arguments,
             stdin=subprocess.DEVNULL,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,

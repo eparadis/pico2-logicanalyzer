@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools==75.8.0", "wheel==0.45.1"]
+requires = ["setuptools==77.0.3", "wheel==0.45.1"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,7 +8,8 @@ version = "0.1.0"
 description = "Python client and local browser shell for the Pico logic analyzer"
 readme = "README.md"
 requires-python = ">=3.12"
-license = {text = "MIT"}
+license = "GPL-3.0-only"
+license-files = ["LICENSE", "LICENSES/GPL-2.0-or-later.txt", "LICENSES/MIT.txt", "ATTRIBUTION.md"]
 authors = [{name = "Pico logic analyzer contributors"}]
 dependencies = ["numpy==2.2.2", "pyserial==3.5"]
 
@@ -23,9 +24,19 @@ package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
+exclude = ["pico_logic_analyzer._decoder_snapshots*"]
 
 [tool.setuptools.package-data]
-pico_logic_analyzer = ["web/assets/*", "web/assets/assets/*"]
+pico_logic_analyzer = [
+    "py.typed",
+    "web/assets/*",
+    "web/assets/assets/*",
+    "_decoder_snapshots/407b5ef039aa0474c400c0721749baa126e53270/sigrokdecode.py",
+    "_decoder_snapshots/407b5ef039aa0474c400c0721749baa126e53270/uart/*.py",
+    "_decoder_snapshots/407b5ef039aa0474c400c0721749baa126e53270/spi/*.py",
+    "_decoder_snapshots/407b5ef039aa0474c400c0721749baa126e53270/i2c/*.py",
+    "_decoder_snapshots/407b5ef039aa0474c400c0721749baa126e53270/common/srdhelper/*.py",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -35,6 +46,7 @@ markers = ["hardware: requires an explicitly supplied physical analyzer"]
 [tool.ruff]
 target-version = "py312"
 line-length = 100
+exclude = ["src/pico_logic_analyzer/_decoder_snapshots/"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP"]
@@ -43,3 +55,4 @@ select = ["E", "F", "I", "UP"]
 python_version = "3.12"
 strict = true
 files = ["src"]
+exclude = ["src/pico_logic_analyzer/_decoder_snapshots/"]

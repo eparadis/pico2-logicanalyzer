@@ -14,6 +14,8 @@ The application can:
   24-channel modes with a rising or falling edge trigger;
 - display captures and imported replay/CSV data in the local web frontend;
 - analyze transition and strobe-sampled parallel buses;
+- decode inert replay or explicit-metadata CSV captures with the hash-pinned
+  UART, SPI, and I2C snapshots;
 - export deterministic, trigger-relative CSV and secure replay data; and
 - recover a timed-out or interrupted capture through the bounded V2
   cancellation, close/reopen, and re-identification sequence.
@@ -174,6 +176,50 @@ pico-la replay-validate capture.npz --json
 The replay schema is provisional. Loading is bounded, rejects unexpected or
 unsafe archive members and dtypes, and disables object pickling.
 
+## Offline protocol decoding
+
+The public synchronous library entry point is
+`pico_logic_analyzer.decode.decode_capture`. It accepts a validated
+`CaptureResult`, one of `uart`, `spi`, or `i2c`, an explicit decoder-channel to
+physical-channel mapping, and closed typed options. It always delegates to one
+fresh hash-checked worker process. Optional caller limits can tighten, but never
+weaken, the installed ceilings.
+
+Decode an inert replay without opening a serial device:
+
+```bash
+pico-la decode --replay capture.npz --decoder uart --channel rx=0
+```
+
+For CSV, ordered physical channel IDs and capture metadata are explicit. The
+sample rate may be omitted only for the exact legacy D0-D7 header:
+
+```bash
+pico-la decode --csv capture.csv --channels 0,1,2,3,4,5,6,7 \
+  --sample-rate 100000 --trigger-channel 0 --edge rising \
+  --decoder spi --channel clk=0 --channel mosi=1 --option cpol=0
+```
+
+Success is exactly one compact, sorted-key
+`pico-logic-analyzer.decode-result/v1` JSON value plus LF on stdout. Usage and
+mapping failures exit 2, replay/CSV failures exit 5, and bounded decoder-host
+failures exit 7; failures write diagnostics only to stderr. Decode adds no live
+capture, serial, stdin, export, plugin, decoder-path, browser, or web route.
+
+## Licensing and decoder provenance
+
+The installed distribution declares `GPL-3.0-only`. The exact private UART,
+SPI, I2C, compatibility-shim, and helper snapshot beneath
+`pico_logic_analyzer/_decoder_snapshots/407b5ef039aa0474c400c0721749baa126e53270/`
+retains its component notices, including the eight GPL-2.0-or-later headers.
+See [ATTRIBUTION.md](ATTRIBUTION.md) and the included license texts. This is an
+engineering provenance statement, not legal advice, a warranty, or a
+certification of rights. Building or publishing a distribution remains outside
+Cycle 3.
+
+The complete typed-model, containment, CLI-metadata, and failure contract is in
+[`docs/cycle-3-decoding.md`](docs/cycle-3-decoding.md).
+
 ## Hardware safety and smoke tests
 
 Do not connect a signal until the analyzer/front-end revision, target voltage,
@@ -202,8 +248,8 @@ See:
 
 The CLI exit codes are `0` success, `2` usage/configuration, `3`
 connection/protocol, `4` capture timeout/cancellation, `5` validation/replay,
-and `6` output I/O. Machine-readable output goes to stdout; diagnostics go to
-stderr.
+`6` output I/O, and `7` decoder-host failure. Machine-readable output goes to
+stdout; diagnostics go to stderr.
 
 ## Development validation
 

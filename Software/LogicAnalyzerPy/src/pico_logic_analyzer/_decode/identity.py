@@ -9,7 +9,11 @@ from types import MappingProxyType
 
 from .model import HostFailure
 
+# ``ROOT`` remains the read-only repository identity used by the accepted B2/B3
+# evidence.  Product execution uses only the exact package-owned snapshot root.
 ROOT = Path(__file__).resolve().parents[5]
+SNAPSHOT_COMMIT = "407b5ef039aa0474c400c0721749baa126e53270"
+SNAPSHOT_ROOT = Path(__file__).resolve().parents[1] / "_decoder_snapshots" / SNAPSHOT_COMMIT
 SOURCE_SHA256 = {
     "Software/decoders/sigrokdecode.py": (
         "385124002ec16379a2542f2905c5ce41f3402032458d89f49617623ab7aaf01a"
@@ -79,19 +83,38 @@ class DecoderIdentity:
 
 
 def verify_decoder(request_decoder: str) -> DecoderIdentity:
-    if type(request_decoder) is not str or ROOT != ROOT.resolve() or ROOT.is_symlink():
+    if (
+        type(request_decoder) is not str
+        or SNAPSHOT_ROOT != SNAPSHOT_ROOT.resolve()
+        or SNAPSHOT_ROOT.is_symlink()
+    ):
         raise HostFailure("decode identity rejected")
     paths = PATHS.get(request_decoder)
     if paths is None:
         raise HostFailure("decode identity rejected")
+    expected_resources = {
+        relative.removeprefix("Software/decoders/") for relative in SOURCE_SHA256
+    }
+    try:
+        actual_resources = {
+            str(path.relative_to(SNAPSHOT_ROOT))
+            for path in SNAPSHOT_ROOT.rglob("*")
+            if path.is_file()
+        }
+    except OSError:
+        raise HostFailure("decode identity rejected") from None
+    if actual_resources != expected_resources:
+        raise HostFailure("decode identity rejected")
     digest_input = bytearray()
     for relative in paths:
-        path = ROOT / relative
+        path = SNAPSHOT_ROOT / relative.removeprefix("Software/decoders/")
         try:
             invalid = (
                 path != path.resolve()
                 or any(
-                    component.is_symlink() for component in path.parents if component != ROOT.parent
+                    component.is_symlink()
+                    for component in path.parents
+                    if component != SNAPSHOT_ROOT.parent
                 )
                 or path.is_symlink()
                 or not path.is_file()

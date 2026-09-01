@@ -6,9 +6,10 @@ import builtins
 import sys
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from pathlib import Path
 from types import ModuleType
 
-from .identity import ROOT, DecoderIdentity, verify_decoder
+from .identity import SNAPSHOT_ROOT, DecoderIdentity, verify_decoder
 from .model import WorkerFailure
 
 _MODULES = (
@@ -83,7 +84,7 @@ def _package(name: str) -> None:
 
 def _load_module(name: str, relative: str) -> ModuleType:
     module = ModuleType(name)
-    module.__file__ = str(ROOT / relative)
+    module.__file__ = str(_snapshot_path(relative))
     module.__package__ = name.rpartition(".")[0]
     sys.modules[name] = module
     _exec_into(module, relative)
@@ -91,11 +92,15 @@ def _load_module(name: str, relative: str) -> ModuleType:
 
 
 def _exec_into(module: ModuleType, relative: str) -> None:
-    path = ROOT / relative
+    path = _snapshot_path(relative)
     if path != path.resolve() or not path.is_file() or path.suffix != ".py":
         raise WorkerFailure("frozen import rejected")
     code = compile(path.read_bytes(), str(path), "exec", dont_inherit=True)
     exec(code, module.__dict__)
+
+
+def _snapshot_path(relative: str) -> Path:
+    return SNAPSHOT_ROOT / relative.removeprefix("Software/decoders/")
 
 
 def _clear_modules() -> None:

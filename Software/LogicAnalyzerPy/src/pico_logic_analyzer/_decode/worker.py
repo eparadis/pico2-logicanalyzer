@@ -13,9 +13,14 @@ BOOTSTRAP_ADDRESS_SPACE_BYTES = 68_719_476_736
 BOOTSTRAP_RECURSION_LIMIT = 320
 
 
-def main(request_fd: int, response_fd: int) -> int:
+def main(
+    request_fd: int,
+    response_fd: int,
+    address_space_bytes: int = BOOTSTRAP_ADDRESS_SPACE_BYTES,
+    recursion_limit: int = BOOTSTRAP_RECURSION_LIMIT,
+) -> int:
     """Run one fixed FD-only bootstrap and the hash-pinned decoder lifecycle."""
-    _install_limits()
+    _install_limits(address_space_bytes, recursion_limit)
     source_root = Path(__file__).resolve().parents[2]
     if str(source_root) not in sys.path:
         sys.path.insert(0, str(source_root))
@@ -32,7 +37,7 @@ def main(request_fd: int, response_fd: int) -> int:
     ):
         raise RuntimeError("bootstrap limits rejected")
 
-    sys.setrecursionlimit(HARD_LIMITS["recursion_limit"])
+    sys.setrecursionlimit(recursion_limit)
     stage = "request"
     try:
         with os.fdopen(request_fd, "rb", closefd=True) as request_pipe:
@@ -95,20 +100,35 @@ def _failure_code(stage: str, error: BaseException) -> str:
     return "decoder"
 
 
-def _install_limits() -> None:
+def _install_limits(
+    address_space_bytes: int = BOOTSTRAP_ADDRESS_SPACE_BYTES,
+    recursion_limit: int = BOOTSTRAP_RECURSION_LIMIT,
+) -> None:
+    if (
+        type(address_space_bytes) is not int
+        or not 1 <= address_space_bytes <= BOOTSTRAP_ADDRESS_SPACE_BYTES
+        or type(recursion_limit) is not int
+        or not 1 <= recursion_limit <= BOOTSTRAP_RECURSION_LIMIT
+    ):
+        raise RuntimeError("bootstrap limits rejected")
     resource.setrlimit(
-        resource.RLIMIT_AS, (BOOTSTRAP_ADDRESS_SPACE_BYTES, BOOTSTRAP_ADDRESS_SPACE_BYTES)
+        resource.RLIMIT_AS, (address_space_bytes, address_space_bytes)
     )
-    sys.setrecursionlimit(BOOTSTRAP_RECURSION_LIMIT)
+    sys.setrecursionlimit(recursion_limit)
     if resource.getrlimit(resource.RLIMIT_AS) != (
-        BOOTSTRAP_ADDRESS_SPACE_BYTES,
-        BOOTSTRAP_ADDRESS_SPACE_BYTES,
-    ) or sys.getrecursionlimit() != BOOTSTRAP_RECURSION_LIMIT:
+        address_space_bytes,
+        address_space_bytes,
+    ) or sys.getrecursionlimit() != recursion_limit:
         raise RuntimeError("bootstrap limits rejected")
 
 
 if __name__ == "__main__":
     os.environ.clear()
-    if len(sys.argv) != 3 or not all(argument.isdecimal() for argument in sys.argv[1:]):
+    if len(sys.argv) not in {3, 5} or not all(argument.isdecimal() for argument in sys.argv[1:]):
         raise SystemExit(2)
-    raise SystemExit(main(int(sys.argv[1]), int(sys.argv[2])))
+    selected = (
+        (BOOTSTRAP_ADDRESS_SPACE_BYTES, BOOTSTRAP_RECURSION_LIMIT)
+        if len(sys.argv) == 3
+        else (int(sys.argv[3]), int(sys.argv[4]))
+    )
+    raise SystemExit(main(int(sys.argv[1]), int(sys.argv[2]), *selected))

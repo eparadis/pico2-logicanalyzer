@@ -4081,3 +4081,44 @@ unchanged.
   remains R16 integration work and cannot be claimed by the UART baseline.
   SPI, I2C, accumulated validation, acceptance, manifest, and checkpoint remain
   paused.
+
+### UART conformance candidate and independent verification pass
+
+- Recorded: `2026-08-31T17:04:00Z`. Fresh implementation identity
+  `c3-b3-uart-implementor-1` produced exact UART-only candidate
+  `e5ac88ef7425bfab75a7901d1ca6552cc587fec0` / tree
+  `b6fc418cb6ed907d78a03061b47c63da7a390a8d`. Its only commit paths are
+  `tests/implementation/test_c3_b3_uart_conformance.py` and
+  `docs/reviews/c3-b3-uart-implementation-round-1.md`, SHA-256
+  `6ebad5ba914a41904fc6965dbc592e201e0d1bee8211efb030e2bd18a6d5bd16`
+  and
+  `bf7ffcd8e147139a7f02436f324858408e414937dac0a0140ee33432debbe56c`.
+  No product, fixture, snapshot, dependency, public surface, SPI, I2C, or R16
+  path changed.
+- Root rejected the initial test oracle because it read omitted defaults from
+  production `model.py`. The same implementor corrected its two owned paths so
+  every expected option comes only from the 13 unique accepted B1 matrix
+  default rows. No candidate was committed until that correction passed.
+- The corrected implementation suite passed 107 rows: full exact results and
+  canonical bytes for all 54 UART timelines, 50 direct option bindings, all 77
+  unsupported rows rejected before launch, exact RX/TX sentinel and reordered
+  noncontiguous mapping behavior, repeat determinism, and closed UART/helper
+  digest/import proof. Root reproduced all 107 plus 65 relevant inherited B2
+  semantic/matrix rows.
+- Fresh verifier `c3-b3-uart-verifier-1` returned literal `pass` with no
+  finding. Its independently authored hostile suite and review are
+  `tests/verification/test_c3_b3_uart_conformance.py` and
+  `docs/reviews/c3-b3-uart-verification-round-1.md`, SHA-256
+  `da85f425e93107002e9eefd18e614355a7a374d94c4e372042520346fa4ca187`
+  and
+  `045f8fac0da2eb6f2737158e50d4b1f12b2dbfee0499d3efa570eec87f0e9f8f`.
+  Its 190 rows include two-run determinism and negative mutations of
+  declarations, record coordinates, emission order, canonical bytes, and
+  matrix fixture binding.
+- Root reproduced the combined UART candidate/verifier gate as `297 passed in
+  40.95s`; Ruff and `git diff --check` passed. R13's UART-focused internal
+  implementation and verification items are ready for later combined B3
+  accumulation and acceptance. This internal pass is not a B3 checkpoint.
+- The next bounded item is SPI-only R14. I2C, R16 cross-source integration,
+  accumulated validation, acceptance, manifest, checkpoint, B4, B5, and
+  terminal closure remain paused.

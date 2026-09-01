@@ -4267,3 +4267,72 @@ unchanged.
 - The next bounded gate is combined B3 accumulated validation over R13-R16 and
   continuous R21/R23-R25 audits. Acceptance, manifest, checkpoint, B4, B5, and
   terminal closure remain paused.
+
+### Checkpoint C3-B3 — focused protocol conformance and source equivalence
+
+- State: Complete.
+- Completed at: `2026-09-01T03:31:52Z`.
+- Governing contract commit/tree:
+  `ea83a403bb6f644d33069d3bebd41d5f1e0a60c0` /
+  `d9fb09345ab85580cd8c877745262d1b481e366f`.
+- Prerequisite C3-B2 checkpoint:
+  `18614cc812edda68598e19d200f7bb4c87861ebd`; accepted B2 manifest commit
+  `0ece04929e36d356f084dba015c9a256cffec50a`.
+- Exact tested B3 candidate/tree:
+  `0e1f619c8c744c16a96119c0834ed2f7d2518d0e` /
+  `d22ecdd374446cef9e4b1e941b0937ae6389a1cb`.
+- R13 UART implementation/verifier identities are
+  `c3-b3-uart-implementor-1` and `c3-b3-uart-verifier-1`; immutable candidate
+  `e5ac88ef7425bfab75a7901d1ca6552cc587fec0` and verification descendant
+  `25d4849459ff238a28a41a4d72156b64f5fc8251` pass all 54 timelines and all
+  127 matrix rows.
+- R14 SPI implementation/verifier identities are
+  `c3-b3-spi-implementor-1` and `c3-b3-spi-verifier-1`; immutable candidate
+  `3e6124ab68d1bcea7df628c520741add93658350` and verification descendant
+  `db825eff3ab4ca0e30f5ed0197dcad6bc93cda88` pass all six timelines and all
+  30 matrix rows through the approved eight-bit maximum.
+- R15 I2C implementation/verifier identities are
+  `c3-b3-i2c-implementor-1` and `c3-b3-i2c-verifier-1`; immutable candidate
+  `844d69d22d2f82ae78f423762861abf3b18def66` and verification descendant
+  `30b020a3f8cc14ce65b42c8764dcaff9900dcd45` pass all three timelines and all
+  eight matrix rows.
+- R16 integration implementation/verifier identities are
+  `c3-b3-r16-integration-implementor-1` and
+  `c3-b3-r16-integration-verifier-1`; immutable candidate
+  `970f9a79169733d20bc06db60e2c736a8234b7eb` and verification/final-candidate
+  descendant `0e1f619c8c744c16a96119c0834ed2f7d2518d0e` pass direct-memory, schema-1,
+  schema-2, and explicit-metadata CSV equivalence across all six channel
+  requirement classes. The other 57 timelines retain R13-R15 ownership.
+- Complete accumulated validation identity
+  `c3-b3-accumulated-validator-1` passed at
+  `6eeb43d660eeb9d7e9b55b320921aa108becf068`; record SHA-256
+  `5c48ceb6fc1346991903285fbfb6c4497e469aef7a1d07378420f21563edc16e`.
+  The complete applicable nonhardware gate passed 1,359 tests with four
+  accepted optional physical-artifact skips, one established historical
+  deselection, and no mandatory Cycle 3 skip. Static, dependency, fixture,
+  manifest, prohibited-use, process, inherited, scope, and repository gates
+  passed.
+- Fresh acceptance identity `c3-b3-independent-acceptor-1` passed at
+  `52dfa4ab3cac45839c20d63722b0a389651f965f`; record SHA-256
+  `bcfde3597a1203a69493ed1169401111526cfd40181bba90c2ac3e7293e794f3`.
+  The immutable accepted counts are 63 semantic timelines and 165 option rows
+  (127 UART, 30 SPI, eight I2C); the earlier assignment's 215-row phrase was a
+  documented instruction typo, not an accepted artifact fact or product
+  finding.
+- Accepted manifest SHA-256:
+  `4d17a6f0a1401799f1d7c0c65870744aada26eb2a3b1b8d5c723d447ceb4fac1`.
+  Fresh manifest verifier `c3-b3-manifest-verifier-1` passed with no finding;
+  verifier-record SHA-256:
+  `e5a61617506d6cd45967e57bdc049913750c28496020ed2eed9778ae46691a70`.
+  The exact unchanged manifest and pass record were committed jointly at
+  `6f26cc80435adfa787e5fbef1f69807c5686c864` / tree
+  `667565bee497e02793e7f7dfee4a037467fc8d8b`.
+- Requirements R13-R16, continuous R21/R23-R25, and stopping conditions 9,
+  10, 13, 14, the applicable condition-16 ordering portion, and condition 17
+  have immutable B3 proof. All recorded test-only oracle and evidence-command
+  corrections precede their respective passes; no product defect remained and
+  no pass transferred across a changed candidate.
+- Checkpoint verdict: `pass`. C3-B4 may begin only from the commit containing
+  this checkpoint, but B4 is not authorized by the bounded B3 chain and remains
+  paused. B5, terminal closure, Cycle 4, and all excluded scope also remain
+  paused.

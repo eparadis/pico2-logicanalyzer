@@ -4171,3 +4171,47 @@ unchanged.
 - The next bounded item is I2C-only R15. R16 cross-source integration,
   accumulated validation, acceptance, manifest, checkpoint, B4, B5, and
   terminal closure remain paused.
+
+### I2C conformance candidate and independent verification pass
+
+- Recorded: `2026-09-01T02:47:44Z`. Fresh implementation identity
+  `c3-b3-i2c-implementor-1` produced exact I2C-only candidate
+  `844d69d22d2f82ae78f423762861abf3b18def66` / tree
+  `513c4c4bc2a8d053bfc7e6229390207bc265b60e`. Its only commit paths are
+  `tests/implementation/test_c3_b3_i2c_conformance.py` and
+  `docs/reviews/c3-b3-i2c-implementation-round-1.md`, SHA-256
+  `20c04a6f1eeb77760fe16b522ccaf1b1def8b8ca5a3418b29b3af6471bd433c3`
+  and
+  `1cf39a040e6c9a0a85f9406cc3088031729d36c272ef22903879012f03688f41`.
+  No product, fixture, snapshot, dependency, public surface, UART, SPI, or R16
+  path changed.
+- The implementation suite passed nine rows: all three accepted I2C timelines
+  with complete typed results and canonical bytes, both direct matrix
+  bindings, all six unsupported rows rejected before worker spawn, the sole
+  matrix-sourced default, reordered/noncontiguous SCL/SDA mapping, repeated
+  determinism, and closed I2C/helper digest/import proof. The implementor
+  corrected one test-only packed-channel expectation before handoff; no
+  product defect was found. Root reproduced the candidate plus inherited I2C
+  timeline gate as 12 passed and the relevant inherited matrix gate as one
+  passed.
+- Fresh verifier `c3-b3-i2c-verifier-1` returned `PASS` with no candidate or
+  product finding. Its independently authored hostile suite and review are
+  `tests/verification/test_c3_b3_i2c_conformance.py` and
+  `docs/reviews/c3-b3-i2c-verification-round-1.md`, SHA-256
+  `997e50b97edaff76f40bb48f2002cff836537ce780dac1445a379986b8bfd6ef`
+  and
+  `92e6d324111c033166fa8d9509ad9ef28de74b37d68d058bf3ed67a87eb2c8d2`.
+  Its 26 rows include hostile mutations of declarations, coordinates, record
+  order, tagged values, binary payloads, metadata, address formatting/default,
+  mapping, matrix fixture binding, and provenance.
+- The verifier corrected one verifier-only expectation before verdict: the
+  accepted timelines declare read-side outputs but emit only the applicable
+  write-side records. This was not a candidate or product defect. Root
+  reproduced the combined I2C candidate/verifier gate as `35 passed in 4.20s`
+  and the complete inherited B2 private-host gate as `313 passed in 42.48s`;
+  Ruff and `git diff --check` passed. R15's I2C-focused internal implementation
+  and verification items are ready for later combined B3 accumulation and
+  acceptance. This internal pass is not a B3 checkpoint.
+- The next bounded item is R16 cross-source integration. Accumulated
+  validation, acceptance, manifest, checkpoint, B4, B5, and terminal closure
+  remain paused.

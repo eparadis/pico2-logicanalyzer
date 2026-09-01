@@ -4122,3 +4122,52 @@ unchanged.
 - The next bounded item is SPI-only R14. I2C, R16 cross-source integration,
   accumulated validation, acceptance, manifest, checkpoint, B4, B5, and
   terminal closure remain paused.
+
+### SPI conformance candidate and independent verification pass
+
+- Recorded: `2026-09-01T02:36:23Z`. Fresh implementation identity
+  `c3-b3-spi-implementor-1` produced exact SPI-only candidate
+  `3e6124ab68d1bcea7df628c520741add93658350` / tree
+  `c4d88ada4bc6c0869b53b5f19f7c325c27697112`. Its only commit paths are
+  `tests/implementation/test_c3_b3_spi_conformance.py` and
+  `docs/reviews/c3-b3-spi-implementation-round-1.md`, SHA-256
+  `e35c8d2ac472a7ae4c557daaba54521696971f871ef158d794c3d754cfdc0250`
+  and
+  `5590414dee3de853d441f3413bcbc23ce33da4e7b05b923a945a6d0d2f2e58b7`.
+  No product, fixture, snapshot, dependency, public surface, UART, I2C, or R16
+  path changed.
+- Root returned one candidate-test gap to the same implementor before commit:
+  the first draft's no-CS compatibility probe duplicated MOSI-only. The
+  corrected candidate proves the exact accepted MISO-only, MOSI-only, and
+  no-CS pin vectors and complete `has_channel` arrays. The correction was
+  confined to the two assigned paths and passed before the candidate was
+  frozen.
+- The corrected implementation suite passed 20 rows: all six accepted SPI
+  timelines with complete typed results and canonical bytes, all 10 direct
+  matrix bindings, all 20 unsupported rows rejected before worker spawn,
+  five matrix-sourced defaults, word sizes one and approved maximum eight,
+  exact optional-pin sentinels, reordered/noncontiguous mappings, repeated
+  determinism, and closed SPI digest/import proof. Root reproduced the
+  candidate plus inherited timeline gate as 26 passed and the relevant
+  inherited matrix gate as four passed.
+- Fresh verifier `c3-b3-spi-verifier-1` returned `PASS` with no candidate or
+  product finding. Its independently authored hostile suite and review are
+  `tests/verification/test_c3_b3_spi_conformance.py` and
+  `docs/reviews/c3-b3-spi-verification-round-1.md`, SHA-256
+  `9bbcbcc70db1d53a23375d44c353875c198d59a7e20f456be52d5ee28918a118`
+  and
+  `c0a6284e7212e02ba3f478835c4b41fe26d3b5108812ee68a3067aa5a836cd0d`.
+  Its 52 rows include hostile mutations of declarations, record values and
+  order, tagged Python/SPI data, binary bytes, metadata, mappings, options,
+  defaults, provenance, and the rejected nine-bit boundary.
+- The verifier corrected one verifier-only assumption before its verdict:
+  accepted incomplete no-CS traffic emits the corpus-prescribed initial
+  tagged `CS-CHANGE` record. This was not a candidate or product defect.
+  Root reproduced the combined SPI candidate/verifier gate as `72 passed in
+  7.46s` and the inherited B2 SPI/option/tagged-value gate as `15 passed, 298
+  deselected`; Ruff and `git diff --check` passed. R14's SPI-focused internal
+  implementation and verification items are ready for later combined B3
+  accumulation and acceptance. This internal pass is not a B3 checkpoint.
+- The next bounded item is I2C-only R15. R16 cross-source integration,
+  accumulated validation, acceptance, manifest, checkpoint, B4, B5, and
+  terminal closure remain paused.

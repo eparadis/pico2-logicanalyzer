@@ -12,8 +12,16 @@ permissions:
 
 jobs:
   validate:
-    runs-on: macos-latest
+    runs-on: macos-15-intel
     steps:
+      - name: Verify governed macOS x86_64 runner
+        shell: bash
+        run: |
+          architecture="$(uname -m)"
+          if [ "$architecture" != "x86_64" ]; then
+            printf 'unsupported runner architecture: %s (required: x86_64)\n' "$architecture" >&2
+            exit 2
+          fi
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: {python-version: "3.12"}

@@ -30,8 +30,15 @@ def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:
         "push:",
         "pull_request:",
     ]
-    assert text.count("runs-on: macos-latest") == 1
+    assert text.count("runs-on: macos-15-intel") == 1
+    assert "runs-on: macos-latest" not in text
     assert "runs-on: ubuntu" not in text and "runs-on: windows" not in text
+
+    architecture_check = "Verify governed macOS x86_64 runner"
+    assert text.count(architecture_check) == 1
+    assert text.count('architecture="$(uname -m)"') == 1
+    assert text.count('if [ "$architecture" != "x86_64" ]; then') == 1
+    assert text.index(architecture_check) < text.index("actions/checkout@v4")
 
     assert "permissions:\n  contents: read\n" in text
     assert "write-all" not in text and "contents: write" not in text

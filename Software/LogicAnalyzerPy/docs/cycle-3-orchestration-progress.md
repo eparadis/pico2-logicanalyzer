@@ -4336,3 +4336,86 @@ unchanged.
   this checkpoint, but B4 is not authorized by the bounded B3 chain and remains
   paused. B5, terminal closure, Cycle 4, and all excluded scope also remain
   paused.
+
+## C3-B4: public library and installed CLI
+
+- State: Pending.
+- Objective: expose the accepted B2 private host and B3 decoder behavior through
+  the single synchronous typed `pico_logic_analyzer.decode.decode_capture(...)`
+  API and the exact offline installed `pico-la decode` grammar, without adding a
+  second semantic route or widening the trust boundary.
+- Prerequisites: the accepted C3-B3 checkpoint
+  `233b3b0667add740cee96ce3c9ee266c8a639067` / tree
+  `0d3709a861bf79f002246836a582b87677e29b15` is present and its strict manifest
+  validation passes. Explicit authority for the bounded B4 subagent chain and
+  for the required exact-candidate hosted macOS CI dispatch remains absent.
+- Governing commit/tree:
+  `ea83a403bb6f644d33069d3bebd41d5f1e0a60c0` /
+  `d9fb09345ab85580cd8c877745262d1b481e366f`.
+- Starting commit/tree:
+  `233b3b0667add740cee96ce3c9ee266c8a639067` /
+  `0d3709a861bf79f002246836a582b87677e29b15`.
+- Implementation agent: planned fresh identity
+  `c3-b4-public-implementor-1`; not launched or assigned.
+- Verification agent: planned fresh identity
+  `c3-b4-public-verifier-1`; not launched or assigned.
+- Acceptance agent: planned fresh identity
+  `c3-b4-public-acceptor-1`; not launched or assigned.
+- Manifest verifier: planned fresh identity
+  `c3-b4-manifest-verifier-1`; not launched or assigned.
+- B1 internal identity map: not applicable.
+- In scope: R17-R20; immutable public types and stable exports; exact
+  `decode_capture(capture, decoder_id, channels, options, limits=None)`
+  delegation with non-weakenable limits; exact replay/CSV CLI grammar and
+  pre-launch validation; canonical compact sorted-key JSON plus LF;
+  stderr-only bounded diagnostics and exit 7 for decoder failures;
+  package-resource placement permitted by B1; documentation, package metadata,
+  hash-lock closure, installed black-box tests, and the existing macOS workflow
+  changes strictly required to prove this exact candidate.
+- Out of scope: decoder semantic changes; fixture, option-matrix, threshold, or
+  approved-limit changes; another host or semantic path; decoder discovery,
+  paths, plugins, stacking, stdin, live capture, serial access, export, web or
+  browser decode behavior, hardware, publication, external/reference runtime,
+  Cycle 4, B5 evidence, or terminal-closure artifacts.
+- Owned paths: implementation may edit only
+  `Software/LogicAnalyzerPy/src/pico_logic_analyzer/decode/**`, the minimum
+  required existing `_decode/**`, `cli/main.py`, package-resource subtree,
+  `pyproject.toml`, hash locks, public documentation, implementation tests, and
+  the existing logic-analyzer Python workflow; verification owns only fresh B4
+  files under `tests/verification/` and `docs/reviews/`; acceptance owns only
+  its fresh review record; the manifest verifier owns only its fresh review
+  record. The root orchestrator alone owns this progress record, accumulated
+  validation record, B4 manifest assembly, checkpoint, integration, and commits.
+- Authoritative evidence: the governing contract and batch procedure; settled
+  discovery R17-R20 and stopping-condition mappings; accepted B1 typed vectors,
+  literal CLI golden bytes, options, limits, resource/license decisions, and
+  manifest; accepted B2 host/containment evidence and manifest; accepted B3
+  conformance/equivalence evidence and manifest; existing Cycle 1/2 public
+  capture/replay/CSV contracts and regressions.
+- Focused evidence: strict-mypy installed consumer; editable-installed library
+  and CLI black-box execution from outside the source tree; exact object and
+  byte goldens; success, duplicate, unknown, invalid, mapping, option, metadata,
+  replay/CSV equivalence, exit/stderr, no-limit-weakening, import/open-spy,
+  package-resource/license, prohibited dependency/import/process, clean
+  hash-locked bootstrap, `pip check`, and exact-candidate hosted macOS CI.
+- Accumulated evidence: every B1-B3 checkpoint gate; the complete B4 public
+  suite; full non-hardware core/CLI/web regression without Cycle 3 web changes;
+  Ruff, strict mypy, evidence/fixture/manifest validators, dependency/lock and
+  prohibited-use audits, installed help smoke, process cleanup, clean bootstrap,
+  repository-scope audit, and exact-candidate hosted macOS CI.
+- Authority notes: no B4 subagent may launch until the user explicitly
+  authorizes this bounded chain. No hosted workflow may be dispatched until the
+  user explicitly authorizes that external action. Root remains the only
+  approval broker and will request at most one narrow reusable command class
+  for each genuinely missing privileged capability.
+- Prohibited runtime audit: static dependency/import/command/path scan plus
+  installed import/open/process/serial/web spies must prove no C#/.NET,
+  pythonnet, libsigrokdecode, `sigrok-cli`, external/reference host, decoder
+  path/plugin, serial/live capture, browser, or web side effect; process cleanup
+  must prove no surviving package worker.
+- Risks and unknowns: installed execution cannot use the current repository-root
+  decoder lookup, so the implementor must use the already permitted exact-byte
+  package-resource placement while preserving every accepted source and
+  file-set digest. The external CI run must identify the exact immutable B4
+  candidate; neither risk is authority to alter accepted decoder semantics or
+  limits.

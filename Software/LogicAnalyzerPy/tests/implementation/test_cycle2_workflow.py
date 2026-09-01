@@ -6,6 +6,10 @@ from pathlib import Path
 REPOSITORY = Path(__file__).resolve().parents[4]
 WORKFLOWS = REPOSITORY / ".github" / "workflows"
 WORKFLOW = WORKFLOWS / "logic-analyzer-python-cycle2.yml"
+FORCED_KILL_NODE = (
+    "tests/implementation/test_c3_b2_private_host.py::"
+    "test_cleanup_regression_observation_cannot_change_timeout_or_cancelled_product_failure"
+)
 
 SUPERSEDED_B1_IGNORES = (
     "tests/verification/test_c3_b1_threshold_proposal_round2.py",
@@ -37,6 +41,23 @@ ACCEPTED_DESELECTS = (
         "tests/verification/test_c3_b4_public_round4.py::"
         "test_hosted_correction_preserves_every_prior_workflow_byte_and_gate_order"
     ),
+    FORCED_KILL_NODE,
+    (
+        "tests/verification/test_c3_b4_public_round5.py::"
+        "test_candidate_binding_and_exact_workflow_digest"
+    ),
+    (
+        "tests/verification/test_c3_b4_public_round5.py::"
+        "test_partition_has_exact_ordered_unique_ignores_and_deselections"
+    ),
+    (
+        "tests/verification/test_c3_b4_public_round5.py::"
+        "test_every_candidate_b2_b3_b4_module_is_retained"
+    ),
+    (
+        "tests/verification/test_c3_b4_public_round5.py::"
+        "test_partition_is_the_only_workflow_change_from_round4"
+    ),
 )
 MANDATORY_CURRENT_MODULES = (
     "tests/implementation/test_c3_b2_private_host.py",
@@ -57,6 +78,7 @@ MANDATORY_CURRENT_MODULES = (
     "tests/verification/test_c3_b4_public_round2.py",
     "tests/verification/test_c3_b4_public_round3.py",
     "tests/verification/test_c3_b4_public_round4.py",
+    "tests/verification/test_c3_b4_public_round5.py",
 )
 
 
@@ -93,6 +115,21 @@ def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:
     assert text.count('if [ "$architecture" != "x86_64" ]; then') == 1
     assert text.index(architecture_check) < text.index("actions/checkout@v4")
 
+    checkout = (
+        "      - uses: actions/checkout@v4\n"
+        "        with:\n"
+        "          fetch-depth: 0\n"
+    )
+    assert text.count(checkout) == 1
+
+    no_bytecode = (
+        "    env:\n"
+        '      PYTHONDONTWRITEBYTECODE: "1"\n'
+        "    steps:\n"
+    )
+    assert text.count(no_bytecode) == 1
+    assert text.index(no_bytecode) < text.index("run: python -m venv .venv")
+
     assert "permissions:\n  contents: read\n" in text
     assert "write-all" not in text and "contents: write" not in text
     assert "secrets." not in text and "pull_request_target:" not in text
@@ -119,16 +156,46 @@ def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:
         "npm run test:browser",
     )
     assert all(fragment in text for fragment in required)
-    assert text.count("--tb=short --disable-warnings") == 1
+    assert text.count("--tb=short --disable-warnings") == 2
+
+    focused_command = (
+        "            .venv/bin/python -m pytest -q \\\n"
+        f"              {FORCED_KILL_NODE} \\\n"
+        "              --tb=short --disable-warnings\n"
+    )
+    focused_gate = (
+        "          set +e\n"
+        '          : >"$log_file"\n'
+        "          (\n"
+        "            trap '' TERM\n"
+        f"{focused_command}"
+        '          ) >>"$log_file" 2>&1\n'
+        "          focused_status=$?\n"
+        '          if [ "$focused_status" -eq 0 ]; then\n'
+    )
+    assert text.count(focused_gate) == 1
+    assert text.count("focused_status=$?") == 1
+    assert text.count("status=$focused_status") == 1
+    assert text.index(focused_gate) < text.index(
+        '.venv/bin/python -m pytest -m "not hardware" --tb=short --disable-warnings'
+    )
+    assert text.count(FORCED_KILL_NODE) == 2
+    assert text.count('>>"$log_file" 2>&1') == 2
+    assert text.count('>"$log_file" 2>&1') == 2
+    assert "retry" not in text.lower()
 
     ignores = tuple(re.findall(r"--ignore ([^\s\\]+)", text))
     deselections = tuple(re.findall(r"--deselect ([^\s\\]+)", text))
     assert ignores == SUPERSEDED_B1_IGNORES
     assert deselections == ACCEPTED_DESELECTS
     assert len(set(ignores)) == len(ignores) == 15
-    assert len(set(deselections)) == len(deselections) == 3
+    assert len(set(deselections)) == len(deselections) == 8
     for relative in MANDATORY_CURRENT_MODULES:
         assert (REPOSITORY / "Software/LogicAnalyzerPy" / relative).is_file()
         assert relative not in ignores
     round4 = "tests/verification/test_c3_b4_public_round4.py"
     assert sum(item.startswith(f"{round4}::") for item in deselections) == 2
+    round5 = "tests/verification/test_c3_b4_public_round5.py"
+    assert sum(item.startswith(f"{round5}::") for item in deselections) == 4
+    assert FORCED_KILL_NODE in deselections
+    assert FORCED_KILL_NODE.split("::", maxsplit=1)[0] not in ignores

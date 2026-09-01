@@ -4411,7 +4411,11 @@ unchanged.
   authority does not cover B5 subagents, publication, or any excluded product
   scope. Root remains the only approval broker and will request at most one
   narrow reusable command class for each genuinely missing privileged
-  capability.
+  capability. The new repository-local `rtk .venv/bin/pip-compile` command
+  class was approved once and reused to regenerate the separate development and
+  web hash locks after the accepted PEP 639 metadata required the minimum
+  compatible exact `setuptools==77.0.3` build-backend pin; no interpreter-wide
+  or shell-wide authority was requested.
 - Prohibited runtime audit: static dependency/import/command/path scan plus
   installed import/open/process/serial/web spies must prove no C#/.NET,
   pythonnet, libsigrokdecode, `sigrok-cli`, external/reference host, decoder

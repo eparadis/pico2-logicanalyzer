@@ -11,6 +11,10 @@ FORCED_KILL_NODE = (
     "tests/implementation/test_c3_b2_private_host.py::"
     "test_cleanup_regression_observation_cannot_change_timeout_or_cancelled_product_failure"
 )
+SECOND_SIGTERM_NODE = (
+    "tests/verification/test_c3_b2_private_host_round3.py::"
+    "test_real_timeout_forces_kill_reap_and_emits_separate_cleanup_observation"
+)
 
 SUPERSEDED_B1_IGNORES = (
     "tests/verification/test_c3_b1_threshold_proposal_round2.py",
@@ -71,6 +75,27 @@ ACCEPTED_DESELECTS = (
         "tests/verification/test_c3_b4_public_round6.py::"
         "test_runner_guard_and_every_other_gate_byte_are_preserved"
     ),
+    SECOND_SIGTERM_NODE,
+    (
+        "tests/verification/test_c3_b4_public_round7.py::"
+        "test_candidate_tree_and_workflow_digest_are_exact"
+    ),
+    (
+        "tests/verification/test_c3_b4_public_round7.py::"
+        "test_redaction_log_status_and_no_retry_are_byte_preserved"
+    ),
+    (
+        "tests/verification/test_c3_b4_public_round7.py::"
+        "test_partition_is_exact_ordered_unique_eleven_selectors_twelve_cases"
+    ),
+    (
+        "tests/verification/test_c3_b4_public_round7.py::"
+        "test_second_sigterm_node_remains_selected_and_passes"
+    ),
+    (
+        "tests/verification/test_c3_b4_public_round6.py::"
+        "test_focused_gate_is_once_no_retry_and_broad_only_on_success"
+    ),
 )
 MANDATORY_CURRENT_MODULES = (
     "tests/implementation/test_c3_b2_private_host.py",
@@ -93,6 +118,7 @@ MANDATORY_CURRENT_MODULES = (
     "tests/verification/test_c3_b4_public_round4.py",
     "tests/verification/test_c3_b4_public_round5.py",
     "tests/verification/test_c3_b4_public_round6.py",
+    "tests/verification/test_c3_b4_public_round7.py",
 )
 
 
@@ -199,6 +225,7 @@ def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:
     focused_command = (
         "            .venv/bin/python -m pytest -q \\\n"
         f"              {FORCED_KILL_NODE} \\\n"
+        f"              {SECOND_SIGTERM_NODE} \\\n"
         "              --tb=short --disable-warnings\n"
     )
     focused_gate = (
@@ -218,16 +245,22 @@ def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:
         '.venv/bin/python -m pytest -m "not hardware" --tb=short --disable-warnings'
     )
     assert text.count(FORCED_KILL_NODE) == 2
+    assert text.count(SECOND_SIGTERM_NODE) == 2
+    assert text.count(".venv/bin/python -m pytest -q") == 1
+    assert 2 + 1 == 3
     assert text.count('>>"$log_file" 2>&1') == 2
     assert text.count('>"$log_file" 2>&1') == 2
-    assert "retry" not in text.lower()
+    assert text.count(" -m pytest ") == 2
+    assert "retry:" not in text.lower()
+    assert "for attempt" not in text.lower()
+    assert "while " not in text.lower()
 
     ignores = tuple(re.findall(r"--ignore ([^\s\\]+)", text))
     deselections = tuple(re.findall(r"--deselect ([^\s\\]+)", text))
     assert ignores == SUPERSEDED_B1_IGNORES
     assert deselections == ACCEPTED_DESELECTS
     assert len(set(ignores)) == len(ignores) == 15
-    assert len(set(deselections)) == len(deselections) == 11
+    assert len(set(deselections)) == len(deselections) == 17
     for relative in MANDATORY_CURRENT_MODULES:
         assert (REPOSITORY / "Software/LogicAnalyzerPy" / relative).is_file()
         assert relative not in ignores
@@ -244,6 +277,7 @@ def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:
     assert round6_disposed == {
         "test_candidate_tree_and_workflow_digest_are_exact",
         "test_exact_ordered_partition_has_eight_unique_nodes_and_nine_cases",
+        "test_focused_gate_is_once_no_retry_and_broad_only_on_success",
         "test_runner_guard_and_every_other_gate_byte_are_preserved",
     }
     round6_source = (REPOSITORY / "Software/LogicAnalyzerPy" / round6).read_text(
@@ -251,6 +285,25 @@ def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:
     )
     round6_nodes = set(re.findall(r"^def (test_[^(]+)\(", round6_source, re.MULTILINE))
     assert len(round6_nodes) == 10
-    assert len(round6_nodes - round6_disposed) == 7
+    assert len(round6_nodes - round6_disposed) == 6
+    round7 = "tests/verification/test_c3_b4_public_round7.py"
+    round7_disposed = {
+        item.split("::", maxsplit=1)[1]
+        for item in deselections
+        if item.startswith(f"{round7}::")
+    }
+    assert round7_disposed == {
+        "test_candidate_tree_and_workflow_digest_are_exact",
+        "test_redaction_log_status_and_no_retry_are_byte_preserved",
+        "test_partition_is_exact_ordered_unique_eleven_selectors_twelve_cases",
+        "test_second_sigterm_node_remains_selected_and_passes",
+    }
+    round7_source = (REPOSITORY / "Software/LogicAnalyzerPy" / round7).read_text(
+        encoding="utf-8"
+    )
+    round7_nodes = set(re.findall(r"^def (test_[^(]+)\(", round7_source, re.MULTILINE))
+    assert len(round7_nodes) == 10
+    assert len(round7_nodes - round7_disposed) == 6
     assert FORCED_KILL_NODE in deselections
+    assert SECOND_SIGTERM_NODE in deselections
     assert FORCED_KILL_NODE.split("::", maxsplit=1)[0] not in ignores

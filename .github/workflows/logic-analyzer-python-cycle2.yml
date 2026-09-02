@@ -89,6 +89,7 @@ jobs:
             trap '' TERM
             .venv/bin/python -m pytest -q \
               tests/implementation/test_c3_b2_private_host.py::test_cleanup_regression_observation_cannot_change_timeout_or_cancelled_product_failure \
+              tests/verification/test_c3_b2_private_host_round3.py::test_real_timeout_forces_kill_reap_and_emits_separate_cleanup_observation \
               --tb=short --disable-warnings
           ) >>"$log_file" 2>&1
           focused_status=$?
@@ -120,6 +121,12 @@ jobs:
               --deselect tests/verification/test_c3_b4_public_round6.py::test_candidate_tree_and_workflow_digest_are_exact \
               --deselect tests/verification/test_c3_b4_public_round6.py::test_exact_ordered_partition_has_eight_unique_nodes_and_nine_cases \
               --deselect tests/verification/test_c3_b4_public_round6.py::test_runner_guard_and_every_other_gate_byte_are_preserved \
+              --deselect tests/verification/test_c3_b2_private_host_round3.py::test_real_timeout_forces_kill_reap_and_emits_separate_cleanup_observation \
+              --deselect tests/verification/test_c3_b4_public_round7.py::test_candidate_tree_and_workflow_digest_are_exact \
+              --deselect tests/verification/test_c3_b4_public_round7.py::test_redaction_log_status_and_no_retry_are_byte_preserved \
+              --deselect tests/verification/test_c3_b4_public_round7.py::test_partition_is_exact_ordered_unique_eleven_selectors_twelve_cases \
+              --deselect tests/verification/test_c3_b4_public_round7.py::test_second_sigterm_node_remains_selected_and_passes \
+              --deselect tests/verification/test_c3_b4_public_round6.py::test_focused_gate_is_once_no_retry_and_broad_only_on_success \
               >>"$log_file" 2>&1
             status=$?
           else

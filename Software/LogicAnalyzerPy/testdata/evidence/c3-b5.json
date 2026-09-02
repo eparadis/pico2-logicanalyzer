@@ -1,0 +1,979 @@
+{
+  "schema_version": 3,
+  "checkpoint": "C3-B5",
+  "tested_commit": "2fb89fc8c36d93b4435032c07783532d6a8aa933",
+  "tested_tree": "f155c06c8d61e9f454f2b7026afa0805999c4300",
+  "timestamp_utc": "2026-09-02T16:58:33Z",
+  "worktree_state": "The exact corrected B5 implementation candidate is immutable at f8f78c89655011e3ee3e74559ff9886c93eac690. Fresh verification is committed at the tested commit, accumulated validation at eab754f565dd53fa1ab1a0ba844297c4cbb2b075, and independent pre-manifest acceptance at 41481e161f19c197927a34970ba16b2a46e5186c. Only this unchanged post-acceptance proposed manifest is untracked; Cycle 3 remains incomplete at this pre-closure stage.",
+  "environment": {
+    "os": "macOS 15.7.9 build 24G830",
+    "architecture": "x86_64",
+    "python": "3.12.13",
+    "environment_class": "Accepted Macmini8,1 x86_64 measurement class and governed macos-15-intel hash-locked environments",
+    "resource_observation": "Exactly three unrecorded warm-ups and 15 retained protocol observations passed all 11 unchanged round-4 regression ceilings."
+  },
+  "locks": [
+    {
+      "name": "requirements-dev",
+      "path": "Software/LogicAnalyzerPy/requirements-dev.lock",
+      "sha256": "4efa0b1d42e5162c7a20177d1dd5e78083d75a87d2405709e04b1bcbd4f33c53"
+    },
+    {
+      "name": "requirements-web",
+      "path": "Software/LogicAnalyzerPy/requirements-web.lock",
+      "sha256": "4b0feeadf92c0bcb9f2790cc62f6b6e2f7da8937f30ff50d0c9092fd003b8145"
+    },
+    {
+      "name": "package-lock",
+      "path": "Software/LogicAnalyzerPy/web/package-lock.json",
+      "sha256": "d388a2668b3f65edeb62ee99da3ad37ffc56ab1ca3439b6d418a6bbe92e838d9"
+    },
+    {
+      "name": "production-assets",
+      "path": "Software/LogicAnalyzerPy/web/production-assets.json",
+      "sha256": "00d553697834509104a5751affc2abad48ec619bbd7f167ac2f8a1de0953d9d9"
+    }
+  ],
+  "roles": {
+    "implementation": "c3-b5-final-proof-implementor-1",
+    "verification": "c3-b5-final-proof-verifier-2",
+    "acceptance": "c3-b5-final-acceptor-1",
+    "manifest_verifier": "c3-b5-manifest-verifier-1"
+  },
+  "commands": [
+    {
+      "name": "fresh_final_verification",
+      "command": "Independent final-packet, containment, conformance, public API, digest, threshold, and repository verification",
+      "exit_status": 0,
+      "verifier": "c3-b5-final-proof-verifier-2",
+      "candidate_commit": "2fb89fc8c36d93b4435032c07783532d6a8aa933",
+      "result": "Corrected 18-launch method, 11 ceilings, 18 hard limits, hostile cleanup, 593 focused cases, 182 direct runner cases, and current proportional verification passed; one stale historical digest was transparently classified.",
+      "skipped": false,
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-verification-round-2.md",
+          "sha256": "95157008368c868c66d89b239ff7e8f206564e70836ec6c404384c120c6e6389"
+        }
+      ]
+    },
+    {
+      "name": "complete_applicable_nonhardware",
+      "command": "Clean Python 3.12 locked bootstrap, hostile child gate, and exact governed non-hardware partition",
+      "exit_status": 0,
+      "verifier": "root accumulated-validation owner",
+      "candidate_commit": "2fb89fc8c36d93b4435032c07783532d6a8aa933",
+      "result": "Three hostile child cases passed; 1483 applicable tests passed, seven classified environment or optional physical-artifact skips remained evidenced, and 38 governed historical cases were transparently deselected.",
+      "skipped": false,
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-accumulated-validation-round-1.md",
+          "sha256": "8b3fa36966820f3d65819805be889d4fe54314d844b81b9cc12da8e8e8abcef4"
+        }
+      ]
+    },
+    {
+      "name": "static_dependency_frontend_browser",
+      "command": "Both locked dependency checks, Ruff, production and strict consumer mypy, CLI, fixture regeneration, frontend checks, production assets, and browser smoke",
+      "exit_status": 0,
+      "verifier": "root accumulated-validation owner",
+      "candidate_commit": "2fb89fc8c36d93b4435032c07783532d6a8aa933",
+      "result": "Every dependency, static, installed API and CLI, fixture, frontend, asset, resource, and browser gate passed.",
+      "skipped": false,
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-accumulated-validation-round-1.md",
+          "sha256": "8b3fa36966820f3d65819805be889d4fe54314d844b81b9cc12da8e8e8abcef4"
+        }
+      ]
+    },
+    {
+      "name": "exact_candidate_hosted_macos",
+      "command": "GitHub Actions run 33655002746 job 100331249147 on macos-15-intel",
+      "exit_status": 0,
+      "verifier": "root hosted-dispatch owner",
+      "candidate_commit": "2fb89fc8c36d93b4435032c07783532d6a8aa933",
+      "result": "Exact tested commit passed pinned CPython 3.12.13, exact Node 22.14.0, complete Python, frontend, asset, and browser gates on attempt one without retry.",
+      "skipped": false,
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-accumulated-validation-round-1.md",
+          "sha256": "8b3fa36966820f3d65819805be889d4fe54314d844b81b9cc12da8e8e8abcef4"
+        }
+      ]
+    },
+    {
+      "name": "pre_manifest_acceptance",
+      "command": "Independent final evidence, role ordering, schema, digest, legal, scope, R1-R26, and stopping-condition 1-17 audit",
+      "exit_status": 0,
+      "verifier": "c3-b5-final-acceptor-1",
+      "candidate_commit": "2fb89fc8c36d93b4435032c07783532d6a8aa933",
+      "result": "696 selected tests and the complete immutable evidence audit passed; directed closure inputs are ready while no premature terminal material exists.",
+      "skipped": false,
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "category": "checkpoint",
+      "provenance": "frozen Cycle 3 evidence schema",
+      "revision": "39e74a27638541b36b2845a8c6f1079bc0a3ae61",
+      "path": "Software/LogicAnalyzerPy/docs/evidence-manifest/cycle3-schema.json",
+      "sha256": "779d313ee79fabe8e98e627f7d6e27f0e436873ee2b8e118c0a3cac89e6bf3a3"
+    },
+    {
+      "category": "test",
+      "provenance": "strict Cycle 3 evidence validator",
+      "revision": "91b7a7c07f5202f5d7dc9af539f1810860725a4c",
+      "path": "Software/LogicAnalyzerPy/scripts/validate_cycle3_evidence.py",
+      "sha256": "6b677cbc01f2ee27df4b8aaf83ab4f51465f170f2b69baa3706fe7c6a4dffdca"
+    },
+    {
+      "category": "checkpoint",
+      "provenance": "accepted C3-B1 evidence",
+      "revision": "885be61a2bbea8bf5261b3983cbc79fedde0f315",
+      "path": "Software/LogicAnalyzerPy/testdata/evidence/c3-b1.json",
+      "sha256": "3710e7fde7523096b70607b3a7da217b1e71fdb46492b83b72861e3eaa48cfae"
+    },
+    {
+      "category": "checkpoint",
+      "provenance": "accepted C3-B2 evidence",
+      "revision": "0ece04929e36d356f084dba015c9a256cffec50a",
+      "path": "Software/LogicAnalyzerPy/testdata/evidence/c3-b2.json",
+      "sha256": "2af5bfc21a5d888132fb4e468f543403e8948632ad9ab2dd11b8da854dd4a602"
+    },
+    {
+      "category": "checkpoint",
+      "provenance": "accepted C3-B3 evidence",
+      "revision": "6f26cc80435adfa787e5fbef1f69807c5686c864",
+      "path": "Software/LogicAnalyzerPy/testdata/evidence/c3-b3.json",
+      "sha256": "4d17a6f0a1401799f1d7c0c65870744aada26eb2a3b1b8d5c723d447ceb4fac1"
+    },
+    {
+      "category": "checkpoint",
+      "provenance": "accepted C3-B4 evidence",
+      "revision": "9178755f2d491c19f4c67a2e7f68f6f6ebb22672",
+      "path": "Software/LogicAnalyzerPy/testdata/evidence/c3-b4.json",
+      "sha256": "699443c5ed9cb2ddd668b4b486311e251647cadf5aeb3a435263dd2597e0f72c"
+    },
+    {
+      "category": "fixture-source",
+      "provenance": "accepted static Cycle 3 fixture generator",
+      "revision": "ea83a403bb6f644d33069d3bebd41d5f1e0a60c0",
+      "path": "Software/LogicAnalyzerPy/scripts/generate_cycle3_fixtures.py",
+      "sha256": "a101ae13cba938aa4d574fd1df3e4cc09dc845b2a643088cfee4a79313c3266f"
+    },
+    {
+      "category": "generated-fixture",
+      "provenance": "accepted semantic fixture manifest",
+      "revision": "ea83a403bb6f644d33069d3bebd41d5f1e0a60c0",
+      "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3/manifest.json",
+      "sha256": "71c64b2c80142cf5d535e03f93f9d3ce66ada120582115fbf403f3621f97c5b9"
+    },
+    {
+      "category": "threshold",
+      "provenance": "operator-approved exact round-4 threshold proposal",
+      "revision": "b680aa59fba4a18da2aeaacc8cbd7ad3a68784e0",
+      "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3/threshold-proposal-round-4.json",
+      "sha256": "98e48bb1882104d893a1d4d85659845ff20054f9b52f0b09fdf73efad2547e3c"
+    },
+    {
+      "category": "operator-decision",
+      "provenance": "operator approval of exact round-4 values",
+      "revision": "b680aa59fba4a18da2aeaacc8cbd7ad3a68784e0",
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b1-threshold-approval-round-4.md",
+      "sha256": "ff1ba9665174b0912adea9eb4682d1a9e6839c6ec9b5efce073a9b055303aba6"
+    },
+    {
+      "category": "test",
+      "provenance": "corrected B5 final-packet implementation proof",
+      "revision": "f8f78c89655011e3ee3e74559ff9886c93eac690",
+      "path": "Software/LogicAnalyzerPy/tests/implementation/test_c3_b5_final_packet.py",
+      "sha256": "8914ca125aa2ed132f7eabdff8d148045132bce447222d75ac9860b0175689f6"
+    },
+    {
+      "category": "raw-observation",
+      "provenance": "final B5 no-retry measurements",
+      "revision": "f8f78c89655011e3ee3e74559ff9886c93eac690",
+      "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3-raw/b5-final-measurements.json",
+      "sha256": "980308fc3a144d1af70959793fb9e0b4476658b9856d56eb101876fc9fedb54e",
+      "counts": [
+        {"name": "warmup", "value": 3},
+        {"name": "retained", "value": 15},
+        {"name": "total", "value": 18}
+      ]
+    },
+    {
+      "category": "review",
+      "provenance": "corrected B5 implementation record",
+      "revision": "f8f78c89655011e3ee3e74559ff9886c93eac690",
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-implementation-round-1.md",
+      "sha256": "60c059d4c3878e5aa5726acc31f72170266064cb0d2243bc5ed339048dd186ea"
+    },
+    {
+      "category": "test",
+      "provenance": "fresh independent corrected final-packet verifier",
+      "revision": "2fb89fc8c36d93b4435032c07783532d6a8aa933",
+      "path": "Software/LogicAnalyzerPy/tests/verification/test_c3_b5_final_packet_round2.py",
+      "sha256": "8bd21ab5ebd2f18bae0cae9ffdb702e97e5fb6e8638cfb1e66c0fa02be2f0b72"
+    },
+    {
+      "category": "review",
+      "provenance": "fresh B5 verification pass",
+      "revision": "2fb89fc8c36d93b4435032c07783532d6a8aa933",
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-verification-round-2.md",
+      "sha256": "95157008368c868c66d89b239ff7e8f206564e70836ec6c404384c120c6e6389"
+    },
+    {
+      "category": "review",
+      "provenance": "complete local and exact hosted accumulated validation",
+      "revision": "eab754f565dd53fa1ab1a0ba844297c4cbb2b075",
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-accumulated-validation-round-1.md",
+      "sha256": "8b3fa36966820f3d65819805be889d4fe54314d844b81b9cc12da8e8e8abcef4",
+      "counts": [
+        {"name": "passed", "value": 1483},
+        {"name": "skipped", "value": 7},
+        {"name": "deselected", "value": 38}
+      ]
+    },
+    {
+      "category": "review",
+      "provenance": "independent B5 pre-manifest acceptance pass",
+      "revision": "41481e161f19c197927a34970ba16b2a46e5186c",
+      "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+      "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3",
+      "counts": [
+        {"name": "passed", "value": 696}
+      ]
+    },
+    {
+      "category": "workflow",
+      "provenance": "exact hosted macOS x86_64 validation workflow",
+      "revision": "2fb89fc8c36d93b4435032c07783532d6a8aa933",
+      "path": ".github/workflows/logic-analyzer-python-cycle2.yml",
+      "sha256": "12ff6bb2cd7e437b733f3aaeb9488c6926604572419468c60604f0dea1c6a990"
+    },
+    {
+      "category": "project-legal",
+      "provenance": "project GPL-3.0-only license text",
+      "revision": "f8f78c89655011e3ee3e74559ff9886c93eac690",
+      "path": "Software/LogicAnalyzerPy/LICENSE",
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+    },
+    {
+      "category": "project-legal",
+      "provenance": "retained GPL-2.0-or-later decoder notice text",
+      "revision": "f8f78c89655011e3ee3e74559ff9886c93eac690",
+      "path": "Software/LogicAnalyzerPy/LICENSES/GPL-2.0-or-later.txt",
+      "sha256": "ab15fd526bd8dd18a9e77ebc139656bf4d33e97fc7238cd11bf60e2b9b8666c6"
+    },
+    {
+      "category": "project-legal",
+      "provenance": "retained historical MIT notice text",
+      "revision": "f8f78c89655011e3ee3e74559ff9886c93eac690",
+      "path": "Software/LogicAnalyzerPy/LICENSES/MIT.txt",
+      "sha256": "6115c1f056dc347dd180c44bd5fb862cf1e3d48a34fecd0b6e5a0e4193b752f6"
+    },
+    {
+      "category": "project-legal",
+      "provenance": "decoder attribution and conditional non-conveyance record",
+      "revision": "f8f78c89655011e3ee3e74559ff9886c93eac690",
+      "path": "Software/LogicAnalyzerPy/ATTRIBUTION.md",
+      "sha256": "3765302c5ba6602633a44b934da41cb94aba3d25455d91582f3c29bf1c0cac1e"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "R1",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": "R2",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": "R3",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": "R4",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": "R5",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": "R6",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": "R7",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": "R8",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": "R9",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": "R10",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": "R11",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": "R12",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": "R13",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": "R14",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": "R15",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": "R16",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": "R17",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": "R18",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": "R19",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": "R20",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": "R21",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": "R22",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": "R23",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": "R24",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": "R25",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": "R26",
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    }
+  ],
+  "stopping_conditions": [
+    {
+      "id": 1,
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "status": "pass",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "id": "C3B5-V001",
+      "status": "closed",
+      "disposition": "The original evidence collector performed five unrecorded repetitions per protocol; the corrected immutable candidate performs exactly one unrecorded warm-up per protocol followed by five retained repetitions, and fresh verification transferred no prior pass.",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    }
+  ],
+  "decisions": [
+    {
+      "authority": "independent B5 pre-manifest acceptance",
+      "decision": "The exact corrected candidate, fresh verification, complete accumulated local and hosted validation, all R1-R26, and stopping conditions 1-17 pass. The committed evidence is ready for the directed closure sequence without reordering or weakening any gate.",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Cycle 3 decoding support and the exact hosted claim remain macOS-only with Python 3.12 and a governed x86_64 hosted runner.",
+    "Seven accumulated skips are explicitly limited to sandbox loopback, optional machine-local C2-B3 physical artifacts covered by sanitized evidence, and the pinned hosted artifact statically checked locally and actually provisioned in hosted CI.",
+    "Historical candidate-bound assertions remain transparently excluded while all underlying current runner, product, containment, conformance, public API, and security behavior passes.",
+    "Rights-holder or qualified-counsel confirmation remains required before conveyance because shim ownership, historical MIT labeling, and combined-work treatment remain legal questions."
+  ],
+  "deferred_work": [
+    "Cycle 3 remains incomplete at this pre-closure manifest stage.",
+    "Hardware, firmware, serial or live capture, browser decoder behavior, dynamic discovery, stacking, .lac support, unsupported platforms, package construction, publication, conveyance, and Cycle 4 remain excluded."
+  ],
+  "audits": [
+    {
+      "category": "prohibited-runtime",
+      "verdict": "pass",
+      "scope": "Active source, tests, evidence, dependency, import, command, process, and hosted paths contain no C# or .NET, pythonnet, libsigrokdecode, sigrok-cli, or external/reference decoder runtime use.",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "category": "dependency",
+      "verdict": "pass",
+      "scope": "Both Python locks, the Node lock, clean core and web dependency consistency, optional-web separation, and prohibited dependency absence pass locally and in exact hosted CI.",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-accumulated-validation-round-1.md",
+          "sha256": "8b3fa36966820f3d65819805be889d4fe54314d844b81b9cc12da8e8e8abcef4"
+        }
+      ]
+    },
+    {
+      "category": "process",
+      "verdict": "pass",
+      "scope": "Private-worker timeout, cancellation, terminate, forced kill, reap, descriptor cleanup, browser cleanup, and post-failure recovery pass without residue.",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-verification-round-2.md",
+          "sha256": "95157008368c868c66d89b239ff7e8f206564e70836ec6c404384c120c6e6389"
+        }
+      ]
+    },
+    {
+      "category": "import",
+      "verdict": "pass",
+      "scope": "Public and private decoder imports remain offline and closed to the accepted snapshot with no serial, web, dynamic-discovery, or external-runtime side effect.",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "category": "scope",
+      "verdict": "pass",
+      "scope": "No excluded hardware, firmware, live capture, browser decoder, dynamic discovery, stacking, .lac, unsupported platform, package build, publication, conveyance, or Cycle 4 action occurred.",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "category": "license",
+      "verdict": "pass",
+      "scope": "GPL-3.0-only engineering disposition, retained notices, attribution, conditional non-conveyance boundary, and rights-holder or counsel limitation remain exact.",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "category": "rollback",
+      "verdict": "pass",
+      "scope": "Rollback remains the prior accepted Python candidate or preserved existing application and firmware operation; accepted evidence and user material are not deleted or rewritten.",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    },
+    {
+      "category": "repository",
+      "verdict": "pass",
+      "scope": "Implementation correction, fresh verification, accumulated validation, and pre-manifest acceptance are committed in order; only this unchanged proposed manifest is untracked and no premature closure material exists.",
+      "evidence": [
+        {
+          "path": "Software/LogicAnalyzerPy/docs/reviews/c3-b5-acceptance-round-1.md",
+          "sha256": "f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3"
+        }
+      ]
+    }
+  ],
+  "hosted_ci": {
+    "provider": "GitHub_Actions",
+    "run_id": "33655002746",
+    "job_id": "100331249147",
+    "candidate_commit": "2fb89fc8c36d93b4435032c07783532d6a8aa933",
+    "platform": "macOS",
+    "result": "success"
+  },
+  "final_measurements": [
+    {
+      "name": "worker_peak_rss_bytes",
+      "observed": 28897280,
+      "ceiling": 134217728,
+      "unit": "bytes",
+      "status": "pass",
+      "evidence": {
+        "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3-raw/b5-final-measurements.json",
+        "sha256": "980308fc3a144d1af70959793fb9e0b4476658b9856d56eb101876fc9fedb54e"
+      }
+    },
+    {
+      "name": "parent_retained_growth_bytes",
+      "observed": 57344,
+      "ceiling": 33554432,
+      "unit": "bytes",
+      "status": "pass",
+      "evidence": {
+        "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3-raw/b5-final-measurements.json",
+        "sha256": "980308fc3a144d1af70959793fb9e0b4476658b9856d56eb101876fc9fedb54e"
+      }
+    },
+    {
+      "name": "successful_parent_total_ns",
+      "observed": 153574907,
+      "ceiling": 1300000000,
+      "unit": "ns",
+      "status": "pass",
+      "evidence": {
+        "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3-raw/b5-final-measurements.json",
+        "sha256": "980308fc3a144d1af70959793fb9e0b4476658b9856d56eb101876fc9fedb54e"
+      }
+    },
+    {
+      "name": "launch_ns",
+      "observed": 2689733,
+      "ceiling": 50000000,
+      "unit": "ns",
+      "status": "pass",
+      "evidence": {
+        "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3-raw/b5-final-measurements.json",
+        "sha256": "980308fc3a144d1af70959793fb9e0b4476658b9856d56eb101876fc9fedb54e"
+      }
+    },
+    {
+      "name": "reap_ns",
+      "observed": 22638,
+      "ceiling": 50000000,
+      "unit": "ns",
+      "status": "pass",
+      "evidence": {
+        "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3-raw/b5-final-measurements.json",
+        "sha256": "980308fc3a144d1af70959793fb9e0b4476658b9856d56eb101876fc9fedb54e"
+      }
+    },
+    {
+      "name": "child_load_ns",
+      "observed": 9062265,
+      "ceiling": 100000000,
+      "unit": "ns",
+      "status": "pass",
+      "evidence": {
+        "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3-raw/b5-final-measurements.json",
+        "sha256": "980308fc3a144d1af70959793fb9e0b4476658b9856d56eb101876fc9fedb54e"
+      }
+    },
+    {
+      "name": "child_import_ns",
+      "observed": 91613460,
+      "ceiling": 100000000,
+      "unit": "ns",
+      "status": "pass",
+      "evidence": {
+        "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3-raw/b5-final-measurements.json",
+        "sha256": "980308fc3a144d1af70959793fb9e0b4476658b9856d56eb101876fc9fedb54e"
+      }
+    },
+    {
+      "name": "child_decode_ns",
+      "observed": 2347729,
+      "ceiling": 100000000,
+      "unit": "ns",
+      "status": "pass",
+      "evidence": {
+        "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3-raw/b5-final-measurements.json",
+        "sha256": "980308fc3a144d1af70959793fb9e0b4476658b9856d56eb101876fc9fedb54e"
+      }
+    },
+    {
+      "name": "timeout_cleanup_total_ns",
+      "observed": 0,
+      "ceiling": 5500000000,
+      "unit": "ns",
+      "status": "pass",
+      "evidence": {
+        "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3-raw/b5-final-measurements.json",
+        "sha256": "980308fc3a144d1af70959793fb9e0b4476658b9856d56eb101876fc9fedb54e"
+      }
+    },
+    {
+      "name": "terminate_to_reap_ns",
+      "observed": 0,
+      "ceiling": 300000000,
+      "unit": "ns",
+      "status": "pass",
+      "evidence": {
+        "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3-raw/b5-final-measurements.json",
+        "sha256": "980308fc3a144d1af70959793fb9e0b4476658b9856d56eb101876fc9fedb54e"
+      }
+    },
+    {
+      "name": "kill_to_reap_ns",
+      "observed": 0,
+      "ceiling": 50000000,
+      "unit": "ns",
+      "status": "pass",
+      "evidence": {
+        "path": "Software/LogicAnalyzerPy/testdata/decoders/cycle3-raw/b5-final-measurements.json",
+        "sha256": "980308fc3a144d1af70959793fb9e0b4476658b9856d56eb101876fc9fedb54e"
+      }
+    }
+  ]
+}

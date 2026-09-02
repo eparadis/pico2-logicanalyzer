@@ -4575,3 +4575,50 @@ unchanged.
   conveyance, unsupported platform, C#/.NET/reference runtime execution,
   Cycle 4, or any terminal artifact created out of order.
 - Blocked: no.
+
+### Checkpoint C3-B5 — exact-candidate accumulated proof
+
+- State: Complete; Cycle 3 closure pending.
+- Completed at: `2026-09-02T17:07:35Z`.
+- Governing contract commit/tree:
+  `ea83a403bb6f644d33069d3bebd41d5f1e0a60c0` /
+  `d9fb09345ab85580cd8c877745262d1b481e366f`; prerequisite B4 checkpoint
+  `9a8fc46ba4bc73cd007d678b85b6510bba0eeb87` / tree
+  `62811eca22c8fd3de5403b5b6f853b187c938038`.
+- Corrected B5 implementation candidate/tree:
+  `f8f78c89655011e3ee3e74559ff9886c93eac690` /
+  `e6b5d5f0afaf3023ec398cb9c42c6d42d5a1790b`. C3B5-V001 is closed by
+  exactly three unrecorded protocol warm-ups plus 15 retained runs, 18 total,
+  without retry or outlier deletion.
+- Fresh verifier evidence commit/tree:
+  `2fb89fc8c36d93b4435032c07783532d6a8aa933` /
+  `f155c06c8d61e9f454f2b7026afa0805999c4300`. No round-1 pass transferred;
+  fresh verifier `c3-b5-final-proof-verifier-2` passed all 29 approved values,
+  hostile cleanup, R1-R26, and stopping conditions 1-17.
+- Complete accumulated validation commit:
+  `eab754f565dd53fa1ab1a0ba844297c4cbb2b075`; record SHA-256
+  `8b3fa36966820f3d65819805be889d4fe54314d844b81b9cc12da8e8e8abcef4`.
+  The governed partition passed 1,483 cases with seven classified skips and
+  38 transparent historical deselections; every clean locked dependency,
+  static, CLI, fixture, conformance, containment, frontend, asset, browser,
+  digest, license, scope, and repository gate passed.
+- Exact tested revision ran successfully on `macos-15-intel` in GitHub Actions
+  run `33655002746`, job `100331249147`, from
+  `2026-09-02T16:27:29Z` through `2026-09-02T16:44:30Z`, attempt one, with no
+  failed or retried step.
+- Pre-manifest acceptance `c3-b5-final-acceptor-1` passed at
+  `41481e161f19c197927a34970ba16b2a46e5186c`; record SHA-256
+  `f9e6d5845d83afb5940991176aef6ec375fe26e3905efd4d187ab06bc9559ba3`.
+- Accepted B5 manifest SHA-256:
+  `c67031fa0f9590e9cc44134e382f2c3bec70e0744c91a4f26be6a559699e1532`;
+  fresh manifest-verification record SHA-256:
+  `a866d5057c35b96a3e5f81bb1d8ac0e2a6329fe839eb90f73be353cb1320937a`.
+  The unchanged pair was committed atomically at
+  `5d5712477e41ee269f2828787c9fddc840c414b6` / tree
+  `cfc45a42c0d6a45ce0fbbd34ca6e877421a10ff3`.
+- GPL-3.0-only engineering disposition, retained notices, attribution,
+  rollback, excluded scope, and the rights-holder or qualified-counsel
+  limitation remain controlling. No package construction, publication,
+  conveyance, excluded action, or Cycle 4 work occurred.
+- Checkpoint verdict: `pass`. The fifth ordered batch is complete while Cycle
+  3 itself remains incomplete in the literal state above.

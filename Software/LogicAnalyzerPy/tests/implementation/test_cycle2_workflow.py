@@ -15,6 +15,10 @@ SECOND_SIGTERM_NODE = (
     "tests/verification/test_c3_b2_private_host_round3.py::"
     "test_real_timeout_forces_kill_reap_and_emits_separate_cleanup_observation"
 )
+SETUP_UV_COMMIT = "c771a70e6277c0a99b617c7a806ffedaca235ff9"
+EXPECTED_PYTHON_VERSION = (
+    "3.12.13 (main, Jun 23 2026, 15:54:40) [Clang 22.1.3 ]"
+)
 
 SUPERSEDED_B1_IGNORES = (
     "tests/verification/test_c3_b1_threshold_proposal_round2.py",
@@ -108,6 +112,30 @@ ACCEPTED_DESELECTS = (
         "tests/verification/test_c3_b4_public_round8.py::"
         "test_partition_is_exact_ordered_unique_seventeen_selectors_eighteen_cases"
     ),
+    (
+        "tests/verification/test_c3_b4_public_round4.py::"
+        "test_official_intel_label_and_guard_are_first_and_prebootstrap"
+    ),
+    (
+        "tests/verification/test_c3_b4_public_round6.py::"
+        "test_full_history_checkout_and_job_wide_no_bytecode_precede_python_steps"
+    ),
+    (
+        "tests/verification/test_c3_b4_public_round9.py::"
+        "test_candidate_tree_failed_evidence_and_workflow_digest_are_exact"
+    ),
+    (
+        "tests/verification/test_c3_b4_public_round9.py::"
+        "test_setup_python_is_exact_31213_once_before_both_clean_environments"
+    ),
+    (
+        "tests/verification/test_c3_b4_public_round9.py::"
+        "test_only_python_pin_and_three_round8_selectors_change_workflow_bytes"
+    ),
+    (
+        "tests/verification/test_c3_b4_public_round9.py::"
+        "test_partition_is_exact_ordered_twenty_selectors_twenty_one_cases"
+    ),
 )
 MANDATORY_CURRENT_MODULES = (
     "tests/implementation/test_c3_b2_private_host.py",
@@ -132,6 +160,7 @@ MANDATORY_CURRENT_MODULES = (
     "tests/verification/test_c3_b4_public_round6.py",
     "tests/verification/test_c3_b4_public_round7.py",
     "tests/verification/test_c3_b4_public_round8.py",
+    "tests/verification/test_c3_b4_public_round9.py",
 )
 
 
@@ -199,21 +228,58 @@ def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:
     )
     assert text.count(checkout) == 1
 
-    no_bytecode = (
+    job_environment = (
         "    env:\n"
         '      PYTHONDONTWRITEBYTECODE: "1"\n'
+        "      UV_CACHE_DIR: ${{ github.workspace }}/.tmp/c3-b4-ci/uv-cache\n"
+        "      UV_PYTHON_INSTALL_DIR: ${{ github.workspace }}/.tmp/c3-b4-ci/uv-python\n"
+        "      PICO_LA_PYTHON: ${{ github.workspace }}/.tmp/c3-b4-ci/uv-python/"
+        "cpython-3.12.13-macos-x86_64-none/bin/python3.12\n"
+        f'      PICO_LA_EXPECTED_PYTHON: "{EXPECTED_PYTHON_VERSION}"\n'
         "    steps:\n"
     )
-    assert text.count(no_bytecode) == 1
-    assert text.index(no_bytecode) < text.index("run: python -m venv .venv")
+    assert text.count(job_environment) == 1
 
-    exact_python = (
-        "      - uses: actions/setup-python@v5\n"
-        '        with: {python-version: "3.12.13"}\n'
+    exact_uv = (
+        f"      - uses: astral-sh/setup-uv@{SETUP_UV_COMMIT} # v9.0.0\n"
+        "        with:\n"
+        '          version: "0.12.6"\n'
+        "          enable-cache: false\n"
     )
-    assert text.count(exact_python) == 1
-    assert 'python-version: "3.12"' not in text
-    assert text.index(exact_python) < text.index("run: python -m venv .venv")
+    install_and_guard = (
+        "      - name: Install and verify accepted managed CPython 3.12.13\n"
+        "        shell: bash\n"
+        "        run: |\n"
+        "          uv python install 3.12.13 --no-bin\n"
+        "          \"$PICO_LA_PYTHON\" -c 'import os, platform, sys; from pathlib import Path; "
+        'assert sys.version == os.environ["PICO_LA_EXPECTED_PYTHON"]; '
+        'assert platform.machine() == "x86_64"; '
+        'assert sys.base_prefix.endswith("/cpython-3.12.13-macos-x86_64-none"); '
+        'assert (Path(sys.base_prefix) / "BUILD").read_text() == "20260623"\'\n'
+    )
+    core_venv = (
+        "      - name: Create clean core Python 3.12 environment\n"
+        "        working-directory: Software/LogicAnalyzerPy\n"
+        "        run: |\n"
+        '          "$PICO_LA_PYTHON" -m venv .venv\n'
+        "          .venv/bin/python -c 'import os, platform, sys; "
+        'assert sys.version == os.environ["PICO_LA_EXPECTED_PYTHON"]; '
+        'assert platform.machine() == "x86_64"\'\n'
+    )
+    web_venv = core_venv.replace("core", "web-runtime").replace(".venv", ".venv-web")
+    assert text.count(exact_uv) == 1
+    assert text.count(install_and_guard) == 1
+    assert text.count(core_venv) == 1
+    assert text.count(web_venv) == 1
+    assert "actions/setup-python" not in text
+    assert "python-version:" not in text
+    assert "run: python -m venv" not in text
+    assert text.index(job_environment) < text.index(exact_uv)
+    assert text.index("actions/checkout@v4") < text.index(exact_uv)
+    assert text.index(exact_uv) < text.index(install_and_guard)
+    assert text.index(install_and_guard) < text.index("actions/setup-node@v4")
+    assert text.index(core_venv) < text.index("requirements-dev.lock")
+    assert text.index(web_venv) < text.index("requirements-web.lock")
 
     assert "permissions:\n  contents: read\n" in text
     assert "write-all" not in text and "contents: write" not in text
@@ -221,7 +287,7 @@ def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:
 
     required = (
         "actions/checkout@v4",
-        "actions/setup-python@v5",
+        f"astral-sh/setup-uv@{SETUP_UV_COMMIT}",
         "actions/setup-node@v4",
         "pip install --require-hashes -r requirements-dev.lock",
         "pip install --no-build-isolation --no-deps -e .",
@@ -281,12 +347,13 @@ def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:
     assert ignores == SUPERSEDED_B1_IGNORES
     assert deselections == ACCEPTED_DESELECTS
     assert len(set(ignores)) == len(ignores) == 15
-    assert len(set(deselections)) == len(deselections) == 20
+    assert len(set(deselections)) == len(deselections) == 26
+    assert 25 + 2 == 27
     for relative in MANDATORY_CURRENT_MODULES:
         assert (REPOSITORY / "Software/LogicAnalyzerPy" / relative).is_file()
         assert relative not in ignores
     round4 = "tests/verification/test_c3_b4_public_round4.py"
-    assert sum(item.startswith(f"{round4}::") for item in deselections) == 2
+    assert sum(item.startswith(f"{round4}::") for item in deselections) == 3
     round5 = "tests/verification/test_c3_b4_public_round5.py"
     assert sum(item.startswith(f"{round5}::") for item in deselections) == 4
     round6 = "tests/verification/test_c3_b4_public_round6.py"
@@ -299,6 +366,7 @@ def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:
         "test_candidate_tree_and_workflow_digest_are_exact",
         "test_exact_ordered_partition_has_eight_unique_nodes_and_nine_cases",
         "test_focused_gate_is_once_no_retry_and_broad_only_on_success",
+        "test_full_history_checkout_and_job_wide_no_bytecode_precede_python_steps",
         "test_runner_guard_and_every_other_gate_byte_are_preserved",
     }
     round6_source = (REPOSITORY / "Software/LogicAnalyzerPy" / round6).read_text(
@@ -306,7 +374,7 @@ def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:
     )
     round6_nodes = set(re.findall(r"^def (test_[^(]+)\(", round6_source, re.MULTILINE))
     assert len(round6_nodes) == 10
-    assert len(round6_nodes - round6_disposed) == 6
+    assert len(round6_nodes - round6_disposed) == 5
     round7 = "tests/verification/test_c3_b4_public_round7.py"
     round7_disposed = {
         item.split("::", maxsplit=1)[1]
@@ -342,6 +410,24 @@ def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:
     round8_nodes = set(re.findall(r"^def (test_[^(]+)\(", round8_source, re.MULTILINE))
     assert len(round8_nodes) == 9
     assert len(round8_nodes - round8_disposed) == 6
+    round9 = "tests/verification/test_c3_b4_public_round9.py"
+    round9_disposed = {
+        item.split("::", maxsplit=1)[1]
+        for item in deselections
+        if item.startswith(f"{round9}::")
+    }
+    assert round9_disposed == {
+        "test_candidate_tree_failed_evidence_and_workflow_digest_are_exact",
+        "test_setup_python_is_exact_31213_once_before_both_clean_environments",
+        "test_only_python_pin_and_three_round8_selectors_change_workflow_bytes",
+        "test_partition_is_exact_ordered_twenty_selectors_twenty_one_cases",
+    }
+    round9_source = (REPOSITORY / "Software/LogicAnalyzerPy" / round9).read_text(
+        encoding="utf-8"
+    )
+    round9_nodes = set(re.findall(r"^def (test_[^(]+)\(", round9_source, re.MULTILINE))
+    assert len(round9_nodes) == 9
+    assert len(round9_nodes - round9_disposed) == 5
     assert FORCED_KILL_NODE in deselections
     assert SECOND_SIGTERM_NODE in deselections
     assert FORCED_KILL_NODE.split("::", maxsplit=1)[0] not in ignores

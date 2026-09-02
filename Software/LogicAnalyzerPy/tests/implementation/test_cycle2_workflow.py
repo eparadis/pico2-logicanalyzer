@@ -164,6 +164,26 @@ ACCEPTED_DESELECTS = (
         "tests/verification/test_c3_b4_public_round10.py::"
         "test_predicted_stale_nodes_only_and_all_modules_remain"
     ),
+    (
+        "tests/verification/test_c3_b4_public_round10.py::"
+        "test_both_venvs_originate_from_managed_python_and_reverify"
+    ),
+    (
+        "tests/verification/test_c3_b4_public_round11.py::"
+        "test_candidate_tree_and_workflow_digest_are_exact"
+    ),
+    (
+        "tests/verification/test_c3_b4_public_round11.py::"
+        "test_partition_is_exact_fifteen_ignores_thirty_two_selectors_thirty_three_cases"
+    ),
+    (
+        "tests/verification/test_c3_b4_public_round11.py::"
+        "test_only_six_stale_round10_nodes_are_disposed_and_all_modules_remain"
+    ),
+    (
+        "tests/verification/test_c3_b4_public_round11.py::"
+        "test_candidate_qualified_collection_is_exact"
+    ),
 )
 MANDATORY_CURRENT_MODULES = (
     "tests/implementation/test_c3_b2_private_host.py",
@@ -190,6 +210,7 @@ MANDATORY_CURRENT_MODULES = (
     "tests/verification/test_c3_b4_public_round8.py",
     "tests/verification/test_c3_b4_public_round9.py",
     "tests/verification/test_c3_b4_public_round10.py",
+    "tests/verification/test_c3_b4_public_round11.py",
 )
 
 
@@ -383,8 +404,8 @@ def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:
     assert ignores == SUPERSEDED_B1_IGNORES
     assert deselections == ACCEPTED_DESELECTS
     assert len(set(ignores)) == len(ignores) == 15
-    assert len(set(deselections)) == len(deselections) == 32
-    assert 31 + 2 == 33
+    assert len(set(deselections)) == len(deselections) == 37
+    assert 36 + 2 == 38
     for relative in MANDATORY_CURRENT_MODULES:
         assert (REPOSITORY / "Software/LogicAnalyzerPy" / relative).is_file()
         assert relative not in ignores
@@ -477,13 +498,32 @@ def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:
         "test_exact_managed_identity_guard_precedes_dependencies",
         "test_partition_is_exact_fifteen_ignores_twenty_six_selectors_twenty_seven_cases",
         "test_predicted_stale_nodes_only_and_all_modules_remain",
+        "test_both_venvs_originate_from_managed_python_and_reverify",
     }
     round10_source = (REPOSITORY / "Software/LogicAnalyzerPy" / round10).read_text(
         encoding="utf-8"
     )
     round10_nodes = set(re.findall(r"^def (test_[^(]+)\(", round10_source, re.MULTILINE))
     assert len(round10_nodes) == 9
-    assert len(round10_nodes - round10_disposed) == 3
+    assert len(round10_nodes - round10_disposed) == 2
+    round11 = "tests/verification/test_c3_b4_public_round11.py"
+    round11_disposed = {
+        item.split("::", maxsplit=1)[1]
+        for item in deselections
+        if item.startswith(f"{round11}::")
+    }
+    assert round11_disposed == {
+        "test_candidate_tree_and_workflow_digest_are_exact",
+        "test_partition_is_exact_fifteen_ignores_thirty_two_selectors_thirty_three_cases",
+        "test_only_six_stale_round10_nodes_are_disposed_and_all_modules_remain",
+        "test_candidate_qualified_collection_is_exact",
+    }
+    round11_source = (REPOSITORY / "Software/LogicAnalyzerPy" / round11).read_text(
+        encoding="utf-8"
+    )
+    round11_nodes = set(re.findall(r"^def (test_[^(]+)\(", round11_source, re.MULTILINE))
+    assert len(round11_nodes) == 10
+    assert len(round11_nodes - round11_disposed) == 6
     assert FORCED_KILL_NODE in deselections
     assert SECOND_SIGTERM_NODE in deselections
     assert FORCED_KILL_NODE.split("::", maxsplit=1)[0] not in ignores

@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import hashlib
+import os
 import platform
 import re
 import subprocess
 import sys
 import tarfile
 from pathlib import Path
+
+import pytest
 
 CANDIDATE = "fb2f4d63df41f7d5d0c2253c59f02803dac14a55"
 CANDIDATE_TREE = "57faa63344049874e09ebaa89807de8ea6188547"
@@ -28,9 +31,6 @@ ARTIFACT_URL = (
 ARTIFACT_SHA256 = "a6bbea996c5f14eb55ab275889d2df45408deec504b4a7219d7b59c045b2555e"
 EXPECTED_VERSION = "3.12.13 (main, Jun 23 2026, 15:54:40) [Clang 22.1.3 ]"
 MANAGED_KEY = "cpython-3.12.13-macos-x86_64-none"
-SCRATCH = REPOSITORY / ".tmp/c3-b4-ci/round11"
-ARCHIVE = SCRATCH / ARTIFACT_NAME
-EXTRACTED_PYTHON = SCRATCH / "python-root/bin/python3.12"
 RAW_B1_NODE = (
     "tests/verification/test_c3_b1_raw_baseline_candidate_replacement.py::"
     "test_candidate_identity_digest_environment_schema_and_summary_arithmetic"
@@ -100,16 +100,26 @@ def test_artifact_identity_url_and_https_only_download_are_exact() -> None:
 
 
 def test_downloaded_artifact_hash_size_layout_and_runtime_are_exact() -> None:
-    assert ARCHIVE.is_file()
-    assert ARCHIVE.stat().st_size == 24_690_991
-    assert hashlib.sha256(ARCHIVE.read_bytes()).hexdigest() == ARTIFACT_SHA256
-    with tarfile.open(ARCHIVE, "r:gz") as archive:
+    archive_value = os.environ.get("PICO_LA_PYTHON_ARCHIVE")
+    python_value = os.environ.get("PICO_LA_PYTHON")
+    if archive_value is None and python_value is None:
+        pytest.skip(
+            "workflow-provisioned artifact is unavailable; immutable URL, digest, "
+            "and extraction contract remain covered statically"
+        )
+    assert archive_value is not None and python_value is not None
+    archive_path = Path(archive_value)
+    python_path = Path(python_value)
+    assert archive_path.is_file()
+    assert archive_path.stat().st_size == 24_690_991
+    assert hashlib.sha256(archive_path.read_bytes()).hexdigest() == ARTIFACT_SHA256
+    with tarfile.open(archive_path, "r:gz") as archive:
         names = archive.getnames()
     assert names and all(name == "python" or name.startswith("python/") for name in names)
-    assert EXTRACTED_PYTHON.is_file()
+    assert python_path.is_file()
     result = subprocess.run(
         [
-            str(EXTRACTED_PYTHON),
+            str(python_path),
             "-c",
             (
                 "import platform,sys; "

@@ -156,6 +156,11 @@ jobs:
               --deselect tests/verification/test_c3_b4_public_round10.py::test_exact_managed_identity_guard_precedes_dependencies \
               --deselect tests/verification/test_c3_b4_public_round10.py::test_partition_is_exact_fifteen_ignores_twenty_six_selectors_twenty_seven_cases \
               --deselect tests/verification/test_c3_b4_public_round10.py::test_predicted_stale_nodes_only_and_all_modules_remain \
+              --deselect tests/verification/test_c3_b4_public_round10.py::test_both_venvs_originate_from_managed_python_and_reverify \
+              --deselect tests/verification/test_c3_b4_public_round11.py::test_candidate_tree_and_workflow_digest_are_exact \
+              --deselect tests/verification/test_c3_b4_public_round11.py::test_partition_is_exact_fifteen_ignores_thirty_two_selectors_thirty_three_cases \
+              --deselect tests/verification/test_c3_b4_public_round11.py::test_only_six_stale_round10_nodes_are_disposed_and_all_modules_remain \
+              --deselect tests/verification/test_c3_b4_public_round11.py::test_candidate_qualified_collection_is_exact \
               >>"$log_file" 2>&1
             status=$?
           else

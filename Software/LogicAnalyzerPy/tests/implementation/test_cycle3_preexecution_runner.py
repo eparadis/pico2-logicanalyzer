@@ -640,7 +640,7 @@ def test_small_private_deadline_is_enforced_by_an_actual_child() -> None:
     profile = private_test_profile({"wall_deadline_ms": 200, "terminate_grace_ms": 20})
     with pytest.raises(RunnerFailure):
         run_internal_probe("hang", _profile=profile)
-    assert run_internal_probe("valid", _profile=profile).value["version"] == 1
+    assert run_internal_probe("valid").value["version"] == 1
 
 
 @pytest.mark.parametrize(

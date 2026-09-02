@@ -4493,3 +4493,85 @@ unchanged.
   this checkpoint and only after new operator authorization for its fresh
   bounded subagent chain. B5, terminal closure, publication, excluded scope,
   and Cycle 4 remain paused.
+
+## C3-B5: exact-candidate accumulated proof and terminal closure
+
+- State: In progress.
+- Authorized: the operator explicitly authorized C3-B5 on 2026-09-02 after
+  correcting the immediately prior `B4` wording to `B5`.
+- Objective: prove one immutable final Cycle 3 candidate against R1-R26 and
+  stopping conditions 1-17, prove readiness for the directed condition-18
+  chain, and then execute that chain exactly through a terminal completion seal
+  committed last. B5 introduces no product behavior and cannot repair an
+  earlier-owned defect locally.
+- Prerequisite checkpoint: accepted C3-B4 checkpoint
+  `9a8fc46ba4bc73cd007d678b85b6510bba0eeb87` / tree
+  `62811eca22c8fd3de5403b5b6f853b187c938038`; accepted B4 manifest and
+  verifier record commit `9178755f2d491c19f4c67a2e7f68f6f6ebb22672`.
+- Governing contract commit/tree:
+  `ea83a403bb6f644d33069d3bebd41d5f1e0a60c0` /
+  `d9fb09345ab85580cd8c877745262d1b481e366f`.
+- Starting commit/tree:
+  `9a8fc46ba4bc73cd007d678b85b6510bba0eeb87` /
+  `62811eca22c8fd3de5403b5b6f853b187c938038`.
+- Implementation identity: planned fresh
+  `c3-b5-final-proof-implementor-1`; it owns only fresh B5 final-packet tests,
+  final-measurement evidence, and its implementation review. It may not change
+  product, fixtures, expected values, methods, thresholds, locks, workflows,
+  manifests, prior evidence, or checkpoints. Any such finding reopens its
+  earliest owning batch.
+- Verification identity: planned fresh `c3-b5-final-proof-verifier-1`; it owns
+  only fresh independent B5 verification tests and its immutable verdict
+  review for the exact candidate.
+- Accumulated-validation owner: primary root orchestrator; it owns only the
+  complete final accumulated-validation record and exact-candidate hosted
+  dispatch after independent verification passes.
+- Acceptance identity: planned fresh `c3-b5-final-acceptor-1`; it owns only the
+  pre-manifest acceptance record over committed B1-B4 evidence, the exact B5
+  candidate, all R1-R26 and conditions 1-17, and readiness of the then-existing
+  condition-18 inputs. It may not require or predict a B5 manifest, checkpoint,
+  completion proof, closure verdict, record, or seal.
+- Manifest verifier: planned fresh `c3-b5-manifest-verifier-1`; it owns only the
+  immutable verification record for the unchanged root-assembled post-
+  acceptance B5 manifest. The manifest and verifier record commit atomically.
+- Completion-closure auditor: planned fresh
+  `c3-completion-closure-auditor-1`, distinct from every input author,
+  assembler, verifier, acceptor, and manifest verifier. It audits only the
+  already committed B5 manifest/verification record, closure-pending
+  checkpoint, and immutable completion-proof candidate and commits only its
+  verdict; it cannot edit or repair an audit input.
+- Directed terminal order: verification pass; complete accumulated validation
+  and exact-candidate hosted macOS pass; pre-manifest acceptance pass; unchanged
+  B5 manifest plus manifest-verification record commit; separate checkpoint
+  commit with literal state `Complete; Cycle 3 closure pending`; immutable
+  `docs/cycle-3-completion.md` commit naming that checkpoint and no future
+  closure artifact; fresh closure-auditor verdict commit; and only after a
+  literal `pass`, root's `docs/cycle-3-completion-seal.md` commit last. The seal
+  is not an audit input.
+- Focused proof: final packet completeness; immutable candidate/tree and all
+  five checkpoint/manifest histories; R1-R26 and conditions 1-17 traceability;
+  fixture/method/environment/threshold binding; fresh final measurements on
+  the characterized Macmini8,1 x86_64 Python 3.12.13 class; exact public API,
+  CLI, containment, conformance, resource, legal, scope, repository, and
+  prohibited-use evidence; and condition-18 readiness without future
+  references.
+- Accumulated proof: fresh locked Python 3.12 bootstrap; both dependency
+  checks; Ruff; strict mypy and installed consumer; every applicable
+  non-hardware test; installed CLI help and black-box decode; Cycle 1/2 and all
+  Cycle 3 manifests; B1 fixture generation/binding; UART/SPI/I2C and cross-
+  source conformance; full IPC/security/cancellation/process matrix; final
+  measurements against unchanged approved thresholds; license/resource and
+  excluded-action audits; a second independent digest verification; and exact-
+  candidate hosted macOS CI.
+- Scratch and approval policy: use only repository-ignored `.tmp/` where
+  possible. Root is the sole approval broker and reuses already approved narrow
+  command classes; workers return policy-formatted `APPROVAL_NEEDED` rather
+  than requesting escalation. No repeated package-, process-, test-, or
+  commit-level approval requests are permitted when an existing class covers
+  the action.
+- Out of scope: any product feature or repair, changed approved identity,
+  threshold rebase, browser decoder behavior, hardware/firmware/serial/live
+  capture, dynamic discovery, stacking, `.lac`, package build, publication,
+  conveyance, unsupported platform, C#/.NET/reference runtime execution,
+  Cycle 4, or any terminal artifact created out of order.
+- Blocked: no.

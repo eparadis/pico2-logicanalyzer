@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import re
+import subprocess
+import sys
 from pathlib import Path
 
 REPOSITORY = Path(__file__).resolve().parents[4]
@@ -236,6 +238,47 @@ def test_failure_annotation_is_bounded_and_retains_the_final_summary() -> None:
     bounded_report = captured_log.encode("ascii")[-1300:].decode("ascii")
     assert bounded_report.endswith(summary)
     assert summary in bounded_report
+
+
+def test_retained_verifier_focused_launchers_inherit_sigterm_ignore() -> None:
+    command_block = (
+        "FOCUSED_COMMAND = (\n"
+        "    \"trap '' TERM; \"\n"
+        "    'exec \"$1\" -m pytest -q \"$2\" \"$3\" --tb=short --disable-warnings'\n"
+        ")\n"
+    )
+    launch_block = (
+        "        [\n"
+        '            "/bin/sh",\n'
+        '            "-c",\n'
+        "            FOCUSED_COMMAND,\n"
+    )
+    direct_launch = '[sys.executable, "-m", "pytest", "-q", FORCED_NODE, SECOND_NODE]'
+    for relative in (
+        "tests/verification/test_c3_b4_public_round11.py",
+        "tests/verification/test_c3_b4_public_round12.py",
+    ):
+        source = (REPOSITORY / "Software/LogicAnalyzerPy" / relative).read_text(
+            encoding="utf-8"
+        )
+        assert source.count(command_block) == 1
+        assert source.count(launch_block) == 1
+        assert direct_launch not in source
+
+    inherited = subprocess.run(
+        [
+            "/bin/sh",
+            "-c",
+            "trap '' TERM; exec \"$1\" -c 'import signal; "
+            "assert signal.getsignal(signal.SIGTERM) == signal.SIG_IGN'",
+            "round13",
+            sys.executable,
+        ],
+        capture_output=True,
+        check=False,
+        text=True,
+    )
+    assert inherited.returncode == 0, inherited.stdout + inherited.stderr
 
 
 def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:

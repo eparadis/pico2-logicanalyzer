@@ -37,6 +37,10 @@ SECOND_NODE = (
     "tests/verification/test_c3_b2_private_host_round3.py::"
     "test_real_timeout_forces_kill_reap_and_emits_separate_cleanup_observation"
 )
+FOCUSED_COMMAND = (
+    "trap '' TERM; "
+    'exec "$1" -m pytest -q "$2" "$3" --tb=short --disable-warnings'
+)
 ARCHIVE = REPOSITORY / (
     ".tmp/c3-b4-ci/round11/"
     "cpython-3.12.13+20260623-x86_64-apple-darwin-install_only_stripped.tar.gz"
@@ -195,7 +199,15 @@ def test_raw_b1_focused_and_hosted_guards_remain_green() -> None:
     assert raw.returncode == 0, raw.stdout + raw.stderr
     assert "1 passed" in raw.stdout
     focused = subprocess.run(
-        [sys.executable, "-m", "pytest", "-q", FORCED_NODE, SECOND_NODE],
+        [
+            "/bin/sh",
+            "-c",
+            FOCUSED_COMMAND,
+            "round12",
+            sys.executable,
+            FORCED_NODE,
+            SECOND_NODE,
+        ],
         cwd=ROOT,
         capture_output=True,
         check=False,
@@ -221,7 +233,7 @@ def test_candidate_qualified_collection_is_exact() -> None:
         command, cwd=ROOT, capture_output=True, check=False, text=True
     )
     assert result.returncode == 0, result.stdout + result.stderr
-    assert "1459/1497 tests collected (38 deselected)" in result.stdout
+    assert "1460/1498 tests collected (38 deselected)" in result.stdout
 
 
 def test_no_product_b1_b2_b3_fixture_limit_threshold_lock_or_manifest_drift() -> None:

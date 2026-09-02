@@ -43,6 +43,10 @@ SECOND_NODE = (
     "tests/verification/test_c3_b2_private_host_round3.py::"
     "test_real_timeout_forces_kill_reap_and_emits_separate_cleanup_observation"
 )
+FOCUSED_COMMAND = (
+    "trap '' TERM; "
+    'exec "$1" -m pytest -q "$2" "$3" --tb=short --disable-warnings'
+)
 NEW_DESELECTS = (
     "tests/verification/test_c3_b4_public_round10.py::"
     "test_candidate_tree_and_workflow_digest_are_exact",
@@ -188,15 +192,11 @@ def test_raw_b1_focused_and_prior_hosted_guards_remain_green() -> None:
     assert text.count('PYTHONDONTWRITEBYTECODE: "1"') == 1
     assert text.count("runs-on: macos-15-intel") == 1
     assert text.index("Verify governed macOS x86_64 runner") < text.index("actions/checkout@v4")
-    focused_command = (
-        "trap '' TERM; "
-        'exec "$1" -m pytest -q "$2" "$3" --tb=short --disable-warnings'
-    )
     focused = subprocess.run(
         [
-            "bash",
+            "/bin/sh",
             "-c",
-            focused_command,
+            FOCUSED_COMMAND,
             "round11",
             sys.executable,
             FORCED_NODE,

@@ -184,7 +184,12 @@ def test_round12_collection_contract_is_immutable_safe_and_cleanup_bounded() -> 
 
 def test_round12_immutable_collection_passes_with_descendants_and_leaks_nothing() -> None:
     before = set(SCRATCH_PARENT.glob("r12-c765-*"))
-    assert (REPOSITORY / ".tmp/c3-b4-ci/r13-verifier-draft").is_dir()
+    descendant = "tests/verification/test_c3_b4_public_round14.py"
+    assert (ROOT / descendant).is_file()
+    candidate_paths = set(
+        _git("ls-tree", "-r", "--name-only", IMMUTABLE_R12_CANDIDATE).splitlines()
+    )
+    assert f"Software/LogicAnalyzerPy/{descendant}" not in candidate_paths
     result = subprocess.run(
         [sys.executable, "-m", "pytest", "-q", R12_COLLECTION_NODE],
         cwd=ROOT,

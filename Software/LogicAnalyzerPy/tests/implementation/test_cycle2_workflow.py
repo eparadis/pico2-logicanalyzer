@@ -306,6 +306,46 @@ def test_round12_collection_materializes_only_the_immutable_candidate() -> None:
     assert 'test_c3_b4_public_round12.py")' not in function
 
 
+def test_hosted_artifact_paths_win_and_descendant_proof_is_tracked() -> None:
+    round12_source = (
+        REPOSITORY
+        / "Software/LogicAnalyzerPy/tests/verification/test_c3_b4_public_round12.py"
+    ).read_text(encoding="utf-8")
+    present_branch = round12_source.split(
+        "def test_artifact_present_branch_uses_hosted_environment_and_passes() -> None:\n",
+        maxsplit=1,
+    )[1].split("\ndef test_", maxsplit=1)[0]
+    for fragment in (
+        'hosted_archive = os.environ.get("PICO_LA_PYTHON_ARCHIVE")',
+        'hosted_python = os.environ.get("PICO_LA_PYTHON")',
+        "assert (hosted_archive is None) == (hosted_python is None)",
+        "archive_path = Path(hosted_archive)",
+        "python_path = Path(hosted_python)",
+        '"PICO_LA_PYTHON_ARCHIVE": str(archive_path)',
+        '"PICO_LA_PYTHON": str(python_path)',
+    ):
+        assert fragment in present_branch
+    assert present_branch.index("if hosted_archive is None:") < present_branch.index(
+        "archive_path = ARCHIVE"
+    )
+
+    round14_source = (
+        REPOSITORY
+        / "Software/LogicAnalyzerPy/tests/verification/test_c3_b4_public_round14.py"
+    ).read_text(encoding="utf-8")
+    descendant_proof = round14_source.split(
+        "def test_round12_immutable_collection_passes_with_descendants_and_leaks_nothing() "
+        "-> None:\n",
+        maxsplit=1,
+    )[1].split("\ndef test_", maxsplit=1)[0]
+    assert 'descendant = "tests/verification/test_c3_b4_public_round14.py"' in (
+        descendant_proof
+    )
+    assert "IMMUTABLE_R12_CANDIDATE" in descendant_proof
+    assert "r13-verifier-draft" not in descendant_proof
+    assert ".tmp/" not in descendant_proof
+
+
 def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:
     active = sorted(
         path for path in WORKFLOWS.iterdir() if path.is_file() and path.suffix in {".yml", ".yaml"}

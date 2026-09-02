@@ -120,12 +120,21 @@ def test_actual_hang_keeps_200ms_deadline_and_recovery_uses_default_profile() ->
 
 
 def test_artifact_present_branch_uses_hosted_environment_and_passes() -> None:
-    assert ARCHIVE.is_file() and ARTIFACT_PYTHON.is_file()
+    hosted_archive = os.environ.get("PICO_LA_PYTHON_ARCHIVE")
+    hosted_python = os.environ.get("PICO_LA_PYTHON")
+    assert (hosted_archive is None) == (hosted_python is None)
+    if hosted_archive is None:
+        archive_path = ARCHIVE
+        python_path = ARTIFACT_PYTHON
+    else:
+        archive_path = Path(hosted_archive)
+        python_path = Path(hosted_python)
+    assert archive_path.is_file() and python_path.is_file()
     result = _pytest(
         ARTIFACT_NODE,
         {
-            "PICO_LA_PYTHON_ARCHIVE": str(ARCHIVE),
-            "PICO_LA_PYTHON": str(ARTIFACT_PYTHON),
+            "PICO_LA_PYTHON_ARCHIVE": str(archive_path),
+            "PICO_LA_PYTHON": str(python_path),
         },
     )
     assert result.returncode == 0, result.stdout + result.stderr

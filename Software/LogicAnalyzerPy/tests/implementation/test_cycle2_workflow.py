@@ -15,10 +15,14 @@ SECOND_SIGTERM_NODE = (
     "tests/verification/test_c3_b2_private_host_round3.py::"
     "test_real_timeout_forces_kill_reap_and_emits_separate_cleanup_observation"
 )
-SETUP_UV_COMMIT = "c771a70e6277c0a99b617c7a806ffedaca235ff9"
 EXPECTED_PYTHON_VERSION = (
     "3.12.13 (main, Jun 23 2026, 15:54:40) [Clang 22.1.3 ]"
 )
+PYTHON_ARTIFACT_URL = (
+    "https://github.com/astral-sh/python-build-standalone/releases/download/20260623/"
+    "cpython-3.12.13%2B20260623-x86_64-apple-darwin-install_only_stripped.tar.gz"
+)
+PYTHON_ARTIFACT_SHA256 = "a6bbea996c5f14eb55ab275889d2df45408deec504b4a7219d7b59c045b2555e"
 
 SUPERSEDED_B1_IGNORES = (
     "tests/verification/test_c3_b1_threshold_proposal_round2.py",
@@ -136,6 +140,30 @@ ACCEPTED_DESELECTS = (
         "tests/verification/test_c3_b4_public_round9.py::"
         "test_partition_is_exact_ordered_twenty_selectors_twenty_one_cases"
     ),
+    (
+        "tests/verification/test_c3_b4_public_round10.py::"
+        "test_candidate_tree_and_workflow_digest_are_exact"
+    ),
+    (
+        "tests/verification/test_c3_b4_public_round10.py::"
+        "test_setup_uv_is_immutable_v9_exact_0126_and_cache_disabled"
+    ),
+    (
+        "tests/verification/test_c3_b4_public_round10.py::"
+        "test_cache_install_and_managed_interpreter_paths_are_repo_ignored"
+    ),
+    (
+        "tests/verification/test_c3_b4_public_round10.py::"
+        "test_exact_managed_identity_guard_precedes_dependencies"
+    ),
+    (
+        "tests/verification/test_c3_b4_public_round10.py::"
+        "test_partition_is_exact_fifteen_ignores_twenty_six_selectors_twenty_seven_cases"
+    ),
+    (
+        "tests/verification/test_c3_b4_public_round10.py::"
+        "test_predicted_stale_nodes_only_and_all_modules_remain"
+    ),
 )
 MANDATORY_CURRENT_MODULES = (
     "tests/implementation/test_c3_b2_private_host.py",
@@ -161,6 +189,7 @@ MANDATORY_CURRENT_MODULES = (
     "tests/verification/test_c3_b4_public_round7.py",
     "tests/verification/test_c3_b4_public_round8.py",
     "tests/verification/test_c3_b4_public_round9.py",
+    "tests/verification/test_c3_b4_public_round10.py",
 )
 
 
@@ -231,31 +260,34 @@ def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:
     job_environment = (
         "    env:\n"
         '      PYTHONDONTWRITEBYTECODE: "1"\n'
-        "      UV_CACHE_DIR: ${{ github.workspace }}/.tmp/c3-b4-ci/uv-cache\n"
-        "      UV_PYTHON_INSTALL_DIR: ${{ github.workspace }}/.tmp/c3-b4-ci/uv-python\n"
+        "      PICO_LA_PYTHON_ROOT: ${{ github.workspace }}/.tmp/c3-b4-ci/uv-python/"
+        "cpython-3.12.13-macos-x86_64-none\n"
         "      PICO_LA_PYTHON: ${{ github.workspace }}/.tmp/c3-b4-ci/uv-python/"
         "cpython-3.12.13-macos-x86_64-none/bin/python3.12\n"
+        "      PICO_LA_PYTHON_ARCHIVE: ${{ github.workspace }}/.tmp/c3-b4-ci/"
+        "cpython-3.12.13+20260623-x86_64-apple-darwin-install_only_stripped.tar.gz\n"
+        f"      PICO_LA_PYTHON_URL: {PYTHON_ARTIFACT_URL}\n"
+        f"      PICO_LA_PYTHON_SHA256: {PYTHON_ARTIFACT_SHA256}\n"
         f'      PICO_LA_EXPECTED_PYTHON: "{EXPECTED_PYTHON_VERSION}"\n'
         "    steps:\n"
     )
     assert text.count(job_environment) == 1
 
-    exact_uv = (
-        f"      - uses: astral-sh/setup-uv@{SETUP_UV_COMMIT} # v9.0.0\n"
-        "        with:\n"
-        '          version: "0.12.6"\n'
-        "          enable-cache: false\n"
-    )
     install_and_guard = (
-        "      - name: Install and verify accepted managed CPython 3.12.13\n"
+        "      - name: Install and verify accepted CPython 3.12.13 artifact\n"
         "        shell: bash\n"
         "        run: |\n"
-        "          uv python install 3.12.13 --no-bin\n"
-        "          \"$PICO_LA_PYTHON\" -c 'import os, platform, sys; from pathlib import Path; "
+        '          install -d "$PICO_LA_PYTHON_ROOT"\n'
+        "          curl --fail --location --proto '=https' --tlsv1.2 "
+        '--output "$PICO_LA_PYTHON_ARCHIVE" "$PICO_LA_PYTHON_URL"\n'
+        "          printf '%s  %s\\n' \"$PICO_LA_PYTHON_SHA256\" "
+        '"$PICO_LA_PYTHON_ARCHIVE" | shasum -a 256 --check --strict\n'
+        '          tar -xzf "$PICO_LA_PYTHON_ARCHIVE" --strip-components 1 '
+        '-C "$PICO_LA_PYTHON_ROOT"\n'
+        "          \"$PICO_LA_PYTHON\" -c 'import os, platform, sys; "
         'assert sys.version == os.environ["PICO_LA_EXPECTED_PYTHON"]; '
         'assert platform.machine() == "x86_64"; '
-        'assert sys.base_prefix.endswith("/cpython-3.12.13-macos-x86_64-none"); '
-        'assert (Path(sys.base_prefix) / "BUILD").read_text() == "20260623"\'\n'
+        'assert sys.base_prefix.endswith("/cpython-3.12.13-macos-x86_64-none")\'\n'
     )
     core_venv = (
         "      - name: Create clean core Python 3.12 environment\n"
@@ -267,16 +299,19 @@ def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:
         'assert platform.machine() == "x86_64"\'\n'
     )
     web_venv = core_venv.replace("core", "web-runtime").replace(".venv", ".venv-web")
-    assert text.count(exact_uv) == 1
     assert text.count(install_and_guard) == 1
     assert text.count(core_venv) == 1
     assert text.count(web_venv) == 1
     assert "actions/setup-python" not in text
+    assert "astral-sh/setup-uv" not in text
+    assert "uv python install" not in text
+    assert "UV_CACHE_DIR" not in text
+    assert "UV_PYTHON_INSTALL_DIR" not in text
+    assert '"BUILD"' not in text
     assert "python-version:" not in text
     assert "run: python -m venv" not in text
-    assert text.index(job_environment) < text.index(exact_uv)
-    assert text.index("actions/checkout@v4") < text.index(exact_uv)
-    assert text.index(exact_uv) < text.index(install_and_guard)
+    assert text.index(job_environment) < text.index(install_and_guard)
+    assert text.index("actions/checkout@v4") < text.index(install_and_guard)
     assert text.index(install_and_guard) < text.index("actions/setup-node@v4")
     assert text.index(core_venv) < text.index("requirements-dev.lock")
     assert text.index(web_venv) < text.index("requirements-web.lock")
@@ -287,7 +322,8 @@ def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:
 
     required = (
         "actions/checkout@v4",
-        f"astral-sh/setup-uv@{SETUP_UV_COMMIT}",
+        PYTHON_ARTIFACT_URL,
+        PYTHON_ARTIFACT_SHA256,
         "actions/setup-node@v4",
         "pip install --require-hashes -r requirements-dev.lock",
         "pip install --no-build-isolation --no-deps -e .",
@@ -347,8 +383,8 @@ def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:
     assert ignores == SUPERSEDED_B1_IGNORES
     assert deselections == ACCEPTED_DESELECTS
     assert len(set(ignores)) == len(ignores) == 15
-    assert len(set(deselections)) == len(deselections) == 26
-    assert 25 + 2 == 27
+    assert len(set(deselections)) == len(deselections) == 32
+    assert 31 + 2 == 33
     for relative in MANDATORY_CURRENT_MODULES:
         assert (REPOSITORY / "Software/LogicAnalyzerPy" / relative).is_file()
         assert relative not in ignores
@@ -428,6 +464,26 @@ def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:
     round9_nodes = set(re.findall(r"^def (test_[^(]+)\(", round9_source, re.MULTILINE))
     assert len(round9_nodes) == 9
     assert len(round9_nodes - round9_disposed) == 5
+    round10 = "tests/verification/test_c3_b4_public_round10.py"
+    round10_disposed = {
+        item.split("::", maxsplit=1)[1]
+        for item in deselections
+        if item.startswith(f"{round10}::")
+    }
+    assert round10_disposed == {
+        "test_candidate_tree_and_workflow_digest_are_exact",
+        "test_setup_uv_is_immutable_v9_exact_0126_and_cache_disabled",
+        "test_cache_install_and_managed_interpreter_paths_are_repo_ignored",
+        "test_exact_managed_identity_guard_precedes_dependencies",
+        "test_partition_is_exact_fifteen_ignores_twenty_six_selectors_twenty_seven_cases",
+        "test_predicted_stale_nodes_only_and_all_modules_remain",
+    }
+    round10_source = (REPOSITORY / "Software/LogicAnalyzerPy" / round10).read_text(
+        encoding="utf-8"
+    )
+    round10_nodes = set(re.findall(r"^def (test_[^(]+)\(", round10_source, re.MULTILINE))
+    assert len(round10_nodes) == 9
+    assert len(round10_nodes - round10_disposed) == 3
     assert FORCED_KILL_NODE in deselections
     assert SECOND_SIGTERM_NODE in deselections
     assert FORCED_KILL_NODE.split("::", maxsplit=1)[0] not in ignores

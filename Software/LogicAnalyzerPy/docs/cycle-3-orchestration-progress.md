@@ -4427,3 +4427,69 @@ unchanged.
   file-set digest. The external CI run must identify the exact immutable B4
   candidate; neither risk is authority to alter accepted decoder semantics or
   limits.
+
+### Checkpoint C3-B4 — public library and installed CLI
+
+- State: Complete.
+- Completed at: `2026-09-02T09:45:25Z`.
+- Governing contract commit/tree:
+  `ea83a403bb6f644d33069d3bebd41d5f1e0a60c0` /
+  `d9fb09345ab85580cd8c877745262d1b481e366f`.
+- Prerequisite C3-B3 checkpoint:
+  `233b3b0667add740cee96ce3c9ee266c8a639067` / tree
+  `0d3709a861bf79f002246836a582b87677e29b15`; accepted B3 manifest commit
+  `6f26cc80435adfa787e5fbef1f69807c5686c864`.
+- Exact immutable B4 product/test/workflow candidate/tree:
+  `921f8984b45d78d544494733c9fcd043a788f866` /
+  `0b0ea4529e6c2279cdd5b6b766377ea5e75a73e7`. The public typed
+  `pico_logic_analyzer.decode` surface and installed offline `pico-la decode`
+  command delegate through the sole accepted B2 host, retain exact B3 decoder
+  behavior, enforce non-weakenable limits, and preserve the closed replay/CSV,
+  metadata, canonical-output, stderr, and exit-code contracts.
+- Implementation identity `c3-b4-public-implementor-1` and independent
+  verifier identity `c3-b4-public-verifier-1` completed the preserved bounded
+  correction sequence. Final independent verifier evidence commit/tree:
+  `5c3427f0a176ba4db8f48b17521d9482f42ead8b` /
+  `43f1b950ade7d2ebb1ce82941c71be8ec23e7171`; final verifier-record SHA-256
+  `f131d75e72a27dbf99acf77b0e70ac95be8daa5edfab1b1067e6d6939e1b34f7`.
+  C3B4-V001 through C3B4-V004 are closed with no remaining product, test,
+  workflow, or evidence finding.
+- Complete accumulated validation is committed at
+  `63af13bfd2bdec2af7eb73d6d2a4b11bec5f1559`; record SHA-256
+  `f80004c42a1cefa8944ec5e8fc451aa687ace3ccfecdbb42cac2e06d351f1b79`.
+  The exact local partition passed 1,472 tests with seven classified skips and
+  38 transparent candidate-bound deselections. Ruff, strict mypy, installed
+  consumer typing, both locked dependency environments, inherited B1-B3
+  evidence, frontend tests/build/assets, CLI/resources, process cleanup, and
+  no-drift audits passed.
+- Exact hosted verifier revision
+  `5c3427f0a176ba4db8f48b17521d9482f42ead8b` ran on governed
+  `macos-15-intel` in GitHub Actions run `33612103404`, job `100189420170`,
+  from `2026-09-02T09:04:22Z` through `2026-09-02T09:16:10Z`. The pinned
+  accepted CPython 3.12.13 artifact, focused inherited-SIGTERM gate, full
+  non-hardware Python partition, both locked environments, static gates,
+  frontend, production assets, Chromium installation, and production browser
+  smoke all concluded `success` without retry.
+- Fresh acceptance identity `c3-b4-public-acceptor-1` passed at
+  `2c98a6a78af5555473719b612812343d0296bc20`; acceptance-record SHA-256
+  `59b21b36338d103a1984c42afd1732092879bb2c2b6efed2ec7cb6a397844503`.
+  It independently accepted R17-R20, continuous R21/R23-R25, stopping
+  conditions 11, 12, 13, 14, the applicable condition-16 ordering portion,
+  and condition 17, without claiming a final five-checkpoint outcome.
+- Accepted B4 manifest SHA-256:
+  `699443c5ed9cb2ddd668b4b486311e251647cadf5aeb3a435263dd2597e0f72c`.
+  Fresh manifest verifier `c3-b4-manifest-verifier-1` passed with no finding;
+  verifier-record SHA-256:
+  `2684d7f43a38af570dd1da90439725c4ca3bcaee83c227b927df348beee99a11`.
+  The exact unchanged manifest and pass record were committed jointly at
+  `9178755f2d491c19f4c67a2e7f68f6f6ebb22672` / tree
+  `0658ddb9313330a4997d6794c8add4907b8772d0`.
+- The GPL-3.0-only package declaration, exact license/attribution file set, and
+  inherited snapshot notices are preserved. The B1 rights-holder or
+  qualified-counsel limitation remains controlling before any conveyance;
+  this checkpoint records engineering acceptance only and is not a legal
+  conclusion. No wheel, sdist, upload, publication, or conveyance occurred.
+- Checkpoint verdict: `pass`. C3-B5 may begin only from the commit containing
+  this checkpoint and only after new operator authorization for its fresh
+  bounded subagent chain. B5, terminal closure, publication, excluded scope,
+  and Cycle 4 remain paused.

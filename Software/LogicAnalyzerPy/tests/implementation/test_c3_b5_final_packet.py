@@ -143,19 +143,30 @@ def _measure() -> dict[str, Any]:
         for decoder in ("uart", "spi", "i2c")
     ]
     repetitions: list[dict[str, int | str]] = []
-    for warmup in (True, False):
-        for repetition in range(5):
-            for timeline in selected:
-                observations: list[Any] = []
-                _decode_with_factory(
-                    _request(timeline), subprocess.Popen, regression_observer=observations.append
-                )
-                assert len(observations) == 1
-                observation = observations[0]
-                row = {name: getattr(observation, name) for name in REGRESSION_IDS}
-                row.update({"decoder": timeline["decoder"], "repetition": repetition})
-                if not warmup:
-                    repetitions.append(row)
+    launches = 0
+
+    def observe(timeline: dict[str, Any]) -> dict[str, int | str]:
+        nonlocal launches
+        observations: list[Any] = []
+        _decode_with_factory(
+            _request(timeline), subprocess.Popen, regression_observer=observations.append
+        )
+        launches += 1
+        assert len(observations) == 1
+        observation = observations[0]
+        row = {name: getattr(observation, name) for name in REGRESSION_IDS}
+        row.update({"decoder": timeline["decoder"]})
+        return row
+
+    # The approved method has exactly one unrecorded warm-up per decoder.
+    for timeline in selected:
+        observe(timeline)
+    for repetition in range(5):
+        for timeline in selected:
+            row = observe(timeline)
+            row["repetition"] = repetition
+            repetitions.append(row)
+    assert launches == 18 and len(repetitions) == 15
     return {
         "schema": "cycle3-b5-final-measurements/v1",
         "environment": {
@@ -167,6 +178,7 @@ def _measure() -> dict[str, Any]:
         "proposal_sha256": _sha(THRESHOLDS),
         "method_sha256": _sha(METHOD),
         "fixture_sha256": _sha(DATA / "semantic-fixtures.json"),
+        "launches": {"warmup": 3, "retained": 15, "total": launches},
         "rows": repetitions,
     }
 
@@ -196,6 +208,7 @@ def test_b5_final_measurements_are_fresh_complete_and_within_approved_ceilings()
     assert result["proposal_sha256"] == PROPOSAL_SHA256
     assert result["method_sha256"] == _sha(METHOD)
     assert result["fixture_sha256"] == _sha(DATA / "semantic-fixtures.json")
+    assert result["launches"] == {"warmup": 3, "retained": 15, "total": 18}
     assert result["environment"] == {"system": "Darwin", "machine": "x86_64", "python": "3.12.13"}
     rows = result["rows"]
     assert len(rows) == 15

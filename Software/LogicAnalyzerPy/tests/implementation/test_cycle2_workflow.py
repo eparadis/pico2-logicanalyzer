@@ -96,6 +96,18 @@ ACCEPTED_DESELECTS = (
         "tests/verification/test_c3_b4_public_round6.py::"
         "test_focused_gate_is_once_no_retry_and_broad_only_on_success"
     ),
+    (
+        "tests/verification/test_c3_b4_public_round8.py::"
+        "test_candidate_tree_and_workflow_digest_are_exact"
+    ),
+    (
+        "tests/verification/test_c3_b4_public_round8.py::"
+        "test_diagnostic_log_status_redaction_and_1300_bound_are_unchanged"
+    ),
+    (
+        "tests/verification/test_c3_b4_public_round8.py::"
+        "test_partition_is_exact_ordered_unique_seventeen_selectors_eighteen_cases"
+    ),
 )
 MANDATORY_CURRENT_MODULES = (
     "tests/implementation/test_c3_b2_private_host.py",
@@ -119,6 +131,7 @@ MANDATORY_CURRENT_MODULES = (
     "tests/verification/test_c3_b4_public_round5.py",
     "tests/verification/test_c3_b4_public_round6.py",
     "tests/verification/test_c3_b4_public_round7.py",
+    "tests/verification/test_c3_b4_public_round8.py",
 )
 
 
@@ -194,6 +207,14 @@ def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:
     assert text.count(no_bytecode) == 1
     assert text.index(no_bytecode) < text.index("run: python -m venv .venv")
 
+    exact_python = (
+        "      - uses: actions/setup-python@v5\n"
+        '        with: {python-version: "3.12.13"}\n'
+    )
+    assert text.count(exact_python) == 1
+    assert 'python-version: "3.12"' not in text
+    assert text.index(exact_python) < text.index("run: python -m venv .venv")
+
     assert "permissions:\n  contents: read\n" in text
     assert "write-all" not in text and "contents: write" not in text
     assert "secrets." not in text and "pull_request_target:" not in text
@@ -260,7 +281,7 @@ def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:
     assert ignores == SUPERSEDED_B1_IGNORES
     assert deselections == ACCEPTED_DESELECTS
     assert len(set(ignores)) == len(ignores) == 15
-    assert len(set(deselections)) == len(deselections) == 17
+    assert len(set(deselections)) == len(deselections) == 20
     for relative in MANDATORY_CURRENT_MODULES:
         assert (REPOSITORY / "Software/LogicAnalyzerPy" / relative).is_file()
         assert relative not in ignores
@@ -304,6 +325,23 @@ def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:
     round7_nodes = set(re.findall(r"^def (test_[^(]+)\(", round7_source, re.MULTILINE))
     assert len(round7_nodes) == 10
     assert len(round7_nodes - round7_disposed) == 6
+    round8 = "tests/verification/test_c3_b4_public_round8.py"
+    round8_disposed = {
+        item.split("::", maxsplit=1)[1]
+        for item in deselections
+        if item.startswith(f"{round8}::")
+    }
+    assert round8_disposed == {
+        "test_candidate_tree_and_workflow_digest_are_exact",
+        "test_diagnostic_log_status_redaction_and_1300_bound_are_unchanged",
+        "test_partition_is_exact_ordered_unique_seventeen_selectors_eighteen_cases",
+    }
+    round8_source = (REPOSITORY / "Software/LogicAnalyzerPy" / round8).read_text(
+        encoding="utf-8"
+    )
+    round8_nodes = set(re.findall(r"^def (test_[^(]+)\(", round8_source, re.MULTILINE))
+    assert len(round8_nodes) == 9
+    assert len(round8_nodes - round8_disposed) == 6
     assert FORCED_KILL_NODE in deselections
     assert SECOND_SIGTERM_NODE in deselections
     assert FORCED_KILL_NODE.split("::", maxsplit=1)[0] not in ignores

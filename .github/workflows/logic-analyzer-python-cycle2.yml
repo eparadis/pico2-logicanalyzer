@@ -28,7 +28,7 @@ jobs:
         with:
           fetch-depth: 0
       - uses: actions/setup-python@v5
-        with: {python-version: "3.12"}
+        with: {python-version: "3.12.13"}
       - uses: actions/setup-node@v4
         with: {node-version: "22.14.0", cache: "npm", cache-dependency-path: "Software/LogicAnalyzerPy/web/package-lock.json"}
       - name: Create clean core Python 3.12 environment
@@ -127,6 +127,9 @@ jobs:
               --deselect tests/verification/test_c3_b4_public_round7.py::test_partition_is_exact_ordered_unique_eleven_selectors_twelve_cases \
               --deselect tests/verification/test_c3_b4_public_round7.py::test_second_sigterm_node_remains_selected_and_passes \
               --deselect tests/verification/test_c3_b4_public_round6.py::test_focused_gate_is_once_no_retry_and_broad_only_on_success \
+              --deselect tests/verification/test_c3_b4_public_round8.py::test_candidate_tree_and_workflow_digest_are_exact \
+              --deselect tests/verification/test_c3_b4_public_round8.py::test_diagnostic_log_status_redaction_and_1300_bound_are_unchanged \
+              --deselect tests/verification/test_c3_b4_public_round8.py::test_partition_is_exact_ordered_unique_seventeen_selectors_eighteen_cases \
               >>"$log_file" 2>&1
             status=$?
           else

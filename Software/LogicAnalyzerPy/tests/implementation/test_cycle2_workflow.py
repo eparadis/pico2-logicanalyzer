@@ -281,6 +281,31 @@ def test_retained_verifier_focused_launchers_inherit_sigterm_ignore() -> None:
     assert inherited.returncode == 0, inherited.stdout + inherited.stderr
 
 
+def test_round12_collection_materializes_only_the_immutable_candidate() -> None:
+    source = (
+        REPOSITORY
+        / "Software/LogicAnalyzerPy/tests/verification/test_c3_b4_public_round12.py"
+    ).read_text(encoding="utf-8")
+    function = source.split(
+        "def test_candidate_qualified_collection_is_exact() -> None:\n", maxsplit=1
+    )[1].split("\ndef test_", maxsplit=1)[0]
+    for fragment in (
+        '_git("show", f"{CANDIDATE}:{WORKFLOW_PATH}")',
+        'REPOSITORY / ".tmp/c3-b4-ci"',
+        'tempfile.mkdtemp(prefix="r12-c765-", dir=scratch_parent)',
+        'f"{CANDIDATE}:Software/LogicAnalyzerPy"',
+        'member_path.parts[:2] == ("Software", "LogicAnalyzerPy")',
+        'archive.extractall(scratch, members=members, filter="data")',
+        '"PYTHONPATH": str(candidate_root / "src")',
+        "cwd=candidate_root",
+        "shutil.rmtree(scratch)",
+        'assert "1459/1497 tests collected (38 deselected)" in result.stdout',
+    ):
+        assert fragment in function
+    assert "cwd=ROOT" not in function
+    assert 'test_c3_b4_public_round12.py")' not in function
+
+
 def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:
     active = sorted(
         path for path in WORKFLOWS.iterdir() if path.is_file() and path.suffix in {".yml", ".yaml"}

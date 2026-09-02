@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 import hashlib
+import os
 import re
+import shutil
 import subprocess
 import sys
-from pathlib import Path
+import tarfile
+import tempfile
+from pathlib import Path, PurePosixPath
 
 CANDIDATE = "c7650876544e477c277200c4f2fcbd23c67fe245"
 CANDIDATE_TREE = "87e36568aae7fe0cc55cfc1f584cc8b025c52769"
@@ -223,17 +227,76 @@ def test_raw_b1_focused_and_hosted_guards_remain_green() -> None:
 
 
 def test_candidate_qualified_collection_is_exact() -> None:
-    ignores, deselects = _partition(WORKFLOW.read_text(encoding="utf-8"))
-    command = [sys.executable, "-m", "pytest", "--collect-only", "-q", "-m", "not hardware"]
-    for ignored in (*ignores, "tests/verification/test_c3_b4_public_round12.py"):
-        command.extend(("--ignore", ignored))
-    for node in deselects:
-        command.extend(("--deselect", node))
-    result = subprocess.run(
-        command, cwd=ROOT, capture_output=True, check=False, text=True
-    )
+    candidate_workflow = _git("show", f"{CANDIDATE}:{WORKFLOW_PATH}")
+    ignores, deselects = _partition(candidate_workflow)
+    scratch_parent = REPOSITORY / ".tmp/c3-b4-ci"
+    scratch_parent.mkdir(parents=True, exist_ok=True)
+    scratch = Path(tempfile.mkdtemp(prefix="r12-c765-", dir=scratch_parent))
+    try:
+        archive_path = scratch / "candidate.tar"
+        subprocess.run(
+            [
+                "git",
+                "archive",
+                "--format=tar",
+                "--prefix=Software/LogicAnalyzerPy/",
+                "--output",
+                str(archive_path),
+                f"{CANDIDATE}:Software/LogicAnalyzerPy",
+            ],
+            cwd=REPOSITORY,
+            capture_output=True,
+            check=True,
+            text=True,
+        )
+        with tarfile.open(archive_path, "r:") as archive:
+            members = archive.getmembers()
+            for member in members:
+                member_path = PurePosixPath(member.name)
+                assert not member_path.is_absolute()
+                assert member_path.parts[:2] == ("Software", "LogicAnalyzerPy")
+                assert ".." not in member_path.parts
+            archive.extractall(scratch, members=members, filter="data")
+
+        candidate_root = scratch / "Software/LogicAnalyzerPy"
+        temporary_root = scratch / "tmp"
+        temporary_root.mkdir()
+        command = [
+            sys.executable,
+            "-m",
+            "pytest",
+            "--collect-only",
+            "-q",
+            "-m",
+            "not hardware",
+            "-p",
+            "no:cacheprovider",
+        ]
+        for ignored in ignores:
+            command.extend(("--ignore", ignored))
+        for node in deselects:
+            command.extend(("--deselect", node))
+        environment = os.environ.copy()
+        environment.update(
+            {
+                "PYTHONDONTWRITEBYTECODE": "1",
+                "PYTHONPATH": str(candidate_root / "src"),
+                "TMPDIR": str(temporary_root),
+            }
+        )
+        result = subprocess.run(
+            command,
+            cwd=candidate_root,
+            env=environment,
+            capture_output=True,
+            check=False,
+            text=True,
+        )
+    finally:
+        shutil.rmtree(scratch)
+    assert not scratch.exists()
     assert result.returncode == 0, result.stdout + result.stderr
-    assert "1460/1498 tests collected (38 deselected)" in result.stdout
+    assert "1459/1497 tests collected (38 deselected)" in result.stdout
 
 
 def test_no_product_b1_b2_b3_fixture_limit_threshold_lock_or_manifest_drift() -> None:

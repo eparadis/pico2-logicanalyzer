@@ -6,6 +6,7 @@ from pathlib import Path
 REPOSITORY = Path(__file__).resolve().parents[4]
 WORKFLOWS = REPOSITORY / ".github" / "workflows"
 WORKFLOW = WORKFLOWS / "logic-analyzer-python-cycle2.yml"
+ANNOTATION_PREFIX = "::error title=Cycle 3 non-hardware pytest failure::"
 FORCED_KILL_NODE = (
     "tests/implementation/test_c3_b2_private_host.py::"
     "test_cleanup_regression_observation_cannot_change_timeout_or_cancelled_product_failure"
@@ -58,6 +59,18 @@ ACCEPTED_DESELECTS = (
         "tests/verification/test_c3_b4_public_round5.py::"
         "test_partition_is_the_only_workflow_change_from_round4"
     ),
+    (
+        "tests/verification/test_c3_b4_public_round6.py::"
+        "test_candidate_tree_and_workflow_digest_are_exact"
+    ),
+    (
+        "tests/verification/test_c3_b4_public_round6.py::"
+        "test_exact_ordered_partition_has_eight_unique_nodes_and_nine_cases"
+    ),
+    (
+        "tests/verification/test_c3_b4_public_round6.py::"
+        "test_runner_guard_and_every_other_gate_byte_are_preserved"
+    ),
 )
 MANDATORY_CURRENT_MODULES = (
     "tests/implementation/test_c3_b2_private_host.py",
@@ -79,7 +92,32 @@ MANDATORY_CURRENT_MODULES = (
     "tests/verification/test_c3_b4_public_round3.py",
     "tests/verification/test_c3_b4_public_round4.py",
     "tests/verification/test_c3_b4_public_round5.py",
+    "tests/verification/test_c3_b4_public_round6.py",
 )
+
+
+def _github_escape(value: str) -> str:
+    return value.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+
+
+def test_failure_annotation_is_bounded_and_retains_the_final_summary() -> None:
+    text = WORKFLOW.read_text(encoding="utf-8")
+    assert text.count('LC_ALL=C tail -c 1300 "$1"') == 1
+    assert "tail -c 12000" not in text
+
+    worst_case_report = "%" * 1300
+    worst_case_command = f"{ANNOTATION_PREFIX}{_github_escape(worst_case_report)}\n"
+    assert len(worst_case_command.encode("ascii")) == 3952
+    assert len(worst_case_command.encode("ascii")) <= 4096
+
+    summary = (
+        "FAILED tests/verification/test_hidden.py::test_exact_hidden_failure - "
+        "AssertionError\n1 failed in 360.00s\n"
+    )
+    captured_log = ("discarded progress line\n" * 200) + summary
+    bounded_report = captured_log.encode("ascii")[-1300:].decode("ascii")
+    assert bounded_report.endswith(summary)
+    assert summary in bounded_report
 
 
 def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:
@@ -189,7 +227,7 @@ def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:
     assert ignores == SUPERSEDED_B1_IGNORES
     assert deselections == ACCEPTED_DESELECTS
     assert len(set(ignores)) == len(ignores) == 15
-    assert len(set(deselections)) == len(deselections) == 8
+    assert len(set(deselections)) == len(deselections) == 11
     for relative in MANDATORY_CURRENT_MODULES:
         assert (REPOSITORY / "Software/LogicAnalyzerPy" / relative).is_file()
         assert relative not in ignores
@@ -197,5 +235,22 @@ def test_cycle2_workflow_is_single_macos_dispatchable_and_complete() -> None:
     assert sum(item.startswith(f"{round4}::") for item in deselections) == 2
     round5 = "tests/verification/test_c3_b4_public_round5.py"
     assert sum(item.startswith(f"{round5}::") for item in deselections) == 4
+    round6 = "tests/verification/test_c3_b4_public_round6.py"
+    round6_disposed = {
+        item.split("::", maxsplit=1)[1]
+        for item in deselections
+        if item.startswith(f"{round6}::")
+    }
+    assert round6_disposed == {
+        "test_candidate_tree_and_workflow_digest_are_exact",
+        "test_exact_ordered_partition_has_eight_unique_nodes_and_nine_cases",
+        "test_runner_guard_and_every_other_gate_byte_are_preserved",
+    }
+    round6_source = (REPOSITORY / "Software/LogicAnalyzerPy" / round6).read_text(
+        encoding="utf-8"
+    )
+    round6_nodes = set(re.findall(r"^def (test_[^(]+)\(", round6_source, re.MULTILINE))
+    assert len(round6_nodes) == 10
+    assert len(round6_nodes - round6_disposed) == 7
     assert FORCED_KILL_NODE in deselections
     assert FORCED_KILL_NODE.split("::", maxsplit=1)[0] not in ignores
